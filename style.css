@@ -76,6 +76,34 @@
 :root {
   --body-bg: #123;
   --nav-bg: #234;
+
+  /* root custom fonts here */
+
+  --ff-heading: "Ysabeau Infant", sans-serif;
+  --ff-body: "Ysabeau Infant", sans-serif;
+
+  --fs-300: 0.875rem;
+  --fs-400: 1rem;
+  --fs-500: 1.125rem;
+  --fs-600: 1.25rem;
+  --fs-700: 1.5rem;
+  --fs-800: 2rem;
+  --fs-900: 3.75rem;
+  --fs-1000: 3.75rem;
+}
+
+:root {
+  /*root custom primitives colors here */
+  /*root custom primitives font here */
+  --font-size-heading-sm: var(--fs-700);
+  --font-size-heading-regular: var(--fs-800);
+  --font-size-heading-lg: var(--fs-900);
+  --font-size-heading-xl: var(--fs-1000);
+
+  --font-size-sm: var(--fs-300);
+  --font-size-regular: var(--fs-400);
+  --font-size-md: var(--fs-500);
+  --font-size-lg: var(--fs-600);
 }
 
 * {
@@ -86,7 +114,7 @@ html {
 }
 body {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   font-family: "Ysabeau Infant", sans-serif;
   background: var(--body-bg);
   padding-inline-start: 20rem;
@@ -104,11 +132,9 @@ nav {
 img,
 picture {
   max-inline-size: 40%;
-  max-block-size: 40%;
   display: block;
-  margin: 0;
-  padding: 0;
 }
+
 h1,
 p {
   margin: 1rem;
@@ -197,6 +223,83 @@ h1 {
   font-weight: 600;
 }
 
+.mail {
+  color: #87cefa;
+}
+
+@layer layout {
+  .section {
+    --padding: 3.75rem;
+    padding-block: var(--padding);
+
+    @media (width > 760px) {
+      --padding: 8rem;
+
+      &[data-padding="compact"] {
+        --padding: 4.5rem;
+      }
+    }
+  }
+
+  .wrapper {
+    --wrapper-max-width: 1130px;
+
+    max-width: var(--wrapper-max-width);
+    margin-inline: auto;
+    padding-inline: 1rem;
+
+    box-sizing: content-box;
+
+    &[data-width="narrow"] {
+      --wrapper-max-width: 720px;
+    }
+
+    &[data-width="wide"] {
+      --wrapper-max-width: 1330px;
+    }
+  }
+}
+
+@layer components {
+  .hero {
+    font-size: var(--font-size-lg);
+
+    animation: fade-out forwards;
+    animation-timeline: view();
+    animation-range-start: exit;
+  }
+
+  .hero__title {
+    font-size: var(--font-size-heading-lg);
+
+    span {
+      font-size: var(--font-size-heading-xl);
+      color: var(--text-brand);
+      display: block;
+    }
+  }
+
+  .img {
+    text-align: center;
+  }
+
+  footer {
+    text-align: center;
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+}
+
 /* 
 
 
@@ -240,14 +343,3 @@ li:has([aria-current])::after {
 }
 
 */
-@layer utilities {
-  .visually-hidden {
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-  }
-}
