@@ -19,6 +19,12 @@
     />
     <link rel="manifest" href="/public/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ysabeau+Infant:ital,wght@0,1..1000;1,1..1000&display=swap"
+      rel="stylesheet"
+    />
     <script src="/main.js" defer></script>
     <title>SLINT Tech</title>
     <link href="/style.css" rel="stylesheet" />
@@ -36,13 +42,49 @@
         <li class="active">
           <a href="blog.html" aria-current="page"><span>Blog</span></a>
         </li>
-        <li><a href="blog.html">Another</a></li>
+        <!-- <li><a href="blog.html">Another</a></li>
         <li><a href="#">Page</a></li>
-        <li><a href="#">And another</a></li>
+        <li><a href="#">And another</a></li> -->
       </ul>
     </nav>
     <main>
-      <h1>Blog</h1>
+      <section class="hero flow section" data-padding="compact">
+        <h1 class="hero__title">Blog</h1>
+        <div class="wrapper">
+          <div class="flow">
+            <img
+              class="logo"
+              src="/public/images/logo.png"
+              alt="slint tech offical logo"
+            />
+
+            <p>
+              This website is currently under development. We’re working hard to
+              bring something impactful soon!
+            </p>
+            <div class="note">
+              <p>
+                The domain <strong>slinttech.org</strong> is owned by our
+                Nonprofits organization
+                <strong
+                  >Selfless Leadership and Innovation for a New Tomorrow (SLINT
+                  Tech)</strong
+                >
+                and we use it for our Google Nonprofits Workspace.
+              </p>
+              <p>
+                Contact email:
+                <a class="mail" href="mailto:admin@slinttech.org"
+                  >admin@slinttech.org</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </body>
+  <footer>
+    <p>&copy; 2025 SLINT Tech. All rights reserved.</p>
+  </footer>
 </html>
