@@ -129,16 +129,6 @@ nav {
   padding-block: 2rem;
 }
 
-img,
-picture {
-  max-inline-size: 40%;
-  display: block;
-}
-
-h1,
-p {
-  margin: 1rem;
-}
 .nav-list {
   margin: 0;
   padding: 0;
@@ -212,6 +202,17 @@ p {
 }
 .nav-list li:nth-child(4) a {
   view-transition-name: test-4;
+}
+
+img,
+picture {
+  max-inline-size: 40%;
+  display: block;
+}
+
+h1,
+p {
+  margin: 1rem;
 }
 
 .note {
