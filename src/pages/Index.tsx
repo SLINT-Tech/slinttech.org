@@ -1,4 +1,3 @@
-
 import { Mail } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -22,22 +21,26 @@ const Index = () => {
             <div className="space-y-4">
               <h1 className="text-4xl font-bold text-slint">SLINT Tech</h1>
               <p className="text-xl text-foreground">
-                This website is currently under development. We're working hard to bring something impactful soon!
+                This website is currently under development. We're working hard
+                to bring something impactful soon!
               </p>
             </div>
 
             {/* Organization Info */}
             <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg shadow-sm border">
               <p className="text-card-foreground leading-relaxed">
-                The domain <b>slinttech.org</b> is owned by our Nonprofits organization Selfless Leadership and Innovation for a New Tomorrow (SLINT Tech) and we use it for our Google Nonprofits Workspace.
+                The domain <b>slinttech.org</b> is owned by our Nonprofits
+                organization Selfless Leadership and Innovation for a New
+                Tomorrow (SLINT Tech) and we use it for our Google Nonprofits
+                Workspace.
               </p>
             </div>
 
             {/* Contact Section */}
             <div className="inline-flex items-center space-x-2 text-slint hover:text-slint-light transition-colors">
               <Mail size={20} />
-              <a href="mailto:admin@slinttech.org" className="text-lg">
-                admin@slinttech.org
+              <a href="mailto:contact@slinttech.org" className="text-lg">
+                contact@slinttech.org
               </a>
             </div>
           </div>
