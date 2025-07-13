@@ -28,7 +28,7 @@ export default function Header() {
                     {/* Logo */}
                     <div className="flex items-center">
                         <div className="flex items-center">
-                            <img src="dist/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                            <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
                         </div>
                     </div>
 
