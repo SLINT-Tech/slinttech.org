@@ -25,7 +25,7 @@ function App() {
 
 
       {/* Sponsors */}
-      <SponsorsSection />
+      {/* <SponsorsSection /> */}
 
 
       {/* Courses Section */}

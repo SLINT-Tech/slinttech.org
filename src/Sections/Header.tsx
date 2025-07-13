@@ -53,11 +53,11 @@ export default function Header() {
                                 <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                             )}
                         </button> */}
-                        <button className="text-[#008080] font-medium hover:text-[#008080] transition-colors">Login</button>
+                        {/* <button className="text-[#008080] font-medium hover:text-[#008080] transition-colors">Login</button>
                         <button className="bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center">
                             Get Started
                             <ArrowRight className="ml-2 w-4 h-4" />
-                        </button>
+                        </button> */}
                     </div>
 
                     {/* Mobile menu button */}

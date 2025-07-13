@@ -22,10 +22,10 @@ const ContactInfoSection: React.FC = () => (
                         <span className="text-2xl text-black mr-2">Email Address</span>
                         <hr className="w-6 border-t-3 border-black my-5" />
                         <a
-                            href="mailto:info@example.com"
+                            href="mailto:contact@slinttech.org"
                             className="text-xl hover:underline mb-3"
                         >
-                            help@info.com
+                            contact@slinttech.org
                         </a>
                         <div>
                             Assistance hours
