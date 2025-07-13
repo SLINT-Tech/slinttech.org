@@ -5,14 +5,14 @@ const HeroSection = () => {
                 <div className="text-center">
 
                     <img
-                        src="dist/assets/education.svg"
+                        src="/assets/education.svg"
                         alt="Education"
                         className="w-16 h-16 mx-auto mb-4"
                     />
 
                     <div className="rounded-full bg-white/50 px-2 py-1 inline-flex items-center justify-center w-fit  mb-10 mx-auto">
                         <img
-                            src="dist/assets/logos.svg"
+                            src="/assets/logos.svg"
                             alt="Trusted"
                             className="h-14"
                         />
@@ -22,7 +22,7 @@ const HeroSection = () => {
                     </div>
 
                     <div className="grid grid-cols-[1fr_4fr_1fr]">
-                        <img src="dist/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
+                        <img src="/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
 
                         <h1 className="text-4xl font-extrabold sm:text-5xl lg:text-6xl text-gray-900 mb-6">
                             Learn Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
@@ -38,7 +38,7 @@ const HeroSection = () => {
                         <p className="text-md sm:text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
                             Discover a world of online courses, skills, and opportunities carefully selected to help you stand out, build your future, and reach your full potential.
                         </p>
-                        <img src="dist/assets/books.svg" alt="Hero Image" className="h-12 " />
+                        <img src="/assets/books.svg" alt="Hero Image" className="h-12 " />
                     </div>
 
 

@@ -8,7 +8,7 @@ const Footer: React.FC = () => (
 
                 {/* Logo and Description */}
                 <div className="space-y-4">
-                    <img src="dist/assets/Slintech_logo.svg" alt="SlintTech Logo" className="h-12 mb-2" />
+                    <img src="/assets/Slintech_logo.svg" alt="SlintTech Logo" className="h-12 mb-2" />
                     <p className="text-gray-400">
                         A108 Adam Street New York, NY 535022
                         United States <br />  <br /> Phone: +1 5589 55488 55 <br /> <br /> Email: info@example.com <br /><br />
