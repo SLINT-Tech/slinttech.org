@@ -1,30 +1,53 @@
+import ContactInfoSection from './Sections/contactinfosection';
+import CoursesSection from './Sections/Coursessection';
+import { FeaturesSection } from './Sections/Featuressection';
+import Footer from './Sections/Footer';
+import GetStartedSection from './Sections/Getstartedsection';
+import Header from './Sections/Header';
+import HeroSection from './Sections/Herosection';
+import NewsletterSection from './Sections/NewsletterSection';
+import SponsorsSection from './Sections/Sponsorssection';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+function App() {
 
-const queryClient = new QueryClient();
+  return (
+    <div className="min-h-screen font-bricolage bg-[#F8F8F8]">
+      {/* Header */}
+      <Header />
 
-const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+
+      {/* Hero Section */}
+      <HeroSection />
+
+
+      {/* Features Section */}
+      <FeaturesSection />
+
+
+      {/* Sponsors */}
+      <SponsorsSection />
+
+
+      {/* Courses Section */}
+      <CoursesSection />
+
+      {/* Get Started Section */}
+      <GetStartedSection />
+
+      {/* Contact Section */}
+      <ContactInfoSection />
+
+
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
+
+
+      {/* Footer */}
+      <Footer />
+
+    </div>
+  );
+}
 
 export default App;
