@@ -11,7 +11,7 @@ const Footer: React.FC = () => (
                     <img src="/assets/Slintech_logo.svg" alt="SlintTech Logo" className="h-12 mb-2" />
                     <p className="text-gray-400">
                         A108 Adam Street New York, NY 535022
-                        United States <br />  <br /> Phone: +1 5589 55488 55 <br /> <br /> Email: info@example.com <br /><br />
+                        United States <br />  <br /> Phone: +1 5589 55488 55 <br /> <br /> Email: contact@slinttech.org <br /><br />
                     </p>
                     <div className="flex space-x-4">
                         <Facebook className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
@@ -25,35 +25,35 @@ const Footer: React.FC = () => (
 
                 {/* Our Team */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4">Our Team</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4">Our Team</h3>
                     <ul className="space-y-2 text-gray-400">
                         <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Team</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                    </ul>
+                    </ul> */}
                 </div>
 
                 {/* Customer Care */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4">Customer Care</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4">Customer Care</h3>
                     <ul className="space-y-2 text-gray-400">
                         <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                    </ul>
+                    </ul> */}
                 </div>
 
                 {/* More Courses */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4">More Courses</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4">More Courses</h3>
                     <ul className="space-y-2 text-gray-400">
                         <li><a href="#" className="hover:text-white transition-colors">Web Development</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Data Science</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Mobile Development</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Design</a></li>
-                    </ul>
+                    </ul> */}
                 </div>
             </div>
 

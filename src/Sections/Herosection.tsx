@@ -10,7 +10,7 @@ const HeroSection = () => {
                         className="w-16 h-16 mx-auto mb-4"
                     />
 
-                    <div className="rounded-full bg-white/50 px-2 py-1 inline-flex items-center justify-center w-fit  mb-10 mx-auto">
+                    {/* <div className="rounded-full bg-white/50 px-2 py-1 inline-flex items-center justify-center w-fit  mb-10 mx-auto">
                         <img
                             src="/assets/logos.svg"
                             alt="Trusted"
@@ -19,7 +19,7 @@ const HeroSection = () => {
 
                         <div>Trusted by 100+ Businesses and Stores</div>
 
-                    </div>
+                    </div> */}
 
                     <div className="grid grid-cols-[1fr_4fr_1fr]">
                         <img src="/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
@@ -48,7 +48,7 @@ const HeroSection = () => {
 
 
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center bg-white/50 p-2 rounded-xl shadow-lg w-fit mb-10 mx-auto">
+                    {/* <div className="flex flex-col sm:flex-row gap-4 justify-center items-center bg-white/50 p-2 rounded-xl shadow-lg w-fit mb-10 mx-auto">
 
                         <form className="flex flex-col sm:flex-row gap-2 w-full mx-auto">
                             <input
@@ -65,7 +65,7 @@ const HeroSection = () => {
                             </button>
                         </form>
 
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </section>

@@ -3,7 +3,7 @@ import FeaturesSectionCard from "../Components/Featuressectioncard";
 
 export function FeaturesSection() {
     return (
-        <section className="">
+        <section className="my-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-5 items-center">
                     {/* Learn Skills */}
