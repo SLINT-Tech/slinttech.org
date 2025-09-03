@@ -36,7 +36,7 @@ export default function Header() {
                     <nav className="hidden md:flex space-x-8">
                         <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
                         <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                        <a href="#community" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
+                        <a href="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
                         <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
                     </nav>
 
@@ -75,7 +75,7 @@ export default function Header() {
                         <div className="flex flex-col space-y-4">
                             <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
                             <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                            <a href="#community" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
+                            <a href="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
                             <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                                 <button className="text-gray-700 hover:text-[#008080] transition-colors text-left">Login</button>

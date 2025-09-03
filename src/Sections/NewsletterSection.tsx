@@ -1,4 +1,5 @@
 
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import React from "react";
 
@@ -15,31 +16,19 @@ const NewsletterSection: React.FC = () => {
             <div>
                 <h2 className="text-3xl font-bold text-white mb-4">Join Our Community</h2>
                 <p className="text-lg text-teal-100 max-w-2xl ">
-                    Stay updated with news that help you become <br /> the best version of yourself.
+                    Connect with mentors and fellow learners to accelerate <br /> your growth and unlock new opportunities.
                 </p>
             </div>
 
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 h-10 justify-center">
-            <div className="max-w-7xl mx-auto">
-                <div className=" rounded-2xl pl-5 bg-[#FFFFFF1A] shadow-sm">
-                    <div className="flex items-center justify-between gap-6">
-                        <div className="flex-1">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full bg-transparent text-white placeholder-white/50 text-lg border-none outline-none"
-                            />
-                        </div>
-                        <button 
-                            onClick={handleJoinCommunity}
-                            className="bg-white cursor-pointer text-black font-semibold px-8 py-4 rounded-r-2xl hover:bg-gray-50 transition-colors duration-200 whitespace-nowrap"
-                        >
-                            Join now
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div className="flex justify-center">
+            <button 
+                onClick={handleJoinCommunity}
+                className="bg-white cursor-pointer text-black font-semibold px-8 py-4 rounded-2xl hover:bg-gray-50 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
+            >
+                Join Our Community
+                <ArrowRight className="w-5 h-5" />
+            </button>
         </div>
     </div>
 </section>);
