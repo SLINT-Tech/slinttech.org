@@ -1,5 +1,5 @@
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+ import { Link } from 'react-router-dom';
 import { useState } from "react";
 
 export default function Header() {
@@ -22,12 +22,6 @@ export default function Header() {
         }
     };
 
-  const navigate = useNavigate();
-
-    const handleJoinCommunity = () => {
-        navigate('/signup');
-    };
-
     return (
         <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +37,7 @@ export default function Header() {
                     <nav className="hidden md:flex space-x-8">
                         <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
                         <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                        <a href="#" className="text-gray-700 hover:text-[#008080] transition-colors"  onClick={handleJoinCommunity}>Join Community</a>
+                        <Link to="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</Link>
                         <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
                     </nav>
 
@@ -82,7 +76,7 @@ export default function Header() {
                         <div className="flex flex-col space-y-4">
                             <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
                             <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                            <a href="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
+                            <a href="#community" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
                             <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                                 <button className="text-gray-700 hover:text-[#008080] transition-colors text-left">Login</button>
