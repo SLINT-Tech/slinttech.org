@@ -36,7 +36,7 @@ export default function Header() {
                     <nav className="hidden md:flex space-x-8">
                         <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
                         <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                        <a href="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
+                        <a href="#" className="text-gray-700 hover:text-[#008080] transition-colors"  onClick={handleJoinCommunity}>Join Community</a>
                         <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
                     </nav>
 
