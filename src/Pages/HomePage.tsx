@@ -1,0 +1,40 @@
+import ContactInfoSection from '../Sections/contactinfosection';
+import CoursesSection from '../Sections/Coursessection';
+import { FeaturesSection } from '../Sections/Featuressection';
+import Footer from '../Sections/Footer';
+import GetStartedSection from '../Sections/Getstartedsection';
+import Header from '../Sections/Header';
+import HeroSection from '../Sections/Herosection';
+import NewsletterSection from '../Sections/NewsletterSection';
+
+const HomePage = () => {
+  return (
+    <>
+      {/* Header */}
+      <Header />
+
+      {/* Hero Section */}
+      <HeroSection />
+
+      {/* Features Section */}
+      <FeaturesSection />
+
+      {/* Courses Section */}
+      <CoursesSection />
+
+      {/* Get Started Section */}
+      <GetStartedSection />
+
+      {/* Contact Section */}
+      <ContactInfoSection />
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
+
+      {/* Footer */}
+      <Footer />
+    </>
+  );
+};
+
+export default HomePage;

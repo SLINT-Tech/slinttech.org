@@ -1,7 +1,15 @@
 
+import { useNavigate } from "react-router-dom";
 import React from "react";
 
-const NewsletterSection: React.FC = () => (<section id="community" className="py-16 bg-[#008080] ">
+const NewsletterSection: React.FC = () => {
+    const navigate = useNavigate();
+
+    const handleJoinCommunity = () => {
+        navigate('/signup');
+    };
+
+    return (<section id="community" className="py-16 bg-[#008080] ">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-10 md:flex-row flex-col">
         <div className="text-left">
             <div>
@@ -23,7 +31,10 @@ const NewsletterSection: React.FC = () => (<section id="community" className="py
                                 className="w-full bg-transparent text-white placeholder-white/50 text-lg border-none outline-none"
                             />
                         </div>
-                        <button className="bg-white cursor-pointer text-black font-semibold px-8 py-4 rounded-r-2xl hover:bg-gray-50 transition-colors duration-200 whitespace-nowrap">
+                        <button 
+                            onClick={handleJoinCommunity}
+                            className="bg-white cursor-pointer text-black font-semibold px-8 py-4 rounded-r-2xl hover:bg-gray-50 transition-colors duration-200 whitespace-nowrap"
+                        >
                             Join now
                         </button>
                     </div>
@@ -32,6 +43,7 @@ const NewsletterSection: React.FC = () => (<section id="community" className="py
         </div>
     </div>
 </section>);
+};
 
 
 export default NewsletterSection;

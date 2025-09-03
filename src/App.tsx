@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ContactInfoSection from './Sections/contactinfosection';
 import CoursesSection from './Sections/Coursessection';
 import { FeaturesSection } from './Sections/Featuressection';
@@ -7,46 +8,21 @@ import Header from './Sections/Header';
 import HeroSection from './Sections/Herosection';
 import NewsletterSection from './Sections/NewsletterSection';
 import SponsorsSection from './Sections/Sponsorssection';
+import SignUpPage from './Pages/SignUpPage';
+import LoginPage from './Pages/LoginPage';
+import HomePage from './Pages/HomePage';
 
 function App() {
-
   return (
-    <div className="min-h-screen font-bricolage bg-[#F8F8F8]">
-      {/* Header */}
-      <Header />
-
-
-      {/* Hero Section */}
-      <HeroSection />
-
-
-      {/* Features Section */}
-      <FeaturesSection />
-
-
-      {/* Sponsors */}
-      {/* <SponsorsSection /> */}
-
-
-      {/* Courses Section */}
-      <CoursesSection />
-
-      {/* Get Started Section */}
-      <GetStartedSection />
-
-      {/* Contact Section */}
-      <ContactInfoSection />
-
-
-
-      {/* Newsletter Section */}
-      <NewsletterSection />
-
-
-      {/* Footer */}
-      <Footer />
-
-    </div>
+    <Router>
+      <div className="min-h-screen font-bricolage bg-[#F8F8F8]">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
