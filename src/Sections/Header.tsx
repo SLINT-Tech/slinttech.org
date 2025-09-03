@@ -1,4 +1,5 @@
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Header() {
@@ -19,6 +20,12 @@ export default function Header() {
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light');
         }
+    };
+
+  const navigate = useNavigate();
+
+    const handleJoinCommunity = () => {
+        navigate('/signup');
     };
 
     return (
