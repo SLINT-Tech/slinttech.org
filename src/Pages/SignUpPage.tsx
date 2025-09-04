@@ -1,6 +1,7 @@
-import { ArrowRight, Download, Upload, X } from 'lucide-react';
+import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Toast from '../Components/Toast';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const SignUpPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -23,10 +25,36 @@ const SignUpPage = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        setToast({
+          message: 'Please upload a PDF file only.',
+          type: 'error'
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+
+      // Validate file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setToast({
+          message: 'File size must be less than 5MB.',
+          type: 'error'
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+
       setFormData(prev => ({
         ...prev,
         contractFile: file
       }));
+
+      setToast({
+        message: 'Contract uploaded successfully!',
+        type: 'success'
+      });
     }
   };
 
@@ -164,21 +192,41 @@ const SignUpPage = () => {
                 <label className="block text-gray-700 font-medium mb-2">
                   Upload Signed Contract *
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#008080] transition-colors">
+                <div className={`
+                  border-2 border-dashed rounded-lg p-6 text-center transition-colors
+                  ${formData.contractFile 
+                    ? 'border-green-300 bg-green-50' 
+                    : 'border-gray-300 hover:border-[#008080]'
+                  }
+                `}>
                   <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleFileUpload}
                     className="hidden"
                     id="contract-upload"
                     required
                   />
                   <label htmlFor="contract-upload" className="cursor-pointer">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">
-                      {formData.contractFile ? formData.contractFile.name : 'Click to upload signed contract'}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">PDF, DOC, or DOCX files only</p>
+                    {formData.contractFile ? (
+                      <div className="flex flex-col items-center">
+                        <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                        <div className="flex items-center gap-2 text-green-700 font-medium">
+                          <FileText className="w-4 h-4" />
+                          <span>{formData.contractFile.name}</span>
+                        </div>
+                        <p className="text-sm text-green-600 mt-1">
+                          File uploaded successfully • {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Click to replace file</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600">Click to upload signed contract</p>
+                        <p className="text-sm text-gray-500 mt-1">PDF files only • Max 5MB</p>
+                      </div>
+                    )}
                   </label>
                 </div>
               </div>
@@ -215,6 +263,15 @@ const SignUpPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
