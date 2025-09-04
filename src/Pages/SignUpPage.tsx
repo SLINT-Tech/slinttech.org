@@ -112,6 +112,9 @@ const SignUpPage = () => {
             <p className="text-gray-600">
               Start your journey with SlintTech and connect with mentors who will guide your growth.
             </p>
+            <p className="text-gray-600">
+              
+            </p>
           </div>
 
           {/* Registration Form */}
