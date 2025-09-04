@@ -74,10 +74,15 @@ const SignUpPage = () => {
 
   const downloadContract = () => {
     // Direct download approach
+   
+    const filename = 'slint_tech_membership_agreement_and_contract.pdf';
     const link = document.createElement('a');
-    link.href = '/documents/slint_tech_membership_agreement_and_contract.pdf';
-    link.download = 'slint_tech_membership_agreement_and_contract.pdf'; // You can customize the download name
+    link.href = `/documents/${encodeURIComponent(filename)}`;
+    link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+};
   };
 
   return (
