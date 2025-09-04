@@ -112,9 +112,6 @@ const SignUpPage = () => {
             <p className="text-gray-600">
               Start your journey with SlintTech and connect with mentors who will guide your growth.
             </p>
-            <p className="text-gray-600">
-              
-            </p>
           </div>
 
           {/* Registration Form */}
@@ -176,9 +173,10 @@ const SignUpPage = () => {
               
               {/* Download Contract */}
               <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-                <div>
+                <div className="p-2">
                   <p className="font-medium text-gray-900">Download Contract Form</p>
-                  <p className="text-sm text-gray-500">Please read and sign the membership agreement</p>
+                  <p className="text-xs text-gray-500">Please read and sign the membership agreement</p>
+                  <p className="text-xs text-gray-500">Once you sign the membership agreement, kindly upload the document below.</p>
                 </div>
                 <button
                   type="button"
