@@ -35,11 +35,11 @@ const SignUpPage = () => {
         return;
       }
 
-      // Validate file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024;
+      // Validate file size (1MB = 1 * 1024 * 1024 bytes)
+      const maxSize = 1 * 1024 * 1024;
       if (file.size > maxSize) {
         setToast({
-          message: 'File size must be less than 5MB.',
+          message: 'File size must be less than 1MB.',
           type: 'error'
         });
         e.target.value = ''; // Clear the input
