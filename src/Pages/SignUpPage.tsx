@@ -225,7 +225,7 @@ const SignUpPage = () => {
                       <div>
                         <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                         <p className="text-gray-600">Click to upload signed contract</p>
-                        <p className="text-sm text-gray-500 mt-1">PDF files only • Max 5MB</p>
+                        <p className="text-sm text-gray-500 mt-1">PDF files only • Max 1MB</p>
                       </div>
                     )}
                   </label>
