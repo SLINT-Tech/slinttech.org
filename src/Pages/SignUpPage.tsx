@@ -73,8 +73,11 @@ const SignUpPage = () => {
   };
 
   const downloadContract = () => {
-    // In a real app, this would download the actual contract
-    alert('Contract download would start here');
+    // Direct download approach
+    const link = document.createElement('a');
+    link.href = '/documents/slint_ tech_membership_agreement_and_contract.pdf';
+    link.download = 'slint_ tech_membership_agreement_and_contract.pdf'; // You can customize the download name
+    link.click();
   };
 
   return (
