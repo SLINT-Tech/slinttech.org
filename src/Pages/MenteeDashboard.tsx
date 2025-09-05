@@ -239,17 +239,19 @@ const MenteeDashboard = () => {
               
               {menteeData.announcements.length > 0 ? (
                 <div className="space-y-4">
-                  {menteeData.announcements.map((announcement) => (
-                    <div key={announcement.id} className="border-l-4 border-[#008080] bg-gray-50 p-4 rounded-r-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
-                          <p className="text-gray-600 mb-2">{announcement.message}</p>
-                          <p className="text-xs text-gray-500">{announcement.date}</p>
+                  <div className="py-4">
+                    {menteeData.announcements.map((announcement) => (
+                      <div key={announcement.id} className="border-l-4 border-[#008080] bg-gray-50 p-4 rounded-r-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
+                            <p className="text-gray-600 mb-2">{announcement.message}</p>
+                            <p className="text-xs text-gray-500">{announcement.date}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
