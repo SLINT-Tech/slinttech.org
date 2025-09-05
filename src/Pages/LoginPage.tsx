@@ -1,6 +1,6 @@
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +9,7 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,7 +31,7 @@ const LoginPage = () => {
     
     setIsSubmitting(false);
     
-    // Navigate to dashboard using React Router
+    // Navigate to dashboard
     navigate('/dashboard');
   };
 
@@ -116,7 +117,7 @@ const LoginPage = () => {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <a href="#" className="text-[#008080] text-sm font-medium hover:underline">
+              <a href="#" className="text-[#008080] text-sm font-medium hover:underline cursor-pointer">
                 Forgot your password?
               </a>
             </div>
@@ -125,7 +126,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -145,7 +146,7 @@ const LoginPage = () => {
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-[#008080] font-medium hover:underline">
+              <Link to="/signup" className="text-[#008080] font-medium hover:underline cursor-pointer">
                 Join our community
               </Link>
             </p>

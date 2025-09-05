@@ -71,6 +71,15 @@ const SignUpPage = () => {
       return;
     }
     
+    // Check if contract file is uploaded
+    if (!formData.contractFile) {
+      setToast({
+        message: 'Please upload the signed agreement document before submitting.',
+        type: 'error'
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Simulate API call
