@@ -29,8 +29,9 @@ const LoginPage = () => {
     console.log('Login data:', formData);
     
     setIsSubmitting(false);
-    // Redirect to dashboard based on user status
-    alert('Login successful! Redirecting to dashboard...');
+    
+    // Simulate successful login and redirect to dashboard
+    window.location.href = '/dashboard';
   };
 
   return (

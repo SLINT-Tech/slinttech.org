@@ -8,6 +8,7 @@ const SignUpPage = () => {
     fullName: '',
     email: '',
     membershipCategory: '',
+    careerPath: '',
     contractFile: null as File | null
   });
 
@@ -171,6 +172,29 @@ const SignUpPage = () => {
                 <option value="student">Student</option>
                 <option value="professional">Professional</option>
                 <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
+
+            {/* Career Path */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Interested Career Path *
+              </label>
+              <select
+                name="careerPath"
+                value={formData.careerPath}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                required
+              >
+                <option value="">Select your career path</option>
+                <option value="fullstack">Full Stack Development</option>
+                <option value="frontend">Front-End Development</option>
+                <option value="backend">Back-End Development</option>
+                <option value="mobile">Mobile Development</option>
+                <option value="ml-ai">Machine Learning/Artificial Intelligence</option>
+                <option value="data-science">Data Science</option>
+                <option value="ui-ux">UI/UX Design</option>
               </select>
             </div>
 

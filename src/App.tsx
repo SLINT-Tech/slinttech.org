@@ -11,6 +11,7 @@ import SponsorsSection from './Sections/Sponsorssection';
 import SignUpPage from './Pages/SignUpPage';
 import LoginPage from './Pages/LoginPage';
 import HomePage from './Pages/HomePage';
+import MenteeDashboard from './Pages/MenteeDashboard';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<MenteeDashboard />} />
         </Routes>
       </div>
     </Router>
