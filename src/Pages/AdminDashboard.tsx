@@ -427,16 +427,40 @@ const AdminDashboard = () => {
                      />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Membership Category</label>
-                      <p className="text-gray-900">{selectedUser.membershipCategory}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
+                      <select
+                        value={editingUser.membershipCategory}
+                        onChange={(e) => setEditingUser({...editingUser, membershipCategory: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      >
+                        <option value="Student">Student</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Volunteer">Volunteer</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Career Path</label>
-                      <p className="text-gray-900">{selectedUser.careerPath}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                      <select
+                        value={editingUser.careerPath}
+                        onChange={(e) => setEditingUser({...editingUser, careerPath: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      >
+                        {courseOptions.map(option => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Role</label>
-                      <p className="text-gray-900">{selectedUser.role}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                      <select
+                        value={editingUser.role}
+                        onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      >
+                        <option value="Admin">Admin</option>
+                        <option value="Mentor">Mentor</option>
+                        <option value="Mentee">Mentee</option>
+                      </select>
                     </div>
                   </div>
                 </div>
