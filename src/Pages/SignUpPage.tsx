@@ -203,8 +203,8 @@ const SignUpPage = () => {
               <h3 className="text-lg font-semibold text-gray-900">Membership Contract</h3>
               
               {/* Download Contract */}
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-                <div className="p-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white rounded-lg border border-gray-200 gap-4">
+                <div className="p-2 flex-1">
                   <p className="font-medium text-gray-900">Download Contract Form</p>
                   <p className="text-xs text-gray-500">Please read and sign the membership agreement</p>
                   <p className="text-xs text-gray-500">Once you sign the membership agreement, kindly upload the document below.</p>
@@ -212,7 +212,7 @@ const SignUpPage = () => {
                 <button
                   type="button"
                   onClick={downloadContract}
-                  className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+                  className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors w-full sm:w-auto justify-center"
                 >
                   <Download className="w-4 h-4" />
                   Download
