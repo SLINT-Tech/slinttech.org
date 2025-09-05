@@ -54,7 +54,7 @@ const LoginPage = () => {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-xl shadow-sm p-8">
           {/* Header */}
           <div className="text-center mb-8">
