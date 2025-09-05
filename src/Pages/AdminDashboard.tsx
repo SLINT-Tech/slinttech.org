@@ -109,6 +109,10 @@ const AdminDashboard = () => {
   const handleViewUser = (user) => {
     setSelectedUser(user);
     setEditingUser({
+     email: user.email,
+     membershipCategory: user.membershipCategory,
+     careerPath: user.careerPath,
+     role: user.role,
       assignedMentorName: user.assignedMentor?.name || '',
       assignedMentorEmail: user.assignedMentor?.email || '',
       discordLink: user.discordLink || '',
@@ -145,6 +149,10 @@ const AdminDashboard = () => {
       if (user.id === selectedUser.id) {
         return {
           ...user,
+         email: editingUser.email,
+         membershipCategory: editingUser.membershipCategory,
+         careerPath: editingUser.careerPath,
+         role: editingUser.role,
           assignedMentor: editingUser.assignedMentorName ? {
             name: editingUser.assignedMentorName,
             email: editingUser.assignedMentorEmail
@@ -386,8 +394,8 @@ const AdminDashboard = () => {
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+           <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">User Details & Management</h2>
                 <button
@@ -399,7 +407,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="p-6 space-y-6">
+           <div className="p-6 space-y-6 overflow-y-auto flex-1">
               {/* User Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -410,8 +418,13 @@ const AdminDashboard = () => {
                       <p className="text-gray-900">{selectedUser.fullName}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
-                      <p className="text-gray-900">{selectedUser.email}</p>
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                     <input
+                       type="email"
+                       value={editingUser.email}
+                       onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                     />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">Membership Category</label>
@@ -494,16 +507,40 @@ const AdminDashboard = () => {
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                         placeholder="Enter mentor name"
                       />
-                    </div>
-                    <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
+                     <select
+                       value={editingUser.membershipCategory}
+                       onChange={(e) => setEditingUser({...editingUser, membershipCategory: e.target.value})}
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                     >
+                       <option value="Student">Student</option>
+                       <option value="Professional">Professional</option>
+                       <option value="Volunteer">Volunteer</option>
+                     </select>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Mentor Email</label>
                       <input
-                        type="email"
-                        value={editingUser.assignedMentorEmail}
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                     <select
+                       value={editingUser.careerPath}
+                       onChange={(e) => setEditingUser({...editingUser, careerPath: e.target.value})}
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                     >
+                       {courseOptions.map(option => (
+                         <option key={option} value={option}>{option}</option>
+                       ))}
+                     </select>
                         onChange={(e) => setEditingUser({...editingUser, assignedMentorEmail: e.target.value})}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                        placeholder="Enter mentor email"
-                      />
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                     <select
+                       value={editingUser.role}
+                       onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                     >
+                       <option value="Admin">Admin</option>
+                       <option value="Mentor">Mentor</option>
+                       <option value="Mentee">Mentee</option>
+                     </select>
                     </div>
                   </div>
                 </div>
@@ -573,7 +610,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3">
+             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowUserModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -595,8 +632,8 @@ const AdminDashboard = () => {
       {/* Create User Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+           <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Create New User</h2>
                 <button
@@ -608,7 +645,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+           <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -675,7 +712,7 @@ const AdminDashboard = () => {
                 </select>
               </div>
 
-              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3">
+             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
