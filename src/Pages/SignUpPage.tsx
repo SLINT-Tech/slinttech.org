@@ -61,6 +61,16 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if contract file is uploaded
+    if (!formData.contractFile) {
+      setToast({
+        message: 'Please upload the signed agreement document before submitting.',
+        type: 'error'
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Simulate API call
