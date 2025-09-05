@@ -507,40 +507,16 @@ const AdminDashboard = () => {
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                         placeholder="Enter mentor name"
                       />
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
-                     <select
-                       value={editingUser.membershipCategory}
-                       onChange={(e) => setEditingUser({...editingUser, membershipCategory: e.target.value})}
-                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                     >
-                       <option value="Student">Student</option>
-                       <option value="Professional">Professional</option>
-                       <option value="Volunteer">Volunteer</option>
-                     </select>
+                    </div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Mentor Email</label>
                       <input
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
-                     <select
-                       value={editingUser.careerPath}
-                       onChange={(e) => setEditingUser({...editingUser, careerPath: e.target.value})}
-                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                     >
-                       {courseOptions.map(option => (
-                         <option key={option} value={option}>{option}</option>
-                       ))}
-                     </select>
+                        type="email"
+                        value={editingUser.assignedMentorEmail}
                         onChange={(e) => setEditingUser({...editingUser, assignedMentorEmail: e.target.value})}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                     <select
-                       value={editingUser.role}
-                       onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
-                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                     >
-                       <option value="Admin">Admin</option>
-                       <option value="Mentor">Mentor</option>
-                       <option value="Mentee">Mentee</option>
-                     </select>
+                        placeholder="Enter mentor email"
+                      />
                     </div>
                   </div>
                 </div>
