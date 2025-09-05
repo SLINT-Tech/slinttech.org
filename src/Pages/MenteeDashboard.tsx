@@ -239,6 +239,7 @@ const MenteeDashboard = () => {
               
               {menteeData.announcements.length > 0 ? (
                 <div className="space-y-4">
+                  <div class="py-4">
                   {menteeData.announcements.map((announcement) => (
                     <div key={announcement.id} className="border-l-4 border-[#008080] bg-gray-50 p-4 rounded-r-lg">
                       <div className="flex items-start justify-between">
@@ -252,12 +253,13 @@ const MenteeDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className="w-12 h-12 text-center py-8">
+                <div className="text-center py-8">
                   <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                   <p className="text-gray-500">No announcements yet</p>
                   <p className="text-sm text-gray-400">
                     Check back later for updates and announcements
                   </p>
+                </div>
                 </div>
               )}
             </div>
