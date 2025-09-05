@@ -30,8 +30,8 @@ const LoginPage = () => {
     
     setIsSubmitting(false);
     
-    // Simulate successful login and redirect to dashboard
-    window.location.href = '/dashboard';
+    // Navigate to dashboard using React Router
+    navigate('/dashboard');
   };
 
   return (
@@ -125,7 +125,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
