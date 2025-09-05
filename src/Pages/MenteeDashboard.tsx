@@ -233,7 +233,7 @@ const MenteeDashboard = () => {
             {/* Announcements */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Users className="w-6 h-6 text-[#008080] mr-2" />
+                <Users className="w-12 h-12 text-[#008080] mr-2" />
                 <h2 className="text-xl font-semibold text-gray-900">Announcements</h2>
               </div>
               
