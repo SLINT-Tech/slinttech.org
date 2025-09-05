@@ -256,7 +256,6 @@ const SignUpPage = () => {
                     onChange={handleFileUpload}
                     className="hidden"
                     id="contract-upload"
-                    required
                   />
                   <label htmlFor="contract-upload" className="cursor-pointer">
                     {formData.contractFile ? (
