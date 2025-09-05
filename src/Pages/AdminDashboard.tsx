@@ -49,6 +49,8 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
@@ -169,8 +171,16 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteUser = (userId) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
+    const user = users.find(u => u.id === userId);
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      setUsers(users.filter(user => user.id !== userToDelete.id));
+      setShowDeleteModal(false);
+      setUserToDelete(null);
     }
   };
 
@@ -724,6 +734,65 @@ const AdminDashboard = () => {
                   className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
                 >
                   Create User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && userToDelete && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Confirm Delete</h2>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                  <Trash2 className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
+                  <p className="text-gray-600">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-600 mb-2">You are about to delete:</p>
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{userToDelete.fullName}</p>
+                    <p className="text-sm text-gray-500">{userToDelete.email}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteUser}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+                >
+                  Delete User
                 </button>
               </div>
             </div>
