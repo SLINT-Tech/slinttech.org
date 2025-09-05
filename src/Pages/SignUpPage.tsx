@@ -231,7 +231,7 @@ const SignUpPage = () => {
                 <button
                   type="button"
                   onClick={downloadContract}
-                  className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors w-full sm:w-auto justify-center"
+                  className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors w-full sm:w-auto justify-center cursor-pointer"
                 >
                   <Download className="w-4 h-4" />
                   Download
