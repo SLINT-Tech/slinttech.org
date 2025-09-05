@@ -239,7 +239,6 @@ const MenteeDashboard = () => {
               
               {menteeData.announcements.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="py-4">
                   {menteeData.announcements.map((announcement) => (
                     <div key={announcement.id} className="border-l-4 border-[#008080] bg-gray-50 p-4 rounded-r-lg">
                       <div className="flex items-start justify-between">
@@ -251,7 +250,6 @@ const MenteeDashboard = () => {
                       </div>
                     </div>
                   ))}
-                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
