@@ -233,7 +233,7 @@ const MenteeDashboard = () => {
             {/* Announcements */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Users className="w-12 h-12 text-[#008080] mr-2" />
+                <Users className="w-6 h-6 text-[#008080] mr-2" />
                 <h2 className="text-xl font-semibold text-gray-900">Announcements</h2>
               </div>
               
@@ -252,7 +252,7 @@ const MenteeDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
+                <div className="w-12 h-12 text-center py-8">
                   <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                   <p className="text-gray-500">No announcements yet</p>
                   <p className="text-sm text-gray-400">
