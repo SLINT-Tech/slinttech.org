@@ -44,6 +44,7 @@ function App() {
           <Route path="/mentor/dashboard" element={<MentorDashboard />} />
           <Route path="/mentor/mentees" element={<MentorMenteesPage />} />
           <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
+          <Route path="/mentor/course/:courseId" element={<MentorCourseDetailPage />} />
         </Routes>
       </div>
     </Router>
