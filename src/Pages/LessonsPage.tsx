@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, CheckCircle, ExternalLink, User, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, ExternalLink, User, Search, Filter, ChevronLeft, ChevronRight, Eye, Clock, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -71,6 +71,7 @@ const mockLessonsData = {
 
 const LessonsPage = () => {
   const [lessonsData, setLessonsData] = useState(mockLessonsData);
+  const [selectedLesson, setSelectedLesson] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMentor, setFilterMentor] = useState('all');
   const [filterCourse, setFilterCourse] = useState('all');
@@ -264,61 +265,68 @@ const LessonsPage = () => {
           </button>
         </div>
 
-        {/* Lessons Grid */}
+        {/* Lessons Table */}
         {paginatedLessons.length > 0 ? (
           <>
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-              {paginatedLessons.map((lesson) => (
-                <div key={lesson.id} className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-3">
-                        <h3 className="text-xl font-semibold text-gray-900 mr-3">{lesson.title}</h3>
-                        {lesson.completed && (
-                          <div className="flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
-                            <CheckCircle className="w-4 h-4" />
-                            Completed
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lesson</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentor</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedLessons.map((lesson) => (
+                      <tr key={lesson.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{lesson.title}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-2">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="text-sm text-gray-900">{lesson.mentor}</div>
                           </div>
-                        )}
-                      </div>
-                      
-                      <p className="text-gray-600 mb-4">{lesson.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          <span>by {lesson.mentor}</span>
-                        </div>
-                        <span>•</span>
-                        <span>{lesson.course}</span>
-                        <span>•</span>
-                        <span>Added {new Date(lesson.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <a
-                          href={lesson.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
-                        >
-                          View Lesson
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                        
-                        {!lesson.completed && !showCompleted && (
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {lesson.course}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {lesson.completed ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Completed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              <Clock className="w-3 h-3 mr-1" />
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(lesson.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
-                            onClick={() => handleLessonComplete(lesson.id)}
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
+                            onClick={() => setSelectedLesson(lesson)}
+                            className="text-[#008080] hover:text-teal-700 cursor-pointer"
                           >
-                            Mark as Complete
+                            <Eye className="w-4 h-4" />
                           </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}
@@ -377,6 +385,87 @@ const LessonsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Lesson Details Modal */}
+      {selectedLesson && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Lesson Details</h2>
+                <button
+                  onClick={() => setSelectedLesson(null)}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{selectedLesson.title}</h3>
+                <p className="text-gray-600 mb-4">{selectedLesson.description}</p>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Mentor:</span>
+                    <p className="text-gray-900">{selectedLesson.mentor}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Course:</span>
+                    <p className="text-gray-900">{selectedLesson.course}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Date Added:</span>
+                    <p className="text-gray-900">{new Date(selectedLesson.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Status:</span>
+                    <div className="mt-1">
+                      {selectedLesson.completed ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Completed
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <a
+                href={selectedLesson.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              >
+                View Lesson
+                <ExternalLink className="w-4 h-4" />
+              </a>
+              
+              {!selectedLesson.completed && (
+                <button
+                  onClick={() => {
+                    handleLessonComplete(selectedLesson.id);
+                    setSelectedLesson(null);
+                  }}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
+                >
+                  Mark as Complete
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

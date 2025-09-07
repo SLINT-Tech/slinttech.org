@@ -236,40 +236,29 @@ const MenteeDashboard = () => {
           </div>
           
           {/* Mentor Contact Info */}
-          {menteeData.mentorAssignments.length > 0 && (
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Mentors</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {menteeData.mentorAssignments.map((assignment, index) => (
-                  <div 
-                    key={index} 
-                    className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => navigate(`/mentor/${encodeURIComponent(assignment.mentor.split(' - ')[0])}`)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{assignment.mentor.split(' - ')[0]}</h4>
-                        <p className="text-sm text-gray-600">{assignment.courseName}</p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-gray-400 ml-auto" />
-                    </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>📧 {assignment.mentorEmail}</p>
-                      <p>📞 {assignment.mentorPhone}</p>
-                      <p>⏱️ Duration: {assignment.duration}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Quick Access Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <Link 
+            to="/mentors" 
+            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Users className="w-8 h-8 text-[#008080] mr-4" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">My Mentors</h3>
+                  <p className="text-gray-600">View your assigned mentors</p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="mt-4 text-sm text-gray-500">
+              {menteeData.mentorAssignments.length} mentors assigned
+            </div>
+          </Link>
+
           <Link 
             to="/lessons" 
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
@@ -278,7 +267,7 @@ const MenteeDashboard = () => {
               <div className="flex items-center">
                 <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Current Lessons</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">All Lessons</h3>
                   <p className="text-gray-600">View and complete your lessons</p>
                 </div>
               </div>
@@ -297,7 +286,7 @@ const MenteeDashboard = () => {
               <div className="flex items-center">
                 <Target className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Tasks & Assignments</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">All Tasks</h3>
                   <p className="text-gray-600">Submit and track your assignments</p>
                 </div>
               </div>

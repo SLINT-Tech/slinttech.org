@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -327,126 +327,68 @@ const TasksPage = () => {
           </button>
         </div>
 
-        {/* Tasks Grid */}
+        {/* Tasks Table */}
         {paginatedTasks.length > 0 ? (
           <>
-            <div className="grid lg:grid-cols-2 gap-6 mb-8">
-              {paginatedTasks.map((task) => (
-                <div key={task.id} className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-gray-900">{task.title}</h3>
-                        <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getTaskStatusColor(task.status)}`}>
-                          {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                        </span>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-4">{task.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          <span>by {task.mentor}</span>
-                        </div>
-                        <span>•</span>
-                        <span>{task.course}</span>
-                        <span>•</span>
-                        <span className={`flex items-center gap-1 ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : ''}`}>
-                          <Clock className="w-4 h-4" />
-                          Due: {new Date(task.deadline).toLocaleDateString()}
-                          {isTaskOverdue(task.deadline) && <AlertCircle className="w-4 h-4" />}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Task Submission Form */}
-                  {task.status === 'pending' && (
-                    <div className="bg-gray-50 rounded-lg p-6 mb-4">
-                      <h4 className="font-semibold text-gray-900 mb-4">Submit Your Work</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Submission Link (Netlify/GitHub/etc.) *
-                          </label>
-                          <input
-                            type="url"
-                            value={taskSubmissions[task.id]?.link || ''}
-                            onChange={(e) => updateTaskSubmission(task.id, 'link', e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                            placeholder="https://your-project-link.com"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Notes (Optional)
-                          </label>
-                          <textarea
-                            value={taskSubmissions[task.id]?.notes || ''}
-                            onChange={(e) => updateTaskSubmission(task.id, 'notes', e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                            rows={3}
-                            placeholder="Any additional notes about your submission..."
-                          />
-                        </div>
-                        <button
-                          onClick={() => handleTaskSubmission(task.id)}
-                          disabled={!taskSubmissions[task.id]?.link}
-                          className="flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          <Send className="w-4 h-4" />
-                          Submit Task
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Show Submission Details */}
-                  {task.status !== 'pending' && (
-                    <div className="bg-gray-50 rounded-lg p-6 mb-4">
-                      <h4 className="font-semibold text-gray-900 mb-3">Your Submission</h4>
-                      <div className="space-y-2">
-                        <div>
-                          <span className="font-medium text-gray-700">Link: </span>
-                          <a 
-                            href={task.submissionLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-[#008080] hover:text-teal-700 underline cursor-pointer"
-                          >
-                            {task.submissionLink}
-                          </a>
-                        </div>
-                        {task.submissionNotes && (
-                          <div>
-                            <span className="font-medium text-gray-700">Notes: </span>
-                            <span className="text-gray-600">{task.submissionNotes}</span>
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentor</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedTasks.map((task) => (
+                      <tr key={task.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-2">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="text-sm text-gray-900">{task.mentor}</div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Mentor Feedback */}
-                  {task.mentorFeedback && (
-                    <div className={`rounded-lg p-6 ${
-                      task.status === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                    }`}>
-                      <h4 className={`font-semibold mb-3 ${
-                        task.status === 'approved' ? 'text-green-900' : 'text-red-900'
-                      }`}>
-                        Mentor Feedback
-                      </h4>
-                      <p className={`${
-                        task.status === 'approved' ? 'text-green-800' : 'text-red-800'
-                      }`}>
-                        {task.mentorFeedback}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {task.course}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTaskStatusColor(task.status)}`}>
+                            {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`text-sm ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                            {new Date(task.deadline).toLocaleDateString()}
+                            {isTaskOverdue(task.deadline) && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <AlertCircle className="w-3 h-3" />
+                                <span className="text-xs">Overdue</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => navigate(`/task/${task.id}`)}
+                            className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}

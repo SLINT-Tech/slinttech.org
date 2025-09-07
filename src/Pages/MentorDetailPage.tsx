@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 // Mock data - this would come from your backend/database based on mentor name
-const getMentorData = (mentorName) => {
+const getMentorData = (mentorId) => {
   const mockData = {
-    'Dr. Sarah Johnson': {
+    'gfyffa54afvctrdt': {
       fullName: 'Dr. Sarah Johnson',
       specialization: 'Full Stack Development',
       email: 'sarah.johnson@slinttech.org',
@@ -63,7 +63,7 @@ const getMentorData = (mentorName) => {
         }
       ]
     },
-    'Prof. Michael Chen': {
+    'hgkjh67890mnbvcx': {
       fullName: 'Prof. Michael Chen',
       specialization: 'Frontend Development',
       email: 'michael.chen@slinttech.org',
@@ -107,13 +107,12 @@ const getMentorData = (mentorName) => {
     }
   };
 
-  return mockData[mentorName] || null;
+  return mockData[mentorId] || null;
 };
 
 const MentorDetailPage = () => {
-  const { mentorName } = useParams();
-  const decodedMentorName = decodeURIComponent(mentorName || '');
-  const mentorData = getMentorData(decodedMentorName);
+  const { mentorId } = useParams();
+  const mentorData = getMentorData(mentorId);
   const navigate = useNavigate();
   
   const [taskSubmissions, setTaskSubmissions] = useState({});
