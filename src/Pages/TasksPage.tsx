@@ -83,6 +83,19 @@ const mockTasksData = {
       submissionNotes: 'Implemented all requested features with additional micro-interactions',
       mentorFeedback: 'Outstanding work! The parallax effects are smooth and the design is very professional.',
       createdAt: '2024-01-26'
+    },
+    {
+      id: 6,
+      title: 'Landing Page Design',
+      mentor: 'Prof. Michael Chen',
+      course: 'Advanced CSS & Animations',
+      description: 'Create a modern landing page with smooth scrolling, parallax effects, and responsive design.',
+      deadline: '2024-03-05',
+      status: 'approved',
+      submissionLink: 'https://netlify.app/landing-page',
+      submissionNotes: 'Implemented all requested features with additional micro-interactions',
+      mentorFeedback: 'Outstanding work! The parallax effects are smooth and the design is very professional.',
+      createdAt: '2024-01-26'
     }
   ]
 };
