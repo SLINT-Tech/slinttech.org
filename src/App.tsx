@@ -20,6 +20,9 @@ import TasksPage from './Pages/TasksPage';
 import TaskDetailPage from './Pages/TaskDetailPage';
 import MentorDetailPage from './Pages/MentorDetailPage';
 import MentorDashboard from './Pages/MentorDashboard';
+import MentorLoginPage from './Pages/MentorLoginPage';
+import MentorMenteesPage from './Pages/MentorMenteesPage';
+import MentorSubmissionsPage from './Pages/MentorSubmissionsPage';
 
 function App() {
   return (
@@ -37,7 +40,10 @@ function App() {
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/task/:taskId" element={<TaskDetailPage />} />
           <Route path="/mentor/:mentorId" element={<MentorDetailPage />} />
+          <Route path="/mentor/login" element={<MentorLoginPage />} />
           <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+          <Route path="/mentor/mentees" element={<MentorMenteesPage />} />
+          <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
         </Routes>
       </div>
     </Router>
