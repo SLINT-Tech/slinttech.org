@@ -14,6 +14,9 @@ import HomePage from './Pages/HomePage';
 import MenteeDashboard from './Pages/MenteeDashboard';
 import AdminLoginPage from './Pages/AdminLoginPage';
 import AdminDashboard from './Pages/AdminDashboard';
+import LessonsPage from './Pages/LessonsPage';
+import TasksPage from './Pages/TasksPage';
+import MentorDetailPage from './Pages/MentorDetailPage';
 
 function App() {
   return (
@@ -26,6 +29,9 @@ function App() {
           <Route path="/dashboard" element={<MenteeDashboard />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/lessons" element={<LessonsPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/mentor/:mentorName" element={<MentorDetailPage />} />
         </Routes>
       </div>
     </Router>
