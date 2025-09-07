@@ -92,8 +92,8 @@ const LessonsPage = () => {
     return mentorMap[id] || null;
   };
 
-  // Set initial filter if mentor_id is provided
-  useState(() => {
+  // Set initial filter if mentor_id is provided using useEffect
+  React.useEffect(() => {
     if (mentorId) {
       const mentorName = getMentorNameFromId(mentorId);
       if (mentorName) {
