@@ -268,8 +268,7 @@ const MentorDetailPage = () => {
             
             {/* Progress Bar */}
             <div className="mb-6">
-            <Link
-              to={`/tasks?mentor_id=${mentorId}`}
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-900">
                   {completedLessons}/{totalLessons}
                 </span>
