@@ -504,7 +504,7 @@ const AdminDashboard = () => {
                           <FileText className="w-5 h-5 text-gray-400 mr-2" />
                           <span className="text-sm text-gray-900">{selectedUser.contractFile}</span>
                         </div>
-                        <button className="text-[#008080] hover:text-teal-700 cursor-pointer">
+                        <button className="p-3 text-[#008080] hover:text-teal-700 cursor-pointer">
                           <Download className="w-4 h-4" />
                         </button>
                       </div>
