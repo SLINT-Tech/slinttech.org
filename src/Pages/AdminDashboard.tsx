@@ -548,18 +548,14 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Course Timeline */}
+                {/* Mentor Assignments - Only show for Mentees */}
+                {editingUser.role === 'Mentee' && (
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
                     <button
                       onClick={addCourse}
-                      disabled={editingUser.role === 'Mentor' || editingUser.role === 'Admin'}
-                      className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${
-                        editingUser.role === 'Mentor' || editingUser.role === 'Admin'
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                          : 'bg-[#008080] text-white hover:bg-teal-700 cursor-pointer'
-                      }`}
+                      className="px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 bg-[#008080] text-white hover:bg-teal-700 cursor-pointer"
                     >
                       <Plus className="w-3 h-3" />
                       Assign Mentor
@@ -577,7 +573,7 @@ const AdminDashboard = () => {
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="grid md:grid-cols-3 gap-3">
+                      <div className="grid md:grid-cols-1 gap-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Select Mentor</label>
                           <select
@@ -591,30 +587,11 @@ const AdminDashboard = () => {
                             ))}
                           </select>
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
-                          <input
-                            type="text"
-                            value={assignment.courseName}
-                            onChange={(e) => updateCourse(index, 'courseName', e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                            placeholder="e.g., React Fundamentals"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                          <input
-                            type="text"
-                            value={assignment.duration}
-                            onChange={(e) => updateCourse(index, 'duration', e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                            placeholder="e.g., 8 weeks"
-                          />
-                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
+                )}
               </div>
 
               {/* Action Buttons */}
