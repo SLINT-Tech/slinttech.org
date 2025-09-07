@@ -198,8 +198,8 @@ const MentorDetailPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
-            <Link
-              to={`/lessons?mentor_id=${mentorId}`}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
@@ -216,7 +216,6 @@ const MentorDetailPage = () => {
             </div>
           </div>
         </div>
-      </header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
