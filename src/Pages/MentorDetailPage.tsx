@@ -322,5 +322,3 @@ const MentorDetailPage = () => {
 };
 
 export default MentorDetailPage;
-  )
-}
