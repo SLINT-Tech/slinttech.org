@@ -309,72 +309,74 @@ const MenteeDashboard = () => {
           </Link>
         </div>
 
-        {/* Community Discord */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex items-center mb-4">
-            <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">Community Discord</h2>
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Community Discord */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center mb-4">
+              <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
+              <h2 className="text-xl font-semibold text-gray-900">Community Discord</h2>
+            </div>
+            
+            {menteeData.discordLink ? (
+              <div>
+                <p className="text-gray-600 mb-4">
+                  Join our Discord community to connect with other members and mentors.
+                </p>
+                <a
+                  href={menteeData.discordLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#5865F2] text-white px-4 py-2 rounded-lg hover:bg-[#4752C4] transition-colors cursor-pointer"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Join Discord Server
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">Discord invite not available yet</p>
+                <p className="text-sm text-gray-400">
+                  You'll receive a Discord invite once your membership is approved
+                </p>
+              </div>
+            )}
           </div>
-          
-          {menteeData.discordLink ? (
-            <div>
-              <p className="text-gray-600 mb-4">
-                Join our Discord community to connect with other members and mentors.
-              </p>
-              <a
-                href={menteeData.discordLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#5865F2] text-white px-4 py-2 rounded-lg hover:bg-[#4752C4] transition-colors cursor-pointer"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Join Discord Server
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">Discord invite not available yet</p>
-              <p className="text-sm text-gray-400">
-                You'll receive a Discord invite once your membership is approved
-              </p>
-            </div>
-          )}
-        </div>
 
-        {/* Recent Announcements */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center mb-4">
-            <Users className="w-6 h-6 text-[#008080] mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">Recent Announcements</h2>
-          </div>
-          
-          {menteeData.announcements.length > 0 ? (
-            <div className="space-y-4">
-              {menteeData.announcements.slice(0, 3).map((announcement) => (
-                <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg ${
-                  announcement.type === 'warning' ? 'border-yellow-500 bg-yellow-50' : 'border-[#008080] bg-gray-50'
-                }`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
-                      <p className="text-gray-600 mb-2">{announcement.message}</p>
-                      <p className="text-xs text-gray-500">{announcement.date}</p>
+          {/* Recent Announcements */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center mb-4">
+              <Users className="w-6 h-6 text-[#008080] mr-2" />
+              <h2 className="text-xl font-semibold text-gray-900">Recent Announcements</h2>
+            </div>
+            
+            {menteeData.announcements.length > 0 ? (
+              <div className="space-y-4">
+                {menteeData.announcements.slice(0, 3).map((announcement) => (
+                  <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg ${
+                    announcement.type === 'warning' ? 'border-yellow-500 bg-yellow-50' : 'border-[#008080] bg-gray-50'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
+                        <p className="text-gray-600 mb-2">{announcement.message}</p>
+                        <p className="text-xs text-gray-500">{announcement.date}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No announcements yet</p>
-              <p className="text-sm text-gray-400">
-                Check back later for updates and announcements
-              </p>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No announcements yet</p>
+                <p className="text-sm text-gray-400">
+                  Check back later for updates and announcements
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
