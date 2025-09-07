@@ -227,60 +227,60 @@ const MentorDashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <button
-            onClick={() => setShowCreateCourseModal(true)}
+          <Link
+            to="/mentor/courses"
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Create Course</h3>
-                  <p className="text-gray-600">Add a new course for mentees</p>
+                  <h3 className="text-lg font-semibold text-gray-900">View All Courses</h3>
+                  <p className="text-gray-600">Manage all your courses</p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
-          </button>
+          </Link>
 
-          <button
-            onClick={() => setShowCreateLessonModal(true)}
+          <Link
+            to="/mentor/mentees"
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Plus className="w-8 h-8 text-blue-600 mr-4" />
+                <Users className="w-8 h-8 text-blue-600 mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Add Lesson</h3>
-                  <p className="text-gray-600">Create lessons for your courses</p>
+                  <h3 className="text-lg font-semibold text-gray-900">View All Mentees</h3>
+                  <p className="text-gray-600">Manage your mentees</p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
-          </button>
+          </Link>
 
-          <button
-            onClick={() => setShowCreateTaskModal(true)}
+          <Link
+            to="/mentor/submissions"
             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Target className="w-8 h-8 text-yellow-600 mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Create Task</h3>
-                  <p className="text-gray-600">Assign tasks to mentees</p>
+                  <h3 className="text-lg font-semibold text-gray-900">View Pending Reviews</h3>
+                  <p className="text-gray-600">Review task submissions</p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
-          </button>
+          </Link>
         </div>
 
-        {/* Courses Table */}
+        {/* Recent Courses */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">My Courses</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Recent Courses</h2>
               <button
                 onClick={() => setShowCreateCourseModal(true)}
                 className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
@@ -302,7 +302,7 @@ const MentorDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {mentorData.courses.map((course) => (
+                {mentorData.courses.slice(0, 5).map((course) => (
                   <tr key={course.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -337,87 +337,17 @@ const MentorDashboard = () => {
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Mentees Overview */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">My Mentees</h2>
+          
+          {mentorData.courses.length > 5 && (
+            <div className="p-4 border-t border-gray-200 text-center">
               <Link
-                to="/mentor/mentees"
+                to="/mentor/courses"
                 className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
               >
-                View All
+                View All {mentorData.courses.length} Courses
               </Link>
             </div>
-            
-            <div className="space-y-4">
-              {mentorData.mentees.slice(0, 3).map((mentee) => (
-                <div key={mentee.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">{mentee.fullName}</h3>
-                      <p className="text-sm text-gray-500">{mentee.email}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{mentee.progress}%</div>
-                    <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                      <div 
-                        className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${mentee.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Pending Submissions */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Pending Reviews</h2>
-              <Link
-                to="/mentor/submissions"
-                className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
-              >
-                View All
-              </Link>
-            </div>
-            
-            {mentorData.pendingSubmissions.length > 0 ? (
-              <div className="space-y-4">
-                {mentorData.pendingSubmissions.slice(0, 3).map((submission) => (
-                  <div key={submission.id} className="p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 mb-1">{submission.taskTitle}</h3>
-                        <p className="text-sm text-gray-600 mb-2">by {submission.menteeName}</p>
-                        <p className="text-xs text-gray-500">Submitted {submission.submittedAt}</p>
-                      </div>
-                      <button
-                        onClick={() => navigate(`/mentor/submission/${submission.id}`)}
-                        className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No pending submissions</p>
-                <p className="text-sm text-gray-400">New submissions will appear here</p>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 

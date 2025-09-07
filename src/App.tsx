@@ -24,6 +24,7 @@ import MentorLoginPage from './Pages/MentorLoginPage';
 import MentorMenteesPage from './Pages/MentorMenteesPage';
 import MentorSubmissionsPage from './Pages/MentorSubmissionsPage';
 import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
+import MentorCoursesPage from './Pages/MentorCoursesPage';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/mentor/mentees" element={<MentorMenteesPage />} />
           <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
           <Route path="/mentor/course/:courseId" element={<MentorCourseDetailPage />} />
+          <Route path="/mentor/courses" element={<MentorCoursesPage />} />
         </Routes>
       </div>
     </Router>
