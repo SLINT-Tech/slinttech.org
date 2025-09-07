@@ -78,10 +78,8 @@ const AdminDashboard = () => {
   });
 
   const [editingUser, setEditingUser] = useState({
-    assignedMentorName: '',
-    assignedMentorEmail: '',
     discordLink: '',
-    instructorAssignments: [],
+    mentorAssignments: [],
     status: 'pending'
   });
 
@@ -128,8 +126,6 @@ const AdminDashboard = () => {
      membershipCategory: user.membershipCategory,
      careerPath: user.careerPath,
      role: user.role,
-      assignedMentorName: user.assignedMentor?.name || '',
-      assignedMentorEmail: user.assignedMentor?.email || '',
       discordLink: user.discordLink || '',
       mentorAssignments: user.mentorAssignments || [],
       status: user.status
@@ -168,10 +164,6 @@ const AdminDashboard = () => {
          membershipCategory: editingUser.membershipCategory,
          careerPath: editingUser.careerPath,
          role: editingUser.role,
-          assignedMentor: editingUser.assignedMentorName ? {
-            name: editingUser.assignedMentorName,
-            email: editingUser.assignedMentorEmail
-          } : null,
           discordLink: editingUser.discordLink,
           mentorAssignments: editingUser.mentorAssignments,
           status: editingUser.status
@@ -212,6 +204,21 @@ const AdminDashboard = () => {
       return assignment;
     });
     setEditingUser({ ...editingUser, mentorAssignments: updatedAssignments });
+  };
+
+  // Handle role change and clear mentor assignments if role is Mentor or Admin
+  const handleRoleChange = (newRole) => {
+    const updatedEditingUser = {
+      ...editingUser,
+      role: newRole
+    };
+    
+    // Clear mentor assignments if role is Mentor or Admin
+    if (newRole === 'Mentor' || newRole === 'Admin') {
+      updatedEditingUser.mentorAssignments = [];
+    }
+    
+    setEditingUser(updatedEditingUser);
   };
 
   const removeCourse = (index) => {
@@ -477,7 +484,7 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
                       <select
                         value={editingUser.role}
-                        onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                        onChange={(e) => handleRoleChange(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                       >
                         <option value="Admin">Admin</option>
@@ -541,42 +548,15 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Assigned Mentor */}
-                <div className="mt-6">
-                  <h4 className="text-md font-semibold text-gray-900 mb-3">Assigned Mentor</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Mentor Name</label>
-                      <input
-                        type="text"
-                        value={editingUser.assignedMentorName}
-                        onChange={(e) => setEditingUser({...editingUser, assignedMentorName: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                        placeholder="Enter mentor name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Mentor Email</label>
-                      <input
-                        type="email"
-                        value={editingUser.assignedMentorEmail}
-                        onChange={(e) => setEditingUser({...editingUser, assignedMentorEmail: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                        placeholder="Enter mentor email"
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Course Timeline */}
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
                     <button
                       onClick={addCourse}
-                      disabled={editingUser.role === 'Mentor'}
+                      disabled={editingUser.role === 'Mentor' || editingUser.role === 'Admin'}
                       className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${
-                        editingUser.role === 'Mentor' 
+                        editingUser.role === 'Mentor' || editingUser.role === 'Admin'
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                           : 'bg-[#008080] text-white hover:bg-teal-700 cursor-pointer'
                       }`}
