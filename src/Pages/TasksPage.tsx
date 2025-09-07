@@ -1,3 +1,4 @@
+import React from 'react';
 import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
