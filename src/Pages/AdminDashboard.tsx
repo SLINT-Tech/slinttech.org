@@ -44,7 +44,7 @@ const courseOptions = [
   'UI/UX Design'
 ];
 
-const instructorOptions = [
+const mentorOptions = [
   'Dr. Sarah Johnson - Full Stack Development',
   'Prof. Michael Chen - Frontend Development', 
   'Ms. Emily Rodriguez - Backend Development',
@@ -131,7 +131,7 @@ const AdminDashboard = () => {
       assignedMentorName: user.assignedMentor?.name || '',
       assignedMentorEmail: user.assignedMentor?.email || '',
       discordLink: user.discordLink || '',
-      instructorAssignments: user.instructorAssignments || [],
+      mentorAssignments: user.mentorAssignments || [],
       status: user.status
     });
     setShowUserModal(true);
@@ -145,7 +145,7 @@ const AdminDashboard = () => {
       assignedMentor: null,
       discordLink: null,
       courses: [],
-      createdAt: new Date().toISOString().split('T')[0]
+      mentorAssignments: [],
     };
     setUsers([...users, user]);
     setNewUser({
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
             email: editingUser.assignedMentorEmail
           } : null,
           discordLink: editingUser.discordLink,
-          instructorAssignments: editingUser.instructorAssignments,
+          mentorAssignments: editingUser.mentorAssignments,
           status: editingUser.status
         };
       }
@@ -200,24 +200,24 @@ const AdminDashboard = () => {
   const addCourse = () => {
     setEditingUser({
       ...editingUser,
-      instructorAssignments: [...editingUser.instructorAssignments, { instructor: '', courseName: '', duration: '' }]
+      mentorAssignments: [...editingUser.mentorAssignments, { mentor: '', courseName: '', duration: '' }]
     });
   };
 
   const updateCourse = (index, field, value) => {
-    const updatedAssignments = editingUser.instructorAssignments.map((assignment, i) => {
+    const updatedAssignments = editingUser.mentorAssignments.map((assignment, i) => {
       if (i === index) {
         return { ...assignment, [field]: value };
       }
       return assignment;
     });
-    setEditingUser({ ...editingUser, instructorAssignments: updatedAssignments });
+    setEditingUser({ ...editingUser, mentorAssignments: updatedAssignments });
   };
 
   const removeCourse = (index) => {
     setEditingUser({
       ...editingUser,
-      instructorAssignments: editingUser.instructorAssignments.filter((_, i) => i !== index)
+      mentorAssignments: editingUser.mentorAssignments.filter((_, i) => i !== index)
     });
   };
 
@@ -571,17 +571,22 @@ const AdminDashboard = () => {
                 {/* Course Timeline */}
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-semibold text-gray-900">Instructor Assignments</h4>
+                    <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
                     <button
                       onClick={addCourse}
-                      className="bg-[#008080] text-white px-3 py-1 rounded-lg hover:bg-teal-700 transition-colors text-sm flex items-center gap-1 cursor-pointer"
+                      disabled={editingUser.role === 'Mentor'}
+                      className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${
+                        editingUser.role === 'Mentor' 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-[#008080] text-white hover:bg-teal-700 cursor-pointer'
+                      }`}
                     >
                       <Plus className="w-3 h-3" />
-                      Assign Instructor
+                      Assign Mentor
                     </button>
                   </div>
                   
-                  {editingUser.instructorAssignments.map((assignment, index) => (
+                  {editingUser.mentorAssignments.map((assignment, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
                       <div className="flex justify-between items-start mb-3">
                         <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
@@ -594,14 +599,14 @@ const AdminDashboard = () => {
                       </div>
                       <div className="grid md:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Instructor</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Mentor</label>
                           <select
-                            value={assignment.instructor}
-                            onChange={(e) => updateCourse(index, 'instructor', e.target.value)}
+                            value={assignment.mentor}
+                            onChange={(e) => updateCourse(index, 'mentor', e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
                           >
-                            <option value="">Select instructor</option>
-                            {instructorOptions.map(option => (
+                            <option value="">Select mentor</option>
+                            {mentorOptions.map(option => (
                               <option key={option} value={option}>{option}</option>
                             ))}
                           </select>
