@@ -100,6 +100,10 @@ const TasksPage = () => {
   const [searchParams] = useSearchParams();
   const mentorId = searchParams.get('mentor_id');
 
+  // Debug logging
+  console.log('TasksPage - mentorId from URL:', mentorId);
+  console.log('TasksPage - filterMentor state:', filterMentor);
+
   const itemsPerPage = 4;
 
   // Get mentor name from ID for filtering
@@ -115,6 +119,7 @@ const TasksPage = () => {
   React.useEffect(() => {
     if (mentorId) {
       const mentorName = getMentorNameFromId(mentorId);
+      console.log('TasksPage - Setting filter to mentor:', mentorName);
       if (mentorName) {
         setFilterMentor(mentorName);
         setCurrentPage(1); // Reset to first page when filtering
@@ -168,6 +173,10 @@ const TasksPage = () => {
                          task.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMentor = filterMentor === 'all' || task.mentor === filterMentor;
     const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
+    
+    // Debug logging for each task
+    console.log(`Task: ${task.title}, Mentor: ${task.mentor}, FilterMentor: ${filterMentor}, Matches: ${matchesMentor}`);
+    
     return matchesSearch && matchesMentor && matchesStatus;
   });
 
