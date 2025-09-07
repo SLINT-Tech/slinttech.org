@@ -23,6 +23,7 @@ import MentorDashboard from './Pages/MentorDashboard';
 import MentorLoginPage from './Pages/MentorLoginPage';
 import MentorMenteesPage from './Pages/MentorMenteesPage';
 import MentorSubmissionsPage from './Pages/MentorSubmissionsPage';
+import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
 
 function App() {
   return (
