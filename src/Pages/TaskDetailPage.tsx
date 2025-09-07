@@ -45,6 +45,46 @@ const getTaskData = (taskId) => {
         'Cross-browser compatibility'
       ]
     },
+    '4': {
+      id: 4,
+      title: 'CSS Animation Showcase',
+      mentor: 'Prof. Michael Chen',
+      course: 'Advanced CSS & Animations',
+      description: 'Create a showcase page demonstrating various CSS animations and transitions. Include keyframe animations, hover effects, and scroll-triggered animations.',
+      deadline: '2024-02-25',
+      status: 'submitted',
+      submissionLink: 'https://codepen.io/johndoe/pen/animation-showcase',
+      submissionNotes: 'Created 8 different animation examples with smooth transitions',
+      mentorFeedback: '',
+      createdAt: '2024-01-23',
+      requirements: [
+        'Create at least 6 different animation types',
+        'Use CSS keyframes for complex animations',
+        'Implement hover and focus effects',
+        'Add scroll-triggered animations',
+        'Ensure smooth performance across browsers'
+      ]
+    },
+    '5': {
+      id: 5,
+      title: 'JavaScript Calculator',
+      mentor: 'Dr. Sarah Johnson',
+      course: 'React Fundamentals',
+      description: 'Build a functional calculator using vanilla JavaScript with proper error handling and keyboard support.',
+      deadline: '2024-02-28',
+      status: 'submitted',
+      submissionLink: 'https://github.com/johndoe/js-calculator',
+      submissionNotes: 'Implemented all basic operations with keyboard support and error handling for division by zero',
+      mentorFeedback: '',
+      createdAt: '2024-01-24',
+      requirements: [
+        'Basic arithmetic operations (+, -, *, /)',
+        'Keyboard input support',
+        'Error handling for invalid operations',
+        'Clear and reset functionality',
+        'Responsive design for mobile devices'
+      ]
+    },
     '3': {
       id: 3,
       title: 'API Integration Exercise',
