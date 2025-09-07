@@ -185,6 +185,7 @@ const MentorsPage = () => {
         )}
 
         {/* Empty State */}
+        {paginatedMentors.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No mentors assigned yet</h3>
