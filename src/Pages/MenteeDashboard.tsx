@@ -215,7 +215,7 @@ const MenteeDashboard = () => {
               <div className="flex items-center mb-2">
                 <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
                   <div 
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${totalTasks > 0 ? (approvedTasks / totalTasks) * 100 : 0}%` }}
                   ></div>
                 </div>
