@@ -44,6 +44,19 @@ const courseOptions = [
   'UI/UX Design'
 ];
 
+const instructorOptions = [
+  'Dr. Sarah Johnson - Full Stack Development',
+  'Prof. Michael Chen - Frontend Development', 
+  'Ms. Emily Rodriguez - Backend Development',
+  'Mr. David Kim - Mobile Development',
+  'Dr. Lisa Thompson - Machine Learning/AI',
+  'Prof. James Wilson - Data Science',
+  'Ms. Anna Martinez - UI/UX Design',
+  'Mr. Robert Brown - Cybersecurity',
+  'Dr. Jennifer Lee - Cloud Computing',
+  'Prof. Alex Turner - DevOps Engineering'
+];
+
 const AdminDashboard = () => {
   const [users, setUsers] = useState(mockUsers);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -68,7 +81,7 @@ const AdminDashboard = () => {
     assignedMentorName: '',
     assignedMentorEmail: '',
     discordLink: '',
-    courses: [],
+    instructorAssignments: [],
     status: 'pending'
   });
 
@@ -118,7 +131,7 @@ const AdminDashboard = () => {
       assignedMentorName: user.assignedMentor?.name || '',
       assignedMentorEmail: user.assignedMentor?.email || '',
       discordLink: user.discordLink || '',
-      courses: user.courses || [],
+      instructorAssignments: user.instructorAssignments || [],
       status: user.status
     });
     setShowUserModal(true);
@@ -160,7 +173,7 @@ const AdminDashboard = () => {
             email: editingUser.assignedMentorEmail
           } : null,
           discordLink: editingUser.discordLink,
-          courses: editingUser.courses,
+          instructorAssignments: editingUser.instructorAssignments,
           status: editingUser.status
         };
       }
@@ -187,24 +200,24 @@ const AdminDashboard = () => {
   const addCourse = () => {
     setEditingUser({
       ...editingUser,
-      courses: [...editingUser.courses, { title: '', link: '', duration: '' }]
+      instructorAssignments: [...editingUser.instructorAssignments, { instructor: '', courseName: '', duration: '' }]
     });
   };
 
   const updateCourse = (index, field, value) => {
-    const updatedCourses = editingUser.courses.map((course, i) => {
+    const updatedAssignments = editingUser.instructorAssignments.map((assignment, i) => {
       if (i === index) {
-        return { ...course, [field]: value };
+        return { ...assignment, [field]: value };
       }
-      return course;
+      return assignment;
     });
-    setEditingUser({ ...editingUser, courses: updatedCourses });
+    setEditingUser({ ...editingUser, instructorAssignments: updatedAssignments });
   };
 
   const removeCourse = (index) => {
     setEditingUser({
       ...editingUser,
-      courses: editingUser.courses.filter((_, i) => i !== index)
+      instructorAssignments: editingUser.instructorAssignments.filter((_, i) => i !== index)
     });
   };
 
@@ -558,20 +571,20 @@ const AdminDashboard = () => {
                 {/* Course Timeline */}
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-semibold text-gray-900">Course Timeline</h4>
+                    <h4 className="text-md font-semibold text-gray-900">Instructor Assignments</h4>
                     <button
                       onClick={addCourse}
                       className="bg-[#008080] text-white px-3 py-1 rounded-lg hover:bg-teal-700 transition-colors text-sm flex items-center gap-1 cursor-pointer"
                     >
                       <Plus className="w-3 h-3" />
-                      Add Course
+                      Assign Instructor
                     </button>
                   </div>
                   
-                  {editingUser.courses.map((course, index) => (
+                  {editingUser.instructorAssignments.map((assignment, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
                       <div className="flex justify-between items-start mb-3">
-                        <h5 className="font-medium text-gray-900">Course {index + 1}</h5>
+                        <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
                         <button
                           onClick={() => removeCourse(index)}
                           className="text-red-600 hover:text-red-700 cursor-pointer"
@@ -581,36 +594,36 @@ const AdminDashboard = () => {
                       </div>
                       <div className="grid md:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Course Title</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Instructor</label>
                           <select
-                            value={course.title}
-                            onChange={(e) => updateCourse(index, 'title', e.target.value)}
+                            value={assignment.instructor}
+                            onChange={(e) => updateCourse(index, 'instructor', e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
                           >
-                            <option value="">Select course</option>
-                            {courseOptions.map(option => (
+                            <option value="">Select instructor</option>
+                            {instructorOptions.map(option => (
                               <option key={option} value={option}>{option}</option>
                             ))}
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
                           <input
                             type="text"
-                            value={course.duration}
-                            onChange={(e) => updateCourse(index, 'duration', e.target.value)}
+                            value={assignment.courseName}
+                            onChange={(e) => updateCourse(index, 'courseName', e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                            placeholder="e.g., 8 weeks"
+                            placeholder="e.g., React Fundamentals"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">External Link</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                           <input
-                            type="url"
-                            value={course.link}
-                            onChange={(e) => updateCourse(index, 'link', e.target.value)}
+                            type="text"
+                            value={assignment.duration}
+                            onChange={(e) => updateCourse(index, 'duration', e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                            placeholder="https://codecademy.com/..."
+                            placeholder="e.g., 8 weeks"
                           />
                         </div>
                       </div>
