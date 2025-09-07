@@ -198,8 +198,8 @@ const MentorDetailPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link
+              to={`/lessons?mentor_id=${mentorId}`}
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
@@ -269,8 +269,8 @@ const MentorDetailPage = () => {
             
             {/* Progress Bar */}
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Progress</span>
+            <Link
+              to={`/tasks?mentor_id=${mentorId}`}
                 <span className="text-sm font-medium text-gray-900">
                   {completedLessons}/{totalLessons}
                 </span>

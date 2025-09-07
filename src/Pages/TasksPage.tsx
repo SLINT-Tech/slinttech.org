@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 // Mock data - this would come from your backend/database
 const mockTasksData = {
@@ -96,8 +96,29 @@ const TasksPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showCompleted, setShowCompleted] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mentorId = searchParams.get('mentor_id');
 
   const itemsPerPage = 4;
+
+  // Get mentor name from ID for filtering
+  const getMentorNameFromId = (id) => {
+    const mentorMap = {
+      'gfyffa54afvctrdt': 'Dr. Sarah Johnson',
+      'hgkjh67890mnbvcx': 'Prof. Michael Chen'
+    };
+    return mentorMap[id] || null;
+  };
+
+  // Set initial filter if mentor_id is provided
+  useState(() => {
+    if (mentorId) {
+      const mentorName = getMentorNameFromId(mentorId);
+      if (mentorName) {
+        setFilterMentor(mentorName);
+      }
+    }
+  }, [mentorId]);
 
   const handleTaskSubmission = (taskId) => {
     const submission = taskSubmissions[taskId];
@@ -216,10 +237,12 @@ const TasksPage = () => {
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Target className="w-8 h-8 text-[#008080] mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Tasks & Assignments</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {mentorId ? `Tasks from ${getMentorNameFromId(mentorId)}` : 'Tasks & Assignments'}
+            </h1>
           </div>
           <p className="text-gray-600 mb-4">
-            Submit your assignments and track your progress
+            {mentorId ? `Submit assignments and track your progress with ${getMentorNameFromId(mentorId)}` : 'Submit your assignments and track your progress'}
           </p>
           
           {/* Progress Bar */}
