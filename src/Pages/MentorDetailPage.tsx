@@ -261,7 +261,7 @@ const MentorDetailPage = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Lessons Section */}
+          {/* Quick Access Cards */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-6">
               <BookOpen className="w-6 h-6 text-[#008080] mr-2" />
@@ -284,174 +284,38 @@ const MentorDetailPage = () => {
               </div>
             </div>
             
-            {lessons.length > 0 ? (
-              <div className="space-y-4">
-                {lessons.map((lesson) => (
-                  <div key={lesson.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <h3 className="font-semibold text-gray-900 mr-2">{lesson.title}</h3>
-                          {lesson.completed && (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3">{lesson.description}</p>
-                        <div className="flex items-center gap-3">
-                          <a
-                            href={lesson.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
-                          >
-                            View Lesson
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                          {!lesson.completed && (
-                            <button
-                              onClick={() => handleLessonComplete(lesson.id)}
-                              className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
-                            >
-                              Mark Complete
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No lessons available yet</p>
-              </div>
-            )}
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">
+                View and complete lessons from {mentorData.fullName}
+              </p>
+              <Link 
+                to="/lessons" 
+                className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              >
+                <BookOpen className="w-5 h-5" />
+                View All Lessons
+              </Link>
+            </div>
           </div>
 
-          {/* Tasks Section */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center mb-6">
               <Target className="w-6 h-6 text-[#008080] mr-2" />
               <h2 className="text-xl font-semibold text-gray-900">Tasks & Assignments</h2>
             </div>
             
-            {tasks.length > 0 ? (
-              <div className="space-y-6">
-                {tasks.map((task) => (
-                  <div key={task.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTaskStatusColor(task.status)}`}>
-                            {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                          <span className={`flex items-center gap-1 ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : ''}`}>
-                            <Clock className="w-3 h-3" />
-                            Due: {new Date(task.deadline).toLocaleDateString()}
-                            {isTaskOverdue(task.deadline) && <AlertCircle className="w-3 h-3" />}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Task Submission Form */}
-                    {task.status === 'pending' && (
-                      <div className="bg-gray-50 rounded-lg p-4 mb-3">
-                        <h4 className="font-medium text-gray-900 mb-3">Submit Your Work</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Submission Link (Netlify/GitHub/etc.) *
-                            </label>
-                            <input
-                              type="url"
-                              value={taskSubmissions[task.id]?.link || ''}
-                              onChange={(e) => updateTaskSubmission(task.id, 'link', e.target.value)}
-                              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                              placeholder="https://your-project-link.com"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Notes (Optional)
-                            </label>
-                            <textarea
-                              value={taskSubmissions[task.id]?.notes || ''}
-                              onChange={(e) => updateTaskSubmission(task.id, 'notes', e.target.value)}
-                              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                              rows={2}
-                              placeholder="Any additional notes about your submission..."
-                            />
-                          </div>
-                          <button
-                            onClick={() => handleTaskSubmission(task.id)}
-                            disabled={!taskSubmissions[task.id]?.link}
-                            className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm cursor-pointer"
-                          >
-                            <Send className="w-4 h-4" />
-                            Submit Task
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Show Submission Details */}
-                    {task.status !== 'pending' && (
-                      <div className="bg-gray-50 rounded-lg p-4 mb-3">
-                        <h4 className="font-medium text-gray-900 mb-2">Your Submission</h4>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="font-medium text-gray-700">Link: </span>
-                            <a 
-                              href={task.submissionLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-[#008080] hover:text-teal-700 underline cursor-pointer"
-                            >
-                              {task.submissionLink}
-                            </a>
-                          </div>
-                          {task.submissionNotes && (
-                            <div>
-                              <span className="font-medium text-gray-700">Notes: </span>
-                              <span className="text-gray-600">{task.submissionNotes}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Mentor Feedback */}
-                    {task.mentorFeedback && (
-                      <div className={`rounded-lg p-4 ${
-                        task.status === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                      }`}>
-                        <h4 className={`font-medium mb-2 ${
-                          task.status === 'approved' ? 'text-green-900' : 'text-red-900'
-                        }`}>
-                          Mentor Feedback
-                        </h4>
-                        <p className={`text-sm ${
-                          task.status === 'approved' ? 'text-green-800' : 'text-red-800'
-                        }`}>
-                          {task.mentorFeedback}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No tasks assigned yet</p>
-              </div>
-            )}
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">
+                Submit assignments and track your progress with {mentorData.fullName}
+              </p>
+              <Link 
+                to="/tasks" 
+                className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              >
+                <Target className="w-5 h-5" />
+                View All Tasks
+              </Link>
+            </div>
           </div>
         </div>
       </div>
