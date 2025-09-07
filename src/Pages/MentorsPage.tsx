@@ -1,7 +1,6 @@
 import { ArrowLeft, Eye, User, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Mock data - this would come from your backend/database
 const mockMentorsData = {
@@ -38,13 +37,7 @@ const mockMentorsData = {
 
 const MentorsPage = () => {
   const [mentorsData, setMentorsData] = useState(mockMentorsData);
-  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(mentorsData.mentors.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedMentors = mentorsData.mentors.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -105,7 +98,7 @@ const MentorsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedMentors.map((mentor) => (
+                {mentorsData.mentors.map((mentor) => (
                   <tr key={mentor.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -145,47 +138,8 @@ const MentorsPage = () => {
           </div>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </button>
-            
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 rounded-lg cursor-pointer ${
-                    currentPage === page
-                      ? 'bg-[#008080] text-white'
-                      : 'border border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-            
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
         {/* Empty State */}
-        {paginatedMentors.length === 0 && (
+        {mentorsData.mentors.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No mentors assigned yet</h3>
