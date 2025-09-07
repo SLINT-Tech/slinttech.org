@@ -289,8 +289,8 @@ const MentorDetailPage = () => {
               <p className="text-gray-600 mb-4">
                 View and complete lessons from {mentorData.fullName}
               </p>
-              <Link 
-                to="/lessons" 
+              <Link
+                to={`/lessons?mentor_id=${mentorId}`}
                 className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
               >
                 <BookOpen className="w-5 h-5" />
@@ -309,7 +309,7 @@ const MentorDetailPage = () => {
               <p className="text-gray-600 mb-4">
                 Submit assignments and track your progress with {mentorData.fullName}
               </p>
-              <Link 
+              <Link
                 to={`/tasks?mentor_id=${mentorId}`}
                 className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
               >
