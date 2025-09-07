@@ -82,10 +82,6 @@ const LessonsPage = () => {
   const [searchParams] = useSearchParams();
   const mentorId = searchParams.get('mentor_id');
 
-  // Debug logging
-  console.log('LessonsPage - mentorId from URL:', mentorId);
-  console.log('LessonsPage - filterMentor state:', filterMentor);
-
   const itemsPerPage = 4;
 
   // Get mentor name from ID for filtering
@@ -131,9 +127,6 @@ const LessonsPage = () => {
                          lesson.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMentor = filterMentor === 'all' || lesson.mentor === filterMentor;
     const matchesCourse = filterCourse === 'all' || lesson.course === filterCourse;
-    
-    // Debug logging for each lesson
-    console.log(`Lesson: ${lesson.title}, Mentor: ${lesson.mentor}, FilterMentor: ${filterMentor}, Matches: ${matchesMentor}`);
     
     return matchesSearch && matchesMentor && matchesCourse;
   });
