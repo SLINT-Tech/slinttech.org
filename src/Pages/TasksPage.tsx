@@ -112,11 +112,12 @@ const TasksPage = () => {
   };
 
   // Set initial filter if mentor_id is provided
-  useState(() => {
+  React.useEffect(() => {
     if (mentorId) {
       const mentorName = getMentorNameFromId(mentorId);
       if (mentorName) {
         setFilterMentor(mentorName);
+        setCurrentPage(1); // Reset to first page when filtering
       }
     }
   }, [mentorId]);

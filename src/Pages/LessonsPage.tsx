@@ -93,12 +93,13 @@ const LessonsPage = () => {
     return mentorMap[id] || null;
   };
 
-  // Set initial filter if mentor_id is provided using useEffect
+  // Set initial filter if mentor_id is provided
   React.useEffect(() => {
     if (mentorId) {
       const mentorName = getMentorNameFromId(mentorId);
       if (mentorName) {
         setFilterMentor(mentorName);
+        setCurrentPage(1); // Reset to first page when filtering
       }
     }
   }, [mentorId]);
