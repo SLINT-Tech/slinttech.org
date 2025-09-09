@@ -9,10 +9,7 @@ const Footer: React.FC = () => (
                 {/* Logo and Description */}
                 <div className="space-y-4">
                     <img src="/assets/Slintech_logo.svg" alt="SlintTech Logo" className="h-12 mb-2" />
-                    <p className="text-gray-400">
-                        A108 Adam Street New York, NY 535022
-                        United States <br />  <br /> Phone: +1 5589 55488 55 <br /> <br /> Email: contact@slinttech.org <br /><br />
-                    </p>
+
                     <div className="flex space-x-4">
                         <Facebook className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
                         <Twitter className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />

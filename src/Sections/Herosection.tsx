@@ -25,8 +25,8 @@ const HeroSection = () => {
                         <img src="/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
 
                         <h1 className="text-4xl font-extrabold sm:text-5xl lg:text-6xl text-gray-900 mb-6">
-                            Learn Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
-                            <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Grow</span> Beyond Borders.
+                            Grow Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
+                            <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Upskill</span> Beyond Borders.
                         </h1>
 
                         <div></div>
@@ -36,7 +36,7 @@ const HeroSection = () => {
 
                         <div></div>
                         <p className="text-md sm:text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
-                            Discover a world of online courses, skills, and opportunities carefully selected to help you stand out, build your future, and reach your full potential.
+                            Training, mentorship, and support you need. We're invested in your future!
                         </p>
                         <img src="/assets/books.svg" alt="Hero Image" className="h-12 " />
                     </div>

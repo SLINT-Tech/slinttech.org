@@ -5,6 +5,7 @@ import Footer from './Sections/Footer';
 import GetStartedSection from './Sections/Getstartedsection';
 import Header from './Sections/Header';
 import HeroSection from './Sections/Herosection';
+import MissionVisionSection from '../Sections/MissionVisionSection';
 import NewsletterSection from './Sections/NewsletterSection';
 import SponsorsSection from './Sections/Sponsorssection';
 
@@ -23,10 +24,11 @@ function App() {
       {/* Features Section */}
       <FeaturesSection />
 
+      {/* Mission & Vision Section */}
+      <MissionVisionSection />
 
       {/* Sponsors */}
       {/* <SponsorsSection /> */}
-
 
       {/* Courses Section */}
       <CoursesSection />
