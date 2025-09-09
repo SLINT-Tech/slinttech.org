@@ -35,24 +35,7 @@ const ContactInfoSection: React.FC = () => (
                         </div>
                     </div>
                 </div>
-                <div>
-                    <div className="flex flex-col items-start mb-4">
-                        <span className="text-2xl text-black mr-2">Number</span>
-                        <hr className="w-6 border-t-3 border-black my-5" />
-                        <a
-                            href="tel:+180899834256"
-                            className="text-xl hover:underline mb-3"
-                        >
-                            (808) 998-34256
-                        </a>
-                        <div>
-                            Assistance hours
-                        </div>
-                        <div>
-                            Monday - Friday 6 am to 8 pm EST
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
         </div>
