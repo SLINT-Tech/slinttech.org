@@ -1,5 +1,5 @@
 import { ArrowRight, Clock, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import React from "react";
 
 const careerPaths = [
@@ -55,10 +55,10 @@ const careerPaths = [
 ];
 
 const CoursesSection: React.FC = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const handleJoinCommunity = () => {
-        navigate('/signup');
+        // navigate('/signup');
     };
 
     return (
