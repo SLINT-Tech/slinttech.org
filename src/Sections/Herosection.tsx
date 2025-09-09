@@ -36,7 +36,7 @@ const HeroSection = () => {
 
                         <div></div>
                         <p className="text-md sm:text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
-                            Discover a world of online courses, skills, and opportunities carefully selected to help you stand out, build your future, and reach your full potential.
+                            Training, mentorship, and support you need. We're invested in your future!
                         </p>
                         <img src="/assets/books.svg" alt="Hero Image" className="h-12 " />
                     </div>
