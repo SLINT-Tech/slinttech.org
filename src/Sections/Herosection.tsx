@@ -25,8 +25,8 @@ const HeroSection = () => {
                         <img src="/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
 
                         <h1 className="text-4xl font-extrabold sm:text-5xl lg:text-6xl text-gray-900 mb-6">
-                            Learn Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
-                            <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Grow</span> Beyond Borders.
+                            Grow Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
+                            <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Upskill</span> Beyond Borders.
                         </h1>
 
                         <div></div>
