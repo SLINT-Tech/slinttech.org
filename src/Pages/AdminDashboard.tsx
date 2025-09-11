@@ -719,19 +719,21 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
-                <select
-                  value={newUser.careerPath}
-                  onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                >
-                  <option value="">Select career path</option>
-                  {courseOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
+              {newUser.role === 'Mentee' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                  <select
+                    value={newUser.careerPath}
+                    onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  >
+                    <option value="">Select career path</option>
+                    {courseOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button

@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, Eye, Plus, User } from 'lucide-react';
+import { ArrowLeft, BookOpen, Eye, Plus, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -53,7 +53,28 @@ const mockMentorData = {
 
 const MentorCoursesPage = () => {
   const [mentorData, setMentorData] = useState(mockMentorData);
+  const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    name: '',
+    duration: '',
+    description: ''
+  });
   const navigate = useNavigate();
+
+  const handleCreateCourse = () => {
+    const course = {
+      id: mentorData.courses.length + 1,
+      ...newCourse,
+      enrolledMentees: 0,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    setMentorData(prev => ({
+      ...prev,
+      courses: [...prev.courses, course]
+    }));
+    setNewCourse({ name: '', duration: '', description: '' });
+    setShowCreateCourseModal(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -97,7 +118,7 @@ const MentorCoursesPage = () => {
               <h1 className="text-3xl font-bold text-gray-900">All Courses</h1>
             </div>
             <button
-              onClick={() => navigate('/mentor/dashboard')}
+              onClick={() => setShowCreateCourseModal(true)}
               className="bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -213,7 +234,7 @@ const MentorCoursesPage = () => {
               Create your first course to start teaching and managing mentees.
             </p>
             <button
-              onClick={() => navigate('/mentor/dashboard')}
+              onClick={() => setShowCreateCourseModal(true)}
               className="bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
             >
               Create Your First Course
@@ -221,6 +242,73 @@ const MentorCoursesPage = () => {
           </div>
         )}
       </div>
+
+      {/* Create Course Modal */}
+      {showCreateCourseModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Create New Course</h2>
+                <button
+                  onClick={() => setShowCreateCourseModal(false)}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Course Name</label>
+                <input
+                  type="text"
+                  value={newCourse.name}
+                  onChange={(e) => setNewCourse({...newCourse, name: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., React Fundamentals"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                <input
+                  type="text"
+                  value={newCourse.duration}
+                  onChange={(e) => setNewCourse({...newCourse, duration: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., 8 weeks"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={newCourse.description}
+                  onChange={(e) => setNewCourse({...newCourse, description: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  rows={4}
+                  placeholder="Describe what this course covers..."
+                />
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <button
+                onClick={() => setShowCreateCourseModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateCourse}
+                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              >
+                Create Course
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
