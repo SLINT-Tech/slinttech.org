@@ -25,6 +25,8 @@ import MentorMenteesPage from './Pages/MentorMenteesPage';
 import MentorSubmissionsPage from './Pages/MentorSubmissionsPage';
 import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
 import MentorCoursesPage from './Pages/MentorCoursesPage';
+import MentorMenteeDetailPage from './Pages/MentorMenteeDetailPage';
+import MenteeProfilePage from './Pages/MenteeProfilePage';
 
 function App() {
   return (

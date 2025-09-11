@@ -166,6 +166,12 @@ const MenteeDashboard = () => {
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Welcome, {menteeData.fullName}</span>
               <Link 
+                to="/profile" 
+                className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer"
+              >
+                Profile
+              </Link>
+              <Link 
                 to="/login" 
                 className="text-[#008080] hover:text-teal-700 font-medium"
               >
