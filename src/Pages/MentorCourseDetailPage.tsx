@@ -512,7 +512,7 @@ const MentorCourseDetailPage = () => {
                             rel="noopener noreferrer"
                             className="text-[#008080] hover:text-teal-700 text-sm mt-2 inline-flex items-center gap-1 cursor-pointer"
                           >
-                            View on Codecademy
+                            View Lesson
                             <Eye className="w-3 h-3" />
                           </a>
                         </div>
