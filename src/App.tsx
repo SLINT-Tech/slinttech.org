@@ -27,6 +27,7 @@ import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
 import MentorCoursesPage from './Pages/MentorCoursesPage';
 import MentorMenteeDetailPage from './Pages/MentorMenteeDetailPage';
 import MenteeProfilePage from './Pages/MenteeProfilePage';
+import MenteeProfilePage from './Pages/MenteeProfilePage';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<MenteeDashboard />} />
+          <Route path="/profile" element={<MenteeProfilePage />} />
           <Route path="/mentors" element={<MentorsPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -47,6 +49,7 @@ function App() {
           <Route path="/mentor/login" element={<MentorLoginPage />} />
           <Route path="/mentor/dashboard" element={<MentorDashboard />} />
           <Route path="/mentor/mentees" element={<MentorMenteesPage />} />
+          <Route path="/mentor/mentee/:menteeId" element={<MentorMenteeDetailPage />} />
           <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
           <Route path="/mentor/course/:courseId" element={<MentorCourseDetailPage />} />
           <Route path="/mentor/courses" element={<MentorCoursesPage />} />
