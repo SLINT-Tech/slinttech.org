@@ -669,13 +669,13 @@ const MentorCourseDetailPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Codecademy URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Lesson URL</label>
                 <input
                   type="url"
                   value={newLesson.link}
                   onChange={(e) => setNewLesson({...newLesson, link: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                  placeholder="https://www.codecademy.com/..."
+                  placeholder="https://example.com/lesson-url"
                 />
               </div>
             </div>
