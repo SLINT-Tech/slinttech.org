@@ -1,4 +1,3 @@
-import { ArrowLeft, BookOpen, CheckCircle, Clock, Eye, MessageSquare, Plus, Target, User, Users, X, Send, Trash2 } from 'lucide-react';
 import { ArrowLeft, BookOpen, CheckCircle, Clock, Eye, MessageSquare, Plus, Target, User, Users, X, Send, Trash2, Search } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
