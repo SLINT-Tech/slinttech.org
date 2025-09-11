@@ -74,10 +74,12 @@ const AdminDashboard = () => {
     membershipCategory: '',
     careerPath: '',
     role: '',
-    status: 'pending'
+    status: 'pending',
+    password: ''
   });
 
   const [editingUser, setEditingUser] = useState({
+    password: '',
     discordLink: '',
     mentorAssignments: [],
     status: 'pending'
@@ -119,9 +121,20 @@ const AdminDashboard = () => {
     }
   };
 
+  // Generate random password
+  const generatePassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
   const handleViewUser = (user) => {
     setSelectedUser(user);
     setEditingUser({
+     password: user.password || generatePassword(),
      email: user.email,
      membershipCategory: user.membershipCategory,
      careerPath: user.careerPath,
@@ -134,9 +147,11 @@ const AdminDashboard = () => {
   };
 
   const handleCreateUser = () => {
+    const generatedPassword = generatePassword();
     const user = {
       id: users.length + 1,
       ...newUser,
+      password: generatedPassword,
       contractFile: null,
       assignedMentor: null,
       discordLink: null,
@@ -150,7 +165,8 @@ const AdminDashboard = () => {
       membershipCategory: '',
       careerPath: '',
       role: '',
-      status: 'pending'
+      status: 'pending',
+      password: ''
     });
     setShowCreateModal(false);
   };
@@ -160,6 +176,7 @@ const AdminDashboard = () => {
       if (user.id === selectedUser.id) {
         return {
           ...user,
+         password: editingUser.password,
          email: editingUser.email,
          membershipCategory: editingUser.membershipCategory,
          careerPath: editingUser.careerPath,
@@ -491,6 +508,25 @@ const AdminDashboard = () => {
                         <option value="Mentor">Mentor</option>
                         <option value="Mentee">Mentee</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editingUser.password}
+                          onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                          placeholder="Auto-generated password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setEditingUser({...editingUser, password: generatePassword()})}
+                          className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                        >
+                          Generate
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -266,23 +266,12 @@ const MentorMenteesPage = () => {
                       {new Date(mentee.lastActive).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleViewMentee(mentee)}
-                          className="text-[#008080] hover:text-teal-700 cursor-pointer"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedMentee(mentee);
-                            setShowAddToCourseModal(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => navigate(`/mentor/mentee/${mentee.id}`)}
+                        className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}
