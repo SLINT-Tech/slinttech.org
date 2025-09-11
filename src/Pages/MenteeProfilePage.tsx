@@ -310,7 +310,7 @@ const MenteeProfilePage = () => {
                       </div>
                     </div>
                     <button
-                      onClick={downloadContract}
+                        className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer ml-4"
                       className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
