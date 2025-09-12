@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 
 const PendingApprovalPage = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  
+  // Check if user is a mentor
+  const isMentor = currentUser.role === 'Mentor';
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -81,7 +84,12 @@ const PendingApprovalPage = () => {
                 <div className="w-6 h-6 bg-[#008080] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-white text-xs font-bold">3</span>
                 </div>
-                <p>Once approved, you can access your dashboard and start learning</p>
+                <p>
+                  {isMentor 
+                    ? 'Once approved, you can access your mentor dashboard and start teaching'
+                    : 'Once approved, you can access your dashboard and start learning'
+                  }
+                </p>
               </div>
             </div>
           </div>
