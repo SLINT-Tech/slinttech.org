@@ -2,6 +2,43 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Mock user data for testing different states
+const mockUsers = [
+  {
+    id: 1,
+    email: 'pending@example.com',
+    password: 'password123',
+    fullName: 'Pending User',
+    status: 'pending',
+    role: 'Mentee',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
+  },
+  {
+    id: 2,
+    email: 'approved.nopay@example.com',
+    password: 'password123',
+    fullName: 'Approved No Payment',
+    status: 'approved',
+    role: 'Mentee',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
+  },
+  {
+    id: 3,
+    email: 'approved.payment@example.com',
+    password: 'password123',
+    fullName: 'Approved With Payment',
+    status: 'approved',
+    role: 'Mentee',
+    membershipEnabled: true,
+    membershipAmount: 30,
+    membershipPaid: false
+  }
+];
+
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -26,13 +63,30 @@ const LoginPage = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Here you would typically authenticate the user
-    console.log('Login data:', formData);
+    // Find user in mock data
+    const user = mockUsers.find(u => u.email === formData.email && u.password === formData.password);
     
     setIsSubmitting(false);
     
-    // Navigate to dashboard
-    navigate('/dashboard');
+    if (user) {
+      // Store user data in localStorage for other components to access
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Check user status and membership requirements
+      if (user.status === 'pending') {
+        navigate('/pending-approval');
+      } else if (user.status === 'approved') {
+        if (user.membershipEnabled && !user.membershipPaid) {
+          navigate('/payment-wall');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        alert('Your account has been rejected or suspended. Please contact support.');
+      }
+    } else {
+      alert('Invalid email or password. Try: pending@example.com, approved.nopay@example.com, or approved.payment@example.com with password: password123');
+    }
   };
 
   return (

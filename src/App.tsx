@@ -27,6 +27,8 @@ import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
 import MentorCoursesPage from './Pages/MentorCoursesPage';
 import MentorMenteeDetailPage from './Pages/MentorMenteeDetailPage';
 import MenteeProfilePage from './Pages/MenteeProfilePage';
+import PendingApprovalPage from './Pages/PendingApprovalPage';
+import PaymentWallPage from './Pages/PaymentWallPage';
 
 function App() {
   return (
@@ -52,6 +54,8 @@ function App() {
           <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
           <Route path="/mentor/course/:courseId" element={<MentorCourseDetailPage />} />
           <Route path="/mentor/courses" element={<MentorCoursesPage />} />
+          <Route path="/pending-approval" element={<PendingApprovalPage />} />
+          <Route path="/payment-wall" element={<PaymentWallPage />} />
         </Routes>
       </div>
     </Router>

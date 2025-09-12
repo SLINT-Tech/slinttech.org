@@ -6,31 +6,54 @@ import { Link } from 'react-router-dom';
 const mockUsers = [
   {
     id: 1,
-    fullName: 'John Doe',
-    email: 'john.doe@example.com',
-    membershipCategory: 'Student',
+    fullName: 'Pending User',
+    email: 'pending@example.com',
+    membershipCategory: 'Student', 
     careerPath: 'Full Stack Development',
     role: 'Mentee',
     status: 'pending',
-    contractFile: 'john_doe_contract.pdf',
+    contractFile: 'pending_user_contract.pdf',
     assignedMentor: null,
     discordLink: null,
     courses: [],
-    createdAt: '2024-01-15'
+    createdAt: '2024-01-15',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
   },
   {
     id: 2,
-    fullName: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    membershipCategory: 'Professional',
-    careerPath: 'UI/UX Design',
-    role: 'Mentor',
+    fullName: 'Approved No Payment',
+    email: 'approved.nopay@example.com',
+    membershipCategory: 'Student',
+    careerPath: 'Frontend Development',
+    role: 'Mentee',
     status: 'approved',
-    contractFile: 'jane_smith_contract.pdf',
+    contractFile: 'approved_nopay_contract.pdf',
     assignedMentor: null,
     discordLink: 'https://discord.gg/slinttech',
     courses: [],
-    createdAt: '2024-01-10'
+    createdAt: '2024-01-10',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
+  },
+  {
+    id: 3,
+    fullName: 'Approved With Payment',
+    email: 'approved.payment@example.com',
+    membershipCategory: 'Professional',
+    careerPath: 'Backend Development',
+    role: 'Mentee',
+    status: 'approved',
+    contractFile: 'approved_payment_contract.pdf',
+    assignedMentor: null,
+    discordLink: 'https://discord.gg/slinttech',
+    courses: [],
+    createdAt: '2024-01-12',
+    membershipEnabled: true,
+    membershipAmount: 30,
+    membershipPaid: false
   }
 ];
 
@@ -75,14 +98,22 @@ const AdminDashboard = () => {
     careerPath: '',
     role: '',
     status: 'pending',
-    password: ''
+    password: '',
+    membershipEnabled: false,
+    membershipAmount: 30
   });
 
   const [editingUser, setEditingUser] = useState({
     password: '',
+    email: '',
+    membershipCategory: '',
+    careerPath: '',
+    role: '',
     discordLink: '',
     mentorAssignments: [],
-    status: 'pending'
+    status: 'pending',
+    membershipEnabled: false,
+    membershipAmount: 30
   });
 
   const filteredUsers = users.filter(user => {
@@ -134,14 +165,16 @@ const AdminDashboard = () => {
   const handleViewUser = (user) => {
     setSelectedUser(user);
     setEditingUser({
-     password: user.password || generatePassword(),
-     email: user.email,
-     membershipCategory: user.membershipCategory,
-     careerPath: user.careerPath,
-     role: user.role,
+      password: user.password || generatePassword(),
+      email: user.email,
+      membershipCategory: user.membershipCategory,
+      careerPath: user.careerPath,
+      role: user.role,
       discordLink: user.discordLink || '',
       mentorAssignments: user.mentorAssignments || [],
-      status: user.status
+      status: user.status,
+      membershipEnabled: user.membershipEnabled || false,
+      membershipAmount: user.membershipAmount || 30
     });
     setShowUserModal(true);
   };
@@ -157,6 +190,10 @@ const AdminDashboard = () => {
       discordLink: null,
       courses: [],
       mentorAssignments: [],
+      membershipEnabled: newUser.role === 'Mentee' ? newUser.membershipEnabled : false,
+      membershipAmount: newUser.membershipAmount,
+      membershipPaid: false,
+      createdAt: new Date().toISOString().split('T')[0]
     };
     setUsers([...users, user]);
     setNewUser({
@@ -166,7 +203,9 @@ const AdminDashboard = () => {
       careerPath: '',
       role: '',
       status: 'pending',
-      password: ''
+      password: '',
+      membershipEnabled: false,
+      membershipAmount: 30
     });
     setShowCreateModal(false);
   };
@@ -176,14 +215,16 @@ const AdminDashboard = () => {
       if (user.id === selectedUser.id) {
         return {
           ...user,
-         password: editingUser.password,
-         email: editingUser.email,
-         membershipCategory: editingUser.membershipCategory,
-         careerPath: editingUser.careerPath,
-         role: editingUser.role,
+          password: editingUser.password,
+          email: editingUser.email,
+          membershipCategory: editingUser.membershipCategory,
+          careerPath: editingUser.careerPath,
+          role: editingUser.role,
           discordLink: editingUser.discordLink,
           mentorAssignments: editingUser.mentorAssignments,
-          status: editingUser.status
+          status: editingUser.status,
+          membershipEnabled: editingUser.membershipEnabled,
+          membershipAmount: editingUser.membershipAmount
         };
       }
       return user;
@@ -233,6 +274,7 @@ const AdminDashboard = () => {
     // Clear mentor assignments if role is Mentor or Admin
     if (newRole === 'Mentor' || newRole === 'Admin') {
       updatedEditingUser.mentorAssignments = [];
+      updatedEditingUser.membershipEnabled = false;
     }
     
     setEditingUser(updatedEditingUser);
@@ -507,7 +549,14 @@ const AdminDashboard = () => {
                         <option value="Admin">Admin</option>
                         <option value="Mentor">Mentor</option>
                         <option value="Mentee">Mentee</option>
-                      </select>
+                        onChange={(e) => {
+                          const newStatus = e.target.value;
+                          setEditingUser({
+                            ...editingUser, 
+                            status: newStatus,
+                            membershipEnabled: newStatus === 'approved' ? editingUser.membershipEnabled : false
+                          });
+                        }}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
@@ -529,6 +578,51 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Membership Settings - Only show for Mentees */}
+                  {editingUser.role === 'Mentee' && (
+                    <div className="mt-6">
+                      <h4 className="text-md font-semibold text-gray-900 mb-4">Membership Settings</h4>
+                      
+                      {/* Membership Toggle */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Enable Membership Payment</label>
+                          <p className="text-xs text-gray-500">When enabled, user must pay before accessing dashboard</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingUser.membershipEnabled}
+                            onChange={(e) => setEditingUser({...editingUser, membershipEnabled: e.target.checked})}
+                            className="sr-only peer"
+                            disabled={editingUser.status !== 'approved'}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
+                        </label>
+                      </div>
+
+                      {/* Membership Amount */}
+                      {editingUser.membershipEnabled && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Membership Amount (GHS)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={editingUser.membershipAmount}
+                            onChange={(e) => {
+                              const amount = Math.max(0, parseFloat(e.target.value) || 0);
+                              setEditingUser({...editingUser, membershipAmount: amount});
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                            placeholder="30.00"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -732,6 +826,50 @@ const AdminDashboard = () => {
                       <option key={option} value={option}>{option}</option>
                     ))}
                   </select>
+                </div>
+              )}
+
+              {/* Membership Settings - Only show for Mentees */}
+              {newUser.role === 'Mentee' && (
+                <div className="border-t border-gray-200 pt-4">
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Membership Settings</h4>
+                  
+                  {/* Membership Toggle */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Enable Membership Payment</label>
+                      <p className="text-xs text-gray-500">When enabled, user must pay before accessing dashboard</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newUser.membershipEnabled}
+                        onChange={(e) => setNewUser({...newUser, membershipEnabled: e.target.checked})}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080]"></div>
+                    </label>
+                  </div>
+
+                  {/* Membership Amount */}
+                  {newUser.membershipEnabled && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Membership Amount (GHS)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={newUser.membershipAmount}
+                        onChange={(e) => {
+                          const amount = Math.max(0, parseFloat(e.target.value) || 0);
+                          setNewUser({...newUser, membershipAmount: amount});
+                        }}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        placeholder="30.00"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
+                    </div>
+                  )}
                 </div>
               )}
 
