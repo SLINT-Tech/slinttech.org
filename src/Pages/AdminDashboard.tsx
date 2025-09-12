@@ -636,7 +636,6 @@ const AdminDashboard = () => {
 
                 {/* Membership Settings - Only show for Mentees and Mentors */}
                 {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
-                {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
                   <div className="mt-6">
                     <h4 className="text-md font-semibold text-gray-900 mb-4">
                       {editingUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
