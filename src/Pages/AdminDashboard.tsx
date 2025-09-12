@@ -573,15 +573,21 @@ const AdminDashboard = () => {
                   </div>
 
                   {/* Membership Settings - Only show for Mentees */}
-                  {editingUser.role === 'Mentee' && (
+                  {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
                     <div className="mt-6">
-                      <h4 className="text-md font-semibold text-gray-900 mb-4">Membership Settings</h4>
+                      <h4 className="text-md font-semibold text-gray-900 mb-4">
+                        {editingUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
+                      </h4>
                       
                       {/* Membership Toggle */}
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Enable Membership Payment</label>
-                          <p className="text-xs text-gray-500">When enabled, user must pay before accessing dashboard</p>
+                          <label className="text-sm font-medium text-gray-700">
+                            Enable {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Payment
+                          </label>
+                          <p className="text-xs text-gray-500">
+                            When enabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
+                          </p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -598,7 +604,9 @@ const AdminDashboard = () => {
                       {/* Membership Amount */}
                       {editingUser.membershipEnabled && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Membership Amount (GHS)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Amount (GHS)
+                          </label>
                           <input
                             type="number"
                             min="0"
@@ -609,7 +617,7 @@ const AdminDashboard = () => {
                               setEditingUser({...editingUser, membershipAmount: amount});
                             }}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                            placeholder="30.00"
+                            placeholder={editingUser.role === 'Mentor' ? '50.00' : '30.00'}
                           />
                           <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
                         </div>
@@ -653,7 +661,7 @@ const AdminDashboard = () => {
                         setEditingUser({
                           ...editingUser, 
                           status: newStatus,
-                          membershipEnabled: newStatus === 'approved' ? editingUser.membershipEnabled : false
+                          membershipEnabled: newStatus === 'approved' ? true : false
                         });
                       }}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
@@ -830,15 +838,21 @@ const AdminDashboard = () => {
               )}
 
               {/* Membership Settings - Only show for Mentees */}
-              {newUser.role === 'Mentee' && (
+              {(newUser.role === 'Mentee' || newUser.role === 'Mentor') && (
                 <div className="border-t border-gray-200 pt-4">
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">Membership Settings</h4>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">
+                    {newUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
+                  </h4>
                   
                   {/* Membership Toggle */}
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Enable Membership Payment</label>
-                      <p className="text-xs text-gray-500">When enabled, user must pay before accessing dashboard</p>
+                      <label className="text-sm font-medium text-gray-700">
+                        Enable {newUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Payment
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        When enabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -854,7 +868,9 @@ const AdminDashboard = () => {
                   {/* Membership Amount */}
                   {newUser.membershipEnabled && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Membership Amount (GHS)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {newUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Amount (GHS)
+                      </label>
                       <input
                         type="number"
                         min="0"
@@ -865,7 +881,7 @@ const AdminDashboard = () => {
                           setNewUser({...newUser, membershipAmount: amount});
                         }}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                        placeholder="30.00"
+                        placeholder={newUser.role === 'Mentor' ? '50.00' : '30.00'}
                       />
                       <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
                     </div>
