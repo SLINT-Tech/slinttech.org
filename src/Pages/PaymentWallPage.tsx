@@ -37,6 +37,9 @@ const PaymentWallPage = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
 
+  // Check if user is a mentor
+  const isMentor = currentUser.role === 'Mentor';
+
   // Generate unique payment reference
   const generatePaymentRef = () => {
     return `slint_${currentUser.id}_${Date.now()}`;
@@ -131,7 +134,12 @@ const PaymentWallPage = () => {
 
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
-    navigate('/dashboard');
+    // Navigate to appropriate dashboard based on user role
+    if (isMentor) {
+      navigate('/mentor/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   // Security check - ensure user has valid membership amount
@@ -222,28 +230,57 @@ const PaymentWallPage = () => {
 
           {/* What You Get */}
           <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">What you get with membership:</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">
+              {isMentor ? 'What you get as a mentor:' : 'What you get with membership:'}
+            </h3>
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700">Access to all courses and learning materials</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700">Personal mentorship and guidance</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700">Community Discord access</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700">Project assignments and feedback</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700">Certificate upon completion</span>
-              </div>
+              {isMentor ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Access to mentor dashboard and tools</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Create and manage courses</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Mentee management and progress tracking</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Task assignment and review system</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Community Discord mentor access</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Access to all courses and learning materials</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Personal mentorship and guidance</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Community Discord access</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Project assignments and feedback</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">Certificate upon completion</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

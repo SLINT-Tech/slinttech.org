@@ -2,6 +2,46 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Mock mentor data for testing different states
+const mockMentors = [
+  {
+    id: 1,
+    email: 'mentor.pending@example.com',
+    password: 'password123',
+    fullName: 'Pending Mentor',
+    status: 'pending',
+    role: 'Mentor',
+    specialization: 'Full Stack Development',
+    membershipEnabled: false,
+    membershipAmount: 50,
+    membershipPaid: false
+  },
+  {
+    id: 2,
+    email: 'mentor.approved.nopay@example.com',
+    password: 'password123',
+    fullName: 'Approved Mentor No Payment',
+    status: 'approved',
+    role: 'Mentor',
+    specialization: 'Frontend Development',
+    membershipEnabled: false,
+    membershipAmount: 50,
+    membershipPaid: false
+  },
+  {
+    id: 3,
+    email: 'mentor.approved.payment@example.com',
+    password: 'password123',
+    fullName: 'Approved Mentor With Payment',
+    status: 'approved',
+    role: 'Mentor',
+    specialization: 'Backend Development',
+    membershipEnabled: true,
+    membershipAmount: 50,
+    membershipPaid: false
+  }
+];
+
 const MentorLoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -26,13 +66,30 @@ const MentorLoginPage = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Here you would typically authenticate the mentor
-    console.log('Mentor login data:', formData);
+    // Find mentor in mock data
+    const mentor = mockMentors.find(m => m.email === formData.email && m.password === formData.password);
     
     setIsSubmitting(false);
     
-    // Navigate to mentor dashboard
-    navigate('/mentor/dashboard');
+    if (mentor) {
+      // Store mentor data in localStorage for other components to access
+      localStorage.setItem('currentUser', JSON.stringify(mentor));
+      
+      // Check mentor status and membership requirements
+      if (mentor.status === 'pending') {
+        navigate('/pending-approval');
+      } else if (mentor.status === 'approved') {
+        if (mentor.membershipEnabled && !mentor.membershipPaid) {
+          navigate('/payment-wall');
+        } else {
+          navigate('/mentor/dashboard');
+        }
+      } else {
+        alert('Your account has been rejected or suspended. Please contact support.');
+      }
+    } else {
+      alert('Invalid email or password. Try: mentor.pending@example.com, mentor.approved.nopay@example.com, or mentor.approved.payment@example.com with password: password123');
+    }
   };
 
   return (
