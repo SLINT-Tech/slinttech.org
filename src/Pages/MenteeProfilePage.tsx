@@ -346,18 +346,18 @@ const MenteeProfilePage = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Membership Agreement</h2>
               
               {profileData.contractFile ? (
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
+                <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center flex-1 min-w-0">
                       <FileText className="w-8 h-8 text-gray-400 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Signed Agreement</p>
-                        <p className="text-sm text-gray-500">{profileData.contractFile}</p>
+                        <p className="text-sm text-gray-500 break-all">{profileData.contractFile}</p>
                       </div>
                     </div>
                     <button
                       onClick={downloadContract}
-                      className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer ml-4"
+                      className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer flex-shrink-0"
                     >
                       <Download className="w-4 h-4" />
                       Download
