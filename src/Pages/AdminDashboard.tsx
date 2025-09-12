@@ -686,7 +686,6 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 )}
-                )}
 
                 {/* Mentor Assignments - Only show for Mentees */}
                 {editingUser.role === 'Mentee' && (
