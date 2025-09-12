@@ -3,23 +3,22 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // Mock data - this would come from your backend/database
-const mockMenteeProfile = {
-  fullName: 'John Doe',
-  email: 'john.doe@example.com',
-  membershipCategory: 'Student',
-  careerPath: 'Full Stack Development',
-  contractFile: 'john_doe_contract.pdf',
-  joinedDate: '2024-01-15',
+const mockMentorProfile = {
+  fullName: 'Dr. Sarah Johnson',
+  email: 'sarah.johnson@slinttech.org',
+  specialization: 'Full Stack Development',
+  contractFile: 'sarah_johnson_contract.pdf',
+  joinedDate: '2024-01-10',
   status: 'approved',
   membershipEnabled: true, // Admin can toggle this
-  membershipAmount: 30,
+  membershipAmount: 50,
   membershipPaid: true,
-  paymentDate: '2024-01-20',
-  paymentReference: 'slint_1_1705747200000'
+  paymentDate: '2024-01-15',
+  paymentReference: 'slint_mentor_1_1705315200000'
 };
 
-const MenteeProfilePage = () => {
-  const [profileData, setProfileData] = useState(mockMenteeProfile);
+const MentorProfilePage = () => {
+  const [profileData, setProfileData] = useState(mockMentorProfile);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -121,12 +120,12 @@ const MenteeProfilePage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Profile Settings</span>
               <Link 
-                to="/login" 
+                to="/mentor/login" 
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -140,7 +139,7 @@ const MenteeProfilePage = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/mentor/dashboard')}
           className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -155,7 +154,7 @@ const MenteeProfilePage = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{profileData.fullName}</h1>
-              <p className="text-gray-600">{profileData.careerPath}</p>
+              <p className="text-gray-600">{profileData.specialization}</p>
               <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(profileData.status)} mt-2`}>
                 {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
               </span>
@@ -184,16 +183,9 @@ const MenteeProfilePage = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">Membership Category</label>
+                <label className="block text-sm font-medium text-gray-500 mb-1">Specialization</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.membershipCategory}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">Career Path</label>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.careerPath}</p>
+                  <p className="text-gray-900">{profileData.specialization}</p>
                 </div>
               </div>
               
@@ -378,4 +370,4 @@ const MenteeProfilePage = () => {
   );
 };
 
-export default MenteeProfilePage;
+export default MentorProfilePage;
