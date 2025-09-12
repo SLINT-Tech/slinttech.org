@@ -134,8 +134,7 @@ const PaymentWallPage = () => {
               </>
             ) : (
               <>
-                Pay ₵{currentUser.membershipAmount} with Paystack
-                <ArrowRight className="w-5 h-5" />
+                Pay ₵{currentUser.membershipAmount}
               </>
             )}
           </button>
