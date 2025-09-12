@@ -123,6 +123,10 @@ const MenteeDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
 
+  // Use current user data instead of mock data for status display
+  const displayStatus = currentUser.status || menteeData.status;
+  const displayCareerPath = currentUser.careerPath || menteeData.careerPath;
+
   const completedLessons = menteeData.lessons.filter(lesson => lesson.completed).length;
   const totalLessons = menteeData.lessons.length;
   const approvedTasks = menteeData.tasks.filter(task => task.status === 'approved').length;
@@ -260,10 +264,10 @@ const MenteeDashboard = () => {
             
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(menteeData.status)}`}>
-                {getStatusText(menteeData.status)}
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(displayStatus)}`}>
+                {getStatusText(displayStatus)}
               </div>
-              <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
+              <p className="text-xs text-gray-500 mt-1">{displayCareerPath}</p>
             </div>
           </div>
           

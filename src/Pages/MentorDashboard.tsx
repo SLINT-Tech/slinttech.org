@@ -69,6 +69,10 @@ const MentorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
 
+  // Use current user data instead of mock data for status display
+  const displayStatus = currentUser.status || 'pending';
+  const displaySpecialization = currentUser.specialization || mentorData.specialization;
+
   const [newCourse, setNewCourse] = useState({
     name: '',
     duration: '',
