@@ -73,14 +73,15 @@ const LoginPage = () => {
       localStorage.setItem('currentUser', JSON.stringify(user));
       
       // Check user status and membership requirements
-      if (user.status === 'pending') {
-        navigate('/pending-approval');
-      } else if (user.status === 'approved') {
+      if (user.status === 'approved') {
         if (user.membershipEnabled && !user.membershipPaid) {
           navigate('/payment-wall');
         } else {
           navigate('/dashboard');
         }
+      } else if (user.status === 'pending') {
+        // Allow limited dashboard preview for pending users
+        navigate('/dashboard');
       } else {
         alert('Your account has been rejected or suspended. Please contact support.');
       }

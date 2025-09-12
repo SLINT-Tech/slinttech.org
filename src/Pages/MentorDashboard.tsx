@@ -1,6 +1,7 @@
 import { Calendar, CheckCircle, Clock, Eye, Plus, Target, User, Users, BookOpen, ArrowRight, Edit, Trash2, X, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 
 // Mock data - this would come from your backend/database
 const mockMentorData = {
@@ -63,6 +64,10 @@ const MentorDashboard = () => {
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState('');
   const navigate = useNavigate();
+  
+  // Get current user status from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const isPending = currentUser.status === 'pending';
 
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -181,6 +186,27 @@ const MentorDashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Pending Status Banner */}
+        {isPending && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+            <div className="flex items-start">
+              <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Mentor Account Under Review</h3>
+                <p className="text-yellow-700 mb-3">
+                  Your mentor account is currently being reviewed by our admin team. You're viewing a preview of your mentor dashboard.
+                  Once approved, you'll have full access to create courses, manage mentees, and all mentor features.
+                </p>
+                <div className="text-sm text-yellow-600">
+                  <p>✓ Mentor application submitted successfully</p>
+                  <p>⏳ Admin review in progress</p>
+                  <p>📧 You'll receive an email notification once approved</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -235,14 +261,21 @@ const MentorDashboard = () => {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Link
             to="/mentor/courses"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow text-left ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">View All Courses</h3>
-                  <p className="text-gray-600">Manage all your courses</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'Manage all your courses'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -251,14 +284,21 @@ const MentorDashboard = () => {
 
           <Link
             to="/mentor/mentees"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow text-left ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Users className="w-8 h-8 text-blue-600 mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">View All Mentees</h3>
-                  <p className="text-gray-600">Manage your mentees</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'Manage your mentees'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -267,14 +307,21 @@ const MentorDashboard = () => {
 
           <Link
             to="/mentor/submissions"
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer text-left"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow text-left ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Target className="w-8 h-8 text-yellow-600 mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">View Pending Reviews</h3>
-                  <p className="text-gray-600">Review task submissions</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'Review task submissions'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -287,12 +334,14 @@ const MentorDashboard = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">Recent Courses</h2>
-              <button
-                onClick={() => setShowCreateCourseModal(true)}
-                className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
-              >
-                Create New Course
-              </button>
+              {!isPending && (
+                <button
+                  onClick={() => setShowCreateCourseModal(true)}
+                  className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
+                >
+                  Create New Course
+                </button>
+              )}
             </div>
           </div>
           
@@ -331,12 +380,18 @@ const MentorDashboard = () => {
                       {new Date(course.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => navigate(`/mentor/course/${course.id}`)}
-                        className="text-[#008080] hover:text-teal-700 cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      {!isPending ? (
+                        <button
+                          onClick={() => navigate(`/mentor/course/${course.id}`)}
+                          className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <span className="text-gray-400">
+                          <Eye className="w-4 h-4" />
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

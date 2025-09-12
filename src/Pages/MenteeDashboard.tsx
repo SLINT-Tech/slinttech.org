@@ -1,6 +1,7 @@
 import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 
 // Mock data - this would come from your backend/database
 const mockMenteeData = {
@@ -117,6 +118,10 @@ const mockMenteeData = {
 const MenteeDashboard = () => {
   const [menteeData, setMenteeData] = useState(mockMenteeData);
   const navigate = useNavigate();
+  
+  // Get current user status from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const isPending = currentUser.status === 'pending';
 
   const completedLessons = menteeData.lessons.filter(lesson => lesson.completed).length;
   const totalLessons = menteeData.lessons.length;
@@ -184,6 +189,27 @@ const MenteeDashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Pending Status Banner */}
+        {isPending && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+            <div className="flex items-start">
+              <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Account Under Review</h3>
+                <p className="text-yellow-700 mb-3">
+                  Your account is currently being reviewed by our admin team. You're viewing a preview of your dashboard.
+                  Once approved, you'll have full access to all features including lessons, tasks, and community Discord.
+                </p>
+                <div className="text-sm text-yellow-600">
+                  <p>✓ Application submitted successfully</p>
+                  <p>⏳ Admin review in progress</p>
+                  <p>📧 You'll receive an email notification once approved</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -248,58 +274,79 @@ const MenteeDashboard = () => {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Link 
             to="/mentors" 
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Users className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">My Mentors</h3>
-                  <p className="text-gray-600">View your assigned mentors</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'View your assigned mentors'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              {menteeData.mentorAssignments.length} mentors assigned
+              {isPending ? 'Pending approval' : `${menteeData.mentorAssignments.length} mentors assigned`}
             </div>
           </Link>
 
           <Link 
             to="/lessons" 
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">All Lessons</h3>
-                  <p className="text-gray-600">View and complete your lessons</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'View and complete your lessons'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              {completedLessons} of {totalLessons} lessons completed
+              {isPending ? 'Pending approval' : `${completedLessons} of ${totalLessons} lessons completed`}
             </div>
           </Link>
 
           <Link 
             to="/tasks" 
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+            className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
+              isPending 
+                ? 'opacity-60 cursor-not-allowed' 
+                : 'hover:shadow-md cursor-pointer'
+            }`}
+            onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Target className="w-8 h-8 text-[#008080] mr-4" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">All Tasks</h3>
-                  <p className="text-gray-600">Submit and track your assignments</p>
+                  <p className="text-gray-600">
+                    {isPending ? 'Available after approval' : 'Submit and track your assignments'}
+                  </p>
                 </div>
               </div>
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              {approvedTasks} of {totalTasks} tasks approved
+              {isPending ? 'Pending approval' : `${approvedTasks} of ${totalTasks} tasks approved`}
             </div>
           </Link>
         </div>
@@ -312,7 +359,7 @@ const MenteeDashboard = () => {
               <h2 className="text-xl font-semibold text-gray-900">Community Discord</h2>
             </div>
             
-            {menteeData.discordLink ? (
+            {menteeData.discordLink && !isPending ? (
               <div>
                 <p className="text-gray-600 mb-4">
                   Join our Discord community to connect with other members and mentors.
@@ -331,9 +378,14 @@ const MenteeDashboard = () => {
             ) : (
               <div className="text-center py-8">
                 <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Discord invite not available yet</p>
+                <p className="text-gray-500">
+                  {isPending ? 'Discord access available after approval' : 'Discord invite not available yet'}
+                </p>
                 <p className="text-sm text-gray-400">
-                  You'll receive a Discord invite once your membership is approved
+                  {isPending 
+                    ? 'Complete the approval process to join our community'
+                    : 'You\'ll receive a Discord invite once your membership is approved'
+                  }
                 </p>
               </div>
             )}

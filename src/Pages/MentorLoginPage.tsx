@@ -76,14 +76,15 @@ const MentorLoginPage = () => {
       localStorage.setItem('currentUser', JSON.stringify(mentor));
       
       // Check mentor status and membership requirements
-      if (mentor.status === 'pending') {
-        navigate('/pending-approval');
-      } else if (mentor.status === 'approved') {
+      if (mentor.status === 'approved') {
         if (mentor.membershipEnabled && !mentor.membershipPaid) {
           navigate('/payment-wall');
         } else {
           navigate('/mentor/dashboard');
         }
+      } else if (mentor.status === 'pending') {
+        // Allow limited dashboard preview for pending users
+        navigate('/mentor/dashboard');
       } else {
         alert('Your account has been rejected or suspended. Please contact support.');
       }
