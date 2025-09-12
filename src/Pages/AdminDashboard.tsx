@@ -609,7 +609,7 @@ const AdminDashboard = () => {
                         setEditingUser({
                           ...editingUser, 
                           status: newStatus,
-                          membershipEnabled: newStatus === 'approved' ? true : false
+                          membershipEnabled: newStatus === 'approved' && (editingUser.role === 'Mentee' || editingUser.role === 'Mentor') ? true : editingUser.membershipEnabled
                         });
                       }}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
@@ -635,6 +635,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Membership Settings - Only show for Mentees and Mentors */}
+                {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
                 {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
                   <div className="mt-6">
                     <h4 className="text-md font-semibold text-gray-900 mb-4">
@@ -685,6 +686,7 @@ const AdminDashboard = () => {
                       </div>
                     )}
                   </div>
+                )}
                 )}
 
                 {/* Mentor Assignments - Only show for Mentees */}
