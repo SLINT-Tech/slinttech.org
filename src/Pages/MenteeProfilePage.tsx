@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,11 @@ const mockMenteeProfile = {
   careerPath: 'Full Stack Development',
   contractFile: 'john_doe_contract.pdf',
   joinedDate: '2024-01-15',
-  status: 'approved'
+  status: 'approved',
+  membershipAmount: 30,
+  membershipPaid: true,
+  paymentDate: '2024-01-20',
+  paymentReference: 'slint_1_1705747200000'
 };
 
 const MenteeProfilePage = () => {
@@ -188,6 +192,24 @@ const MenteeProfilePage = () => {
                   <p className="text-gray-900">{new Date(profileData.joinedDate).toLocaleDateString()}</p>
                 </div>
               </div>
+              
+              {profileData.membershipPaid && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-1">Membership Payment</label>
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <p className="text-green-800 font-medium">₵{profileData.membershipAmount} Paid</p>
+                    </div>
+                    <p className="text-green-700 text-sm">
+                      Paid on {new Date(profileData.paymentDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-green-600 text-xs mt-1">
+                      Ref: {profileData.paymentReference}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
