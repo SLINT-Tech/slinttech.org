@@ -190,6 +190,10 @@ const AdminDashboard = () => {
       discordLink: null,
       courses: [],
       mentorAssignments: [],
+      membershipEnabled: newUser.role === 'Mentee' ? newUser.membershipEnabled : false,
+      membershipAmount: newUser.membershipAmount,
+      membershipPaid: false,
+      createdAt: new Date().toISOString().split('T')[0]
     };
     setUsers([...users, user]);
     setNewUser({
@@ -199,7 +203,9 @@ const AdminDashboard = () => {
       careerPath: '',
       role: '',
       status: 'pending',
-      password: ''
+      password: '',
+      membershipEnabled: false,
+      membershipAmount: 30
     });
     setShowCreateModal(false);
   };
