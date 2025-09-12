@@ -20,6 +20,17 @@ const mockMenteeProfile = {
 
 const MenteeProfilePage = () => {
   const [profileData, setProfileData] = useState(mockMenteeProfile);
+  
+  // Get current user data from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  
+  // Use current user data for status display
+  const displayStatus = currentUser.status || profileData.status;
+  const displayFullName = currentUser.fullName || profileData.fullName;
+  const displayEmail = currentUser.email || profileData.email;
+  const displayCareerPath = currentUser.careerPath || profileData.careerPath;
+  const displayMembershipCategory = currentUser.membershipCategory || profileData.membershipCategory;
+  
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -154,10 +165,10 @@ const MenteeProfilePage = () => {
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{profileData.fullName}</h1>
-              <p className="text-gray-600">{profileData.careerPath}</p>
-              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(profileData.status)} mt-2`}>
-                {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
+              <h1 className="text-2xl font-bold text-gray-900">{displayFullName}</h1>
+              <p className="text-gray-600">{displayCareerPath}</p>
+              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(displayStatus)} mt-2`}>
+                {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
               </span>
             </div>
           </div>
@@ -172,28 +183,28 @@ const MenteeProfilePage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.fullName}</p>
+                  <p className="text-gray-900">{displayFullName}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.email}</p>
+                  <p className="text-gray-900">{displayEmail}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Membership Category</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.membershipCategory}</p>
+                  <p className="text-gray-900">{displayMembershipCategory}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Career Path</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{profileData.careerPath}</p>
+                  <p className="text-gray-900">{displayCareerPath}</p>
                 </div>
               </div>
               
