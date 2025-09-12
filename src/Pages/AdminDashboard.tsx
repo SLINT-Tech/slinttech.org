@@ -634,6 +634,59 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
+                {/* Membership Settings - Only show for Mentees and Mentors */}
+                {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
+                  <div className="mt-6">
+                    <h4 className="text-md font-semibold text-gray-900 mb-4">
+                      {editingUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
+                    </h4>
+                    
+                    {/* Membership Toggle */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">
+                          Enable {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Payment
+                        </label>
+                        <p className="text-xs text-gray-500">
+                          When enabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingUser.membershipEnabled}
+                          onChange={(e) => setEditingUser({...editingUser, membershipEnabled: e.target.checked})}
+                          className="sr-only peer"
+                          disabled={editingUser.status !== 'approved'}
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
+                      </label>
+                    </div>
+
+                    {/* Membership Amount */}
+                    {editingUser.membershipEnabled && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Amount (GHS)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editingUser.membershipAmount}
+                          onChange={(e) => {
+                            const amount = Math.max(0, parseFloat(e.target.value) || 0);
+                            setEditingUser({...editingUser, membershipAmount: amount});
+                          }}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                          placeholder={editingUser.role === 'Mentor' ? '50.00' : '30.00'}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Mentor Assignments - Only show for Mentees */}
                 {editingUser.role === 'Mentee' && (
                 <div className="mt-6">
