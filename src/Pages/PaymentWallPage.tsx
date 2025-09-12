@@ -105,9 +105,8 @@ const PaymentWallPage = () => {
             };
             localStorage.setItem('currentUser', JSON.stringify(updatedUser));
             
-            // Show success message and redirect
-            alert('Payment successful! Welcome to SlintTech!');
-            navigate('/dashboard');
+            // Show success modal
+            setShowPaymentModal(true);
           } else {
             // Payment failed
             console.log('Payment failed:', response);
@@ -128,9 +127,6 @@ const PaymentWallPage = () => {
       alert('Failed to initialize payment. Please try again.');
       setIsProcessing(false);
     }
-    
-    setIsProcessing(false);
-    setShowPaymentModal(true);
   };
 
   const handlePaymentSuccess = () => {
