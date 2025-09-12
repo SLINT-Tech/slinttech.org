@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // Paystack configuration
-const PAYSTACK_PUBLIC_KEY = 'pk_test_your_public_key_here'; // Replace with your actual test public key
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
 // Declare PaystackPop for TypeScript
 declare global {
