@@ -143,7 +143,7 @@ const MenteeProfilePage = () => {
   };
 
   const downloadContract = () => {
-    const attemptDownload = async () => {
+    (async () => {
       try {
         // Check if contracts bucket exists
         const bucketExists = await checkContractsBucket();
@@ -172,9 +172,7 @@ const MenteeProfilePage = () => {
         console.error('Download error:', error);
         alert('Failed to download contract. Please try again or contact support.');
       }
-    };
-    
-    attemptDownload();
+    })();
   };
 
   const togglePasswordVisibility = (field) => {
