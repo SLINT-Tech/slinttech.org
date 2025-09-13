@@ -362,40 +362,6 @@ const MenteeProfilePage = () => {
                   </div>
                 )}
               </div>
-              
-              {/* Progress Overview */}
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-3">Learning Progress</label>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-700">Lessons Progress</span>
-                      <span className="text-sm text-gray-900">{lessonsData.completed}/{lessonsData.total}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${lessonsData.total > 0 ? (lessonsData.completed / lessonsData.total) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">Lessons completed</p>
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-700">Tasks Progress</span>
-                      <span className="text-sm text-gray-900">{tasksData.approved}/{tasksData.total}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${tasksData.total > 0 ? (tasksData.approved / tasksData.total) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">Tasks approved</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -514,7 +480,9 @@ const MenteeProfilePage = () => {
                       <FileText className="w-8 h-8 text-gray-400 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Signed Agreement</p>
-                        <p className="text-sm text-gray-500">Membership contract document</p>
+                        <p className="text-sm text-gray-500 break-all">
+                          {profileData.contractFile.split('/').pop()?.replace(/contract_\d+\.pdf$/, 'contract.pdf') || 'contract.pdf'}
+                        </p>
                       </div>
                     </div>
                     <button
