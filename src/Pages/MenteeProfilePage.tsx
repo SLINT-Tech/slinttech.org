@@ -460,6 +460,7 @@ const MenteeProfilePage = () => {
           </div>
         </div>
       )}
+    </div>
   );
 };
 
