@@ -77,41 +77,65 @@ export const downloadContract = async (contractUrl: string, fileName: string) =>
 export const getContractDownloadUrl = (contractUrl: string) => {
   if (!contractUrl) return null;
   
-  // Extract the file path from the full URL if it's a complete Supabase URL
-  let filePath = contractUrl;
-  
-  if (contractUrl.startsWith('http')) {
-    // Extract the file path from the full Supabase storage URL
-    // URL format: https://xxx.supabase.co/storage/v1/object/public/contracts/user_id/filename.pdf
-    const urlParts = contractUrl.split('/storage/v1/object/public/contracts/');
-    if (urlParts.length > 1) {
-      filePath = urlParts[1];
-    } else {
-      // If URL doesn't match expected format, try direct access
-      return contractUrl;
-    }
-  }
-  
-  // Get the signed URL for private bucket access
+  // For private buckets, we need to use the download method with authorization
+  // Return the contract URL as-is since we'll handle the download differently
+  return contractUrl;
+};
+
+export const downloadContractFile = async (contractUrl: string, fileName?: string) => {
   try {
-    const { data, error } = supabase.storage
-      .from('contracts')
-      .createSignedUrl(filePath, 120); // 2 minutes expiry
-    
-    if (error) {
-      console.error('Error creating signed URL:', error);
-      return null;
+    if (!contractUrl) {
+      throw new Error('No contract URL provided');
     }
+
+    // Extract the file path from the full URL if it's a complete Supabase URL
+    let filePath = contractUrl;
     
-    return data.signedUrl;
+    if (contractUrl.startsWith('http')) {
+      // Extract the file path from the full Supabase storage URL
+      // URL format: https://xxx.supabase.co/storage/v1/object/public/contracts/user_id/filename.pdf
+      const urlParts = contractUrl.split('/storage/v1/object/public/contracts/');
+      if (urlParts.length > 1) {
+        filePath = urlParts[1];
+      } else {
+        // Try alternative URL patterns
+        const altParts = contractUrl.split('/contracts/');
+        if (altParts.length > 1) {
+          filePath = altParts[1];
+        }
+      }
+    }
+
+    // Use the download method for private buckets with proper authorization
+    const { data, error } = await supabase.storage
+      .from('contracts')
+      .download(filePath);
+
+    if (error) {
+      console.error('Error downloading contract:', error);
+      throw new Error('Failed to download contract file');
+    }
+
+    // Create blob URL and trigger download
+    const blob = new Blob([data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName || 'contract.pdf';
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the blob URL
+    window.URL.revokeObjectURL(url);
+    
+    return { success: true };
   } catch (error) {
-    console.error('Error in getContractDownloadUrl:', error);
-    // Fallback to public URL attempt
-    const { data } = supabase.storage
-    .from('contracts')
-      .getPublicUrl(filePath);
-    
-    return data.publicUrl;
+    console.error('Download error:', error);
+    return { success: false, error: error.message };
   }
 };
 

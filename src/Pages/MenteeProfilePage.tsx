@@ -142,7 +142,7 @@ const MenteeProfilePage = () => {
     }
   };
 
-  const downloadContract = () => {
+  const downloadContract = async () => {
     try {
       // Get the contract URL from current user or profile data
       const contractUrl = profileData?.contractFileUrl;
@@ -152,12 +152,11 @@ const MenteeProfilePage = () => {
         return;
       }
 
-      // Get download URL and trigger download
-      const downloadUrl = getContractDownloadUrl(contractUrl);
-      if (downloadUrl) {
-        window.open(downloadUrl, '_blank');
-      } else {
-        alert('Failed to generate download link');
+      // Use the new download method for private buckets
+      const result = await downloadContractFile(contractUrl, 'membership_contract.pdf');
+      
+      if (!result.success) {
+        alert(result.error || 'Failed to download contract');
       }
     } catch (error) {
       console.error('Download error:', error);
