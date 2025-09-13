@@ -99,41 +99,8 @@ const MentorProfilePage = () => {
     fetchProfileData();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8]">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profileData) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8]">
-        {/* Header */}
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <span className="text-gray-600">Profile Settings</span>
-                <Link 
-                  to="/mentor/login" 
-                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-                >
-                  Logout
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
+      {/* Error State */}
+      {!loading && !profileData && (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
@@ -143,93 +110,31 @@ const MentorProfilePage = () => {
             </Link>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!');
-      return;
-    }
-
-    setIsUpdating(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Password update:', passwordData);
-    
-    setIsUpdating(false);
-    setShowPasswordForm(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    
-    alert('Password updated successfully!');
-  };
-
-  const downloadContract = async () => {
-    try {
-      // Get the contract URL from current user or profile data
-      const contractUrl = profileData.contractFile;
-      
-      if (!contractUrl) {
-        alert('No contract document available');
+      )}
         return;
-      }
-
-      // Use the new download method for private buckets
-      const result = await downloadContractFile(contractUrl, 'membership_contract.pdf');
-      
-      if (!result.success) {
-        alert(result.error || 'Failed to download contract');
-      }
-    } catch (error) {
-      console.error('Download error:', error);
-      alert('Failed to download contract. Please try again.');
-    }
-  };
-
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  return (
     <div className="min-h-screen bg-[#F8F8F8]">
+      {/* Header */}
+      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center">
+              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+            </Link>
+            Back to Dashboard
+          </button>
+              <Link 
+                to="/mentor/login" 
+                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+              >
+                Logout
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Loading State */}
       {/* Header */}
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -477,15 +382,78 @@ const MentorProfilePage = () => {
               ) : (
                 <div className="text-center py-6">
                   <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No contract document available</p>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Back Button Skeleton */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
+
+          {/* Profile Header Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Personal Information Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+              
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i}>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Security & Documents Skeleton */}
+            <div className="space-y-6">
+              {/* Password Update Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
                 </div>
-              )}
+                
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Contract Document Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
+                
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center flex-1">
+                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
     </div>
-  );
-};
+      )}
 
 export default MentorProfilePage;
