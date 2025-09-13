@@ -37,13 +37,21 @@ Deno.serve(async (req: Request) => {
     if (!resendApiKey) {
       console.error('RESEND_API_KEY not found in environment variables');
       return new Response(
-        JSON.stringify({ error: 'Email service not configured' }),
+        JSON.stringify({ 
+          success: false, 
+          error: 'Email service not configured - RESEND_API_KEY missing' 
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
+
+    // Log for debugging (remove in production)
+    console.log('Attempting to send email to:', email);
+    console.log('Using API key (first 10 chars):', resendApiKey.substring(0, 10) + '...');
+
     // Create email content based on role
     const isAdmin = role === 'Admin';
     const isMentor = role === 'Mentor';
@@ -152,11 +160,13 @@ Deno.serve(async (req: Request) => {
 
     // Send email using Resend API
     const emailPayload = {
-      from: 'SlintTech <no-reply@slinttech.org>',
+      from: 'SlintTech <onboarding@resend.dev>',
       to: [email],
       subject: subject,
       html: htmlContent
     };
+
+    console.log('Sending email with payload:', JSON.stringify(emailPayload, null, 2));
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -167,13 +177,33 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify(emailPayload)
     });
 
+    const responseText = await emailResponse.text();
+    console.log('Resend API response status:', emailResponse.status);
+    console.log('Resend API response:', responseText);
+
     if (!emailResponse.ok) {
-      const errorData = await emailResponse.text();
-      console.error('Resend API error:', errorData);
-      throw new Error(`Email service error: ${emailResponse.status}`);
+      console.error('Resend API error details:', {
+        status: emailResponse.status,
+        statusText: emailResponse.statusText,
+        response: responseText
+      });
+      
+      // Return success anyway since signup should not fail due to email issues
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Account created successfully (email notification failed)',
+          emailError: `Email service error: ${emailResponse.status} - ${responseText}`
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
-    const emailResult = await emailResponse.json();
+    const emailResult = JSON.parse(responseText);
+    console.log('Email sent successfully:', emailResult);
 
     return new Response(
       JSON.stringify({
@@ -190,10 +220,12 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error('Error sending signup notification:', error);
     
+    // Return success anyway since signup should not fail due to email issues
     return new Response(
       JSON.stringify({
-        success: false,
-        error: 'Failed to send signup notification email'
+        success: true,
+        message: 'Account created successfully (email notification failed)',
+        emailError: error.message
       }),
       {
         status: 500,
