@@ -145,8 +145,130 @@ const MenteeDashboard = () => {
     fetchUserData();
   }, [navigate]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16 md:flex">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
+              </Link>
+              
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center gap-4">
+                <span className="text-gray-600">
+                  Welcome, {currentUser.fullName?.split(' ')[0] || 'User'}
+                </span>
+                <Link 
+                  to="/profile" 
+                  className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer"
+                >
+                  Profile
+                </Link>
+                <Link 
+                  to="/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium"
+                >
+                  Logout
+                </Link>
+              </div>
+              
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </header>
 
+        {/* Skeleton Loading */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
+          </div>
 
+          {/* Overview Panel Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="h-6 bg-gray-200 rounded w-24 mb-6 animate-pulse"></div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                  <div className="flex items-center mb-2">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                  </div>
+                  <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Access Cards Skeleton */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-gray-200 rounded mr-4 animate-pulse"></div>
+                    <div>
+                      <div className="h-5 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="mt-4">
+                  <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Community Discord Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-6 h-6 bg-gray-200 rounded mr-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-40 animate-pulse"></div>
+              </div>
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-48 mx-auto mb-2 animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Recent Announcements Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-6 h-6 bg-gray-200 rounded mr-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="border-l-4 border-gray-200 p-4 rounded-r-lg bg-gray-50">
+                    <div className="h-4 bg-gray-200 rounded w-40 mb-2 animate-pulse"></div>
+                    <div className="h-3 bg-gray-200 rounded w-full mb-2 animate-pulse"></div>
+                    <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -271,16 +393,6 @@ const MenteeDashboard = () => {
           )}
         </div>
       </header>
-
-      {/* Loading State */}
-      {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your dashboard...</p>
-          </div>
-        </div>
-      )}
 
       {/* Error State */}
       {!loading && !menteeData && (
