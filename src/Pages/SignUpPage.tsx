@@ -101,7 +101,13 @@ const SignUpPage = () => {
     link.download = filename;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    
+    // Use setTimeout to ensure the click event is processed before removing
+    setTimeout(() => {
+      if (document.body.contains(link)) {
+        document.body.removeChild(link);
+      }
+    }, 100);
   };
 
   return (
