@@ -96,7 +96,7 @@ export const getContractDownloadUrl = (contractUrl: string) => {
   try {
     const { data, error } = supabase.storage
       .from('contracts')
-      .createSignedUrl(filePath, 3600); // 1 hour expiry
+      .createSignedUrl(filePath, 120); // 2 minutes expiry
     
     if (error) {
       console.error('Error creating signed URL:', error);
