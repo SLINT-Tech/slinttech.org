@@ -99,8 +99,207 @@ const MentorProfilePage = () => {
     fetchProfileData();
   }, [navigate]);
 
-      {/* Error State */}
-      {!loading && !profileData && (
+  const handlePasswordChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords({
+      ...showPasswords,
+      [field]: !showPasswords[field]
+    });
+  };
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('New passwords do not match');
+      return;
+    }
+
+    setIsUpdating(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) {
+        console.error('Error updating password:', error);
+        alert('Failed to update password. Please try again.');
+      } else {
+        alert('Password updated successfully');
+        setShowPasswordForm(false);
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('Failed to update password. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const downloadContract = async () => {
+    try {
+      await downloadContractFile(profileData.contractFile);
+    } catch (error) {
+      console.error('Error downloading contract:', error);
+      alert('Failed to download contract file');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'text-green-700 bg-green-100 border-green-200';
+      case 'pending':
+        return 'text-yellow-700 bg-yellow-100 border-yellow-200';
+      case 'inactive':
+        return 'text-red-700 bg-red-100 border-red-200';
+      default:
+        return 'text-gray-700 bg-gray-100 border-gray-200';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-600">Profile Settings</span>
+                <Link 
+                  to="/mentor/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Back Button Skeleton */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
+
+          {/* Profile Header Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Personal Information Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+              
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i}>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Security & Documents Skeleton */}
+            <div className="space-y-6">
+              {/* Password Update Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+                
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Contract Document Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
+                
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center flex-1">
+                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigate('/mentor/dashboard')}
+                  className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Dashboard
+                </button>
+                <Link 
+                  to="/mentor/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Error State */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
@@ -110,31 +309,12 @@ const MentorProfilePage = () => {
             </Link>
           </div>
         </div>
-      )}
-        return;
-    <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
-            </Link>
-            Back to Dashboard
-          </button>
-              <Link 
-                to="/mentor/login" 
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-              >
-                Logout
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      </div>
+    );
+  }
 
-      {/* Loading State */}
+  return (
+    <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -382,78 +562,15 @@ const MentorProfilePage = () => {
               ) : (
                 <div className="text-center py-6">
                   <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button Skeleton */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-          </div>
-
-          {/* Profile Header Skeleton */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
-              <div>
-                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
-                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Personal Information Skeleton */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
-              
-              <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i}>
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Security & Documents Skeleton */}
-            <div className="space-y-6">
-              {/* Password Update Skeleton */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <p className="text-gray-500">No contract document available</p>
                 </div>
-                
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
-                </div>
-              </div>
-
-              {/* Contract Document Skeleton */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
-                
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center flex-1">
-                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
-                      <div>
-                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
+      </div>
     </div>
-      )}
+  );
+};
 
 export default MentorProfilePage;
