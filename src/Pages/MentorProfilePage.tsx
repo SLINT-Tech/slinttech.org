@@ -432,21 +432,23 @@ const MentorProfilePage = () => {
               
               {profileData.contractFile ? (
                 <div className="border border-gray-200 rounded-lg p-4 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center flex-1 min-w-0">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
                       <FileText className="w-8 h-8 text-gray-400 mr-3" />
                       <div>
-                        <p className="font-medium text-gray-900">Signed Agreement</p>
-                        <p className="text-sm text-gray-500 break-all">{profileData.contractFile}</p>
+                        <p className="font-medium text-gray-900">Membership Contract Document</p>
+                        <p className="text-sm text-gray-500">Signed agreement uploaded during registration</p>
                       </div>
                     </div>
-                    <button
-                      onClick={downloadContract}
-                      className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer flex-shrink-0"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={downloadContract}
+                        className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download Contract
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
