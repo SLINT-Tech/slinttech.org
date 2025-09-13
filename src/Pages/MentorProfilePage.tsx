@@ -1,6 +1,7 @@
 import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getContractDownloadUrl } from '../lib/storage';
 
 // Mock data - this would come from your backend/database
 const mockMentorProfile = {
@@ -83,19 +84,26 @@ const MentorProfilePage = () => {
   };
 
   const downloadContract = () => {
-    const filename = profileData.contractFile;
-    
-    // Use window.open for more reliable download
-    const downloadUrl = `/documents/${encodeURIComponent(filename)}`;
-    
-    // Create temporary link without adding to DOM
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = filename;
-    link.style.display = 'none';
-    
-    // Trigger download without DOM manipulation
-    link.click();
+    try {
+      // Get the contract URL from current user or profile data
+      const contractUrl = currentUser.contractFileUrl || profileData.contractFile;
+      
+      if (!contractUrl) {
+        alert('No contract document available');
+        return;
+      }
+
+      // Get download URL and trigger download
+      const downloadUrl = getContractDownloadUrl(contractUrl);
+      if (downloadUrl) {
+        window.open(downloadUrl, '_blank');
+      } else {
+        alert('Failed to generate download link');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download contract. Please try again.');
+    }
   };
 
   const togglePasswordVisibility = (field) => {
