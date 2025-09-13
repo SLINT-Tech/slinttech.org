@@ -152,21 +152,6 @@ const SignUpPage = () => {
           console.warn('Failed to send signup notification email:', emailResult.error);
         }
         
-        // Send signup notification email
-        const emailResult = await sendSignupNotification({
-          email: formData.email,
-          fullName: formData.fullName,
-          role: formData.role,
-          membershipCategory: formData.membershipCategory,
-          careerPath: formData.careerPath
-        });
-
-        if (emailResult.success) {
-          console.log('Signup notification email sent successfully');
-        } else {
-          console.warn('Failed to send signup notification email:', emailResult.error);
-        }
-        
         setToast({
           message: 'Registration successful! Please check your email to verify your account and for important information about the review process.',
           type: 'success'
