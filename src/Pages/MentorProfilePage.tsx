@@ -192,9 +192,9 @@ const MentorProfilePage = () => {
                   </div>
                 </div>
               </div>
-              </div>
             </div>
           </div>
+        </div>
       </div>
     );
   }
@@ -207,6 +207,7 @@ const MentorProfilePage = () => {
           <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
           <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
             Back to Dashboard
+          </Link>
         </div>
       </div>
     );
