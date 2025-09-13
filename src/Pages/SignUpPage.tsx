@@ -98,11 +98,12 @@ const SignUpPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Sign up user with Supabase Auth
+      // Sign up user with Supabase Auth (auto-confirm for immediate authentication)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: undefined, // Disable email confirmation
           data: {
             full_name: formData.fullName,
             membership_category: formData.membershipCategory,
@@ -117,6 +118,9 @@ const SignUpPage = () => {
       }
 
       if (authData.user) {
+        // Wait a moment for the user to be fully authenticated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Upload contract file to Supabase Storage
         const uploadResult = await uploadContract(formData.contractFile, authData.user.id);
         
@@ -153,7 +157,7 @@ const SignUpPage = () => {
         }
         
         setToast({
-          message: 'Registration successful! Please check your email to verify your account and for important information about the review process.',
+          message: 'Registration successful! Your account has been created and is under review. You will receive an email notification once approved.',
           type: 'success'
         });
         
@@ -168,6 +172,12 @@ const SignUpPage = () => {
           role: 'Mentee',
           contractFile: null
         });
+        
+        // Clear file input
+        const fileInput = document.getElementById('contract-upload') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
       }
     } catch (error: any) {
       setToast({

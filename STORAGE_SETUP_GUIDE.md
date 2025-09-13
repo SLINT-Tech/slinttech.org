@@ -1,5 +1,18 @@
 # 📁 Supabase Storage Setup Guide
 
+## ⚠️ Important: Disable Email Confirmation First
+
+Before setting up storage, you need to disable email confirmation:
+
+1. **Go to Authentication > Settings** in your Supabase dashboard
+2. **Scroll down to "Email Confirmation"**
+3. **Toggle OFF "Enable email confirmations"**
+4. **Click "Save"**
+
+This ensures users are immediately authenticated after signup, allowing storage uploads to work.
+
+---
+
 ## Step 1: Create the Contracts Bucket
 
 1. **Go to your Supabase Dashboard**
