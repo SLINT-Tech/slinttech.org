@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { supabase } from '../lib/supabase';
+import { uploadContract } from '../lib/storage';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -116,11 +117,28 @@ const SignUpPage = () => {
       }
 
       if (authData.user) {
-        // TODO: Upload contract file to Supabase Storage
-        // For now, we'll just store the filename
+        // Upload contract file to Supabase Storage
+        const uploadResult = await uploadContract(formData.contractFile, authData.user.id);
+        
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error || 'Failed to upload contract');
+        }
+
+        // Update user profile with contract URL
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            contract_file_url: uploadResult.url 
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.error('Profile update error:', profileError);
+          // Don't throw error here as user is already created
+        }
         
         setToast({
-          message: 'Registration successful! Please check your email to verify your account, then you can log in.',
+          message: 'Registration successful! Please check your email to verify your account before logging in.',
           type: 'success'
         });
         
@@ -147,20 +165,20 @@ const SignUpPage = () => {
   };
 
   const downloadContract = () => {
-    // Direct download approach
-    const filename = 'slint_tech_membership_agreement_and_contract.pdf';
-    
-    // Use window.open for more reliable download
-    const downloadUrl = `/documents/${encodeURIComponent(filename)}`;
-    
-    // Create temporary link without adding to DOM
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = filename;
-    link.style.display = 'none';
-    
-    // Trigger download without DOM manipulation
-    link.click();
+    try {
+      // Direct download approach
+      const filename = 'slint_tech_membership_agreement_and_contract.pdf';
+      const downloadUrl = `/documents/${encodeURIComponent(filename)}`;
+      
+      // Use window.open for reliable download
+      window.open(downloadUrl, '_blank');
+    } catch (error) {
+      console.error('Download error:', error);
+      setToast({
+        message: 'Failed to download contract. Please try again.',
+        type: 'error'
+      });
+    }
   };
 
   return (
