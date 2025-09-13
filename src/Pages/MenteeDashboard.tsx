@@ -605,21 +605,6 @@ const MenteeDashboard = () => {
           </div>
         </div>
       )}
-
-      {/* Error State */}
-      {!loading && !menteeData && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
-            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-              Back to Login
-            </Link>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-export default MenteeDashboard;
