@@ -1,6 +1,8 @@
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import Toast from '../Components/Toast';
 
 const AdminLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ const AdminLoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,16 +26,54 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Here you would typically authenticate the admin
-    console.log('Admin login data:', formData);
-    
-    setIsSubmitting(false);
-    
-    // Navigate to admin dashboard
-    navigate('/admin/dashboard');
+    try {
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (authData.user) {
+        // Get user profile from database
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileError) {
+          throw new Error('Failed to load user profile');
+        }
+
+        // Verify user is an admin
+        if (profile.role !== 'Admin') {
+          throw new Error('Access denied. Admin privileges required.');
+        }
+
+        // Store user data in localStorage
+        const userData = {
+          id: authData.user.id,
+          email: authData.user.email,
+          fullName: profile.full_name,
+          role: profile.role,
+          status: profile.status
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        navigate('/admin/dashboard');
+      }
+    } catch (error: any) {
+      setToast({
+        message: error.message || 'Login failed. Please check your credentials.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -136,6 +177,15 @@ const AdminLoginPage = () => {
           </form>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

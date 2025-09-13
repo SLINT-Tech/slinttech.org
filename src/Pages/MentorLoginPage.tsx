@@ -1,46 +1,8 @@
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-// Mock mentor data for testing different states
-const mockMentors = [
-  {
-    id: 1,
-    email: 'mentor.pending@example.com',
-    password: 'password123',
-    fullName: 'Pending Mentor',
-    status: 'pending',
-    role: 'Mentor',
-    specialization: 'Full Stack Development',
-    membershipEnabled: false,
-    membershipAmount: 50,
-    membershipPaid: false
-  },
-  {
-    id: 2,
-    email: 'mentor.approved.nopay@example.com',
-    password: 'password123',
-    fullName: 'Approved Mentor No Payment',
-    status: 'approved',
-    role: 'Mentor',
-    specialization: 'Frontend Development',
-    membershipEnabled: false,
-    membershipAmount: 50,
-    membershipPaid: false
-  },
-  {
-    id: 3,
-    email: 'mentor.approved.payment@example.com',
-    password: 'password123',
-    fullName: 'Approved Mentor With Payment',
-    status: 'approved',
-    role: 'Mentor',
-    specialization: 'Backend Development',
-    membershipEnabled: true,
-    membershipAmount: 50,
-    membershipPaid: false
-  }
-];
+import { supabase } from '../lib/supabase';
+import Toast from '../Components/Toast';
 
 const MentorLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -49,6 +11,7 @@ const MentorLoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,33 +26,71 @@ const MentorLoginPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Find mentor in mock data
-    const mentor = mockMentors.find(m => m.email === formData.email && m.password === formData.password);
-    
-    setIsSubmitting(false);
-    
-    if (mentor) {
-      // Store mentor data in localStorage for other components to access
-      localStorage.setItem('currentUser', JSON.stringify(mentor));
-      
-      // Check mentor status and membership requirements
-      if (mentor.status === 'approved') {
-        if (mentor.membershipEnabled && !mentor.membershipPaid) {
-          navigate('/payment-wall');
-        } else {
-          navigate('/mentor/dashboard');
-        }
-      } else if (mentor.status === 'pending') {
-        // Allow limited dashboard preview for pending users
-        navigate('/mentor/dashboard');
-      } else {
-        alert('Your account has been rejected or suspended. Please contact support.');
+    try {
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (authError) {
+        throw authError;
       }
-    } else {
-      alert('Invalid email or password. Try: mentor.pending@example.com, mentor.approved.nopay@example.com, or mentor.approved.payment@example.com with password: password123');
+
+      if (authData.user) {
+        // Get user profile from database
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileError) {
+          throw new Error('Failed to load user profile');
+        }
+
+        // Verify user is a mentor
+        if (profile.role !== 'Mentor') {
+          throw new Error('This login is for mentors only. Please use the regular login page.');
+        }
+
+        // Store user data in localStorage for other components to access
+        const userData = {
+          id: authData.user.id,
+          email: authData.user.email,
+          fullName: profile.full_name,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        
+        // Route based on mentor status and membership requirements
+        if (profile.status === 'approved') {
+          if (profile.membership_enabled && !profile.membership_paid) {
+            navigate('/payment-wall');
+          } else {
+            navigate('/mentor/dashboard');
+          }
+        } else {
+          navigate('/mentor/dashboard'); // Preview for pending mentors
+        }
+      }
+    } catch (error: any) {
+      setToast({
+        message: error.message || 'Login failed. Please check your credentials.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -194,6 +195,15 @@ const MentorLoginPage = () => {
           </form>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

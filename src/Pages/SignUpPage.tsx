@@ -1,14 +1,19 @@
 import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import { supabase } from '../lib/supabase';
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     membershipCategory: '',
     careerPath: '',
+    role: 'Mentee' as 'Mentee' | 'Mentor',
     contractFile: null as File | null
   });
 
@@ -62,15 +67,24 @@ const SignUpPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if contract file is uploaded
-    if (!formData.contractFile) {
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
       setToast({
-        message: 'Please upload the signed agreement document before submitting.',
+        message: 'Passwords do not match.',
         type: 'error'
       });
       return;
     }
-    
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      setToast({
+        message: 'Password must be at least 6 characters long.',
+        type: 'error'
+      });
+      return;
+    }
+
     // Check if contract file is uploaded
     if (!formData.contractFile) {
       setToast({
@@ -81,15 +95,55 @@ const SignUpPage = () => {
     }
     
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Here you would typically send the data to your backend
-    console.log('Registration data:', formData);
-    
-    setIsSubmitting(false);
-    alert('Registration submitted successfully! Check your email for login credentials.');
+
+    try {
+      // Sign up user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            membership_category: formData.membershipCategory,
+            career_path: formData.careerPath,
+            role: formData.role
+          }
+        }
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (authData.user) {
+        // TODO: Upload contract file to Supabase Storage
+        // For now, we'll just store the filename
+        
+        setToast({
+          message: 'Registration successful! Please check your email to verify your account, then you can log in.',
+          type: 'success'
+        });
+        
+        // Reset form
+        setFormData({
+          fullName: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          membershipCategory: '',
+          careerPath: '',
+          role: 'Mentee',
+          contractFile: null
+        });
+      }
+    } catch (error: any) {
+      setToast({
+        message: error.message || 'Registration failed. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const downloadContract = () => {
@@ -180,6 +234,57 @@ const SignUpPage = () => {
               />
             </div>
 
+            {/* Password */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Password *
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                placeholder="Create a password (min 6 characters)"
+                required
+                minLength={6}
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                placeholder="Confirm your password"
+                required
+                minLength={6}
+              />
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                I want to join as *
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                required
+              >
+                <option value="Mentee">Mentee (I want to learn)</option>
+                <option value="Mentor">Mentor (I want to teach)</option>
+              </select>
+            </div>
+
             {/* Membership Category */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
@@ -193,16 +298,16 @@ const SignUpPage = () => {
                 required
               >
                 <option value="">Select your category</option>
-                <option value="student">Student</option>
-                <option value="professional">Professional</option>
-                <option value="volunteer">Volunteer</option>
+                <option value="Student">Student</option>
+                <option value="Professional">Professional</option>
+                <option value="Volunteer">Volunteer</option>
               </select>
             </div>
 
-            {/* Career Path */}
+            {/* Career Path / Specialization */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
-                Interested Career Path *
+                {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
               </label>
               <select
                 name="careerPath"
@@ -211,14 +316,16 @@ const SignUpPage = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
                 required
               >
-                <option value="">Select your career path</option>
-                <option value="fullstack">Full Stack Development</option>
-                <option value="frontend">Front-End Development</option>
-                <option value="backend">Back-End Development</option>
-                <option value="mobile">Mobile Development</option>
-                <option value="ml-ai">Machine Learning/Artificial Intelligence</option>
-                <option value="data-science">Data Science</option>
-                <option value="ui-ux">UI/UX Design</option>
+                <option value="">
+                  {formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
+                </option>
+                <option value="Full Stack Development">Full Stack Development</option>
+                <option value="Frontend Development">Frontend Development</option>
+                <option value="Backend Development">Backend Development</option>
+                <option value="Mobile Development">Mobile Development</option>
+                <option value="Machine Learning/AI">Machine Learning/AI</option>
+                <option value="Data Science">Data Science</option>
+                <option value="UI/UX Design">UI/UX Design</option>
               </select>
             </div>
 
@@ -296,11 +403,11 @@ const SignUpPage = () => {
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Processing...
+                  Creating Account...
                 </>
               ) : (
                 <>
-                  Register as Member
+                  Create Account
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
