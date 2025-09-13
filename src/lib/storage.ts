@@ -77,17 +77,42 @@ export const downloadContract = async (contractUrl: string, fileName: string) =>
 export const getContractDownloadUrl = (contractUrl: string) => {
   if (!contractUrl) return null;
   
-  // If it's already a full URL, return as is
+  // Extract the file path from the full URL if it's a complete Supabase URL
+  let filePath = contractUrl;
+  
   if (contractUrl.startsWith('http')) {
-    return contractUrl;
+    // Extract the file path from the full Supabase storage URL
+    // URL format: https://xxx.supabase.co/storage/v1/object/public/contracts/user_id/filename.pdf
+    const urlParts = contractUrl.split('/storage/v1/object/public/contracts/');
+    if (urlParts.length > 1) {
+      filePath = urlParts[1];
+    } else {
+      // If URL doesn't match expected format, try direct access
+      return contractUrl;
+    }
   }
   
-  // If it's a storage path, get the public URL
-  const { data } = supabase.storage
-    .from('contracts')
-    .getPublicUrl(contractUrl);
+  // Get the signed URL for private bucket access
+  try {
+    const { data, error } = supabase.storage
+      .from('contracts')
+      .createSignedUrl(filePath, 60); // 60 seconds expiry
     
-  return data.publicUrl;
+    if (error) {
+      console.error('Error creating signed URL:', error);
+      return null;
+    }
+    
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Error in getContractDownloadUrl:', error);
+    // Fallback to public URL attempt
+    const { data } = supabase.storage
+    .from('contracts')
+      .getPublicUrl(filePath);
+    
+    return data.publicUrl;
+  }
 };
 
 // Check if contracts bucket exists
