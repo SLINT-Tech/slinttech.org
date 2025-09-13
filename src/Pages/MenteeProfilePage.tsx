@@ -143,36 +143,26 @@ const MenteeProfilePage = () => {
   };
 
   const downloadContract = () => {
-    (async () => {
-      try {
-        // Check if contracts bucket exists
-        const bucketExists = await checkContractsBucket();
-        
-        if (!bucketExists) {
-          alert('Contract storage is not set up yet. Please contact your administrator to configure the storage bucket.');
-          return;
-        }
-        
-        // Get the contract URL from current user or profile data
-        const contractUrl = profileData?.contractFileUrl;
-        
-        if (!contractUrl) {
-          alert('No contract document available');
-          return;
-        }
-
-        // Get download URL and trigger download
-        const downloadUrl = getContractDownloadUrl(contractUrl);
-        if (downloadUrl) {
-          window.open(downloadUrl, '_blank');
-        } else {
-          alert('Failed to generate download link');
-        }
-      } catch (error) {
-        console.error('Download error:', error);
-        alert('Unable to download contract at this time. Please contact your administrator.');
+    try {
+      // Get the contract URL from current user or profile data
+      const contractUrl = profileData?.contractFileUrl;
+      
+      if (!contractUrl) {
+        alert('No contract document available');
+        return;
       }
-    })();
+
+      // Get download URL and trigger download
+      const downloadUrl = getContractDownloadUrl(contractUrl);
+      if (downloadUrl) {
+        window.open(downloadUrl, '_blank');
+      } else {
+        alert('Failed to generate download link');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download contract. Please try again.');
+    }
   };
 
   const togglePasswordVisibility = (field) => {
