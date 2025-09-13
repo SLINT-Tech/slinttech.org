@@ -324,14 +324,14 @@ const MentorProfilePage = () => {
               <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
-              <>
-                <button
-                  onClick={() => navigate('/mentor/dashboard')}
-                  className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Dashboard
-                </button>
+              <button
+                onClick={() => navigate('/mentor/dashboard')}
+                className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Dashboard
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -442,7 +442,6 @@ const MentorProfilePage = () => {
                 >
                   {showPasswordForm ? 'Cancel' : 'Change Password'}
                 </button>
-              </>
               </div>
               
               {showPasswordForm ? (
