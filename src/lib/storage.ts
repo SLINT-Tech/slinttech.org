@@ -96,6 +96,9 @@ export const checkContractsBucket = async () => {
     const { data, error } = await supabase.storage.listBuckets();
     
     if (error) {
+    }
+  }
+}
 
 // Email notification service
 export const sendSignupNotification = async (userData: {
