@@ -108,7 +108,8 @@ const SignUpPage = () => {
             full_name: formData.fullName,
             membership_category: formData.membershipCategory,
             career_path: formData.careerPath,
-            role: formData.role
+            role: formData.role,
+            specialization: formData.role === 'Mentor' ? formData.careerPath : null
           }
         }
       });
