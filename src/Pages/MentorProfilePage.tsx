@@ -108,10 +108,10 @@ const MentorProfilePage = () => {
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
               </Link>
               <div className="flex items-center gap-4">
-                <span className="text-gray-600">Profile Settings</span>
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
                 <Link 
                   to="/mentor/login" 
                   className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
@@ -159,7 +159,7 @@ const MentorProfilePage = () => {
                 ))}
               </div>
             </div>
-
+            
             {/* Security & Documents Skeleton */}
             <div className="space-y-6">
               {/* Password Update Skeleton */}
@@ -207,7 +207,6 @@ const MentorProfilePage = () => {
           <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
           <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
             Back to Dashboard
-          </Link>
         </div>
       </div>
     );
