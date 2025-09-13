@@ -223,7 +223,7 @@ const MenteeProfilePage = () => {
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center gap-2 mb-1">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <p className="text-green-800 font-medium">₵{currentUser.membershipAmount} Paid</p>
+                        <p className="text-green-800 font-medium">₵{currentUser.membershipAmount} - Paid</p>
                       </div>
                       <p className="text-green-700 text-sm">
                         Paid on {new Date(currentUser.paymentDate || profileData.paymentDate).toLocaleDateString()}
