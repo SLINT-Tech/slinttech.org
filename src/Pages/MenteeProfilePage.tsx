@@ -218,23 +218,23 @@ const MenteeProfilePage = () => {
               {/* Membership Payment Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Membership Payment</label>
-                {displayAmount > 0 ? (
-                  profileData.membershipPaid ? (
+                {currentUser.membershipEnabled && currentUser.membershipAmount > 0 ? (
+                  currentUser.membershipPaid ? (
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center gap-2 mb-1">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <p className="text-green-800 font-medium">₵{displayAmount} Paid</p>
+                        <p className="text-green-800 font-medium">₵{currentUser.membershipAmount} Paid</p>
                       </div>
                       <p className="text-green-700 text-sm">
-                        Paid on {new Date(profileData.paymentDate).toLocaleDateString()}
+                        Paid on {new Date(currentUser.paymentDate || profileData.paymentDate).toLocaleDateString()}
                       </p>
                       <p className="text-green-600 text-xs mt-1">
-                        Ref: {profileData.paymentReference}
+                        Ref: {currentUser.paymentReference || profileData.paymentReference}
                       </p>
                     </div>
                   ) : (
                     <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <p className="text-yellow-800 font-medium">₵{displayAmount} - Payment Required</p>
+                      <p className="text-yellow-800 font-medium">₵{currentUser.membershipAmount} - Payment Required</p>
                       <p className="text-yellow-700 text-sm">Membership payment pending</p>
                     </div>
                   )

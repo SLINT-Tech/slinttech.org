@@ -11,10 +11,18 @@ const Footer: React.FC = () => (
                     <img src="/assets/Slintech_logo.svg" alt="SlintTech Logo" className="h-12 mb-2" />
                   
                     <div className="flex space-x-4">
-                        <Facebook className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
-                        <Twitter className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
-                        <Instagram className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
-                        <Linkedin className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                        <a href="https://www.facebook.com/slinttech" target="_blank" rel="noopener noreferrer">
+                            <Facebook className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                        </a>
+                        <a href="https://www.twitter.com/slinttech" target="_blank" rel="noopener noreferrer">
+                            <Twitter className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                        </a>
+                        <a href="https://www.instagram.com/slinttech/" target="_blank" rel="noopener noreferrer">
+                            <Instagram className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                        </a>
+                        <a href="https://www.linkedin.com/company/slinttech" target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
+                        </a>
                     </div>
                 </div>
 

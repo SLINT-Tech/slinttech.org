@@ -1,4 +1,5 @@
 import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -90,6 +91,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [newUser, setNewUser] = useState({
     fullName: '',
@@ -297,7 +299,9 @@ const AdminDashboard = () => {
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Admin</span>
             </Link>
-            <div className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">Admin Portal</span>
               <Link 
                 to="/admin/login" 
@@ -306,7 +310,40 @@ const AdminDashboard = () => {
                 Logout
               </Link>
             </div>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+          
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden bg-white border-t border-gray-200 py-4">
+              <div className="flex flex-col space-y-4">
+                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
+                  Admin Portal
+                </div>
+                <Link 
+                  to="/admin/dashboard" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  User Management
+                </Link>
+                <Link 
+                  to="/admin/login" 
+                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 

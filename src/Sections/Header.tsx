@@ -74,16 +74,16 @@ export default function Header() {
                 {isMenuOpen && (
                     <div className="md:hidden bg-transparent border-t border-gray-200 py-4">
                         <div className="flex flex-col space-y-4">
-                            <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
-                            <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                            <a href="#community" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</a>
-                            <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
+                            <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
+                            <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
+                            <Link to="/signup" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
+                            <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                                <button className="text-gray-700 hover:text-[#008080] transition-colors text-left">Login</button>
-                                <button className="bg-[#008080] text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 transition-colors flex items-center cursor-pointer">
+                                <Link to="/login" className="text-gray-700 hover:text-[#008080] transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                                <Link to="/signup" className="bg-[#008080] text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
                                     Get Started
                                     <ArrowRight className="ml-2 w-4 h-4" />
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

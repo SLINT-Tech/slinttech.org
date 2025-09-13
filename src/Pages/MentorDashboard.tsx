@@ -1,4 +1,5 @@
 import { Calendar, CheckCircle, Clock, Eye, Plus, Target, User, Users, BookOpen, ArrowRight, Edit, Trash2, X, Send } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
@@ -63,6 +64,7 @@ const MentorDashboard = () => {
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   
   // Get current user status from localStorage
@@ -169,7 +171,9 @@ const MentorDashboard = () => {
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
             </Link>
-            <div className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">Welcome, {mentorData.fullName}</span>
               <Link 
                 to="/mentor/profile" 
@@ -178,13 +182,74 @@ const MentorDashboard = () => {
                 Profile
               </Link>
               <Link 
-                to="/login" 
+                to="/mentor/login" 
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
               </Link>
             </div>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+          
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden bg-white border-t border-gray-200 py-4">
+              <div className="flex flex-col space-y-4">
+                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
+                  Welcome, {mentorData.fullName}
+                </div>
+                <Link 
+                  to="/mentor/dashboard" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/mentor/courses" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  All Courses
+                </Link>
+                <Link 
+                  to="/mentor/mentees" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Mentees
+                </Link>
+                <Link 
+                  to="/mentor/submissions" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Pending Reviews
+                </Link>
+                <Link 
+                  to="/mentor/profile" 
+                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                <Link 
+                  to="/mentor/login" 
+                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
