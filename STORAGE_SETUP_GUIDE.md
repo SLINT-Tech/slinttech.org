@@ -63,7 +63,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND auth.uid()::text = (string_to_array(name, '/'))[1]
+bucket_id = 'contracts' AND (string_to_array(name, '/'))[1] = auth.uid()::text
 ```
 
 **Click "Review" then "Save policy"**
@@ -88,23 +88,23 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND auth.uid()::text = (string_to_array(name, '/'))[1]
+bucket_id = 'contracts' AND (string_to_array(name, '/'))[1] = auth.uid()::text
 ```
 
 **Click "Review" then "Save policy"**
 
 ---
 
-### Policy 3: Admin Full Access Policy
+### Policy 3: User Update Policy
 
 **Click "New Policy"** and fill in:
 
 ```
-Policy name: Admins can manage all contracts
+Policy name: Users can update own contracts
 ```
 
 ```
-Allowed operation: ALL
+Allowed operation: UPDATE
 ```
 
 ```
@@ -113,7 +113,32 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role = 'Admin')
+bucket_id = 'contracts' AND (string_to_array(name, '/'))[1] = auth.uid()::text
+```
+
+**Click "Review" then "Save policy"**
+
+---
+
+### Policy 4: User Delete Policy
+
+**Click "New Policy"** and fill in:
+
+```
+Policy name: Users can delete own contracts
+```
+
+```
+Allowed operation: DELETE
+```
+
+```
+Target roles: authenticated
+```
+
+**USING expression (copy exactly):**
+```sql
+bucket_id = 'contracts' AND (string_to_array(name, '/'))[1] = auth.uid()::text
 ```
 
 **Click "Review" then "Save policy"**
