@@ -74,7 +74,7 @@ const MenteeProfilePage = () => {
           email: user.email,
           membershipCategory: profile.membership_category,
           careerPath: profile.career_path,
-          contractFileUrl: profile.contract_file_url,
+          contractFile: profile.contract_file_url,
           joinedDate: profile.created_at,
           status: profile.status,
           membershipEnabled: profile.membership_enabled,
@@ -135,7 +135,7 @@ const MenteeProfilePage = () => {
   const downloadContract = () => {
     try {
       // Get the contract URL from current user or profile data
-      const contractUrl = profileData?.contractFileUrl;
+      const contractUrl = profileData?.contractFile;
       
       if (!contractUrl) {
         alert('No contract document available');
@@ -517,7 +517,7 @@ const MenteeProfilePage = () => {
               {/* Contract Document Skeleton */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
-                
+              {profileData?.contractFile ? (
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center flex-1 min-w-0">
@@ -540,3 +540,6 @@ const MenteeProfilePage = () => {
 };
 
 export default MenteeProfilePage;
+                  <p className="text-xs text-gray-400 mt-1">
+                    Contract URL: {profileData?.contractFile || 'Not found'}
+                  </p>
