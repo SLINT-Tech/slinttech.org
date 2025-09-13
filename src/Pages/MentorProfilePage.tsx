@@ -1,7 +1,7 @@
 import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getContractDownloadUrl } from '../lib/storage';
+import { downloadContractFile } from '../lib/storage';
 import { supabase } from '../lib/supabase';
 
 const MentorProfilePage = () => {
