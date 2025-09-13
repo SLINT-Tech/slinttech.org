@@ -608,3 +608,5 @@ const MenteeDashboard = () => {
     </div>
   );
 };
+
+export default MenteeDashboard;
