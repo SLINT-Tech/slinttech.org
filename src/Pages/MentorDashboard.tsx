@@ -6,7 +6,18 @@ import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const MentorDashboard = () => {
-  const [mentorData, setMentorData] = useState(null);
+  const [mentorData, setMentorData] = useState({
+    fullName: '',
+    email: '',
+    specialization: '',
+    status: 'pending',
+    membershipEnabled: false,
+    membershipAmount: 0,
+    membershipPaid: false,
+    mentees: [],
+    courses: [],
+    pendingSubmissions: []
+  });
   const [loading, setLoading] = useState(true);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
@@ -17,7 +28,7 @@ const MentorDashboard = () => {
   
   // Get current user status from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  const isPending = currentUser.status === 'pending';
+  const isPending = mentorData.status === 'pending';
 
   useEffect(() => {
     const fetchMentorData = async () => {
@@ -176,14 +187,14 @@ const MentorDashboard = () => {
 
   const handleCreateCourse = () => {
     const course = {
-      id: (mentorData.courses?.length || 0) + 1,
+      id: mentorData.courses.length + 1,
       ...newCourse,
       enrolledMentees: 0,
       createdAt: new Date().toISOString().split('T')[0]
     };
     setMentorData(prev => ({
       ...prev,
-      courses: [...(prev.courses || []), course]
+      courses: [...prev.courses, course]
     }));
     setNewCourse({ name: '', duration: '', description: '' });
     setShowCreateCourseModal(false);
@@ -233,10 +244,10 @@ const MentorDashboard = () => {
     }));
   };
 
-  const totalMentees = mentorData.mentees?.length || 0;
-  const activeMentees = mentorData.mentees?.filter(m => m.status === 'active').length || 0;
-  const totalCourses = mentorData.courses?.length || 0;
-  const pendingSubmissions = mentorData.pendingSubmissions?.length || 0;
+  const totalMentees = mentorData.mentees.length;
+  const activeMentees = mentorData.mentees.filter(m => m.status === 'active').length;
+  const totalCourses = mentorData.courses.length;
+  const pendingSubmissions = mentorData.pendingSubmissions.length;
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -280,7 +291,7 @@ const MentorDashboard = () => {
             <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {mentorData.fullName}
+                  Welcome, {mentorData.fullName || 'Mentor'}
                 </div>
                 <Link 
                   to="/mentor/dashboard" 
@@ -356,7 +367,7 @@ const MentorDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back, {mentorData.fullName.split(' ')[0]}!
+            Welcome Back, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}!
           </h1>
           <p className="text-gray-600">
             Manage your mentees, create courses, and track progress
@@ -503,7 +514,7 @@ const MentorDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {(mentorData.courses || []).slice(0, 5).map((course) => (
+                {mentorData.courses.slice(0, 5).map((course) => (
                   <tr key={course.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -545,13 +556,13 @@ const MentorDashboard = () => {
             </table>
           </div>
           
-          {(mentorData.courses?.length || 0) > 5 && (
+          {mentorData.courses.length > 5 && (
             <div className="p-4 border-t border-gray-200 text-center">
               <Link
                 to="/mentor/courses"
                 className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
               >
-                View All {mentorData.courses?.length || 0} Courses
+                View All {mentorData.courses.length} Courses
               </Link>
             </div>
           )}
@@ -650,7 +661,7 @@ const MentorDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="">Choose a course</option>
-                  {(mentorData.courses || []).map(course => (
+                  {mentorData.courses.map(course => (
                     <option key={course.id} value={course.id}>{course.name}</option>
                   ))}
                 </select>
@@ -730,7 +741,7 @@ const MentorDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="">Choose a course</option>
-                  {(mentorData.courses || []).map(course => (
+                  {mentorData.courses.map(course => (
                     <option key={course.id} value={course.id}>{course.name}</option>
                   ))}
                 </select>
