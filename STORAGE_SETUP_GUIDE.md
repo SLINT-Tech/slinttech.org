@@ -50,7 +50,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND (storage.foldername(name))[1] = auth.uid()::text
+bucket_id = 'contracts' AND (storage.foldername(name))[1] = auth.uid()::text AND auth.role() = 'authenticated'
 ```
 
 **Click "Review" then "Save policy"**
@@ -75,7 +75,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND (storage.foldername(name))[1] = auth.uid()::text
+bucket_id = 'contracts' AND (storage.foldername(name))[1] = auth.uid()::text AND auth.role() = 'authenticated'
 ```
 
 **Click "Review" then "Save policy"**
