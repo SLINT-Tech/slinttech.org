@@ -517,19 +517,25 @@ const MenteeProfilePage = () => {
               {/* Contract Document Skeleton */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
-              {profileData?.contractFile ? (
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center flex-1 min-w-0">
-                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
-                      <div>
-                        <div className="h-4 bg-gray-200 rounded w-48 mb-1 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-64 animate-pulse"></div>
+                {profileData?.contractFile ? (
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center flex-1 min-w-0">
+                        <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
+                        <div>
+                          <div className="h-4 bg-gray-200 rounded w-48 mb-1 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-64 animate-pulse"></div>
+                        </div>
                       </div>
+                      <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
                     </div>
-                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-48 mx-auto animate-pulse"></div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -540,6 +546,3 @@ const MenteeProfilePage = () => {
 };
 
 export default MenteeProfilePage;
-                  <p className="text-xs text-gray-400 mt-1">
-                    Contract URL: {profileData?.contractFile || 'Not found'}
-                  </p>
