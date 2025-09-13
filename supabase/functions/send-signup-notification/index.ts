@@ -152,7 +152,7 @@ Deno.serve(async (req: Request) => {
 
     // Send email using Resend API
     const emailPayload = {
-      from: 'SlintTech <onboarding@resend.dev>',
+      from: 'SlintTech <no-reply@slinttech.org>',
       to: [email],
       subject: subject,
       html: htmlContent
