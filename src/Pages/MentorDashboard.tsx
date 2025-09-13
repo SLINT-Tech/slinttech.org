@@ -1,65 +1,13 @@
 import { Calendar, CheckCircle, Clock, Eye, Plus, Target, User, Users, BookOpen, ArrowRight, Edit, Trash2, X, Send } from 'lucide-react';
 import { Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-
-// Mock data - this would come from your backend/database
-const mockMentorData = {
-  fullName: 'Dr. Sarah Johnson',
-  email: 'sarah.johnson@slinttech.org',
-  specialization: 'Full Stack Development',
-  mentees: [
-    {
-      id: 1,
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      status: 'active',
-      progress: 65,
-      coursesEnrolled: ['React Fundamentals'],
-      completedLessons: 3,
-      totalLessons: 5,
-      approvedTasks: 1,
-      totalTasks: 3
-    },
-    {
-      id: 2,
-      fullName: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      status: 'active',
-      progress: 80,
-      coursesEnrolled: ['React Fundamentals'],
-      completedLessons: 4,
-      totalLessons: 5,
-      approvedTasks: 2,
-      totalTasks: 3
-    }
-  ],
-  courses: [
-    {
-      id: 1,
-      name: 'React Fundamentals',
-      duration: '8 weeks',
-      description: 'Learn the basics of React development',
-      enrolledMentees: 2,
-      createdAt: '2024-01-15'
-    }
-  ],
-  pendingSubmissions: [
-    {
-      id: 1,
-      taskTitle: 'Build a Todo App with React',
-      menteeName: 'John Doe',
-      submittedAt: '2024-01-20',
-      submissionLink: 'https://github.com/johndoe/todo-app',
-      submissionNotes: 'Implemented all required features with additional styling',
-      status: 'pending'
-    }
-  ]
-};
+import { supabase } from '../lib/supabase';
 
 const MentorDashboard = () => {
-  const [mentorData, setMentorData] = useState(mockMentorData);
+  const [mentorData, setMentorData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
@@ -71,9 +19,138 @@ const MentorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
 
-  // Use current user data instead of mock data for status display
-  const displayStatus = currentUser.status || 'pending';
-  const displaySpecialization = currentUser.specialization || mentorData.specialization;
+  useEffect(() => {
+    const fetchMentorData = async () => {
+      try {
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/login');
+          return;
+        }
+
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          setLoading(false);
+          return;
+        }
+
+        // Verify user is a mentor
+        if (profile.role !== 'Mentor') {
+          navigate('/login');
+          return;
+        }
+
+        // Update localStorage with fresh data
+        const userData = {
+          id: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+
+        // Set mentor data with real user info and mock course/mentee data for now
+        setMentorData({
+          fullName: profile.full_name,
+          email: user.email,
+          specialization: profile.specialization,
+          status: profile.status,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          mentees: [
+            // Mock data for now - this would come from mentor_mentees relationship table
+            {
+              id: 1,
+              fullName: 'John Doe',
+              email: 'john.doe@example.com',
+              status: 'active',
+              progress: 65,
+              coursesEnrolled: ['React Fundamentals'],
+              completedLessons: 3,
+              totalLessons: 5,
+              approvedTasks: 1,
+              totalTasks: 3
+            }
+          ],
+          courses: [
+            // Mock data for now - this would come from courses table
+            {
+              id: 1,
+              name: 'React Fundamentals',
+              duration: '8 weeks',
+              description: 'Learn the basics of React development',
+              enrolledMentees: 2,
+              createdAt: '2024-01-15'
+            }
+          ],
+          pendingSubmissions: [
+            // Mock data for now - this would come from task_submissions table
+            {
+              id: 1,
+              taskTitle: 'Build a Todo App with React',
+              menteeName: 'John Doe',
+              submittedAt: '2024-01-20',
+              submissionLink: 'https://github.com/johndoe/todo-app',
+              submissionNotes: 'Implemented all required features with additional styling',
+              status: 'pending'
+            }
+          ]
+        });
+
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentorData();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!mentorData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
+          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+          <Link to="/mentor/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -99,14 +176,14 @@ const MentorDashboard = () => {
 
   const handleCreateCourse = () => {
     const course = {
-      id: mentorData.courses.length + 1,
+      id: (mentorData.courses?.length || 0) + 1,
       ...newCourse,
       enrolledMentees: 0,
       createdAt: new Date().toISOString().split('T')[0]
     };
     setMentorData(prev => ({
       ...prev,
-      courses: [...prev.courses, course]
+      courses: [...(prev.courses || []), course]
     }));
     setNewCourse({ name: '', duration: '', description: '' });
     setShowCreateCourseModal(false);
@@ -156,10 +233,10 @@ const MentorDashboard = () => {
     }));
   };
 
-  const totalMentees = mentorData.mentees.length;
-  const activeMentees = mentorData.mentees.filter(m => m.status === 'active').length;
-  const totalCourses = mentorData.courses.length;
-  const pendingSubmissions = mentorData.pendingSubmissions.length;
+  const totalMentees = mentorData.mentees?.length || 0;
+  const activeMentees = mentorData.mentees?.filter(m => m.status === 'active').length || 0;
+  const totalCourses = mentorData.courses?.length || 0;
+  const pendingSubmissions = mentorData.pendingSubmissions?.length || 0;
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -426,7 +503,7 @@ const MentorDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {mentorData.courses.slice(0, 5).map((course) => (
+                {(mentorData.courses || []).slice(0, 5).map((course) => (
                   <tr key={course.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -468,13 +545,13 @@ const MentorDashboard = () => {
             </table>
           </div>
           
-          {mentorData.courses.length > 5 && (
+          {(mentorData.courses?.length || 0) > 5 && (
             <div className="p-4 border-t border-gray-200 text-center">
               <Link
                 to="/mentor/courses"
                 className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
               >
-                View All {mentorData.courses.length} Courses
+                View All {mentorData.courses?.length || 0} Courses
               </Link>
             </div>
           )}
@@ -573,7 +650,7 @@ const MentorDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="">Choose a course</option>
-                  {mentorData.courses.map(course => (
+                  {(mentorData.courses || []).map(course => (
                     <option key={course.id} value={course.id}>{course.name}</option>
                   ))}
                 </select>
@@ -653,7 +730,7 @@ const MentorDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="">Choose a course</option>
-                  {mentorData.courses.map(course => (
+                  {(mentorData.courses || []).map(course => (
                     <option key={course.id} value={course.id}>{course.name}</option>
                   ))}
                 </select>
