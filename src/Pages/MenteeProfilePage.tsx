@@ -7,6 +7,8 @@ import { supabase } from '../lib/supabase';
 const MenteeProfilePage = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
+  const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   
   // Get current user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -84,6 +86,44 @@ const MenteeProfilePage = () => {
           paymentReference: profile.payment_reference
         });
 
+        // Fetch lessons data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual lessons table query
+        // const { data: lessons } = await supabase
+        //   .from('lessons')
+        //   .select('id, completed')
+        //   .eq('mentee_id', user.id);
+        
+        // Mock lessons data for now
+        const mockLessons = [
+          { id: 1, completed: true },
+          { id: 2, completed: false },
+          { id: 3, completed: true }
+        ];
+        
+        setLessonsData({
+          completed: mockLessons.filter(l => l.completed).length,
+          total: mockLessons.length
+        });
+
+        // Fetch tasks data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual tasks table query
+        // const { data: tasks } = await supabase
+        //   .from('tasks')
+        //   .select('id, status')
+        //   .eq('mentee_id', user.id);
+        
+        // Mock tasks data for now
+        const mockTasks = [
+          { id: 1, status: 'approved' },
+          { id: 2, status: 'pending' },
+          { id: 3, status: 'approved' },
+          { id: 4, status: 'rejected' }
+        ];
+        
+        setTasksData({
+          approved: mockTasks.filter(t => t.status === 'approved').length,
+          total: mockTasks.length
+        });
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -94,30 +134,7 @@ const MenteeProfilePage = () => {
     fetchProfileData();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (!profileData) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
-          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-          <Link to="/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-            Back to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -224,8 +241,31 @@ const MenteeProfilePage = () => {
         </div>
       </header>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your profile...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {!loading && !profileData && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
+            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+            <Link to="/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      )}
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {!loading && profileData && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
           onClick={() => navigate('/dashboard')}
@@ -312,15 +352,49 @@ const MenteeProfilePage = () => {
                   ) : (
                     <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                       <p className="text-yellow-800 font-medium">₵{profileData.membershipAmount} - Payment Required</p>
-                      <p className="text-yellow-700 text-sm">Membership payment pending</p>
+                      <p className="text-yellow-700 text-sm">Membership payment not yet made</p>
                     </div>
                   )
                 ) : (
                   <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-gray-700 font-medium">₵0 - No Payment Required</p>
+                    <p className="text-gray-700 font-medium">No Payment Required</p>
                     <p className="text-gray-600 text-sm">Membership payment not enabled</p>
                   </div>
                 )}
+              </div>
+              
+              {/* Progress Overview */}
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-3">Learning Progress</label>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-700">Lessons Progress</span>
+                      <span className="text-sm text-gray-900">{lessonsData.completed}/{lessonsData.total}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-[#008080] h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${lessonsData.total > 0 ? (lessonsData.completed / lessonsData.total) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Lessons completed</p>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-700">Tasks Progress</span>
+                      <span className="text-sm text-gray-900">{tasksData.approved}/{tasksData.total}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${tasksData.total > 0 ? (tasksData.approved / tasksData.total) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Tasks approved</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -440,7 +514,7 @@ const MenteeProfilePage = () => {
                       <FileText className="w-8 h-8 text-gray-400 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Signed Agreement</p>
-                        <p className="text-sm text-gray-500 break-all">{profileData.contractFile}</p>
+                        <p className="text-sm text-gray-500">Membership contract document</p>
                       </div>
                     </div>
                     <button
@@ -461,7 +535,8 @@ const MenteeProfilePage = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

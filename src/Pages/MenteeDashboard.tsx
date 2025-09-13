@@ -8,6 +8,8 @@ import { supabase } from '../lib/supabase';
 const MenteeDashboard = () => {
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
+  const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   
@@ -59,7 +61,46 @@ const MenteeDashboard = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        // Set mentee data with real user info and mock lesson/task data for now
+        // Fetch lessons data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual lessons table query
+        // const { data: lessons } = await supabase
+        //   .from('lessons')
+        //   .select('id, completed')
+        //   .eq('mentee_id', user.id);
+        
+        // Mock lessons data for now
+        const mockLessons = [
+          { id: 1, completed: true },
+          { id: 2, completed: false },
+          { id: 3, completed: true }
+        ];
+        
+        setLessonsData({
+          completed: mockLessons.filter(l => l.completed).length,
+          total: mockLessons.length
+        });
+
+        // Fetch tasks data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual tasks table query
+        // const { data: tasks } = await supabase
+        //   .from('tasks')
+        //   .select('id, status')
+        //   .eq('mentee_id', user.id);
+        
+        // Mock tasks data for now
+        const mockTasks = [
+          { id: 1, status: 'approved' },
+          { id: 2, status: 'pending' },
+          { id: 3, status: 'approved' },
+          { id: 4, status: 'rejected' }
+        ];
+        
+        setTasksData({
+          approved: mockTasks.filter(t => t.status === 'approved').length,
+          total: mockTasks.length
+        });
+
+        // Set mentee data with real user info
         setMenteeData({
           fullName: profile.full_name,
           email: user.email,
@@ -73,7 +114,7 @@ const MenteeDashboard = () => {
           paymentReference: profile.payment_reference,
           paymentDate: profile.payment_date,
           mentorAssignments: [
-            // Mock data for now - this would come from a mentor_assignments table
+            // TODO: Replace with actual mentor assignments from database
             {
               mentor: 'Dr. Sarah Johnson - Full Stack Development',
               courseName: 'React Fundamentals',
@@ -82,58 +123,8 @@ const MenteeDashboard = () => {
               mentorPhone: '+1 (555) 123-4567'
             }
           ],
-          lessons: [
-            // Mock data for now - this would come from lessons table
-            {
-              id: 1,
-              title: 'Introduction to React Components',
-              mentor: 'Dr. Sarah Johnson',
-              course: 'React Fundamentals',
-              link: 'https://example.com/lesson1',
-              completed: false,
-              createdAt: '2024-01-20'
-            },
-            {
-              id: 2,
-              title: 'State Management with useState',
-              mentor: 'Dr. Sarah Johnson',
-              course: 'React Fundamentals',
-              link: 'https://example.com/lesson2',
-              completed: true,
-              createdAt: '2024-01-18'
-            }
-          ],
-          tasks: [
-            // Mock data for now - this would come from tasks table
-            {
-              id: 1,
-              title: 'Build a Todo App with React',
-              mentor: 'Dr. Sarah Johnson',
-              course: 'React Fundamentals',
-              description: 'Create a fully functional todo application using React hooks',
-              deadline: '2024-02-15',
-              status: 'pending',
-              submissionLink: '',
-              submissionNotes: '',
-              mentorFeedback: '',
-              createdAt: '2024-01-21'
-            },
-            {
-              id: 2,
-              title: 'Responsive Portfolio Website',
-              mentor: 'Prof. Michael Chen',
-              course: 'Advanced CSS & Animations',
-              description: 'Design and build a responsive portfolio website with CSS animations',
-              deadline: '2024-02-20',
-              status: 'approved',
-              submissionLink: 'https://netlify.app/my-portfolio',
-              submissionNotes: 'Added extra animations and mobile-first approach',
-              mentorFeedback: 'Excellent work! Great attention to detail and smooth animations.',
-              createdAt: '2024-01-19'
-            }
-          ],
           announcements: [
-            // Mock data for now - this would come from announcements table
+            // TODO: Replace with actual announcements from database
             {
               id: 1,
               title: 'Welcome to SlintTech!',
@@ -146,10 +137,6 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setToast({
-          message: 'Failed to load user data. Please try refreshing the page.',
-          type: 'error'
-        });
       } finally {
         setLoading(false);
       }
@@ -158,35 +145,8 @@ const MenteeDashboard = () => {
     fetchUserData();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (!menteeData) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
-          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-          <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-            Back to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
-  const completedLessons = menteeData.lessons?.filter(lesson => lesson.completed).length || 0;
-  const totalLessons = menteeData.lessons?.length || 0;
-  const approvedTasks = menteeData.tasks?.filter(task => task.status === 'approved').length || 0;
-  const totalTasks = menteeData.tasks?.length || 0;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -231,7 +191,9 @@ const MenteeDashboard = () => {
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-600">Welcome, {menteeData.fullName}</span>
+              <span className="text-gray-600">
+                Welcome, {menteeData?.fullName || currentUser.fullName || 'User'}
+              </span>
               <Link 
                 to="/profile" 
                 className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer"
@@ -260,7 +222,7 @@ const MenteeDashboard = () => {
             <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {menteeData.fullName}
+                  Welcome, {menteeData?.fullName || currentUser.fullName || 'User'}
                 </div>
                 <Link 
                   to="/dashboard" 
@@ -310,8 +272,31 @@ const MenteeDashboard = () => {
         </div>
       </header>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {!loading && !menteeData && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
+            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+            <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+              Back to Login
+            </Link>
+          </div>
+        </div>
+      )}
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {!loading && menteeData && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Pending Status Banner */}
         {isPending && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
@@ -336,7 +321,7 @@ const MenteeDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back, {menteeData.fullName?.split(' ')[0] || 'User'}!
+            Welcome Back, {menteeData.fullName?.split(' ')[0]}!
           </h1>
           <p className="text-gray-600">
             Track your progress, complete lessons, and submit tasks
@@ -355,11 +340,11 @@ const MenteeDashboard = () => {
                 <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
                   <div 
                     className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0}%` }}
+                    style={{ width: `${lessonsData.total > 0 ? (lessonsData.completed / lessonsData.total) * 100 : 0}%` }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-gray-900">
-                  {completedLessons}/{totalLessons}
+                  {lessonsData.completed}/{lessonsData.total}
                 </span>
               </div>
               <p className="text-xs text-gray-500">Lessons completed</p>
@@ -371,11 +356,11 @@ const MenteeDashboard = () => {
                 <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
                   <div 
                     className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${totalTasks > 0 ? (approvedTasks / totalTasks) * 100 : 0}%` }}
+                    style={{ width: `${tasksData.total > 0 ? (tasksData.approved / tasksData.total) * 100 : 0}%` }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-gray-900">
-                  {approvedTasks}/{totalTasks}
+                  {tasksData.approved}/{tasksData.total}
                 </span>
               </div>
               <p className="text-xs text-gray-500">Tasks approved</p>
@@ -443,7 +428,7 @@ const MenteeDashboard = () => {
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              {isPending ? 'Pending approval' : `${completedLessons} of ${totalLessons} lessons completed`}
+              {isPending ? 'Pending approval' : `${lessonsData.completed} of ${lessonsData.total} lessons completed`}
             </div>
           </Link>
 
@@ -469,7 +454,7 @@ const MenteeDashboard = () => {
               <ArrowRight className="w-5 h-5 text-gray-400" />
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              {isPending ? 'Pending approval' : `${approvedTasks} of ${totalTasks} tasks approved`}
+              {isPending ? 'Pending approval' : `${tasksData.approved} of ${tasksData.total} tasks approved`}
             </div>
           </Link>
         </div>
@@ -548,7 +533,8 @@ const MenteeDashboard = () => {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
