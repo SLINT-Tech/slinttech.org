@@ -120,6 +120,81 @@ const MentorProfilePage = () => {
                 </Link>
               </div>
             </div>
+          </div>
+        </header>
+
+        {/* Main Content Skeleton */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Back Button Skeleton */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
+
+          {/* Profile Header Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Personal Information Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+              
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i}>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Security & Documents Skeleton */}
+            <div className="space-y-6">
+              {/* Password Update Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+                
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Contract Document Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
+                
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center flex-1">
+                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -471,79 +546,6 @@ const MentorProfilePage = () => {
                   <p className="text-gray-500">No contract document available</p>
                 </div>
               )}
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content Skeleton */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button Skeleton */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-          </div>
-
-          {/* Profile Header Skeleton */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
-              <div>
-                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
-                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Personal Information Skeleton */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
-              
-              <div className="space-y-4">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i}>
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Security & Documents Skeleton */}
-            <div className="space-y-6">
-              {/* Password Update Skeleton */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                </div>
-                
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
-                </div>
-              </div>
-
-              {/* Contract Document Skeleton */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
-                
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center flex-1">
-                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
-                      <div>
-                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
