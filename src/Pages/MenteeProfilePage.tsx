@@ -2,7 +2,6 @@ import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'l
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getContractDownloadUrl } from '../lib/storage';
-import { checkContractsBucket } from '../lib/storage';
 import { supabase } from '../lib/supabase';
 
 const MenteeProfilePage = () => {
@@ -133,35 +132,49 @@ const MenteeProfilePage = () => {
     alert('Password updated successfully!');
   };
 
-  const downloadContract = async () => {
+  const checkContractsBucket = async () => {
     try {
-      // Check if contracts bucket exists
-      const bucketExists = await checkContractsBucket();
-      
-      if (!bucketExists) {
-        alert('Storage bucket not found. Please contact support to set up the contracts storage bucket in Supabase.');
-        return;
-      }
-      
-      // Get the contract URL from current user or profile data
-      const contractUrl = profileData?.contractFileUrl;
-      
-      if (!contractUrl) {
-        alert('No contract document available');
-        return;
-      }
-
-      // Get download URL and trigger download
-      const downloadUrl = getContractDownloadUrl(contractUrl);
-      if (downloadUrl) {
-        window.open(downloadUrl, '_blank');
-      } else {
-        alert('Failed to generate download link');
-      }
+      const { data, error } = await supabase.storage.getBucket('contracts');
+      return !error && data;
     } catch (error) {
-      console.error('Download error:', error);
-      alert('Failed to download contract. Please try again or contact support.');
+      console.error('Error checking bucket:', error);
+      return false;
     }
+  };
+
+  const downloadContract = () => {
+    const attemptDownload = async () => {
+      try {
+        // Check if contracts bucket exists
+        const bucketExists = await checkContractsBucket();
+        
+        if (!bucketExists) {
+          alert('Storage bucket not found. Please contact support to set up the contracts storage bucket in Supabase.');
+          return;
+        }
+        
+        // Get the contract URL from current user or profile data
+        const contractUrl = profileData?.contractFileUrl;
+        
+        if (!contractUrl) {
+          alert('No contract document available');
+          return;
+        }
+
+        // Get download URL and trigger download
+        const downloadUrl = getContractDownloadUrl(contractUrl);
+        if (downloadUrl) {
+          window.open(downloadUrl, '_blank');
+        } else {
+          alert('Failed to generate download link');
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        alert('Failed to download contract. Please try again or contact support.');
+      }
+    };
+    
+    attemptDownload();
   };
 
   const togglePasswordVisibility = (field) => {
