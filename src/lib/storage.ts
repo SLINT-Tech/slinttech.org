@@ -96,9 +96,15 @@ export const checkContractsBucket = async () => {
     const { data, error } = await supabase.storage.listBuckets();
     
     if (error) {
+      return false;
     }
+    
+    return data?.some(bucket => bucket.name === 'contracts') || false;
+  } catch (error) {
+    console.error('Error checking contracts bucket:', error);
+    return false;
   }
-}
+};
 
 // Email notification service
 export const sendSignupNotification = async (userData: {
