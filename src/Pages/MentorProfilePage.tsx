@@ -440,7 +440,7 @@ const MentorProfilePage = () => {
                         <p className="text-sm text-gray-500">Signed agreement uploaded during registration</p>
                       </div>
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-center mt-4">
                       <button
                         onClick={downloadContract}
                         className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
