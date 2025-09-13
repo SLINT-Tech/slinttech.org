@@ -1,123 +1,13 @@
 import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight } from 'lucide-react';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-
-// Mock data - this would come from your backend/database
-const mockMenteeData = {
-  fullName: 'John Doe',
-  email: 'john.doe@example.com',
-  membershipCategory: 'Student',
-  careerPath: 'Full Stack Development',
-  status: 'approved', // 'pending' or 'approved'
-  mentorAssignments: [
-    {
-      mentor: 'Dr. Sarah Johnson - Full Stack Development',
-      courseName: 'React Fundamentals',
-      duration: '8 weeks',
-      mentorEmail: 'sarah.johnson@slinttech.org',
-      mentorPhone: '+1 (555) 123-4567'
-    },
-    {
-      mentor: 'Prof. Michael Chen - Frontend Development',
-      courseName: 'Advanced CSS & Animations',
-      duration: '6 weeks',
-      mentorEmail: 'michael.chen@slinttech.org',
-      mentorPhone: '+1 (555) 987-6543'
-    }
-  ],
-  discordLink: null, // Will be null until admin sets
-  lessons: [
-    {
-      id: 1,
-      title: 'Introduction to React Components',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      link: 'https://example.com/lesson1',
-      completed: false,
-      createdAt: '2024-01-20'
-    },
-    {
-      id: 2,
-      title: 'State Management with useState',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      link: 'https://example.com/lesson2',
-      completed: true,
-      createdAt: '2024-01-18'
-    },
-    {
-      id: 3,
-      title: 'CSS Grid Layout Mastery',
-      mentor: 'Prof. Michael Chen',
-      course: 'Advanced CSS & Animations',
-      link: 'https://example.com/lesson3',
-      completed: false,
-      createdAt: '2024-01-22'
-    }
-  ],
-  tasks: [
-    {
-      id: 1,
-      title: 'Build a Todo App with React',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      description: 'Create a fully functional todo application using React hooks',
-      deadline: '2024-02-15',
-      status: 'pending', // 'pending', 'submitted', 'approved', 'rejected'
-      submissionLink: '',
-      submissionNotes: '',
-      mentorFeedback: '',
-      createdAt: '2024-01-21'
-    },
-    {
-      id: 2,
-      title: 'Responsive Portfolio Website',
-      mentor: 'Prof. Michael Chen',
-      course: 'Advanced CSS & Animations',
-      description: 'Design and build a responsive portfolio website with CSS animations',
-      deadline: '2024-02-20',
-      status: 'approved',
-      submissionLink: 'https://netlify.app/my-portfolio',
-      submissionNotes: 'Added extra animations and mobile-first approach',
-      mentorFeedback: 'Excellent work! Great attention to detail and smooth animations.',
-      createdAt: '2024-01-19'
-    },
-    {
-      id: 3,
-      title: 'API Integration Exercise',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      description: 'Integrate a REST API into your React application',
-      deadline: '2024-02-10',
-      status: 'rejected',
-      submissionLink: 'https://github.com/johndoe/api-project',
-      submissionNotes: 'Implemented with fetch API and error handling',
-      mentorFeedback: 'Good attempt, but error handling needs improvement. Please add loading states and better user feedback.',
-      createdAt: '2024-01-16'
-    }
-  ],
-  announcements: [
-    {
-      id: 1,
-      title: 'New Lesson Available',
-      message: 'Dr. Sarah Johnson has added a new lesson: "Introduction to React Components"',
-      date: '2024-01-15',
-      type: 'info'
-    },
-    {
-      id: 2,
-      title: 'Task Deadline Reminder',
-      message: 'Your "Build a Todo App with React" task is due in 3 days.',
-      date: '2024-01-12',
-      type: 'warning'
-    }
-  ]
-};
+import { supabase } from '../lib/supabase';
 
 const MenteeDashboard = () => {
-  const [menteeData, setMenteeData] = useState(mockMenteeData);
+  const [menteeData, setMenteeData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   
@@ -125,14 +15,178 @@ const MenteeDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
 
-  // Use current user data instead of mock data for status display
-  const displayStatus = currentUser.status || menteeData.status;
-  const displayCareerPath = currentUser.careerPath || menteeData.careerPath;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/login');
+          return;
+        }
 
-  const completedLessons = menteeData.lessons.filter(lesson => lesson.completed).length;
-  const totalLessons = menteeData.lessons.length;
-  const approvedTasks = menteeData.tasks.filter(task => task.status === 'approved').length;
-  const totalTasks = menteeData.tasks.length;
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          setLoading(false);
+          return;
+        }
+
+        // Update localStorage with fresh data
+        const userData = {
+          id: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date,
+          discordLink: profile.discord_link
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+
+        // Set mentee data with real user info and mock lesson/task data for now
+        setMenteeData({
+          fullName: profile.full_name,
+          email: user.email,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          status: profile.status,
+          discordLink: profile.discord_link,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date,
+          mentorAssignments: [
+            // Mock data for now - this would come from a mentor_assignments table
+            {
+              mentor: 'Dr. Sarah Johnson - Full Stack Development',
+              courseName: 'React Fundamentals',
+              duration: '8 weeks',
+              mentorEmail: 'sarah.johnson@slinttech.org',
+              mentorPhone: '+1 (555) 123-4567'
+            }
+          ],
+          lessons: [
+            // Mock data for now - this would come from lessons table
+            {
+              id: 1,
+              title: 'Introduction to React Components',
+              mentor: 'Dr. Sarah Johnson',
+              course: 'React Fundamentals',
+              link: 'https://example.com/lesson1',
+              completed: false,
+              createdAt: '2024-01-20'
+            },
+            {
+              id: 2,
+              title: 'State Management with useState',
+              mentor: 'Dr. Sarah Johnson',
+              course: 'React Fundamentals',
+              link: 'https://example.com/lesson2',
+              completed: true,
+              createdAt: '2024-01-18'
+            }
+          ],
+          tasks: [
+            // Mock data for now - this would come from tasks table
+            {
+              id: 1,
+              title: 'Build a Todo App with React',
+              mentor: 'Dr. Sarah Johnson',
+              course: 'React Fundamentals',
+              description: 'Create a fully functional todo application using React hooks',
+              deadline: '2024-02-15',
+              status: 'pending',
+              submissionLink: '',
+              submissionNotes: '',
+              mentorFeedback: '',
+              createdAt: '2024-01-21'
+            },
+            {
+              id: 2,
+              title: 'Responsive Portfolio Website',
+              mentor: 'Prof. Michael Chen',
+              course: 'Advanced CSS & Animations',
+              description: 'Design and build a responsive portfolio website with CSS animations',
+              deadline: '2024-02-20',
+              status: 'approved',
+              submissionLink: 'https://netlify.app/my-portfolio',
+              submissionNotes: 'Added extra animations and mobile-first approach',
+              mentorFeedback: 'Excellent work! Great attention to detail and smooth animations.',
+              createdAt: '2024-01-19'
+            }
+          ],
+          announcements: [
+            // Mock data for now - this would come from announcements table
+            {
+              id: 1,
+              title: 'Welcome to SlintTech!',
+              message: 'Your account has been created successfully. Welcome to our community!',
+              date: new Date().toISOString().split('T')[0],
+              type: 'info'
+            }
+          ]
+        });
+
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setToast({
+          message: 'Failed to load user data. Please try refreshing the page.',
+          type: 'error'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!menteeData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
+          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+          <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const completedLessons = menteeData.lessons?.filter(lesson => lesson.completed).length || 0;
+  const totalLessons = menteeData.lessons?.length || 0;
+  const approvedTasks = menteeData.tasks?.filter(task => task.status === 'approved').length || 0;
+  const totalTasks = menteeData.tasks?.length || 0;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -282,7 +336,7 @@ const MenteeDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back, {menteeData.fullName.split(' ')[0]}!
+            Welcome Back, {menteeData.fullName?.split(' ')[0] || 'User'}!
           </h1>
           <p className="text-gray-600">
             Track your progress, complete lessons, and submit tasks
@@ -329,10 +383,10 @@ const MenteeDashboard = () => {
             
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(displayStatus)}`}>
-                {getStatusText(displayStatus)}
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(menteeData.status)}`}>
+                {getStatusText(menteeData.status)}
               </div>
-              <p className="text-xs text-gray-500 mt-1">{displayCareerPath}</p>
+              <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
             </div>
           </div>
           
@@ -467,7 +521,7 @@ const MenteeDashboard = () => {
               <h2 className="text-xl font-semibold text-gray-900">Recent Announcements</h2>
             </div>
             
-            {menteeData.announcements.length > 0 ? (
+            {menteeData.announcements?.length > 0 ? (
               <div className="space-y-4">
                 {menteeData.announcements.slice(0, 3).map((announcement) => (
                   <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg ${

@@ -1,36 +1,15 @@
 import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getContractDownloadUrl } from '../lib/storage';
-
-// Mock data - this would come from your backend/database
-const mockMenteeProfile = {
-  fullName: 'John Doe',
-  email: 'john.doe@example.com',
-  membershipCategory: 'Student',
-  careerPath: 'Full Stack Development',
-  contractFile: 'john_doe_contract.pdf',
-  joinedDate: '2024-01-15',
-  status: 'approved',
-  membershipEnabled: true, // Admin can toggle this
-  membershipAmount: 30,
-  membershipPaid: true,
-  paymentDate: '2024-01-20',
-  paymentReference: 'slint_1_1705747200000'
-};
+import { supabase } from '../lib/supabase';
 
 const MenteeProfilePage = () => {
-  const [profileData, setProfileData] = useState(mockMenteeProfile);
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   // Get current user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  
-  // Use current user data for status display
-  const displayStatus = currentUser.status || profileData.status;
-  const displayFullName = currentUser.fullName || profileData.fullName;
-  const displayEmail = currentUser.email || profileData.email;
-  const displayCareerPath = currentUser.careerPath || profileData.careerPath;
-  const displayMembershipCategory = currentUser.membershipCategory || profileData.membershipCategory;
   
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -45,6 +24,100 @@ const MenteeProfilePage = () => {
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/login');
+          return;
+        }
+
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          setLoading(false);
+          return;
+        }
+
+        // Update localStorage with fresh data
+        const userData = {
+          id: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date,
+          contractFileUrl: profile.contract_file_url
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+
+        setProfileData({
+          fullName: profile.full_name,
+          email: user.email,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          contractFile: profile.contract_file_url,
+          joinedDate: profile.created_at,
+          status: profile.status,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentDate: profile.payment_date,
+          paymentReference: profile.payment_reference
+        });
+
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
+          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+          <Link to="/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +161,7 @@ const MenteeProfilePage = () => {
   const downloadContract = () => {
     try {
       // Get the contract URL from current user or profile data
-      const contractUrl = currentUser.contractFileUrl || profileData.contractFile;
+      const contractUrl = profileData.contractFile;
       
       if (!contractUrl) {
         alert('No contract document available');
@@ -127,16 +200,6 @@ const MenteeProfilePage = () => {
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
-  // Calculate display amount based on membership settings
-  const getDisplayAmount = () => {
-    if (!profileData.membershipEnabled) {
-      return 0;
-    }
-    return profileData.membershipAmount || 0;
-  };
-
-  const displayAmount = getDisplayAmount();
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -179,10 +242,10 @@ const MenteeProfilePage = () => {
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{displayFullName}</h1>
-              <p className="text-gray-600">{displayCareerPath}</p>
-              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(displayStatus)} mt-2`}>
-                {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
+              <h1 className="text-2xl font-bold text-gray-900">{profileData.fullName}</h1>
+              <p className="text-gray-600">{profileData.careerPath}</p>
+              <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(profileData.status)} mt-2`}>
+                {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
               </span>
             </div>
           </div>
@@ -197,28 +260,28 @@ const MenteeProfilePage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{displayFullName}</p>
+                  <p className="text-gray-900">{profileData.fullName}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{displayEmail}</p>
+                  <p className="text-gray-900">{profileData.email}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Membership Category</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{displayMembershipCategory}</p>
+                  <p className="text-gray-900">{profileData.membershipCategory}</p>
                 </div>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Career Path</label>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-900">{displayCareerPath}</p>
+                  <p className="text-gray-900">{profileData.careerPath}</p>
                 </div>
               </div>
               
@@ -232,23 +295,23 @@ const MenteeProfilePage = () => {
               {/* Membership Payment Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">Membership Payment</label>
-                {currentUser.membershipEnabled && currentUser.membershipAmount > 0 ? (
-                  currentUser.membershipPaid ? (
+                {profileData.membershipEnabled && profileData.membershipAmount > 0 ? (
+                  profileData.membershipPaid ? (
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center gap-2 mb-1">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <p className="text-green-800 font-medium">₵{currentUser.membershipAmount} - Paid</p>
+                        <p className="text-green-800 font-medium">₵{profileData.membershipAmount} - Paid</p>
                       </div>
                       <p className="text-green-700 text-sm">
-                        Paid on {new Date(currentUser.paymentDate || profileData.paymentDate).toLocaleDateString()}
+                        Paid on {new Date(profileData.paymentDate).toLocaleDateString()}
                       </p>
                       <p className="text-green-600 text-xs mt-1">
-                        Ref: {currentUser.paymentReference || profileData.paymentReference}
+                        Ref: {profileData.paymentReference}
                       </p>
                     </div>
                   ) : (
                     <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <p className="text-yellow-800 font-medium">₵{currentUser.membershipAmount} - Payment Required</p>
+                      <p className="text-yellow-800 font-medium">₵{profileData.membershipAmount} - Payment Required</p>
                       <p className="text-yellow-700 text-sm">Membership payment pending</p>
                     </div>
                   )
