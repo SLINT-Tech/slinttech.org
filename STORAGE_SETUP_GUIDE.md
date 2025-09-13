@@ -154,8 +154,9 @@ After completing all steps, you should see:
 
 2. **In Storage > Policies:**
    - ✅ `Users can upload own contracts` (INSERT)
-   - ✅ `Users can view own contracts` (SELECT)  
-   - ✅ `Admins can manage all contracts` (ALL)
+   - ✅ `Users can view own contracts` (SELECT)
+   - ✅ `Users can update own contracts` (UPDATE)
+   - ✅ `Users can delete own contracts` (DELETE)
 
 ## 🎯 Result
 
