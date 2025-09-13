@@ -84,18 +84,18 @@ const MentorProfilePage = () => {
 
   const downloadContract = () => {
     const filename = profileData.contractFile;
-    const link = document.createElement('a');
-    link.href = `/documents/${encodeURIComponent(filename)}`;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
     
-    // Use setTimeout to ensure the click event is processed before removing
-    setTimeout(() => {
-      if (document.body.contains(link)) {
-        document.body.removeChild(link);
-      }
-    }, 100);
+    // Use window.open for more reliable download
+    const downloadUrl = `/documents/${encodeURIComponent(filename)}`;
+    
+    // Create temporary link without adding to DOM
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    // Trigger download without DOM manipulation
+    link.click();
   };
 
   const togglePasswordVisibility = (field) => {
