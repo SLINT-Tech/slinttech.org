@@ -31,6 +31,19 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Get environment variables
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not found in environment variables');
+      return new Response(
+        JSON.stringify({ error: 'Email service not configured' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     // Create email content based on role
     const isAdmin = role === 'Admin';
     const isMentor = role === 'Mentor';
@@ -137,29 +150,36 @@ Deno.serve(async (req: Request) => {
       </html>
     `;
 
-    // In a real implementation, you would use a service like:
-    // - Resend (recommended for Supabase)
-    // - SendGrid
-    // - Mailgun
-    // - AWS SES
-    
-    // For now, we'll simulate the email sending
-    console.log('Email would be sent to:', email);
-    console.log('Subject:', subject);
-    console.log('HTML Content:', htmlContent);
-
-    // Simulate email service response
-    const emailResponse = {
-      success: true,
-      messageId: `msg_${Date.now()}`,
-      recipient: email
+    // Send email using Resend API
+    const emailPayload = {
+      from: 'SlintTech <noreply@slinttech.org>',
+      to: [email],
+      subject: subject,
+      html: htmlContent
     };
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailPayload)
+    });
+
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.text();
+      console.error('Resend API error:', errorData);
+      throw new Error(`Email service error: ${emailResponse.status}`);
+    }
+
+    const emailResult = await emailResponse.json();
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Signup notification email sent successfully',
-        data: emailResponse
+        data: emailResult
       }),
       {
         status: 200,
