@@ -208,7 +208,6 @@ const MentorProfilePage = () => {
           <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
             Back to Dashboard
           </Link>
-          </Link>
         </div>
       </div>
     );
