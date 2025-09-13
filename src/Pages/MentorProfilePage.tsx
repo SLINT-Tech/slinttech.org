@@ -195,7 +195,6 @@ const MentorProfilePage = () => {
               </div>
             </div>
           </div>
-        </div>
       </div>
     );
   }
