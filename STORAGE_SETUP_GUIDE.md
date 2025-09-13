@@ -50,7 +50,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND (storage.foldername(name))[1] = (select auth.uid())::text
+bucket_id = 'contracts' AND auth.uid()::text = (string_to_array(name, '/'))[1]
 ```
 
 **Click "Review" then "Save policy"**
@@ -75,7 +75,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND (storage.foldername(name))[1] = (select auth.uid())::text
+bucket_id = 'contracts' AND auth.uid()::text = (string_to_array(name, '/'))[1]
 ```
 
 **Click "Review" then "Save policy"**
@@ -100,7 +100,7 @@ Target roles: authenticated
 
 **USING expression (copy exactly):**
 ```sql
-bucket_id = 'contracts' AND EXISTS (SELECT 1 FROM user_profiles WHERE id = (select auth.uid()) AND role = 'Admin')
+bucket_id = 'contracts' AND EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role = 'Admin')
 ```
 
 **Click "Review" then "Save policy"**
