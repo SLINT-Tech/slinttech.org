@@ -15,7 +15,7 @@ const PendingApprovalPage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
             </Link>
             <Link 
               to="/login" 

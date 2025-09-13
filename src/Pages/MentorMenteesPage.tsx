@@ -134,7 +134,7 @@ const MentorMenteesPage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Welcome, {mentorData.fullName}</span>
