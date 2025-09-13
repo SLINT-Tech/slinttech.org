@@ -149,7 +149,7 @@ const MenteeProfilePage = () => {
         const bucketExists = await checkContractsBucket();
         
         if (!bucketExists) {
-          alert('Storage bucket not found. Please contact support to set up the contracts storage bucket in Supabase.');
+          alert('Contract storage is not set up yet. Please contact your administrator to configure the storage bucket.');
           return;
         }
         
@@ -170,7 +170,7 @@ const MenteeProfilePage = () => {
         }
       } catch (error) {
         console.error('Download error:', error);
-        alert('Failed to download contract. Please try again or contact support.');
+        alert('Unable to download contract at this time. Please contact your administrator.');
       }
     })();
   };

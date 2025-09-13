@@ -101,6 +101,12 @@ export const checkContractsBucket = async () => {
     }
     
     return data.some(bucket => bucket.name === 'contracts');
+    if (error) {
+      console.error('Error checking buckets:', error);
+      return false;
+    }
+    
+    return data.some(bucket => bucket.name === 'contracts');
   } catch (error) {
     console.error('Error checking contracts bucket:', error);
     return false;
