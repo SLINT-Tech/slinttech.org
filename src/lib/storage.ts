@@ -64,6 +64,7 @@ export const downloadContract = async (contractUrl: string, fileName: string) =>
     link.download = fileName;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
     
     // Trigger download
     link.click();
@@ -87,4 +88,35 @@ export const getContractDownloadUrl = (contractUrl: string) => {
     .getPublicUrl(contractUrl);
     
   return data.publicUrl;
+};
+
+// Email notification service
+export const sendSignupNotification = async (userData: {
+  email: string;
+  fullName: string;
+  role: string;
+  membershipCategory: string;
+  careerPath: string;
+}) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-signup-notification`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to send notification email');
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Email notification error:', error);
+    // Don't throw error - email failure shouldn't block signup
+    return { success: false, error: error.message };
+  }
 };

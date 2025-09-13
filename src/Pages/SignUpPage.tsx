@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { supabase } from '../lib/supabase';
-import { uploadContract } from '../lib/storage';
+import { uploadContract, sendSignupNotification } from '../lib/storage';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -136,9 +136,24 @@ const SignUpPage = () => {
           console.error('Profile update error:', profileError);
           // Don't throw error here as user is already created
         }
+
+        // Send signup notification email
+        const emailResult = await sendSignupNotification({
+          email: formData.email,
+          fullName: formData.fullName,
+          role: formData.role,
+          membershipCategory: formData.membershipCategory,
+          careerPath: formData.careerPath
+        });
+
+        if (emailResult.success) {
+          console.log('Signup notification email sent successfully');
+        } else {
+          console.warn('Failed to send signup notification email:', emailResult.error);
+        }
         
         setToast({
-          message: 'Registration successful! Please check your email to verify your account before logging in.',
+          message: 'Registration successful! Please check your email to verify your account and for important information about the review process.',
           type: 'success'
         });
         
