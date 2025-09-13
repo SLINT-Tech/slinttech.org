@@ -203,10 +203,10 @@ const MenteeDashboard = () => {
           
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 py-4">
+            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {tasksData.fullName}
+                  Welcome, {menteeData.fullName}
                 </div>
                 <Link 
                   to="/dashboard" 
