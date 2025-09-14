@@ -136,10 +136,13 @@ const MenteeDashboard = () => {
             }
           ]
         });
-       setLoading(false);
+      
       } catch (error) {
         console.error('Error fetching user data:', error);
-      } 
+      } finally {
+        console.log("set the skeleton to false")
+        setLoading(false);
+      }
     };
 
     fetchUserData();
