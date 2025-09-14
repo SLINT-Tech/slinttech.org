@@ -13,7 +13,6 @@ const MenteeDashboard = () => {
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [authInitialized, setAuthInitialized] = useState(false);
   const navigate = useNavigate();
   
   // Get current user status from localStorage
@@ -22,28 +21,6 @@ const MenteeDashboard = () => {
 
   useEffect(() => {
     let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        setLoading(true);
-        
-        // Get initial session
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          await handleAuthenticatedUser(session.user);
-        } else {
-          if (mounted) {
-            navigate('/login');
-          }
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
 
     const handleAuthenticatedUser = async (user) => {
       try {
@@ -79,13 +56,6 @@ const MenteeDashboard = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        // Fetch lessons data (mock for now - replace with real Supabase query)
-        // TODO: Replace with actual lessons table query
-        // const { data: lessons } = await supabase
-        //   .from('lessons')
-        //   .select('id, completed')
-        //   .eq('mentee_id', user.id);
-        
         // Mock lessons data for now
         const mockLessons = [
           { id: 1, completed: true },
@@ -100,13 +70,6 @@ const MenteeDashboard = () => {
           });
         }
 
-        // Fetch tasks data (mock for now - replace with real Supabase query)
-        // TODO: Replace with actual tasks table query
-        // const { data: tasks } = await supabase
-        //   .from('tasks')
-        //   .select('id, status')
-        //   .eq('mentee_id', user.id);
-        
         // Mock tasks data for now
         const mockTasks = [
           { id: 1, status: 'approved' },
@@ -137,7 +100,6 @@ const MenteeDashboard = () => {
             paymentReference: profile.payment_reference,
             paymentDate: profile.payment_date,
             mentorAssignments: [
-              // TODO: Replace with actual mentor assignments from database
               {
                 mentor: 'Dr. Sarah Johnson - Full Stack Development',
                 courseName: 'React Fundamentals',
@@ -147,7 +109,6 @@ const MenteeDashboard = () => {
               }
             ],
             announcements: [
-              // TODO: Replace with actual announcements from database
               {
                 id: 1,
                 title: 'Welcome to SlintTech!',
@@ -161,15 +122,37 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    initializeAuth();
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        console.log('Auth state changed:', event, session?.user?.id);
+        
+        if (session?.user) {
+          await handleAuthenticatedUser(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/login');
+        } else if (!session) {
+          // No session found, redirect to login
+          navigate('/login');
+        }
+      }
+    );
 
+    // Cleanup
     return () => {
       mounted = false;
+      subscription.unsubscribe();
     };
-  }, [navigate, authInitialized]);
+  }, [navigate]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -471,8 +454,6 @@ const MenteeDashboard = () => {
                 <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
               </div>
             </div>
-            
-            {/* Mentor Contact Info */}
           </div>
 
           {/* Quick Access Cards */}
