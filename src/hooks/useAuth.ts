@@ -25,7 +25,6 @@ export const useAuth = () => {
         setLoading(false);
       }
     };
-    };
 
     getInitialSession();
 
