@@ -29,6 +29,10 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
+      // Clear any existing session data first
+      localStorage.clear();
+      sessionStorage.clear();
+      
       // Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -70,28 +74,41 @@ const LoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
+        // Force navigation with window.location as backup
+        const navigateToRoute = (route: string) => {
+          console.log('Navigating to:', route);
+          navigate(route);
+          // Backup navigation after a short delay
+          setTimeout(() => {
+            if (window.location.pathname === '/login') {
+              console.log('React Router navigation failed, using window.location');
+              window.location.href = route;
+            }
+          }, 100);
+        };
+        
         // Route based on user role and status
         if (profile.role === 'Admin') {
-          navigate('/admin/dashboard');
+          navigateToRoute('/admin/dashboard');
         } else if (profile.role === 'Mentor') {
           if (profile.status === 'approved') {
             if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
+              navigateToRoute('/payment-wall');
             } else {
-              navigate('/mentor/dashboard');
+              navigateToRoute('/mentor/dashboard');
             }
           } else {
-            navigate('/mentor/dashboard'); // Preview for pending mentors
+            navigateToRoute('/mentor/dashboard'); // Preview for pending mentors
           }
         } else { // Mentee
           if (profile.status === 'approved') {
             if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
+              navigateToRoute('/payment-wall');
             } else {
-              navigate('/dashboard');
+              navigateToRoute('/dashboard');
             }
           } else {
-            navigate('/dashboard'); // Preview for pending mentees
+            navigateToRoute('/dashboard'); // Preview for pending mentees
           }
         }
       }
