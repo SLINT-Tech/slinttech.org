@@ -66,7 +66,11 @@ const AdminLoginPage = () => {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
-        navigate('/admin/dashboard');
+        
+        // Navigate to admin dashboard
+        setTimeout(() => {
+          navigate('/admin/dashboard');
+        }, 100);
       }
     } catch (error: any) {
       setToast({

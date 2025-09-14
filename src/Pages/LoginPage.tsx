@@ -81,7 +81,7 @@ const LoginPage = () => {
               navigate('/mentor/dashboard');
             }
           } else {
-            navigate('/mentor/dashboard'); // Preview for pending mentors
+            navigate('/pending-approval');
           }
         } else { // Mentee
           if (profile.status === 'approved') {
@@ -91,7 +91,7 @@ const LoginPage = () => {
               navigate('/dashboard');
             }
           } else {
-            navigate('/dashboard'); // Preview for pending mentees
+            navigate('/pending-approval');
           }
         }
       }
