@@ -57,7 +57,6 @@ const MentorDashboard = () => {
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
-        setLoading(true);
         setError(null);
 
         console.log('Fetching mentor data...');
@@ -139,29 +138,19 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
 
-        // Ensure loading is set to false after successful data fetch
         setLoading(false);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
+        setLoading(false);
         localStorage.clear();
         sessionStorage.clear();
         navigate('/mentor/login');
       }
     };
 
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn('Mentor dashboard loading timeout, redirecting to login');
-        setLoading(false);
-        navigate('/mentor/login');
-      }
-    }, 10000); // 10 second timeout
 
     fetchMentorData();
-    
-    return () => clearTimeout(timeoutId);
   }, [navigate]);
 
   const handleCreateCourse = () => {
