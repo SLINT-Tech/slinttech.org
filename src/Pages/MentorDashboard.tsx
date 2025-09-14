@@ -57,9 +57,6 @@ const MentorDashboard = () => {
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-
         console.log('Fetching mentor data...');
         
         // Get current user session
@@ -151,7 +148,6 @@ const MentorDashboard = () => {
       }
     };
 
-
     fetchMentorData();
   }, [navigate]);
 
@@ -175,6 +171,7 @@ const MentorDashboard = () => {
   };
 
   // Loading state with skeleton
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
