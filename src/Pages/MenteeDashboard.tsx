@@ -50,18 +50,6 @@ const MenteeDashboard = () => {
       }
     };
 
-    const fetchUserData = async () => {
-      if (!mounted) return;
-      
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !mounted) return;
-
-        await fetchUserData(user);
-      } catch (error) {
-        console.error('Error in auth state change:', error);
-      }
-    };
 
     const fetchUserData = async (user) => {
       if (!mounted) return;
