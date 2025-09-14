@@ -12,6 +12,7 @@ const MentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -20,27 +21,27 @@ const MentorDashboard = () => {
   });
   
   const navigate = useNavigate();
-  console.log('mentor component');
+  
   useEffect(() => {
-    console.log('use effect start');
+    // Prevent multiple calls
+    if (isInitialized) {
+      console.log('useEffect already initialized, skipping');
+      return;
+    }
+    
+    console.log('useEffect starting for the first time');
+    setIsInitialized(true);
+    
     const fetchMentorData = async () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('before get supabase get user auth');
+        console.log('Fetching user auth...');
         
-        // Get current user session with timeout
-        const authPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 10000)
-        );
+        // Get current user session
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        const { data: { user }, error: userError } = await Promise.race([
-          authPromise,
-          timeoutPromise
-        ]) as any;
-        
-        console.log('after get supabase get user auth', { user, userError });
+        console.log('Auth result:', { user: !!user, userError });
         
         if (userError || !user) {
           console.log('No user found, redirecting to login');
@@ -110,14 +111,7 @@ const MentorDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-        
-        // Check if it's a timeout error
-        if (error.message === 'Auth timeout') {
-          console.log('Auth timeout, redirecting to login');
-          navigate('/mentor/login');
-        } else {
-          setError('Failed to load dashboard data');
-        }
+        setError('Failed to load dashboard data');
       } finally {
         console.log('finally run');
         setLoading(false);
@@ -125,7 +119,7 @@ const MentorDashboard = () => {
     };
 
     fetchMentorData();
-  }, [navigate]);
+  }, [navigate, isInitialized]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;
