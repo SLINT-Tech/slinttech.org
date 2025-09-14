@@ -17,8 +17,6 @@ export const useAuth = () => {
         if (session?.user) {
           await fetchProfile(session.user.id);
         }
-        
-        setLoading(false);
       } catch (error) {
         console.error('Error getting initial session:', error);
         setUser(null);
@@ -26,6 +24,7 @@ export const useAuth = () => {
       } finally {
         setLoading(false);
       }
+    };
     };
 
     getInitialSession();
