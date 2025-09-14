@@ -46,6 +46,12 @@ const MenteeDashboard: React.FC = () => {
       if (user && profile) {
         fetchMentorRelationships();
       }
+      
+      // Set loading to false once we have the auth state
+      if (!loading && user && profile) {
+        // Auth is complete, no need for timeout
+        clearTimeout(timeoutId);
+      }
     }
 
     return () => clearTimeout(timeoutId);

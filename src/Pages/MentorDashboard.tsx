@@ -139,13 +139,14 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
 
+        // Ensure loading is set to false after successful data fetch
+        setLoading(false);
+
       } catch (error) {
         console.error('Error fetching mentor data:', error);
         localStorage.clear();
         sessionStorage.clear();
         navigate('/mentor/login');
-      } finally {
-        setLoading(false);
       }
     };
 
