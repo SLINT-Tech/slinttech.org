@@ -13,6 +13,7 @@ const MentorDashboard = () => {
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
     duration: '',
@@ -22,19 +23,38 @@ const MentorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMentorData = async () => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Get current user session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (userError || !user) {
-          navigate('/mentor/login');
-          return;
+        if (session?.user) {
+          await handleAuthenticatedUser(session.user);
+        } else {
+          if (mounted) {
+            navigate('/mentor/login');
+          }
         }
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+        if (mounted) {
+          setError('Failed to load dashboard data');
+        }
+      } finally {
+        if (mounted) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
+      }
+    };
 
+    const handleAuthenticatedUser = async (user) => {
+      try {
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
@@ -74,34 +94,62 @@ const MentorDashboard = () => {
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
         // Set mentor profile data
-        setMentorProfile({
-          id: user.id,
-          fullName: profile.full_name,
-          email: user.email,
-          specialization: profile.specialization || profile.career_path,
-          status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          joinedDate: profile.created_at,
-          // Mock data for now - these would come from actual tables
-          mentees: [],
-          courses: [],
-          pendingSubmissions: []
-        });
-
+        if (mounted) {
+          setMentorProfile({
+            id: user.id,
+            fullName: profile.full_name,
+            email: user.email,
+            specialization: profile.specialization || profile.career_path,
+            status: profile.status,
+            membershipEnabled: profile.membership_enabled,
+            membershipAmount: profile.membership_amount,
+            membershipPaid: profile.membership_paid,
+            paymentReference: profile.payment_reference,
+            paymentDate: profile.payment_date,
+            joinedDate: profile.created_at,
+            // Mock data for now - these would come from actual tables
+            mentees: [],
+            courses: [],
+            pendingSubmissions: []
+          });
+        }
       } catch (error) {
-        console.error('Error fetching mentor data:', error);
-        setError('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
+        console.error('Error handling authenticated user:', error);
+        if (mounted) {
+          setError('Failed to load user data');
+        }
       }
     };
 
-    fetchMentorData();
-  }, [navigate]);
+    // Initialize auth
+    initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        console.log('Auth state changed:', event, session?.user?.id);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          await handleAuthenticatedUser(session.user);
+        } else if (event === 'SIGNED_OUT' || !session) {
+          navigate('/mentor/login');
+        }
+        
+        if (!authInitialized) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate, authInitialized]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;
