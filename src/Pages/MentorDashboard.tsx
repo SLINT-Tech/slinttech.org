@@ -119,6 +119,7 @@ const MentorDashboard = () => {
     };
 
     fetchMentorData();
+  }, [navigate]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;
