@@ -15,6 +15,39 @@ const MentorMenteesPage = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    try {
+      console.log('Starting mentor logout process...');
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Clear all localStorage data
+      localStorage.clear();
+      
+      // Clear all sessionStorage data
+      sessionStorage.clear();
+      
+      // Clear any cookies
+      document.cookie.split(";").forEach((c) => {
+        const eqPos = c.indexOf("=");
+        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      });
+      
+      console.log('Successfully logged out, navigating to mentor login');
+      
+      // Navigate to mentor login
+      navigate('/mentor/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear local data even if Supabase logout fails
+      localStorage.clear();
+      sessionStorage.clear();
+      navigate('/mentor/login');
+    }
+  };
+
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
@@ -196,6 +229,7 @@ const MentorMenteesPage = () => {
               <span className="text-gray-600">Welcome, {mentorData.fullName}</span>
               <Link 
                 to="/mentor/login" 
+                onClick={handleLogout}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
