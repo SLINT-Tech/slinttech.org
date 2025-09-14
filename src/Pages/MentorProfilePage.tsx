@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 const MentorProfilePage = () => {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut, hasInitialData } = useAuth();
   const [profileData, setProfileData] = useState(null);
   
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -55,7 +55,7 @@ const MentorProfilePage = () => {
   }, [user, profile, loading, navigate]);
 
   // Show loading skeleton only when auth is actually loading
-  if (loading) {
+  if (loading && !hasInitialData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}

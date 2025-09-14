@@ -10,64 +10,56 @@ interface AuthState {
 }
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>(() => {
-    // Initialize from localStorage if available
-    try {
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const userData = JSON.parse(currentUser);
-        return {
-          user: { id: userData.id, email: userData.email } as User,
-          profile: {
-            id: userData.id,
-            full_name: userData.fullName,
-            membership_category: userData.membershipCategory,
-            career_path: userData.careerPath,
-            role: userData.role,
-            status: userData.status,
-            specialization: userData.specialization,
-            contract_file_url: userData.contractFileUrl,
-            membership_enabled: userData.membershipEnabled,
-            membership_amount: userData.membershipAmount,
-            membership_paid: userData.membershipPaid,
-            payment_reference: userData.paymentReference,
-            payment_date: userData.paymentDate,
-            discord_link: userData.discordLink,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          } as UserProfile,
-          loading: false,
-          isAuthenticated: true
-        };
-      }
-    } catch (error) {
-      console.error('Error parsing localStorage auth data:', error);
-    }
-    
-    return {
-      user: null,
-      profile: null,
-      loading: true,
-      isAuthenticated: false
-    };
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    profile: null,
+    loading: true,
+    isAuthenticated: false
   });
+
+  const [hasInitialData, setHasInitialData] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
       try {
-        // If we already have cached data, verify it's still valid
-        if (authState.user && authState.profile) {
-          console.log('Using cached auth data for:', authState.profile.full_name);
-          
-          // Verify session is still valid in background
-          const { data: { session } } = await supabase.auth.getSession();
-          if (!session && mounted) {
-            console.log('Cached session invalid, clearing auth state');
+        // Check localStorage first for immediate display
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser && mounted) {
+          try {
+            const userData = JSON.parse(currentUser);
+            console.log('Found cached auth data for:', userData.fullName);
+            
+            // Set auth state immediately from localStorage
+            setAuthState({
+              user: { id: userData.id, email: userData.email } as User,
+              profile: {
+                id: userData.id,
+                full_name: userData.fullName,
+                membership_category: userData.membershipCategory,
+                career_path: userData.careerPath,
+                role: userData.role,
+                status: userData.status,
+                specialization: userData.specialization,
+                contract_file_url: userData.contractFileUrl,
+                membership_enabled: userData.membershipEnabled,
+                membership_amount: userData.membershipAmount,
+                membership_paid: userData.membershipPaid,
+                payment_reference: userData.paymentReference,
+                payment_date: userData.paymentDate,
+                discord_link: userData.discordLink,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              } as UserProfile,
+              loading: false,
+              isAuthenticated: true
+            });
+            setHasInitialData(true);
+          } catch (error) {
+            console.error('Error parsing localStorage auth data:', error);
             clearAuthState();
           }
-          return;
         }
 
         // Get initial session
@@ -78,7 +70,7 @@ export const useAuth = () => {
           await fetchAndSetProfile(session.user);
         } else if (mounted) {
           console.log('No valid session found');
-          setAuthState(prev => ({ ...prev, loading: false }));
+          clearAuthState();
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -135,6 +127,7 @@ export const useAuth = () => {
             loading: false,
             isAuthenticated: true
           });
+          setHasInitialData(true);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -147,6 +140,7 @@ export const useAuth = () => {
     const clearAuthState = () => {
       localStorage.removeItem('currentUser');
       sessionStorage.clear();
+      setHasInitialData(false);
       setAuthState({
         user: null,
         profile: null,
@@ -174,7 +168,7 @@ export const useAuth = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Remove authState dependency to prevent loops
 
   const signOut = async () => {
     try {
@@ -192,9 +186,11 @@ export const useAuth = () => {
         const eqPos = c.indexOf("=");
         const name = eqPos > -1 ? c.substr(0, eqPos) : c;
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
       });
       
       // Update auth state
+      setHasInitialData(false);
       setAuthState({
         user: null,
         profile: null,
@@ -211,6 +207,7 @@ export const useAuth = () => {
       // Still clear local data even if Supabase logout fails
       localStorage.clear();
       sessionStorage.clear();
+      setHasInitialData(false);
       setAuthState({
         user: null,
         profile: null,
@@ -226,6 +223,7 @@ export const useAuth = () => {
     profile: authState.profile,
     loading: authState.loading,
     signOut,
-    isAuthenticated: authState.isAuthenticated
+    isAuthenticated: authState.isAuthenticated,
+    hasInitialData
   };
 };

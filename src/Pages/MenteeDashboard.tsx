@@ -20,7 +20,7 @@ interface MentorMenteeRelationship {
 }
 
 const MenteeDashboard: React.FC = () => {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut, hasInitialData } = useAuth();
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
@@ -96,7 +96,7 @@ const MenteeDashboard: React.FC = () => {
   };
 
   // Show loading skeleton only when auth is actually loading
-  if (loading) {
+  if (loading && !hasInitialData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
