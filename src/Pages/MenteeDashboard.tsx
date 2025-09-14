@@ -20,10 +20,16 @@ const MenteeDashboard = () => {
   const isPending = currentUser.status === 'pending';
 
   useEffect(() => {
-    let mounted = true;
-
-    const handleAuthenticatedUser = async (user) => {
+    const fetchUserData = async () => {
       try {
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/login');
+          return;
+        }
+
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
@@ -33,6 +39,7 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          setLoading(false);
           return;
         }
 
@@ -56,6 +63,13 @@ const MenteeDashboard = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
+        // Fetch lessons data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual lessons table query
+        // const { data: lessons } = await supabase
+        //   .from('lessons')
+        //   .select('id, completed')
+        //   .eq('mentee_id', user.id);
+        
         // Mock lessons data for now
         const mockLessons = [
           { id: 1, completed: true },
@@ -63,13 +77,18 @@ const MenteeDashboard = () => {
           { id: 3, completed: true }
         ];
         
-        if (mounted) {
-          setLessonsData({
-            completed: mockLessons.filter(l => l.completed).length,
-            total: mockLessons.length
-          });
-        }
+        setLessonsData({
+          completed: mockLessons.filter(l => l.completed).length,
+          total: mockLessons.length
+        });
 
+        // Fetch tasks data (mock for now - replace with real Supabase query)
+        // TODO: Replace with actual tasks table query
+        // const { data: tasks } = await supabase
+        //   .from('tasks')
+        //   .select('id, status')
+        //   .eq('mentee_id', user.id);
+        
         // Mock tasks data for now
         const mockTasks = [
           { id: 1, status: 'approved' },
@@ -78,83 +97,57 @@ const MenteeDashboard = () => {
           { id: 4, status: 'rejected' }
         ];
         
-        if (mounted) {
-          setTasksData({
-            approved: mockTasks.filter(t => t.status === 'approved').length,
-            total: mockTasks.length
-          });
-        }
+        setTasksData({
+          approved: mockTasks.filter(t => t.status === 'approved').length,
+          total: mockTasks.length
+        });
 
         // Set mentee data with real user info
-        if (mounted) {
-          setMenteeData({
-            fullName: profile.full_name,
-            email: user.email,
-            membershipCategory: profile.membership_category,
-            careerPath: profile.career_path,
-            status: profile.status,
-            discordLink: profile.discord_link,
-            membershipEnabled: profile.membership_enabled,
-            membershipAmount: profile.membership_amount,
-            membershipPaid: profile.membership_paid,
-            paymentReference: profile.payment_reference,
-            paymentDate: profile.payment_date,
-            mentorAssignments: [
-              {
-                mentor: 'Dr. Sarah Johnson - Full Stack Development',
-                courseName: 'React Fundamentals',
-                duration: '8 weeks',
-                mentorEmail: 'sarah.johnson@slinttech.org',
-                mentorPhone: '+1 (555) 123-4567'
-              }
-            ],
-            announcements: [
-              {
-                id: 1,
-                title: 'Welcome to SlintTech!',
-                message: 'Your account has been created successfully. Welcome to our community!',
-                date: new Date().toISOString().split('T')[0],
-                type: 'info'
-              }
-            ]
-          });
-        }
+        setMenteeData({
+          fullName: profile.full_name,
+          email: user.email,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          status: profile.status,
+          discordLink: profile.discord_link,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date,
+          mentorAssignments: [
+            // TODO: Replace with actual mentor assignments from database
+            {
+              mentor: 'Dr. Sarah Johnson - Full Stack Development',
+              courseName: 'React Fundamentals',
+              duration: '8 weeks',
+              mentorEmail: 'sarah.johnson@slinttech.org',
+              mentorPhone: '+1 (555) 123-4567'
+            }
+          ],
+          announcements: [
+            // TODO: Replace with actual announcements from database
+            {
+              id: 1,
+              title: 'Welcome to SlintTech!',
+              message: 'Your account has been created successfully. Welcome to our community!',
+              date: new Date().toISOString().split('T')[0],
+              type: 'info'
+            }
+          ]
+        });
 
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        console.log('Auth state changed:', event, session?.user?.id);
-        
-        if (session?.user) {
-          await handleAuthenticatedUser(session.user);
-        } else if (event === 'SIGNED_OUT') {
-          navigate('/login');
-        } else if (!session) {
-          // No session found, redirect to login
-          navigate('/login');
-        }
-      }
-    );
-
-    // Cleanup
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    fetchUserData();
   }, [navigate]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -169,7 +162,7 @@ const MenteeDashboard = () => {
     }
   };
 
-  const getStatusText = (status) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'approved':
         return 'Active';
@@ -454,6 +447,8 @@ const MenteeDashboard = () => {
                 <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
               </div>
             </div>
+            
+            {/* Mentor Contact Info */}
           </div>
 
           {/* Quick Access Cards */}
