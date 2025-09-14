@@ -70,29 +70,22 @@ const LoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
+        // Show success message
+        setToast({
+          message: 'Login successful! Redirecting...',
+          type: 'success'
+        });
+        
+        // Add delay to ensure localStorage is set and toast is shown
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Route based on user role and status
         if (profile.role === 'Admin') {
           navigate('/admin/dashboard');
         } else if (profile.role === 'Mentor') {
-          if (profile.status === 'approved') {
-            if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
-            } else {
-              navigate('/mentor/dashboard');
-            }
-          } else {
-            navigate('/mentor/dashboard');
-          }
+          navigate('/mentor/dashboard');
         } else { // Mentee
-          if (profile.status === 'approved') {
-            if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
-            } else {
-              navigate('/dashboard');
-            }
-          } else {
-            navigate('/dashboard');
-          }
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {

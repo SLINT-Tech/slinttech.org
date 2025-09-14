@@ -67,10 +67,17 @@ const AdminLoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
+        // Show success message
+        setToast({
+          message: 'Login successful! Redirecting...',
+          type: 'success'
+        });
+        
+        // Add delay to ensure localStorage is set and toast is shown
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Navigate to admin dashboard
-        setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 100);
+        navigate('/admin/dashboard');
       }
     } catch (error: any) {
       setToast({

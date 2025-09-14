@@ -75,16 +75,17 @@ const MentorLoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
+        // Show success message
+        setToast({
+          message: 'Login successful! Redirecting...',
+          type: 'success'
+        });
+        
+        // Add delay to ensure localStorage is set and toast is shown
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Route based on mentor status and membership requirements
-        if (profile.status === 'approved') {
-          if (profile.membership_enabled && !profile.membership_paid) {
-            navigate('/payment-wall');
-          } else {
-            navigate('/mentor/dashboard');
-          }
-        } else {
-          navigate('/mentor/dashboard');
-        }
+        navigate('/mentor/dashboard');
       }
     } catch (error: any) {
       setToast({
