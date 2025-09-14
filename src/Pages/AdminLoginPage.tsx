@@ -177,21 +177,6 @@ const AdminLoginPage = () => {
               )}
             </button>
           </form>
-
-          {/* Additional Login Options */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p className="text-gray-600 text-sm">
-              Need access to other portals?
-            </p>
-            <div className="flex justify-center gap-4 mt-3">
-              <Link to="/login" className="text-[#008080] font-medium hover:underline text-sm cursor-pointer">
-                Mentee Login
-              </Link>
-              <Link to="/mentor/login" className="text-[#008080] font-medium hover:underline text-sm cursor-pointer">
-                Mentor Login
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
 
