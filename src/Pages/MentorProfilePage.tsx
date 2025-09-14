@@ -23,7 +23,40 @@ const MentorProfilePage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
 
+  // Add loading state for data fetching
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
   useEffect(() => {
+    const loadProfileData = async () => {
+      setIsLoadingData(true);
+      
+      try {
+        // Simulate data loading
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Set profile data once we have it and user is a mentor
+        if (!loading && user && profile && profile.role === 'Mentor') {
+          setProfileData({
+            fullName: profile.full_name,
+            email: user.email,
+            specialization: profile.specialization,
+            contractFile: profile.contract_file_url,
+            joinedDate: profile.created_at,
+            status: profile.status,
+            membershipEnabled: profile.membership_enabled,
+            membershipAmount: profile.membership_amount,
+            membershipPaid: profile.membership_paid,
+            paymentDate: profile.payment_date,
+            paymentReference: profile.payment_reference
+          });
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
     // Only redirect if auth is fully loaded and no user exists
     if (!loading && !user) {
       navigate('/mentor/login');
@@ -36,26 +69,14 @@ const MentorProfilePage = () => {
       return;
     }
 
-    // Set profile data once we have it and user is a mentor
+    // Load profile data if user is authenticated and is a mentor
     if (!loading && user && profile && profile.role === 'Mentor') {
-      setProfileData({
-        fullName: profile.full_name,
-        email: user.email,
-        specialization: profile.specialization,
-        contractFile: profile.contract_file_url,
-        joinedDate: profile.created_at,
-        status: profile.status,
-        membershipEnabled: profile.membership_enabled,
-        membershipAmount: profile.membership_amount,
-        membershipPaid: profile.membership_paid,
-        paymentDate: profile.payment_date,
-        paymentReference: profile.payment_reference
-      });
+      loadProfileData();
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading skeleton when auth is loading OR when we don't have profile data yet
-  if (loading || !profileData) {
+  // Show loading skeleton when auth is loading OR when data is loading
+  if (loading || isLoadingData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
@@ -243,11 +264,12 @@ const MentorProfilePage = () => {
           </div>
         </header>
 
+        {/* Main Content - Skeleton matching actual layout */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button Skeleton */}
           <div className="flex items-center gap-2 mb-6">
             <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
           </div>
 
           {/* Profile Header Skeleton */}
@@ -255,59 +277,57 @@ const MentorProfilePage = () => {
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
               <div>
-                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
-                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                <div className="h-7 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-5 bg-gray-200 rounded w-36 mb-3 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-24 animate-pulse"></div>
               </div>
             </div>
           </div>
 
+          {/* Two Column Layout Skeleton */}
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Personal Information Skeleton */}
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
-              
+              <div className="h-6 bg-gray-200 rounded w-44 mb-6 animate-pulse"></div>
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i}>
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-5 bg-gray-200 rounded w-full animate-pulse"></div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Security & Documents Skeleton */}
+            {/* Right Column - Security & Documents Skeleton */}
             <div className="space-y-6">
               {/* Password Update Skeleton */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
                 </div>
-                
                 <div className="text-center py-6">
                   <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-56 mx-auto animate-pulse"></div>
                 </div>
               </div>
 
               {/* Contract Document Skeleton */}
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
-                
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center flex-1">
-                      <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
-                      <div>
-                        <div className="h-4 bg-gray-200 rounded w-40 mb-1 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
-                      </div>
+                <div className="h-6 bg-gray-200 rounded w-44 mb-4 animate-pulse"></div>
+                <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded mr-3 animate-pulse"></div>
+                    <div className="flex-1">
+                      <div className="h-5 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
                     </div>
-                    <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-center mt-4">
+                    <div className="h-10 bg-gray-200 rounded w-36 animate-pulse"></div>
                   </div>
                 </div>
               </div>
@@ -318,48 +338,9 @@ const MentorProfilePage = () => {
     );
   }
 
-  if (!profileData) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8]">
-        {/* Header */}
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SLINT Tech Mentor</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => navigate('/mentor/dashboard')}
-                  className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Dashboard
-                </button>
-                <Link 
-                  to="/mentor/login" 
-                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-                >
-                  Logout
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Error State */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
-            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+  // Redirect if not authenticated or not a mentor (only after all loading is complete)
+  if (!loading && !isLoadingData && (!user || !profile || profile.role !== 'Mentor' || !profileData)) {
+    return null;
   }
 
   return (
@@ -370,12 +351,12 @@ const MentorProfilePage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Profile Settings</span>
               <Link 
-                to="/mentor/login" 
+                to="/mentor/login"
                 onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
