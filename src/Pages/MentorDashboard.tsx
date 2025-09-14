@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MentorDashboard = () => {
+  const { signOut } = useAuth();
   const [mentorProfile, setMentorProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
@@ -20,18 +23,40 @@ const MentorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMentorData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    let mounted = true;
 
-        // Get current user session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const initializeAuth = async () => {
+      try {
+        // First check if we have a session
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (userError || !user) {
+        if (!mounted) return;
+        
+        if (session?.user) {
+          // User is authenticated, fetch their data
+          await fetchMentorData(session.user);
+        } else {
+          // No session, redirect to login
           navigate('/mentor/login');
-          return;
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          navigate('/mentor/login');
+        }
+      } finally {
+        if (mounted) {
+          setAuthChecked(true);
+          setLoading(false);
+        }
+      }
+    };
+
+    const fetchMentorData = async (user) => {
+      if (!mounted) return;
+      
+      try {
+        setError(null);
 
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
@@ -42,7 +67,9 @@ const MentorDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          setError('Failed to load profile data');
+          if (mounted) {
+            setError('Failed to load profile data');
+          }
           return;
         }
 
@@ -72,33 +99,54 @@ const MentorDashboard = () => {
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
         // Set mentor profile data
-        setMentorProfile({
-          id: user.id,
-          fullName: profile.full_name,
-          email: user.email,
-          specialization: profile.specialization || profile.career_path,
-          status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          joinedDate: profile.created_at,
-          // Mock data for now - these would come from actual tables
-          mentees: [],
-          courses: [],
-          pendingSubmissions: []
-        });
+        if (mounted) {
+          setMentorProfile({
+            id: user.id,
+            fullName: profile.full_name,
+            email: user.email,
+            specialization: profile.specialization || profile.career_path,
+            status: profile.status,
+            membershipEnabled: profile.membership_enabled,
+            membershipAmount: profile.membership_amount,
+            membershipPaid: profile.membership_paid,
+            paymentReference: profile.payment_reference,
+            paymentDate: profile.payment_date,
+            joinedDate: profile.created_at,
+            // Mock data for now - these would come from actual tables
+            mentees: [],
+            courses: [],
+            pendingSubmissions: []
+          });
+        }
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-        setError('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setError('Failed to load dashboard data');
+        }
       }
     };
 
-    fetchMentorData();
+    // Initialize auth
+    initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        if (session?.user && authChecked) {
+          await fetchMentorData(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/mentor/login');
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleCreateCourse = () => {
@@ -318,6 +366,7 @@ const MentorDashboard = () => {
               </Link>
               <Link 
                 to="/mentor/login" 
+               onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

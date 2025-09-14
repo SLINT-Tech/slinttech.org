@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MenteeDashboard = () => {
+  const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,15 +21,40 @@ const MenteeDashboard = () => {
   const isPending = currentUser.status === 'pending';
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
       try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
+        // First check if we have a session
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (!user) {
+        if (!mounted) return;
+        
+        if (session?.user) {
+          // User is authenticated, fetch their data
+          await fetchUserData(session.user);
+        } else {
+          // No session, redirect to login
           navigate('/login');
-          return;
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          navigate('/login');
+        }
+      } finally {
+        if (mounted) {
+          setAuthChecked(true);
+          setLoading(false);
+        }
+      }
+    };
+
+
+    const fetchUserData = async (user) => {
+      if (!mounted) return;
+      
+      try {
 
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
@@ -37,7 +65,6 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          setLoading(false);
           return;
         }
 
@@ -137,12 +164,29 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchUserData();
+    // Initialize auth
+    initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        if (session?.user && authChecked) {
+          await fetchUserData(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/login');
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const getStatusColor = (status: string) => {
@@ -199,6 +243,7 @@ const MenteeDashboard = () => {
               </Link>
               <Link 
                 to="/login" 
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium"
               >
                 Logout

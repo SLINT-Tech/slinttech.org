@@ -1,84 +1,80 @@
 import { ArrowLeft, BookOpen, CheckCircle, Clock, Eye, MessageSquare, Target, User, Users, X, Plus, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-// Mock data - this would come from your backend/database
-const mockMentorData = {
-  fullName: 'Dr. Sarah Johnson',
-  email: 'sarah.johnson@slinttech.org',
-  specialization: 'Full Stack Development',
-  courses: [
-    {
-      id: 1,
-      name: 'React Fundamentals',
-      duration: '8 weeks',
-      description: 'Learn the basics of React development',
-      enrolledMentees: 2,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Advanced JavaScript',
-      duration: '6 weeks',
-      description: 'Master advanced JavaScript concepts',
-      enrolledMentees: 1,
-      createdAt: '2024-01-20'
-    }
-  ],
-  mentees: [
-    {
-      id: 1,
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      status: 'active',
-      progress: 65,
-      coursesEnrolled: ['React Fundamentals'],
-      completedLessons: 3,
-      totalLessons: 5,
-      approvedTasks: 1,
-      totalTasks: 3,
-      joinedDate: '2024-01-15',
-      lastActive: '2024-01-25'
-    },
-    {
-      id: 2,
-      fullName: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      status: 'active',
-      progress: 80,
-      coursesEnrolled: ['React Fundamentals'],
-      completedLessons: 4,
-      totalLessons: 5,
-      approvedTasks: 2,
-      totalTasks: 3,
-      joinedDate: '2024-01-10',
-      lastActive: '2024-01-24'
-    },
-    {
-      id: 3,
-      fullName: 'Mike Johnson',
-      email: 'mike.johnson@example.com',
-      status: 'inactive',
-      progress: 30,
-      coursesEnrolled: ['Advanced JavaScript'],
-      completedLessons: 1,
-      totalLessons: 4,
-      approvedTasks: 0,
-      totalTasks: 2,
-      joinedDate: '2024-01-20',
-      lastActive: '2024-01-22'
-    }
-  ]
-};
+import { supabase } from '../lib/supabase';
+import type { MentorMenteeRelationship, UserProfile } from '../lib/supabase';
 
 const MentorMenteesPage = () => {
-  const [mentorData, setMentorData] = useState(mockMentorData);
+  const [mentorData, setMentorData] = useState(null);
+  const [menteeRelationships, setMenteeRelationships] = useState<MentorMenteeRelationship[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMentee, setSelectedMentee] = useState(null);
   const [showMenteeModal, setShowMenteeModal] = useState(false);
   const [showAddToCourseModal, setShowAddToCourseModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMentorData = async () => {
+      try {
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/mentor/login');
+          return;
+        }
+
+        // Fetch mentor profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError || profile.role !== 'Mentor') {
+          navigate('/mentor/login');
+          return;
+        }
+
+        setMentorData({
+          fullName: profile.full_name,
+          email: user.email,
+          specialization: profile.specialization || profile.career_path,
+          courses: [] // Mock courses for now
+        });
+
+        // Fetch mentor-mentee relationships with mentee details
+        const { data: relationships, error: relationshipsError } = await supabase
+          .from('mentor_mentee_relationships')
+          .select(`
+            *,
+            mentee:user_profiles!mentee_id(
+              id,
+              full_name,
+              email,
+              created_at
+            )
+          `)
+          .eq('mentor_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (relationshipsError) {
+          console.error('Error fetching relationships:', relationshipsError);
+        } else {
+          setMenteeRelationships(relationships || []);
+        }
+
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentorData();
+  }, [navigate]);
 
   const handleViewMentee = (mentee) => {
     setSelectedMentee(mentee);
@@ -88,18 +84,8 @@ const MentorMenteesPage = () => {
   const handleAddToCourse = () => {
     if (!selectedCourse || !selectedMentee) return;
     
-    // Update mentee's enrolled courses
-    setMentorData(prev => ({
-      ...prev,
-      mentees: prev.mentees.map(mentee => 
-        mentee.id === selectedMentee.id 
-          ? { 
-              ...mentee, 
-              coursesEnrolled: [...mentee.coursesEnrolled, prev.courses.find(c => c.id === parseInt(selectedCourse))?.name]
-            }
-          : mentee
-      )
-    }));
+    // Here you would update the relationship in the database
+    console.log('Adding mentee to course:', { menteeId: selectedMentee.id, courseId: selectedCourse });
     
     setShowAddToCourseModal(false);
     setSelectedCourse('');
@@ -121,10 +107,80 @@ const MentorMenteesPage = () => {
         return 'bg-green-100 text-green-800 border-green-200';
       case 'inactive':
         return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading mentees...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!mentorData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-600">Error loading data</span>
+                <Link 
+                  to="/mentor/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Data</h1>
+            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+            <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -178,7 +234,7 @@ const MentorMenteesPage = () => {
               <Users className="w-8 h-8 text-[#008080]" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Mentees</p>
-                <p className="text-2xl font-bold text-gray-900">{mentorData.mentees.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{menteeRelationships.length}</p>
               </div>
             </div>
           </div>
@@ -188,7 +244,7 @@ const MentorMenteesPage = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Mentees</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {mentorData.mentees.filter(m => m.status === 'active').length}
+                  {menteeRelationships.filter(r => r.status === 'active').length}
                 </p>
               </div>
             </div>
@@ -197,8 +253,10 @@ const MentorMenteesPage = () => {
             <div className="flex items-center">
               <BookOpen className="w-8 h-8 text-blue-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Courses Created</p>
-                <p className="text-2xl font-bold text-gray-900">{mentorData.courses.length}</p>
+                <p className="text-sm font-medium text-gray-600">Completed</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {menteeRelationships.filter(r => r.status === 'completed').length}
+                </p>
               </div>
             </div>
           </div>
@@ -208,7 +266,9 @@ const MentorMenteesPage = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Avg Progress</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(mentorData.mentees.reduce((acc, m) => acc + m.progress, 0) / mentorData.mentees.length)}%
+                  {menteeRelationships.length > 0 
+                    ? Math.round(menteeRelationships.reduce((acc, r) => acc + r.progress_percentage, 0) / menteeRelationships.length)
+                    : 0}%
                 </p>
               </div>
             </div>
@@ -230,22 +290,22 @@ const MentorMenteesPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {mentorData.mentees.map((mentee) => (
-                  <tr key={mentee.id} className="hover:bg-gray-50">
+                {menteeRelationships.map((relationship) => (
+                  <tr key={relationship.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center">
                           <User className="w-5 h-5 text-white" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{mentee.fullName}</div>
-                          <div className="text-sm text-gray-500">{mentee.email}</div>
+                          <div className="text-sm font-medium text-gray-900">{relationship.mentee?.full_name}</div>
+                          <div className="text-sm text-gray-500">{relationship.mentee?.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(mentee.status)}`}>
-                        {mentee.status.charAt(0).toUpperCase() + mentee.status.slice(1)}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(relationship.status)}`}>
+                        {relationship.status.charAt(0).toUpperCase() + relationship.status.slice(1)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -253,21 +313,21 @@ const MentorMenteesPage = () => {
                         <div className="w-16 bg-gray-200 rounded-full h-2 mr-3">
                           <div 
                             className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${mentee.progress}%` }}
+                            style={{ width: `${relationship.progress_percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900">{mentee.progress}%</span>
+                        <span className="text-sm font-medium text-gray-900">{relationship.progress_percentage}%</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {mentee.coursesEnrolled.length} course(s)
+                      {relationship.course_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(mentee.lastActive).toLocaleDateString()}
+                      {new Date(relationship.assigned_date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
-                        onClick={() => navigate(`/mentor/mentee/${mentee.id}`)}
+                        onClick={() => navigate(`/mentor/mentee/${relationship.mentee_id}`)}
                         className="text-[#008080] hover:text-teal-700 cursor-pointer"
                       >
                         <Eye className="w-4 h-4" />
@@ -304,11 +364,11 @@ const MentorMenteesPage = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <span className="text-sm font-medium text-gray-500">Full Name</span>
-                    <p className="text-gray-900">{selectedMentee.fullName}</p>
+                    <p className="text-gray-900">{selectedMentee.mentee?.full_name || selectedMentee.fullName}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500">Email</span>
-                    <p className="text-gray-900">{selectedMentee.email}</p>
+                    <p className="text-gray-900">{selectedMentee.mentee?.email || selectedMentee.email}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500">Status</span>
@@ -317,8 +377,8 @@ const MentorMenteesPage = () => {
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-500">Joined Date</span>
-                    <p className="text-gray-900">{new Date(selectedMentee.joinedDate).toLocaleDateString()}</p>
+                    <span className="text-sm font-medium text-gray-500">Assigned Date</span>
+                    <p className="text-gray-900">{new Date(selectedMentee.assigned_date || selectedMentee.joinedDate).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
@@ -333,23 +393,28 @@ const MentorMenteesPage = () => {
                       <div className="w-full bg-gray-200 rounded-full h-2 mr-3">
                         <div 
                           className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${selectedMentee.progress}%` }}
+                          style={{ width: `${selectedMentee.progress_percentage || selectedMentee.progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{selectedMentee.progress}%</span>
+                      <span className="text-sm font-medium text-gray-900">{selectedMentee.progress_percentage || selectedMentee.progress}%</span>
                     </div>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-500">Lessons Progress</span>
-                    <p className="text-gray-900">{selectedMentee.completedLessons}/{selectedMentee.totalLessons} completed</p>
+                    <span className="text-sm font-medium text-gray-500">Course</span>
+                    <p className="text-gray-900">{selectedMentee.course_name || 'Not assigned'}</p>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-500">Tasks Progress</span>
-                    <p className="text-gray-900">{selectedMentee.approvedTasks}/{selectedMentee.totalTasks} approved</p>
+                    <span className="text-sm font-medium text-gray-500">Notes</span>
+                    <p className="text-gray-900">{selectedMentee.notes || 'No notes'}</p>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-500">Enrolled Courses</span>
-                    <p className="text-gray-900">{selectedMentee.coursesEnrolled.join(', ')}</p>
+                    <span className="text-sm font-medium text-gray-500">Completion Date</span>
+                    <p className="text-gray-900">
+                      {selectedMentee.completion_date 
+                        ? new Date(selectedMentee.completion_date).toLocaleDateString()
+                        : 'In progress'
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
@@ -406,7 +471,7 @@ const MentorMenteesPage = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="">Select a course</option>
-                  {mentorData.courses.map(course => (
+                  {mentorData.courses?.map(course => (
                     <option key={course.id} value={course.id}>{course.name}</option>
                   ))}
                 </select>

@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { downloadContractFile } from '../lib/storage';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MentorProfilePage = () => {
+  const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -74,7 +76,6 @@ const MentorProfilePage = () => {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
-
         setProfileData({
           fullName: profile.full_name,
           email: user.email,
@@ -88,7 +89,6 @@ const MentorProfilePage = () => {
           paymentDate: profile.payment_date,
           paymentReference: profile.payment_reference
         });
-
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -99,19 +99,90 @@ const MentorProfilePage = () => {
     fetchProfileData();
   }, [navigate]);
 
+  const handlePasswordChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords({
+      ...showPasswords,
+      [field]: !showPasswords[field]
+    });
+  };
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('New passwords do not match');
+      return;
+    }
+
+    setIsUpdating(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) {
+        console.error('Error updating password:', error);
+        alert('Failed to update password. Please try again.');
+      } else {
+        alert('Password updated successfully');
+        setShowPasswordForm(false);
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('Failed to update password. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const downloadContract = async () => {
+    try {
+      await downloadContractFile(profileData.contractFile);
+    } catch (error) {
+      console.error('Error downloading contract:', error);
+      alert('Failed to download contract file');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'text-green-700 bg-green-100 border-green-200';
+      case 'pending':
+        return 'text-yellow-700 bg-yellow-100 border-yellow-200';
+      case 'inactive':
+        return 'text-red-700 bg-red-100 border-red-200';
+      default:
+        return 'text-gray-700 bg-gray-100 border-gray-200';
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
         <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
               </Link>
               <div className="flex items-center gap-4">
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <span className="text-gray-600">Profile Settings</span>
                 <Link 
                   to="/mentor/login" 
                   className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
@@ -123,7 +194,6 @@ const MentorProfilePage = () => {
           </div>
         </header>
 
-        {/* Main Content Skeleton */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button Skeleton */}
           <div className="flex items-center gap-2 mb-6">
@@ -149,7 +219,7 @@ const MentorProfilePage = () => {
               <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
               
               <div className="space-y-4">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i}>
                     <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
                     <div className="p-3 bg-gray-50 rounded-lg">
@@ -159,7 +229,7 @@ const MentorProfilePage = () => {
                 ))}
               </div>
             </div>
-            
+
             {/* Security & Documents Skeleton */}
             <div className="space-y-6">
               {/* Password Update Skeleton */}
@@ -201,98 +271,47 @@ const MentorProfilePage = () => {
 
   if (!profileData) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
-          <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-          <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-            Back to Dashboard
-          </Link>
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SLINT Tech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigate('/mentor/dashboard')}
+                  className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Dashboard
+                </button>
+                <Link 
+                  to="/mentor/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+                >
+                  Logout
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Error State */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Profile</h1>
+            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
+            <Link to="/mentor/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+              Back to Dashboard
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!');
-      return;
-    }
-
-    setIsUpdating(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Password update:', passwordData);
-    
-    setIsUpdating(false);
-    setShowPasswordForm(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    
-    alert('Password updated successfully!');
-  };
-
-  const downloadContract = async () => {
-    try {
-      // Get the contract URL from current user or profile data
-      const contractUrl = profileData.contractFile;
-      
-      if (!contractUrl) {
-        alert('No contract document available');
-        return;
-      }
-
-      // Use the new download method for private buckets
-      const result = await downloadContractFile(contractUrl, 'membership_contract.pdf');
-      
-      if (!result.success) {
-        alert(result.error || 'Failed to download contract');
-      }
-    } catch (error) {
-      console.error('Download error:', error);
-      alert('Failed to download contract. Please try again.');
-    }
-  };
-
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -302,12 +321,13 @@ const MentorProfilePage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Profile Settings</span>
               <Link 
                 to="/mentor/login" 
+               onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -317,9 +337,7 @@ const MentorProfilePage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
         <button
           onClick={() => navigate('/mentor/dashboard')}
           className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"

@@ -2,6 +2,7 @@ import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSqua
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 // Mock data - this would come from your backend/database
 const mockUsers = [
@@ -82,6 +83,7 @@ const mentorOptions = [
 ];
 
 const AdminDashboard = () => {
+  const { signOut } = useAuth();
   const [users, setUsers] = useState(mockUsers);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -303,12 +305,12 @@ const AdminDashboard = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">Admin Portal</span>
-              <Link 
-                to="/admin/login" 
+              <button 
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
-              </Link>
+              </button>
             </div>
             
             {/* Mobile menu button */}
@@ -334,13 +336,12 @@ const AdminDashboard = () => {
                 >
                   User Management
                 </Link>
-                <Link 
-                  to="/admin/login" 
-                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
-                  onClick={() => setIsMenuOpen(false)}
+                <button 
+                  onClick={signOut}
+                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 text-left"
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             </div>
           )}
