@@ -24,21 +24,17 @@ const MenteeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
-  const [authResolved, setAuthResolved] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      setAuthResolved(true);
-      
-      if (!user) {
-        console.log('No user found, redirecting to login');
-        navigate('/login');
-        return;
-      }
 
-      if (user && profile) {
-        fetchMentorRelationships();
-      }
+    if (!loading && !user) {
+      console.log('No user found, redirecting to login');
+      navigate('/login');
+      return;
+    }
+
+    if (!loading && user && profile) {
+      fetchMentorRelationships();
     }
   }, [user, profile, loading, navigate]);
 
@@ -76,7 +72,7 @@ const MenteeDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  if (loading || !authResolved) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
