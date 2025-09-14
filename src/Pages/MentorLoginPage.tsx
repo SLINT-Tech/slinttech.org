@@ -83,7 +83,7 @@ const MentorLoginPage = () => {
             navigate('/mentor/dashboard');
           }
         } else {
-          navigate('/pending-approval');
+          navigate('/mentor/dashboard');
         }
       }
     } catch (error: any) {

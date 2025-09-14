@@ -81,7 +81,7 @@ const LoginPage = () => {
               navigate('/mentor/dashboard');
             }
           } else {
-            navigate('/pending-approval');
+            navigate('/mentor/dashboard');
           }
         } else { // Mentee
           if (profile.status === 'approved') {
@@ -91,7 +91,7 @@ const LoginPage = () => {
               navigate('/dashboard');
             }
           } else {
-            navigate('/pending-approval');
+            navigate('/dashboard');
           }
         }
       }
