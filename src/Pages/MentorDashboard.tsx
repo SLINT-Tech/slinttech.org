@@ -1,6 +1,6 @@
 import { Calendar, CheckCircle, Clock, Eye, Plus, Target, User, Users, BookOpen, ArrowRight, Edit, Trash2, X, Send } from 'lucide-react';
 import { Menu } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -12,7 +12,6 @@ const MentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isInitialized = useRef(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -21,45 +20,17 @@ const MentorDashboard = () => {
   });
   
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    // Prevent multiple calls
-    if (isInitialized.current) {
-      console.log('useEffect already initialized, skipping');
-      return;
-    }
-    
-    console.log('useEffect starting for the first time');
-    isInitialized.current = true;
-    
     const fetchMentorData = async () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching user auth...');
-        
-        // Get current user session with timeout
-        const authPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 5000)
-        );
-        
-        let authResult;
-        try {
-          authResult = await Promise.race([authPromise, timeoutPromise]);
-        } catch (timeoutError) {
-          console.log('Auth call timed out, trying getSession...');
-          // Fallback to getSession
-          const sessionResult = await supabase.auth.getSession();
-          authResult = { data: { user: sessionResult.data.session?.user || null }, error: sessionResult.error };
-        }
-        
-        const { data: { user }, error: userError } = authResult;
-        
-        console.log('Auth result:', { user: !!user, userError });
+
+        // Get current user session
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError || !user) {
-          console.log('No user found, redirecting to login');
           navigate('/mentor/login');
           return;
         }
@@ -79,7 +50,6 @@ const MentorDashboard = () => {
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
-          console.log('User is not a mentor, redirecting');
           navigate('/mentor/login');
           return;
         }
@@ -121,14 +91,11 @@ const MentorDashboard = () => {
           courses: [],
           pendingSubmissions: []
         });
-       
-        console.log('Mentor data loaded successfully');
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
         setError('Failed to load dashboard data');
       } finally {
-        console.log('finally run');
         setLoading(false);
       }
     };

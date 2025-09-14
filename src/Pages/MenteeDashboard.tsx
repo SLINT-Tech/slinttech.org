@@ -1,6 +1,6 @@
 import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight } from 'lucide-react';
 import { Menu, X } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -10,7 +10,6 @@ const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isInitialized = useRef(false);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,42 +20,12 @@ const MenteeDashboard = () => {
   const isPending = currentUser.status === 'pending';
 
   useEffect(() => {
-    // Prevent multiple calls
-    if (isInitialized.current) {
-      console.log('useEffect already initialized, skipping');
-      return;
-    }
-    
-    console.log('useEffect starting for the first time');
-    isInitialized.current = true;
-    
     const fetchUserData = async () => {
       try {
-        setLoading(true);
-        console.log('Fetching mentee data...');
-        
-        // Get current user session with timeout
-        const authPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 5000)
-        );
-        
-        let authResult;
-        try {
-          authResult = await Promise.race([authPromise, timeoutPromise]);
-        } catch (timeoutError) {
-          console.log('Auth call timed out, trying getSession...');
-          // Fallback to getSession
-          const sessionResult = await supabase.auth.getSession();
-          authResult = { data: { user: sessionResult.data.session?.user || null }, error: sessionResult.error };
-        }
-        
-        const { data: { user }, error: userError } = authResult;
-        
-        console.log('Auth result:', { user: !!user, userError });
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          console.log('No user found, redirecting to login');
           navigate('/login');
           return;
         }
@@ -70,9 +39,10 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          setLoading(false);
           return;
         }
-        
+
         // Update localStorage with fresh data
         const userData = {
           id: user.id,
@@ -166,13 +136,10 @@ const MenteeDashboard = () => {
             }
           ]
         });
-        
-        console.log('Mentee data loaded successfully');
-      
+
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     };
