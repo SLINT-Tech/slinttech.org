@@ -29,9 +29,15 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Clear any existing session data first
+      // Sign out any existing session first
+      await supabase.auth.signOut();
+      
+      // Clear all storage data
       localStorage.clear();
       sessionStorage.clear();
+      
+      // Wait a moment for cleanup
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({

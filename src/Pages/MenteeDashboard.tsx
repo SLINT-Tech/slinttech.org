@@ -22,14 +22,21 @@ const MenteeDashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true);
+        
         // Get current user session
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
+          console.log('No authenticated user found, redirecting to login');
+          localStorage.clear();
+          sessionStorage.clear();
           navigate('/login');
           return;
         }
 
+        console.log('Authenticated user found:', user.id);
+        
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
@@ -39,10 +46,16 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          // If profile doesn't exist, redirect to login
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate('/login');
           setLoading(false);
           return;
         }
 
+        console.log('Profile loaded successfully:', profile.full_name);
+        
         // Update localStorage with fresh data
         const userData = {
           id: user.id,
@@ -139,6 +152,9 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate('/login');
       } finally {
         setLoading(false);
       }

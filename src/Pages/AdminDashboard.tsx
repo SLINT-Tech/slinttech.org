@@ -3,6 +3,9 @@ import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data - this would come from your backend/database
 const mockUsers = [
@@ -84,6 +87,9 @@ const mentorOptions = [
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [adminProfile, setAdminProfile] = useState(null);
   const [users, setUsers] = useState(mockUsers);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -119,6 +125,131 @@ const AdminDashboard = () => {
     membershipEnabled: false,
     membershipAmount: 30
   });
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.log('No authenticated user found, redirecting to admin login');
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate('/admin/login');
+          return;
+        }
+
+        console.log('Authenticated user found:', user.id);
+        
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate('/admin/login');
+          return;
+        }
+
+        // Verify user is an admin
+        if (profile.role !== 'Admin') {
+          console.log('User is not an admin, redirecting');
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate('/admin/login');
+          return;
+        }
+
+        console.log('Admin profile loaded successfully:', profile.full_name);
+        
+        // Update localStorage with fresh data
+        const userData = {
+          id: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+          role: profile.role,
+          status: profile.status
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        
+        setAdminProfile({
+          fullName: profile.full_name,
+          email: user.email,
+          role: profile.role,
+          status: profile.status
+        });
+
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate('/admin/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, [navigate]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Admin</span>
+              </Link>
+              
+              {/* Desktop Navigation Skeleton */}
+              <div className="hidden md:flex items-center gap-4">
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading admin dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No admin profile
+  if (!adminProfile) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You don't have admin privileges to access this page.</p>
+          <Link 
+            to="/admin/login" 
+            className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+          >
+            Back to Admin Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -307,6 +438,7 @@ const AdminDashboard = () => {
               <span className="text-gray-600">Admin Portal</span>
               <Link 
                 to="/admin/login" 
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -338,7 +470,7 @@ const AdminDashboard = () => {
                 </Link>
                 <Link 
                   to="/admin/login" 
-                 onClick={signOut}
+                  onClick={signOut}
                   className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
                   onClick={() => setIsMenuOpen(false)}
                 >

@@ -61,6 +61,8 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
+      console.log('Starting logout process...');
+      
       // Sign out from Supabase
       await supabase.auth.signOut();
       
@@ -78,11 +80,15 @@ export const useAuth = () => {
       });
       
       console.log('Successfully logged out and cleared all data');
+      
+      // Force page reload to ensure clean state
+      window.location.href = '/';
     } catch (error) {
       console.error('Error during logout:', error);
       // Still clear local data even if Supabase logout fails
       localStorage.clear();
       sessionStorage.clear();
+      window.location.href = '/';
     }
   };
 

@@ -31,10 +31,15 @@ const MentorDashboard = () => {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError || !user) {
+          console.log('No authenticated user found, redirecting to mentor login');
+          localStorage.clear();
+          sessionStorage.clear();
           navigate('/mentor/login');
           return;
         }
 
+        console.log('Authenticated user found:', user.id);
+        
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
@@ -44,16 +49,24 @@ const MentorDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate('/mentor/login');
           setError('Failed to load profile data');
           return;
         }
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
+          console.log('User is not a mentor, redirecting');
+          localStorage.clear();
+          sessionStorage.clear();
           navigate('/mentor/login');
           return;
         }
 
+        console.log('Mentor profile loaded successfully:', profile.full_name);
+        
         // Update localStorage with fresh data
         const userData = {
           id: user.id,
@@ -94,6 +107,9 @@ const MentorDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate('/mentor/login');
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
