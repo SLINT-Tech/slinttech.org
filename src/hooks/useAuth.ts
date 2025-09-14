@@ -10,6 +10,7 @@ export const useAuth = () => {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
+      try {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       
@@ -31,9 +32,15 @@ export const useAuth = () => {
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
+        } else {
+        console.log('Auth state changed:', event, session?.user?.id);
+          setProfile(null);
         }
-        
-        setLoading(false);
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        setUser(null);
+        setProfile(null);
+      } finally {
       }
     );
 
@@ -42,6 +49,7 @@ export const useAuth = () => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -50,12 +58,17 @@ export const useAuth = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
         return;
       }
 
+      console.log('Profile fetched successfully:', data.full_name);
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setProfile(null);
+    } finally {
+      setLoading(false);
     }
   };
 

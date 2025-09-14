@@ -60,6 +60,8 @@ const MentorDashboard = () => {
         setLoading(true);
         setError(null);
 
+        console.log('Fetching mentor data...');
+        
         // Get current user session
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
@@ -85,7 +87,6 @@ const MentorDashboard = () => {
           localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
-          setError('Failed to load profile data');
           return;
         }
 
@@ -143,13 +144,23 @@ const MentorDashboard = () => {
         localStorage.clear();
         sessionStorage.clear();
         navigate('/mentor/login');
-        setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('Mentor dashboard loading timeout, redirecting to login');
+        setLoading(false);
+        navigate('/mentor/login');
+      }
+    }, 10000); // 10 second timeout
+
     fetchMentorData();
+    
+    return () => clearTimeout(timeoutId);
   }, [navigate]);
 
   const handleCreateCourse = () => {
