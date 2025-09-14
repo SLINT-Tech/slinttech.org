@@ -139,10 +139,13 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
 
+        console.log('Setting localLoading to false');
+        setLocalLoading(false);
         setLocalLoading(false);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
+        setLocalLoading(false);
         setLocalLoading(false);
         localStorage.clear();
         sessionStorage.clear();
