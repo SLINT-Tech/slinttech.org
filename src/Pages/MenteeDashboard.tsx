@@ -72,6 +72,7 @@ const MenteeDashboard = () => {
           membershipEnabled: profile.membership_enabled,
           membershipAmount: profile.membership_amount,
           membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
           paymentDate: profile.payment_date,
           discordLink: profile.discord_link
         };
@@ -170,7 +171,7 @@ const MenteeDashboard = () => {
     };
   }, [navigate, authInitialized]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -185,7 +186,7 @@ const MenteeDashboard = () => {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status) => {
     switch (status) {
       case 'approved':
         return 'Active';
