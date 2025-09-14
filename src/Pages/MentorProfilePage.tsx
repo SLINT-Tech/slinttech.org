@@ -6,12 +6,8 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 const MentorProfilePage = () => {
-  const { user } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Get current user data from localStorage
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -27,110 +23,115 @@ const MentorProfilePage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      console.log('Starting mentor logout process...');
-      
-      // Sign out from Supabase
-      await supabase.auth.signOut();
-      
-      // Clear all localStorage data
-      localStorage.clear();
-      
-      // Clear all sessionStorage data
-      sessionStorage.clear();
-      
-      // Clear any cookies
-      document.cookie.split(";").forEach((c) => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-      
-      console.log('Successfully logged out, navigating to mentor login');
-      
-      // Navigate to mentor login
-      navigate('/mentor/login');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // Still clear local data even if Supabase logout fails
-      localStorage.clear();
-      sessionStorage.clear();
-      navigate('/mentor/login');
-    }
-  };
-
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          navigate('/mentor/login');
-          return;
-        }
+    // Redirect if not authenticated
+    if (!loading && !user) {
+      navigate('/mentor/login');
+      return;
+    }
 
-        // Fetch user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+    // Verify user is a mentor
+    if (!loading && profile && profile.role !== 'Mentor') {
+      navigate('/mentor/login');
+      return;
+    }
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          setLoading(false);
-          return;
-        }
+    // Set profile data once we have it
+    if (!loading && user && profile) {
+      setProfileData({
+        fullName: profile.full_name,
+        email: user.email,
+        specialization: profile.specialization,
+        contractFile: profile.contract_file_url,
+        joinedDate: profile.created_at,
+        status: profile.status,
+        membershipEnabled: profile.membership_enabled,
+        membershipAmount: profile.membership_amount,
+        membershipPaid: profile.membership_paid,
+        paymentDate: profile.payment_date,
+        paymentReference: profile.payment_reference
+      });
+    }
+  }, [user, profile, loading, navigate]);
 
-        // Verify user is a mentor
-        if (profile.role !== 'Mentor') {
-          navigate('/mentor/login');
-          return;
-        }
+  // Show loading skeleton while auth is loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-600">Profile Settings</span>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </header>
 
-        // Update localStorage with fresh data
-        const userData = {
-          id: user.id,
-          email: user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
-          role: profile.role,
-          status: profile.status,
-          specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          contractFileUrl: profile.contract_file_url
-        };
-        
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        setProfileData({
-          fullName: profile.full_name,
-          email: user.email,
-          specialization: profile.specialization,
-          contractFile: profile.contract_file_url,
-          joinedDate: profile.created_at,
-          status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentDate: profile.payment_date,
-          paymentReference: profile.payment_reference
-        });
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
 
-    fetchProfileData();
-  }, [navigate]);
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
+              <div>
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i}>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated or not a mentor
+  if (!user || !profile || profile.role !== 'Mentor') {
+    return null;
+  }
+
+  // Set profile data if not already set
+  if (!profileData && profile) {
+    setProfileData({
+      fullName: profile.full_name,
+      email: user.email,
+      specialization: profile.specialization,
+      contractFile: profile.contract_file_url,
+      joinedDate: profile.created_at,
+      status: profile.status,
+      membershipEnabled: profile.membership_enabled,
+      membershipAmount: profile.membership_amount,
+      membershipPaid: profile.membership_paid,
+      paymentDate: profile.payment_date,
+      paymentReference: profile.payment_reference
+    });
+  }
 
   const handlePasswordChange = (e) => {
     setPasswordData({
@@ -360,7 +361,7 @@ const MentorProfilePage = () => {
               <span className="text-gray-600">Profile Settings</span>
               <Link 
                 to="/mentor/login" 
-                onClick={handleLogout}
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
