@@ -100,7 +100,7 @@ const MentorDashboard = () => {
   };
 
   // Show loading skeleton when auth is loading OR data is loading
-  if ((loading && !hasInitialData) || isLoadingData) {
+  if (loading || isLoadingData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header Skeleton */}
@@ -113,9 +113,9 @@ const MentorDashboard = () => {
               </Link>
               
               <div className="hidden md:flex items-center gap-4">
-                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -123,11 +123,13 @@ const MentorDashboard = () => {
 
         {/* Main Content Skeleton */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section Skeleton */}
           <div className="mb-8">
             <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
           </div>
 
+          {/* Stats Cards Skeleton */}
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="bg-white rounded-xl shadow-sm p-6">
@@ -140,6 +142,41 @@ const MentorDashboard = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Quick Actions Skeleton */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-gray-200 rounded mr-4 animate-pulse"></div>
+                    <div>
+                      <div className="h-5 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent Courses Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+              </div>
+            </div>
+            
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded mx-auto mb-4 animate-pulse"></div>
+              <div className="h-6 bg-gray-200 rounded w-48 mx-auto mb-2 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded w-64 mx-auto mb-6 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-40 mx-auto animate-pulse"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -239,7 +276,7 @@ const MentorDashboard = () => {
                   Profile
                 </Link>
                 <button 
-                  onClick={() => { signOut(); setIsMenuOpen(false); }}
+                  onClick={signOut}
                   className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 text-left"
                 >
                   Logout
