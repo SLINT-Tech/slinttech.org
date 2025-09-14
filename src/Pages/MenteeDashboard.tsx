@@ -163,8 +163,8 @@ const MenteeDashboard = () => {
     };
 
     fetchUserData();
-
   }, [navigate]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
