@@ -54,8 +54,8 @@ const MentorProfilePage = () => {
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading skeleton only when auth is actually loading
-  if (loading && !hasInitialData) {
+  // Show loading skeleton when auth is loading OR when we don't have profile data yet
+  if (loading || !profileData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
@@ -68,18 +68,25 @@ const MentorProfilePage = () => {
               </Link>
               <div className="flex items-center gap-4">
                 <span className="text-gray-600">Profile Settings</span>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                <Link 
+                  to="/mentor/login" 
+                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+                >
+                  Logout
+                </Link>
               </div>
             </div>
           </div>
         </header>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Back Button Skeleton */}
           <div className="flex items-center gap-2 mb-6">
             <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
           </div>
 
+          {/* Profile Header Skeleton */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-gray-200 rounded-full mr-4 animate-pulse"></div>
@@ -92,6 +99,7 @@ const MentorProfilePage = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
+            {/* Personal Information Skeleton */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
               <div className="space-y-4">
@@ -105,14 +113,38 @@ const MentorProfilePage = () => {
                 ))}
               </div>
             </div>
+            
+            {/* Security & Documents Skeleton */}
+            <div className="space-y-6">
+              {/* Password Update Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                </div>
+              </div>
+              
+              {/* Contract Document Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // Redirect if not authenticated or not a mentor (only after loading is complete)
-  if (!user || !profile || profile.role !== 'Mentor') {
+  // Redirect if not authenticated or not a mentor
+  if (!loading && (!user || !profile || profile.role !== 'Mentor')) {
     return null;
   }
 
