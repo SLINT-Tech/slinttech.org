@@ -24,40 +24,39 @@ const MenteeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
-  const [hasInitialData, setHasInitialData] = useState(() => {
-    // Check if we have valid user data in localStorage
-    try {
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const userData = JSON.parse(currentUser);
-        return userData.role === 'Mentee' && userData.id;
-      }
-    } catch (error) {
-      console.error('Error checking localStorage:', error);
-    }
-    return false;
-  });
 
   useEffect(() => {
-    // If we have initial data from localStorage, show dashboard immediately
-    if (hasInitialData && !loading) {
-      console.log('Using cached user data, skipping auth wait');
-      if (user && profile) {
-        fetchMentorRelationships();
-      }
-      return;
-    }
-
+    // Only redirect if auth is fully loaded and no user exists
     if (!loading && !user) {
       console.log('No user found, redirecting to login');
       navigate('/login');
       return;
     }
 
-    if (!loading && user && profile) {
+    // Only redirect if auth is fully loaded and user is not a mentee
+    if (!loading && user && profile && profile.role !== 'Mentee') {
+      navigate('/login');
+      return;
+    }
+
+    // Check status and payment requirements only for authenticated mentees
+    if (!loading && user && profile && profile.role === 'Mentee') {
+      // Check if user needs approval
+      if (profile.status === 'pending') {
+        navigate('/pending-approval');
+        return;
+      }
+
+      // Check if user needs to pay membership (only for approved users)
+      if (profile.status === 'approved' && profile.membership_enabled && !profile.membership_paid) {
+        navigate('/payment-wall');
+        return;
+      }
+
+      // Fetch relationships for dashboard
       fetchMentorRelationships();
     }
-  }, [user, profile, loading, navigate, hasInitialData]);
+  }, [user, profile, loading, navigate]);
 
   const fetchMentorRelationships = async () => {
     if (!user) return;
@@ -96,8 +95,8 @@ const MenteeDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  // Show loading only if we don't have initial data and auth is still loading
-  if (loading && !hasInitialData) {
+  // Show loading skeleton only when auth is actually loading
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -106,18 +105,6 @@ const MenteeDashboard: React.FC = () => {
   }
 
   if (!user || !profile) {
-    return null;
-  }
-
-  // Check if user needs approval
-  if (profile.status === 'pending') {
-    navigate('/pending-approval');
-    return null;
-  }
-
-  // Check if user needs to pay membership
-  if (profile.membership_enabled && !profile.membership_paid) {
-    navigate('/payment-wall');
     return null;
   }
 

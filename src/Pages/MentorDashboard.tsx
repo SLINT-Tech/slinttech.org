@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 const MentorDashboard = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
@@ -19,15 +19,24 @@ const MentorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not authenticated or not a mentor
-    if (!loading && (!user || !profile)) {
+    // Only redirect if auth is fully loaded and no user exists
+    if (!loading && !user) {
       navigate('/mentor/login');
       return;
     }
 
-    if (!loading && profile && profile.role !== 'Mentor') {
+    // Only redirect if auth is fully loaded and user is not a mentor
+    if (!loading && user && profile && profile.role !== 'Mentor') {
       navigate('/mentor/login');
       return;
+    }
+
+    // Check payment requirements only for approved mentors
+    if (!loading && user && profile && profile.role === 'Mentor' && profile.status === 'approved') {
+      if (profile.membership_enabled && !profile.membership_paid) {
+        navigate('/payment-wall');
+        return;
+      }
     }
   }, [user, profile, loading, navigate]);
 
@@ -47,7 +56,7 @@ const MentorDashboard = () => {
     setShowCreateCourseModal(false);
   };
 
-  // Show loading skeleton while auth is loading
+  // Show loading skeleton only when auth is actually loading
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
@@ -94,20 +103,8 @@ const MentorDashboard = () => {
     );
   }
 
-  // Redirect if not authenticated or not a mentor
+  // Redirect if not authenticated or not a mentor (only after loading is complete)
   if (!user || !profile || profile.role !== 'Mentor') {
-    return null;
-  }
-
-  // Check if user needs approval
-  if (profile.status === 'pending') {
-    navigate('/pending-approval');
-    return null;
-  }
-
-  // Check if user needs to pay membership
-  if (profile.membership_enabled && !profile.membership_paid) {
-    navigate('/payment-wall');
     return null;
   }
 
@@ -158,7 +155,7 @@ const MentorDashboard = () => {
                 Profile
               </Link>
               <button 
-                onClick={() => { signOut(); }}
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

@@ -24,14 +24,20 @@ const MenteeProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not authenticated
+    // Only redirect if auth is fully loaded and no user exists
     if (!loading && !user) {
       navigate('/login');
       return;
     }
 
-    // Set profile data once we have it
-    if (!loading && user && profile) {
+    // Only redirect if auth is fully loaded and user is not a mentee
+    if (!loading && user && profile && profile.role !== 'Mentee') {
+      navigate('/login');
+      return;
+    }
+
+    // Set profile data once we have it and user is a mentee
+    if (!loading && user && profile && profile.role === 'Mentee') {
       setProfileData({
         fullName: profile.full_name,
         email: user.email,
@@ -49,7 +55,7 @@ const MenteeProfilePage = () => {
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading skeleton while auth is loading
+  // Show loading skeleton only when auth is actually loading
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
@@ -119,27 +125,9 @@ const MenteeProfilePage = () => {
     );
   }
 
-  // Redirect if not authenticated
-  if (!user || !profile) {
+  // Redirect if not authenticated or not a mentee (only after loading is complete)
+  if (!user || !profile || profile.role !== 'Mentee') {
     return null;
-  }
-
-  // Set profile data if not already set
-  if (!profileData && profile) {
-    setProfileData({
-      fullName: profile.full_name,
-      email: user.email,
-      membershipCategory: profile.membership_category,
-      careerPath: profile.career_path,
-      contractFileUrl: profile.contract_file_url,
-      joinedDate: profile.created_at,
-      status: profile.status,
-      membershipEnabled: profile.membership_enabled,
-      membershipAmount: profile.membership_amount,
-      membershipPaid: profile.membership_paid,
-      paymentDate: profile.payment_date,
-      paymentReference: profile.payment_reference
-    });
   }
 
   const handlePasswordChange = (e) => {

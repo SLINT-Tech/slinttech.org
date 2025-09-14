@@ -24,20 +24,20 @@ const MentorProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not authenticated
+    // Only redirect if auth is fully loaded and no user exists
     if (!loading && !user) {
       navigate('/mentor/login');
       return;
     }
 
-    // Verify user is a mentor
-    if (!loading && profile && profile.role !== 'Mentor') {
+    // Only redirect if auth is fully loaded and user is not a mentor
+    if (!loading && user && profile && profile.role !== 'Mentor') {
       navigate('/mentor/login');
       return;
     }
 
-    // Set profile data once we have it
-    if (!loading && user && profile) {
+    // Set profile data once we have it and user is a mentor
+    if (!loading && user && profile && profile.role === 'Mentor') {
       setProfileData({
         fullName: profile.full_name,
         email: user.email,
@@ -54,7 +54,7 @@ const MentorProfilePage = () => {
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading skeleton while auth is loading
+  // Show loading skeleton only when auth is actually loading
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
@@ -111,26 +111,9 @@ const MentorProfilePage = () => {
     );
   }
 
-  // Redirect if not authenticated or not a mentor
+  // Redirect if not authenticated or not a mentor (only after loading is complete)
   if (!user || !profile || profile.role !== 'Mentor') {
     return null;
-  }
-
-  // Set profile data if not already set
-  if (!profileData && profile) {
-    setProfileData({
-      fullName: profile.full_name,
-      email: user.email,
-      specialization: profile.specialization,
-      contractFile: profile.contract_file_url,
-      joinedDate: profile.created_at,
-      status: profile.status,
-      membershipEnabled: profile.membership_enabled,
-      membershipAmount: profile.membership_amount,
-      membershipPaid: profile.membership_paid,
-      paymentDate: profile.payment_date,
-      paymentReference: profile.payment_reference
-    });
   }
 
   const handlePasswordChange = (e) => {
