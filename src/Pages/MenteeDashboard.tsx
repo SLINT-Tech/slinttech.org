@@ -72,7 +72,6 @@ const MenteeDashboard = () => {
           membershipEnabled: profile.membership_enabled,
           membershipAmount: profile.membership_amount,
           membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
           paymentDate: profile.payment_date,
           discordLink: profile.discord_link
         };
