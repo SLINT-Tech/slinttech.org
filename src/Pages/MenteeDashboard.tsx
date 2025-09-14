@@ -42,6 +42,7 @@ const MenteeDashboard: React.FC = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching mentor relationships for user:', user.id);
       const { data, error } = await supabase
         .from('mentor_mentee_relationships')
         .select(`
@@ -56,13 +57,15 @@ const MenteeDashboard: React.FC = () => {
 
       if (error) {
         console.error('Error fetching mentor relationships:', error);
-        return;
+      } else {
+        console.log('Mentor relationships fetched successfully:', data?.length || 0);
+        setRelationships(data || []);
       }
 
-      setRelationships(data || []);
     } catch (error) {
       console.error('Error fetching mentor relationships:', error);
     } finally {
+      console.log('Setting loadingRelationships to false');
       setLoadingRelationships(false);
     }
   };

@@ -67,6 +67,7 @@ const MentorDashboard = () => {
           localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           return;
         }
 
@@ -84,6 +85,7 @@ const MentorDashboard = () => {
           localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           return;
         }
 
@@ -93,6 +95,7 @@ const MentorDashboard = () => {
           localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           return;
         }
 
@@ -136,14 +139,14 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
 
-        console.log('Setting isLoading to false');
+        console.log('Setting isLoading to false - data loaded successfully');
         setIsLoading(false);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-        setIsLoading(false);
         localStorage.clear();
         sessionStorage.clear();
+        setIsLoading(false);
         navigate('/mentor/login');
       }
     };
