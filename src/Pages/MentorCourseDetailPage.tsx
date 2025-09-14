@@ -170,8 +170,10 @@ const availableMentees = [
 
 const MentorCourseDetailPage = () => {
   const { courseId } = useParams();
-  const courseData = getCourseData(courseId);
+  const [courseData, setCourseData] = useState(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   
   const [showAddMenteeModal, setShowAddMenteeModal] = useState(false);
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
@@ -192,6 +194,59 @@ const MentorCourseDetailPage = () => {
     dueDate: '',
     frequency: 'weekly'
   });
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      setIsLoadingData(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const data = getCourseData(courseId);
+        setCourseData(data);
+      } catch (error) {
+        console.error('Error fetching course data:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchCourseData();
+  }, [courseId]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/mentor/login');
+  };
+
+  // Show loading skeleton while data is loading
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        {/* Header */}
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading course data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!courseData) {
     return (
@@ -299,7 +354,8 @@ const MentorCourseDetailPage = () => {
             <div className="flex items-center gap-4">
               <span className="text-gray-600">Course: {courseData.name}</span>
               <Link 
-                to="/mentor/login" 
+                to="/mentor/login"
+                onClick={handleLogout}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

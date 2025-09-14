@@ -8,6 +8,7 @@ const MentorMenteesPage = () => {
   const [mentorData, setMentorData] = useState(null);
   const [menteeRelationships, setMenteeRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [selectedMentee, setSelectedMentee] = useState(null);
   const [showMenteeModal, setShowMenteeModal] = useState(false);
   const [showAddToCourseModal, setShowAddToCourseModal] = useState(false);
@@ -15,41 +16,11 @@ const MentorMenteesPage = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      console.log('Starting mentor logout process...');
-      
-      // Sign out from Supabase
-      await supabase.auth.signOut();
-      
-      // Clear all localStorage data
-      localStorage.clear();
-      
-      // Clear all sessionStorage data
-      sessionStorage.clear();
-      
-      // Clear any cookies
-      document.cookie.split(";").forEach((c) => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-      
-      console.log('Successfully logged out, navigating to mentor login');
-      
-      // Navigate to mentor login
-      navigate('/mentor/login');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // Still clear local data even if Supabase logout fails
-      localStorage.clear();
-      sessionStorage.clear();
-      navigate('/mentor/login');
-    }
-  };
+  const { signOut } = useAuth();
 
   useEffect(() => {
     const fetchMentorData = async () => {
+      setIsLoadingData(true);
       try {
         // Get current user session
         const { data: { user } } = await supabase.auth.getUser();
@@ -102,12 +73,17 @@ const MentorMenteesPage = () => {
       } catch (error) {
         console.error('Error fetching mentor data:', error);
       } finally {
-        setLoading(false);
+        setIsLoadingData(false);
       }
     };
 
     fetchMentorData();
   }, [navigate]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/mentor/login');
+  };
 
   const handleViewMentee = (mentee) => {
     setSelectedMentee(mentee);
@@ -149,7 +125,8 @@ const MentorMenteesPage = () => {
     }
   };
 
-  if (loading) {
+  // Show loading skeleton when auth is loading OR data is loading
+  if (loading || isLoadingData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}

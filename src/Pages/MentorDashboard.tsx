@@ -9,6 +9,8 @@ import { useAuth } from '../hooks/useAuth';
 const MentorDashboard = () => {
   const { user, profile, loading, signOut, hasInitialData } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [mentorData, setMentorData] = useState(null);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -17,6 +19,47 @@ const MentorDashboard = () => {
   });
   
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMentorData = async () => {
+      if (!user || !profile || profile.role !== 'Mentor') {
+        setIsLoadingData(false);
+        return;
+      }
+
+      setIsLoadingData(true);
+      
+      try {
+        // Simulate fetching mentor-specific data
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Set mentor data from profile
+        setMentorData({
+          id: profile.id,
+          fullName: profile.full_name,
+          email: user.email,
+          specialization: profile.specialization || profile.career_path,
+          status: profile.status,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date,
+          joinedDate: profile.created_at,
+          // Mock data for now - these would come from actual tables
+          mentees: [],
+          courses: [],
+          pendingSubmissions: []
+        });
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchMentorData();
+  }, [user, profile]);
 
   useEffect(() => {
     // Only redirect if auth is fully loaded and no user exists
@@ -41,7 +84,7 @@ const MentorDashboard = () => {
   }, [user, profile, loading, navigate]);
 
   const handleCreateCourse = () => {
-    if (!profile) return;
+    if (!mentorData) return;
     
     const course = {
       id: Date.now(), // Use timestamp as temporary ID
@@ -56,8 +99,8 @@ const MentorDashboard = () => {
     setShowCreateCourseModal(false);
   };
 
-  // Show loading skeleton only when auth is actually loading
-  if (loading && !hasInitialData) {
+  // Show loading skeleton when auth is loading OR data is loading
+  if ((loading && !hasInitialData) || isLoadingData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header Skeleton */}
@@ -103,34 +146,16 @@ const MentorDashboard = () => {
     );
   }
 
-  // Redirect if not authenticated or not a mentor (only after loading is complete)
-  if (!user || !profile || profile.role !== 'Mentor') {
+  // Redirect if not authenticated or not a mentor (only after all loading is complete)
+  if (!user || !profile || profile.role !== 'Mentor' || !mentorData) {
     return null;
   }
 
-  const mentorProfile = {
-    id: profile.id,
-    fullName: profile.full_name,
-    email: user.email,
-    specialization: profile.specialization || profile.career_path,
-    status: profile.status,
-    membershipEnabled: profile.membership_enabled,
-    membershipAmount: profile.membership_amount,
-    membershipPaid: profile.membership_paid,
-    paymentReference: profile.payment_reference,
-    paymentDate: profile.payment_date,
-    joinedDate: profile.created_at,
-    // Mock data for now - these would come from actual tables
-    mentees: [],
-    courses: [],
-    pendingSubmissions: []
-  };
-
-  const isPending = profile.status === 'pending';
-  const totalMentees = mentorProfile.mentees.length;
-  const activeMentees = mentorProfile.mentees.filter(m => m.status === 'active').length;
-  const totalCourses = mentorProfile.courses.length;
-  const pendingSubmissions = mentorProfile.pendingSubmissions.length;
+  const isPending = mentorData.status === 'pending';
+  const totalMentees = mentorData.mentees.length;
+  const activeMentees = mentorData.mentees.filter(m => m.status === 'active').length;
+  const totalCourses = mentorData.courses.length;
+  const pendingSubmissions = mentorData.pendingSubmissions.length;
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -146,7 +171,7 @@ const MentorDashboard = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">
-                Welcome, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}
+                Welcome, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}
               </span>
               <Link 
                 to="/mentor/profile" 
@@ -176,7 +201,7 @@ const MentorDashboard = () => {
             <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}
+                  Welcome, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}
                 </div>
                 <Link 
                   to="/mentor/dashboard" 
@@ -251,7 +276,7 @@ const MentorDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}!
+            Welcome Back, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}!
           </h1>
           <p className="text-gray-600">
             Manage your mentees, create courses, and track progress
@@ -399,7 +424,7 @@ const MentorDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {mentorProfile.courses.slice(0, 5).map((course) => (
+                  {mentorData.courses.slice(0, 5).map((course) => (
                     <tr key={course.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
