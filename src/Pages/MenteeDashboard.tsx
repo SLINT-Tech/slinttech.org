@@ -24,18 +24,11 @@ const MenteeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
+  const [authResolved, setAuthResolved] = useState(false);
 
   useEffect(() => {
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn('Auth loading timeout, redirecting to login');
-        navigate('/login');
-      }
-    }, 10000); // 10 second timeout
-
     if (!loading) {
-      clearTimeout(timeoutId);
+      setAuthResolved(true);
       
       if (!user) {
         console.log('No user found, redirecting to login');
@@ -46,15 +39,7 @@ const MenteeDashboard: React.FC = () => {
       if (user && profile) {
         fetchMentorRelationships();
       }
-      
-      // Set loading to false once we have the auth state
-      if (!loading && user && profile) {
-        // Auth is complete, no need for timeout
-        clearTimeout(timeoutId);
-      }
     }
-
-    return () => clearTimeout(timeoutId);
   }, [user, profile, loading, navigate]);
 
   const fetchMentorRelationships = async () => {
@@ -91,7 +76,7 @@ const MenteeDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  if (loading) {
+  if (loading || !authResolved) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>

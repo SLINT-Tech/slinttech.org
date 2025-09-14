@@ -9,7 +9,7 @@ import { useAuth } from '../hooks/useAuth';
 const MentorDashboard = () => {
   const { user } = useAuth();
   const [mentorProfile, setMentorProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [localLoading, setLocalLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
@@ -57,6 +57,7 @@ const MentorDashboard = () => {
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
+        setLocalLoading(true);
         setError(null);
 
         console.log('Fetching mentor data...');
@@ -138,11 +139,11 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
 
-        setLoading(false);
+        setLocalLoading(false);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-        setLoading(false);
+        setLocalLoading(false);
         localStorage.clear();
         sessionStorage.clear();
         navigate('/mentor/login');
@@ -173,7 +174,7 @@ const MentorDashboard = () => {
   };
 
   // Loading state with skeleton
-  if (loading) {
+  if (localLoading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
