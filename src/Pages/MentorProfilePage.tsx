@@ -322,21 +322,13 @@ const MentorProfilePage = () => {
               <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/mentor/dashboard')}
-                className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
+              <span className="text-gray-600">Profile Settings</span>
+              <Link 
+                to="/mentor/login" 
+                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
+                Logout
+              </Link>
         <button
           onClick={() => navigate('/mentor/dashboard')}
           className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
