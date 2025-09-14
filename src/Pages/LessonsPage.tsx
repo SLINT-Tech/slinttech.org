@@ -157,11 +157,6 @@ const LessonsPage = () => {
               <span className="text-gray-600">Welcome, {lessonsData.fullName}</span>
               <Link 
                 to="/login" 
-                onClick={() => {
-                  // Get signOut from useAuth hook
-                  const { signOut } = useAuth();
-                  signOut();
-                }}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

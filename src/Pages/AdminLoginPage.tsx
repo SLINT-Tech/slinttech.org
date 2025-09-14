@@ -29,16 +29,6 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Sign out any existing session first
-      await supabase.auth.signOut();
-      
-      // Clear all storage data
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Wait a moment for cleanup
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -76,17 +66,7 @@ const AdminLoginPage = () => {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Force navigation with window.location as backup
-        console.log('Navigating to admin dashboard');
         navigate('/admin/dashboard');
-        // Backup navigation after a short delay
-        setTimeout(() => {
-          if (window.location.pathname === '/admin/login') {
-            console.log('React Router navigation failed, using window.location');
-            window.location.href = '/admin/dashboard';
-          }
-        }, 100);
       }
     } catch (error: any) {
       setToast({
@@ -197,21 +177,6 @@ const AdminLoginPage = () => {
               )}
             </button>
           </form>
-
-          {/* Additional Login Options */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p className="text-gray-600 text-sm">
-              Need access to other portals?
-            </p>
-            <div className="flex justify-center gap-4 mt-3">
-              <Link to="/login" className="text-[#008080] font-medium hover:underline text-sm cursor-pointer">
-                Mentee Login
-              </Link>
-              <Link to="/mentor/login" className="text-[#008080] font-medium hover:underline text-sm cursor-pointer">
-                Mentor Login
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
 

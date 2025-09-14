@@ -29,16 +29,6 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Sign out any existing session first
-      await supabase.auth.signOut();
-      
-      // Clear all storage data
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Wait a moment for cleanup
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -80,41 +70,28 @@ const LoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Force navigation with window.location as backup
-        const navigateToRoute = (route: string) => {
-          console.log('Navigating to:', route);
-          navigate(route);
-          // Backup navigation after a short delay
-          setTimeout(() => {
-            if (window.location.pathname === '/login') {
-              console.log('React Router navigation failed, using window.location');
-              window.location.href = route;
-            }
-          }, 100);
-        };
-        
         // Route based on user role and status
         if (profile.role === 'Admin') {
-          navigateToRoute('/admin/dashboard');
+          navigate('/admin/dashboard');
         } else if (profile.role === 'Mentor') {
           if (profile.status === 'approved') {
             if (profile.membership_enabled && !profile.membership_paid) {
-              navigateToRoute('/payment-wall');
+              navigate('/payment-wall');
             } else {
-              navigateToRoute('/mentor/dashboard');
+              navigate('/mentor/dashboard');
             }
           } else {
-            navigateToRoute('/mentor/dashboard'); // Preview for pending mentors
+            navigate('/mentor/dashboard'); // Preview for pending mentors
           }
         } else { // Mentee
           if (profile.status === 'approved') {
             if (profile.membership_enabled && !profile.membership_paid) {
-              navigateToRoute('/payment-wall');
+              navigate('/payment-wall');
             } else {
-              navigateToRoute('/dashboard');
+              navigate('/dashboard');
             }
           } else {
-            navigateToRoute('/dashboard'); // Preview for pending mentees
+            navigate('/dashboard'); // Preview for pending mentees
           }
         }
       }
@@ -237,7 +214,8 @@ const LoginPage = () => {
 
           {/* Sign Up Link */}
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p>
+                to="/login"
+                onClick={signOut}
               Don't have an account?{' '}
               <Link to="/signup" className="text-[#008080] font-medium hover:underline cursor-pointer">
                 Join our community

@@ -29,16 +29,6 @@ const MentorLoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Sign out any existing session first
-      await supabase.auth.signOut();
-      
-      // Clear all storage data
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Wait a moment for cleanup
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -85,28 +75,15 @@ const MentorLoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Force navigation with window.location as backup
-        const navigateToRoute = (route: string) => {
-          console.log('Navigating to:', route);
-          navigate(route);
-          // Backup navigation after a short delay
-          setTimeout(() => {
-            if (window.location.pathname === '/mentor/login') {
-              console.log('React Router navigation failed, using window.location');
-              window.location.href = route;
-            }
-          }, 100);
-        };
-        
         // Route based on mentor status and membership requirements
         if (profile.status === 'approved') {
           if (profile.membership_enabled && !profile.membership_paid) {
-            navigateToRoute('/payment-wall');
+            navigate('/payment-wall');
           } else {
-            navigateToRoute('/mentor/dashboard');
+            navigate('/mentor/dashboard');
           }
         } else {
-          navigateToRoute('/mentor/dashboard'); // Preview for pending mentors
+          navigate('/mentor/dashboard'); // Preview for pending mentors
         }
       }
     } catch (error: any) {

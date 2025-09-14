@@ -7,10 +7,11 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 const MentorDashboard = () => {
-  const { user, profile, loading, signOut, hasInitialData } = useAuth();
+  const { signOut } = useAuth();
+  const [mentorProfile, setMentorProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(true);
-  const [mentorData, setMentorData] = useState(null);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -22,20 +23,59 @@ const MentorDashboard = () => {
 
   useEffect(() => {
     const fetchMentorData = async () => {
-      if (!user || !profile || profile.role !== 'Mentor') {
-        setIsLoadingData(false);
-        return;
-      }
-
-      setIsLoadingData(true);
-      
       try {
-        // Simulate fetching mentor-specific data
-        await new Promise(resolve => setTimeout(resolve, 500));
+        setLoading(true);
+        setError(null);
+
+        // Get current user session
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        // Set mentor data from profile
-        setMentorData({
-          id: profile.id,
+        if (userError || !user) {
+          navigate('/mentor/login');
+          return;
+        }
+
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          setError('Failed to load profile data');
+          return;
+        }
+
+        // Verify user is a mentor
+        if (profile.role !== 'Mentor') {
+          navigate('/mentor/login');
+          return;
+        }
+
+        // Update localStorage with fresh data
+        const userData = {
+          id: user.id,
+          email: user.email,
+          fullName: profile.full_name,
+          membershipCategory: profile.membership_category,
+          careerPath: profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membership_enabled,
+          membershipAmount: profile.membership_amount,
+          membershipPaid: profile.membership_paid,
+          paymentReference: profile.payment_reference,
+          paymentDate: profile.payment_date
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+
+        // Set mentor profile data
+        setMentorProfile({
+          id: user.id,
           fullName: profile.full_name,
           email: user.email,
           specialization: profile.specialization || profile.career_path,
@@ -51,40 +91,20 @@ const MentorDashboard = () => {
           courses: [],
           pendingSubmissions: []
         });
+
       } catch (error) {
         console.error('Error fetching mentor data:', error);
+        setError('Failed to load dashboard data');
       } finally {
-        setIsLoadingData(false);
+        setLoading(false);
       }
     };
 
     fetchMentorData();
-  }, [user, profile]);
-
-  useEffect(() => {
-    // Only redirect if auth is fully loaded and no user exists
-    if (!loading && !user) {
-      navigate('/mentor/login');
-      return;
-    }
-
-    // Only redirect if auth is fully loaded and user is not a mentor
-    if (!loading && user && profile && profile.role !== 'Mentor') {
-      navigate('/mentor/login');
-      return;
-    }
-
-    // Check payment requirements only for approved mentors
-    if (!loading && user && profile && profile.role === 'Mentor' && profile.status === 'approved') {
-      if (profile.membership_enabled && !profile.membership_paid) {
-        navigate('/payment-wall');
-        return;
-      }
-    }
-  }, [user, profile, loading, navigate]);
+  }, [navigate]);
 
   const handleCreateCourse = () => {
-    if (!mentorData) return;
+    if (!mentorProfile) return;
     
     const course = {
       id: Date.now(), // Use timestamp as temporary ID
@@ -93,17 +113,20 @@ const MentorDashboard = () => {
       createdAt: new Date().toISOString().split('T')[0]
     };
     
-    // In a real app, you'd save this to the database
-    console.log('Creating course:', course);
+    setMentorProfile(prev => ({
+      ...prev,
+      courses: [...prev.courses, course]
+    }));
+    
     setNewCourse({ name: '', duration: '', description: '' });
     setShowCreateCourseModal(false);
   };
 
-  // Show loading skeleton when auth is loading OR data is loading
-  if (loading || isLoadingData) {
+  // Loading state with skeleton
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
-        {/* Header Skeleton */}
+        {/* Header */}
         <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -112,11 +135,17 @@ const MentorDashboard = () => {
                 <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
               </Link>
               
+              {/* Desktop Navigation Skeleton */}
               <div className="hidden md:flex items-center gap-4">
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
               </div>
+              
+              {/* Mobile menu button */}
+              <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <Menu className="w-6 h-6" />
+              </button>
             </div>
           </div>
         </header>
@@ -167,15 +196,49 @@ const MentorDashboard = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
               </div>
             </div>
             
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-200 rounded mx-auto mb-4 animate-pulse"></div>
-              <div className="h-6 bg-gray-200 rounded w-48 mx-auto mb-2 animate-pulse"></div>
-              <div className="h-4 bg-gray-200 rounded w-64 mx-auto mb-6 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-40 mx-auto animate-pulse"></div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[1, 2, 3].map((i) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 rounded-full mr-3 animate-pulse"></div>
+                          <div>
+                            <div className="h-4 bg-gray-200 rounded w-32 mb-1 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-40 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -183,16 +246,55 @@ const MentorDashboard = () => {
     );
   }
 
-  // Redirect if not authenticated or not a mentor (only after all loading is complete)
-  if (!user || !profile || profile.role !== 'Mentor' || !mentorData) {
-    return null;
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Failed to Load Dashboard</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="space-y-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+            >
+              Try Again
+            </button>
+            <Link 
+              to="/mentor/login" 
+              className="block text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+            >
+              Back to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const isPending = mentorData.status === 'pending';
-  const totalMentees = mentorData.mentees.length;
-  const activeMentees = mentorData.mentees.filter(m => m.status === 'active').length;
-  const totalCourses = mentorData.courses.length;
-  const pendingSubmissions = mentorData.pendingSubmissions.length;
+  // No profile data
+  if (!mentorProfile) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Profile Not Found</h1>
+          <p className="text-gray-600 mb-6">Unable to load your mentor profile.</p>
+          <Link 
+            to="/mentor/login" 
+            className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const isPending = mentorProfile.status === 'pending';
+  const totalMentees = mentorProfile.mentees.length;
+  const activeMentees = mentorProfile.mentees.filter(m => m.status === 'active').length;
+  const totalCourses = mentorProfile.courses.length;
+  const pendingSubmissions = mentorProfile.pendingSubmissions.length;
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -208,7 +310,7 @@ const MentorDashboard = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">
-                Welcome, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}
+                Welcome, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}
               </span>
               <Link 
                 to="/mentor/profile" 
@@ -216,12 +318,13 @@ const MentorDashboard = () => {
               >
                 Profile
               </Link>
-              <button 
-                onClick={signOut}
+              <Link 
+                to="/mentor/login" 
+               onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
-              </button>
+              </Link>
             </div>
             
             {/* Mobile menu button */}
@@ -238,7 +341,7 @@ const MentorDashboard = () => {
             <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}
+                  Welcome, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}
                 </div>
                 <Link 
                   to="/mentor/dashboard" 
@@ -275,12 +378,13 @@ const MentorDashboard = () => {
                 >
                   Profile
                 </Link>
-                <button 
-                  onClick={signOut}
-                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 text-left"
+                <Link 
+                  to="/mentor/login" 
+                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   Logout
-                </button>
+                </Link>
               </div>
             </div>
           )}
@@ -313,7 +417,7 @@ const MentorDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back, {mentorData.fullName ? mentorData.fullName.split(' ')[0] : 'Mentor'}!
+            Welcome Back, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}!
           </h1>
           <p className="text-gray-600">
             Manage your mentees, create courses, and track progress
@@ -461,7 +565,7 @@ const MentorDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {mentorData.courses.slice(0, 5).map((course) => (
+                  {mentorProfile.courses.slice(0, 5).map((course) => (
                     <tr key={course.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

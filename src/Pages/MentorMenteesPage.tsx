@@ -8,7 +8,6 @@ const MentorMenteesPage = () => {
   const [mentorData, setMentorData] = useState(null);
   const [menteeRelationships, setMenteeRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isLoadingData, setIsLoadingData] = useState(true);
   const [selectedMentee, setSelectedMentee] = useState(null);
   const [showMenteeModal, setShowMenteeModal] = useState(false);
   const [showAddToCourseModal, setShowAddToCourseModal] = useState(false);
@@ -16,11 +15,8 @@ const MentorMenteesPage = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const { signOut } = useAuth();
-
   useEffect(() => {
     const fetchMentorData = async () => {
-      setIsLoadingData(true);
       try {
         // Get current user session
         const { data: { user } } = await supabase.auth.getUser();
@@ -73,17 +69,12 @@ const MentorMenteesPage = () => {
       } catch (error) {
         console.error('Error fetching mentor data:', error);
       } finally {
-        setIsLoadingData(false);
+        setLoading(false);
       }
     };
 
     fetchMentorData();
   }, [navigate]);
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/mentor/login');
-  };
 
   const handleViewMentee = (mentee) => {
     setSelectedMentee(mentee);
@@ -125,8 +116,7 @@ const MentorMenteesPage = () => {
     }
   };
 
-  // Show loading skeleton when auth is loading OR data is loading
-  if (loading || isLoadingData) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         {/* Header */}
@@ -206,7 +196,6 @@ const MentorMenteesPage = () => {
               <span className="text-gray-600">Welcome, {mentorData.fullName}</span>
               <Link 
                 to="/mentor/login" 
-                onClick={handleLogout}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
