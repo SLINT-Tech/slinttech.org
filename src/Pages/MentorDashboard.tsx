@@ -38,8 +38,23 @@ const MentorDashboard = () => {
         setError(null);
         console.log('Fetching user auth...');
         
-        // Get current user session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        // Get current user session with timeout
+        const authPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 5000)
+        );
+        
+        let authResult;
+        try {
+          authResult = await Promise.race([authPromise, timeoutPromise]);
+        } catch (timeoutError) {
+          console.log('Auth call timed out, trying getSession...');
+          // Fallback to getSession
+          const sessionResult = await supabase.auth.getSession();
+          authResult = { data: { user: sessionResult.data.session?.user || null }, error: sessionResult.error };
+        }
+        
+        const { data: { user }, error: userError } = authResult;
         
         console.log('Auth result:', { user: !!user, userError });
         
