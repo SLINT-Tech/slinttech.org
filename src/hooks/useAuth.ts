@@ -11,14 +11,21 @@ export const useAuth = () => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     getInitialSession();
@@ -32,15 +39,8 @@ export const useAuth = () => {
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
-        } else {
-        console.log('Auth state changed:', event, session?.user?.id);
-          setProfile(null);
         }
-      } catch (error) {
-        console.error('Error getting initial session:', error);
-        setUser(null);
-        setProfile(null);
-      } finally {
+        console.log('Auth state changed:', event, session?.user?.id);
       }
     );
 
