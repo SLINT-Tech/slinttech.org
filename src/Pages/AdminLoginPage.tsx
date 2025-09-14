@@ -66,26 +66,7 @@ const AdminLoginPage = () => {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Show success message
-        setToast({
-          message: 'Login successful! Redirecting...',
-          type: 'success'
-        });
-        
-        // Force navigation immediately after localStorage is set
-        console.log('Admin login successful, navigating to dashboard');
-        
-        // Navigate to admin dashboard
         navigate('/admin/dashboard');
-        
-        // Force page reload as backup if navigation doesn't work
-        setTimeout(() => {
-          if (window.location.pathname === '/admin/login') {
-            console.log('Admin navigation failed, forcing page reload');
-            window.location.href = '/admin/dashboard';
-          }
-        }, 1000);
       }
     } catch (error: any) {
       setToast({

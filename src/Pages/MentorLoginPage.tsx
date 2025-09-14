@@ -75,25 +75,16 @@ const MentorLoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Show success message
-        setToast({
-          message: 'Login successful! Redirecting...',
-          type: 'success'
-        });
-        
-        // Force navigation immediately after localStorage is set
-        console.log('Mentor login successful, navigating to dashboard');
-        
         // Route based on mentor status and membership requirements
-        navigate('/mentor/dashboard');
-        
-        // Force page reload as backup if navigation doesn't work
-        setTimeout(() => {
-          if (window.location.pathname === '/mentor/login') {
-            console.log('Mentor navigation failed, forcing page reload');
-            window.location.href = '/mentor/dashboard';
+        if (profile.status === 'approved') {
+          if (profile.membership_enabled && !profile.membership_paid) {
+            navigate('/payment-wall');
+          } else {
+            navigate('/mentor/dashboard');
           }
-        }, 1000);
+        } else {
+          navigate('/mentor/dashboard'); // Preview for pending mentors
+        }
       }
     } catch (error: any) {
       setToast({

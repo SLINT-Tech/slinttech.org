@@ -70,40 +70,30 @@ const LoginPage = () => {
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Show success message
-        setToast({
-          message: 'Login successful! Redirecting...',
-          type: 'success'
-        });
-        
-        // Force navigation immediately after localStorage is set
-        console.log('Navigating to dashboard for role:', profile.role, 'status:', profile.status);
-        
         // Route based on user role and status
         if (profile.role === 'Admin') {
-          console.log('Navigating to admin dashboard');
           navigate('/admin/dashboard');
         } else if (profile.role === 'Mentor') {
-          console.log('Navigating to mentor dashboard');
-          navigate('/mentor/dashboard');
-        } else { // Mentee
-          console.log('Navigating to mentee dashboard');
-          navigate('/dashboard');
-        }
-        
-        // Force page reload as backup if navigation doesn't work
-        setTimeout(() => {
-          if (window.location.pathname === '/login') {
-            console.log('Navigation failed, forcing page reload');
-            if (profile.role === 'Admin') {
-              window.location.href = '/admin/dashboard';
-            } else if (profile.role === 'Mentor') {
-              window.location.href = '/mentor/dashboard';
+          if (profile.status === 'approved') {
+            if (profile.membership_enabled && !profile.membership_paid) {
+              navigate('/payment-wall');
             } else {
-              window.location.href = '/dashboard';
+              navigate('/mentor/dashboard');
             }
+          } else {
+            navigate('/mentor/dashboard'); // Preview for pending mentors
           }
-        }, 1000);
+        } else { // Mentee
+          if (profile.status === 'approved') {
+            if (profile.membership_enabled && !profile.membership_paid) {
+              navigate('/payment-wall');
+            } else {
+              navigate('/dashboard');
+            }
+          } else {
+            navigate('/dashboard'); // Preview for pending mentees
+          }
+        }
       }
     } catch (error: any) {
       setToast({
