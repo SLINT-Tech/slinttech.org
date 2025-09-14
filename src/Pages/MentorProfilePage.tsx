@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { downloadContractFile } from '../lib/storage';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MentorProfilePage = () => {
+  const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -325,6 +327,7 @@ const MentorProfilePage = () => {
               <span className="text-gray-600">Profile Settings</span>
               <Link 
                 to="/mentor/login" 
+               onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MenteeDashboard = () => {
+  const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
@@ -199,6 +201,7 @@ const MenteeDashboard = () => {
               </Link>
               <Link 
                 to="/login" 
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium"
               >
                 Logout

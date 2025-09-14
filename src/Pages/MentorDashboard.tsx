@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 const MentorDashboard = () => {
+  const { signOut } = useAuth();
   const [mentorProfile, setMentorProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -318,6 +320,7 @@ const MentorDashboard = () => {
               </Link>
               <Link 
                 to="/mentor/login" 
+               onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
