@@ -30,7 +30,7 @@ const MentorDashboard = () => {
 
         // Get current user session
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
+        console.log('after get supabae get user auth');
         if (userError || !user) {
           navigate('/mentor/login');
           return;
