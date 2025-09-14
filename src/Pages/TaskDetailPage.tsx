@@ -184,6 +184,7 @@ const TaskDetailPage = () => {
               <span className="text-gray-600">Task Details</span>
               <Link 
                 to="/login" 
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout

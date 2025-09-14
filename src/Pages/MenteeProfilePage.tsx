@@ -300,7 +300,7 @@ const MenteeProfilePage = () => {
               <span className="text-gray-600">Profile Settings</span>
               <Link 
                 to="/login" 
-               onClick={signOut}
+                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
