@@ -1,6 +1,6 @@
 import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight } from 'lucide-react';
 import { Menu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -10,7 +10,7 @@ const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,13 +22,13 @@ const MenteeDashboard = () => {
 
   useEffect(() => {
     // Prevent multiple calls
-    if (isInitialized) {
+    if (isInitialized.current) {
       console.log('useEffect already initialized, skipping');
       return;
     }
     
     console.log('useEffect starting for the first time');
-    setIsInitialized(true);
+    isInitialized.current = true;
     
     const fetchUserData = async () => {
       try {
@@ -163,7 +163,6 @@ const MenteeDashboard = () => {
     };
 
     fetchUserData();
-  }, [navigate, isInitialized]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

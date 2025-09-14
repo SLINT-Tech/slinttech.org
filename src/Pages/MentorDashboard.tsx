@@ -1,6 +1,6 @@
 import { Calendar, CheckCircle, Clock, Eye, Plus, Target, User, Users, BookOpen, ArrowRight, Edit, Trash2, X, Send } from 'lucide-react';
 import { Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -12,7 +12,7 @@ const MentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -24,13 +24,13 @@ const MentorDashboard = () => {
   
   useEffect(() => {
     // Prevent multiple calls
-    if (isInitialized) {
+    if (isInitialized.current) {
       console.log('useEffect already initialized, skipping');
       return;
     }
     
     console.log('useEffect starting for the first time');
-    setIsInitialized(true);
+    isInitialized.current = true;
     
     const fetchMentorData = async () => {
       try {
@@ -119,7 +119,6 @@ const MentorDashboard = () => {
     };
 
     fetchMentorData();
-  }, [navigate, isInitialized]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;
