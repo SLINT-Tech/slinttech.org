@@ -42,7 +42,8 @@ const MenteeDashboard = () => {
           setLoading(false);
           return;
         }
-
+        
+        console.log("data completed fetching")
         // Update localStorage with fresh data
         const userData = {
           id: user.id,
