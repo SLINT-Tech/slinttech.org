@@ -76,17 +76,34 @@ const LoginPage = () => {
           type: 'success'
         });
         
-        // Add delay to ensure localStorage is set and toast is shown
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Force navigation immediately after localStorage is set
+        console.log('Navigating to dashboard for role:', profile.role, 'status:', profile.status);
         
         // Route based on user role and status
         if (profile.role === 'Admin') {
+          console.log('Navigating to admin dashboard');
           navigate('/admin/dashboard');
         } else if (profile.role === 'Mentor') {
+          console.log('Navigating to mentor dashboard');
           navigate('/mentor/dashboard');
         } else { // Mentee
+          console.log('Navigating to mentee dashboard');
           navigate('/dashboard');
         }
+        
+        // Force page reload as backup if navigation doesn't work
+        setTimeout(() => {
+          if (window.location.pathname === '/login') {
+            console.log('Navigation failed, forcing page reload');
+            if (profile.role === 'Admin') {
+              window.location.href = '/admin/dashboard';
+            } else if (profile.role === 'Mentor') {
+              window.location.href = '/mentor/dashboard';
+            } else {
+              window.location.href = '/dashboard';
+            }
+          }
+        }, 1000);
       }
     } catch (error: any) {
       setToast({

@@ -81,11 +81,19 @@ const MentorLoginPage = () => {
           type: 'success'
         });
         
-        // Add delay to ensure localStorage is set and toast is shown
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Force navigation immediately after localStorage is set
+        console.log('Mentor login successful, navigating to dashboard');
         
         // Route based on mentor status and membership requirements
         navigate('/mentor/dashboard');
+        
+        // Force page reload as backup if navigation doesn't work
+        setTimeout(() => {
+          if (window.location.pathname === '/mentor/login') {
+            console.log('Mentor navigation failed, forcing page reload');
+            window.location.href = '/mentor/dashboard';
+          }
+        }, 1000);
       }
     } catch (error: any) {
       setToast({
