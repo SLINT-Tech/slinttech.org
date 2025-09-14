@@ -41,12 +41,6 @@ const MenteeDashboard: React.FC = () => {
 
     // Check status and payment requirements only for authenticated mentees
     if (!loading && user && profile && profile.role === 'Mentee') {
-      // Check if user needs approval
-      if (profile.status === 'pending') {
-        navigate('/pending-approval');
-        return;
-      }
-
       // Check if user needs to pay membership (only for approved users)
       if (profile.status === 'approved' && profile.membership_enabled && !profile.membership_paid) {
         navigate('/payment-wall');
