@@ -588,7 +588,6 @@ const MenteeDashboard = () => {
                     }
                   </p>
                 </div>
-              )}
             </div>
 
             {/* Recent Announcements */}
