@@ -43,7 +43,6 @@ const MenteeDashboard = () => {
           return;
         }
         
-        console.log("data completed fetching")
         // Update localStorage with fresh data
         const userData = {
           id: user.id,
@@ -141,7 +140,7 @@ const MenteeDashboard = () => {
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
-        console.log("set the skeleton to false")
+        
         setLoading(false);
       }
     };
