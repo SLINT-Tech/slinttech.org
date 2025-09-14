@@ -20,7 +20,7 @@ const MentorDashboard = () => {
   });
   
   const navigate = useNavigate();
-
+console.log('mentor component');
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
