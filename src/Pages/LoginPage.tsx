@@ -214,7 +214,8 @@ const LoginPage = () => {
 
           {/* Sign Up Link */}
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p>
+                to="/login"
+                onClick={signOut}
               Don't have an account?{' '}
               <Link to="/signup" className="text-[#008080] font-medium hover:underline cursor-pointer">
                 Join our community

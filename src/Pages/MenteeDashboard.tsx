@@ -10,7 +10,6 @@ const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,40 +20,15 @@ const MenteeDashboard = () => {
   const isPending = currentUser.status === 'pending';
 
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
+    const fetchUserData = async () => {
       try {
-        // First check if we have a session
-        const { data: { session } } = await supabase.auth.getSession();
+        // Get current user session
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (!mounted) return;
-        
-        if (session?.user) {
-          // User is authenticated, fetch their data
-          await fetchUserData(session.user);
-        } else {
-          // No session, redirect to login
+        if (!user) {
           navigate('/login');
+          return;
         }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        if (mounted) {
-          navigate('/login');
-        }
-      } finally {
-        if (mounted) {
-          setAuthChecked(true);
-          setLoading(false);
-        }
-      }
-    };
-
-
-    const fetchUserData = async (user) => {
-      if (!mounted) return;
-      
-      try {
 
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
@@ -65,6 +39,7 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          setLoading(false);
           return;
         }
 
@@ -164,29 +139,12 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Initialize auth
-    initializeAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        if (session?.user && authChecked) {
-          await fetchUserData(session.user);
-        } else if (event === 'SIGNED_OUT') {
-          navigate('/login');
-        }
-      }
-    );
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    fetchUserData();
   }, [navigate]);
 
   const getStatusColor = (status: string) => {
