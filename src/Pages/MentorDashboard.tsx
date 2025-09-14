@@ -25,8 +25,9 @@ const MentorDashboard = () => {
     console.log('use effect start');
     const fetchMentorData = async () => {
       try {
-        
-
+        setLoading(true);
+        setError(null);
+        console.log('before get supabae get user auth');
         // Get current user session
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         console.log('after get supabae get user auth');
