@@ -30,7 +30,6 @@ const MenteeDashboard: React.FC = () => {
     const timeoutId = setTimeout(() => {
       if (loading) {
         console.warn('Auth loading timeout, redirecting to login');
-        setLoading(false);
         navigate('/login');
       }
     }, 10000); // 10 second timeout
@@ -40,13 +39,16 @@ const MenteeDashboard: React.FC = () => {
       
       if (!user) {
         console.log('No user found, redirecting to login');
-      navigate('/login');
-      return;
+        navigate('/login');
+        return;
+      }
+
+      if (user && profile) {
+        fetchMentorRelationships();
+      }
     }
 
-    if (user && profile) {
-      fetchMentorRelationships();
-    }
+    return () => clearTimeout(timeoutId);
   }, [user, profile, loading, navigate]);
 
   const fetchMentorRelationships = async () => {
@@ -70,12 +72,6 @@ const MenteeDashboard: React.FC = () => {
         return;
       }
 
-      if (user && profile) {
-        console.log('User and profile loaded:', profile.full_name);
-        fetchMentorRelationships();
-      }
-      }
-
       setRelationships(data || []);
     } catch (error) {
       console.error('Error fetching mentor relationships:', error);
@@ -83,8 +79,10 @@ const MenteeDashboard: React.FC = () => {
       setLoadingRelationships(false);
     }
   };
-    return () => clearTimeout(timeoutId);
-  }, [user, profile, loading, navigate]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
   };
 
   if (loading) {
