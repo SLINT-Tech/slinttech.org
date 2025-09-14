@@ -129,22 +129,22 @@ const MentorDashboard = () => {
       async (event, session) => {
         if (!mounted) return;
         
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('Auth state changed:', event);
         
-        if (event === 'SIGNED_IN' && session?.user) {
+        if (session?.user) {
           await handleAuthenticatedUser(session.user);
-        } else if (event === 'SIGNED_OUT' || !session) {
-          navigate('/mentor/login');
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/login');
         }
         
-        if (!authInitialized) {
+        if (!authInitialized && mounted) {
           setAuthInitialized(true);
           setLoading(false);
         }
       }
     );
 
-    // Cleanup function
+    // Cleanup
     return () => {
       mounted = false;
       subscription.unsubscribe();
