@@ -32,3 +32,20 @@ export interface UserProfile {
   created_at: string;
   updated_at: string;
 }
+
+export interface MentorMenteeRelationship {
+  id: string;
+  mentor_id: string;
+  mentee_id: string;
+  course_name: string;
+  status: 'active' | 'inactive' | 'completed' | 'paused';
+  assigned_date: string;
+  completion_date?: string;
+  progress_percentage: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  // Joined data from user_profiles
+  mentor?: UserProfile;
+  mentee?: UserProfile;
+}
