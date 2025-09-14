@@ -91,8 +91,7 @@ console.log('mentor component');
           courses: [],
           pendingSubmissions: []
         });
-         console.log('set loading to false');
-        setLoading(false);
+       
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
