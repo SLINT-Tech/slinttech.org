@@ -1,102 +1,253 @@
-import { useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase, UserProfile } from '../lib/supabase';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+interface MentorMenteeRelationship {
+  id: string;
+  mentor_id: string;
+  mentee_id: string;
+  course_name: string;
+  status: string;
+  assigned_date: string;
+  completion_date: string | null;
+  progress_percentage: number;
+  notes: string | null;
+  mentor_profile?: {
+    full_name: string;
+    specialization: string | null;
+  };
+}
+
+const MenteeDashboard: React.FC = () => {
+  const { user, profile, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
+  const [loadingRelationships, setLoadingRelationships] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      }
-      
-      setLoading(false);
-    };
+    if (!loading && !user) {
+      navigate('/login');
+      return;
+    }
 
-    getInitialSession();
+    if (user && profile) {
+      fetchMentorRelationships();
+    }
+  }, [user, profile, loading, navigate]);
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
+  const fetchMentorRelationships = async () => {
+    if (!user) return;
 
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+        .from('mentor_mentee_relationships')
+        .select(`
+          *,
+          mentor_profile:user_profiles!mentor_id (
+            full_name,
+            specialization
+          )
+        `)
+        .eq('mentee_id', user.id)
+        .order('assigned_date', { ascending: false });
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching mentor relationships:', error);
         return;
       }
 
-      setProfile(data);
+      setRelationships(data || []);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching mentor relationships:', error);
+    } finally {
+      setLoadingRelationships(false);
     }
   };
 
-  const signOut = async () => {
-    try {
-      console.log('Starting logout process...');
-      
-      // Sign out from Supabase
-      await supabase.auth.signOut();
-      
-      // Clear all localStorage data
-      localStorage.clear();
-      
-      // Clear all sessionStorage data
-      sessionStorage.clear();
-      
-      // Clear any cookies (if you're using any)
-      document.cookie.split(";").forEach((c) => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-      
-      console.log('Successfully logged out and cleared all data');
-      
-      // Force page reload to ensure clean state
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // Still clear local data even if Supabase logout fails
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/';
-    }
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
   };
 
-  return {
-    user,
-    profile,
-    loading,
-    signOut,
-    isAuthenticated: !!user
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return null;
+  }
+
+  // Check if user needs approval
+  if (profile.status === 'pending') {
+    navigate('/pending-approval');
+    return null;
+  }
+
+  // Check if user needs to pay membership
+  if (profile.membership_enabled && !profile.membership_paid) {
+    navigate('/payment-wall');
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-gray-900">
+                Mentee Dashboard
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700">
+                Welcome, {profile.full_name}
+              </span>
+              <button
+                onClick={() => navigate('/profile')}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          {/* Welcome Section */}
+          <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
+            <div className="px-4 py-5 sm:p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-2">
+                Welcome to your learning journey!
+              </h2>
+              <p className="text-gray-600">
+                Track your progress, connect with mentors, and access your learning materials.
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <button
+              onClick={() => navigate('/lessons')}
+              className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition-colors"
+            >
+              <div className="text-2xl mb-2">📚</div>
+              <div className="font-medium">Lessons</div>
+            </button>
+            <button
+              onClick={() => navigate('/tasks')}
+              className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center transition-colors"
+            >
+              <div className="text-2xl mb-2">✅</div>
+              <div className="font-medium">Tasks</div>
+            </button>
+            <button
+              onClick={() => navigate('/mentors')}
+              className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition-colors"
+            >
+              <div className="text-2xl mb-2">👥</div>
+              <div className="font-medium">Mentors</div>
+            </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className="bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-lg text-center transition-colors"
+            >
+              <div className="text-2xl mb-2">⚙️</div>
+              <div className="font-medium">Profile</div>
+            </button>
+          </div>
+
+          {/* Mentor Relationships */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Your Mentors
+              </h3>
+              
+              {loadingRelationships ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : relationships.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No mentors assigned yet.</p>
+                  <button
+                    onClick={() => navigate('/mentors')}
+                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    Browse Mentors
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {relationships.map((relationship) => (
+                    <div
+                      key={relationship.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium text-gray-900">
+                            {relationship.mentor_profile?.full_name || 'Unknown Mentor'}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Course: {relationship.course_name}
+                          </p>
+                          {relationship.mentor_profile?.specialization && (
+                            <p className="text-sm text-gray-500">
+                              Specialization: {relationship.mentor_profile.specialization}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            relationship.status === 'active' 
+                              ? 'bg-green-100 text-green-800'
+                              : relationship.status === 'completed'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {relationship.status}
+                          </span>
+                          <div className="mt-2">
+                            <div className="text-sm text-gray-600">
+                              Progress: {relationship.progress_percentage}%
+                            </div>
+                            <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: `${relationship.progress_percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 };
+
+export default MenteeDashboard;
