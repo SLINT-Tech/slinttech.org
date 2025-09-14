@@ -91,11 +91,14 @@ const MentorDashboard = () => {
           courses: [],
           pendingSubmissions: []
         });
+         console.log('set loading to false');
+        setLoading(false);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
         setError('Failed to load dashboard data');
       } finally {
+        console.log('finally run');
         setLoading(false);
       }
     };
