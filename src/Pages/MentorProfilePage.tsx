@@ -3,10 +3,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { downloadContractFile } from '../lib/storage';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../hooks/useAuth';
 
 const MentorProfilePage = () => {
-  const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -76,6 +74,7 @@ const MentorProfilePage = () => {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(userData));
+
         setProfileData({
           fullName: profile.full_name,
           email: user.email,
@@ -89,6 +88,7 @@ const MentorProfilePage = () => {
           paymentDate: profile.payment_date,
           paymentReference: profile.payment_reference
         });
+
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -179,7 +179,7 @@ const MentorProfilePage = () => {
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
               </Link>
               <div className="flex items-center gap-4">
                 <span className="text-gray-600">Profile Settings</span>
@@ -278,7 +278,7 @@ const MentorProfilePage = () => {
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SLINT Tech Mentor</span>
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
               </Link>
               <div className="flex items-center gap-4">
                 <button
@@ -321,31 +321,22 @@ const MentorProfilePage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">Profile Settings</span>
-              <Link 
-                to="/mentor/login" 
-               onClick={signOut}
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+              <button
+                onClick={() => navigate('/mentor/dashboard')}
+                className="flex items-center gap-2 text-[#008080] hover:text-teal-700 cursor-pointer"
               >
-                Logout
-              </Link>
+                <ArrowLeft className="w-4 h-4" />
+                Back to Dashboard
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button
-          onClick={() => navigate('/mentor/dashboard')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </button>
-
         {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center mb-6">

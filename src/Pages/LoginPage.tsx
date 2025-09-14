@@ -3,10 +3,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
-import { useAuth } from '../hooks/useAuth';
 
 const LoginPage = () => {
-  const { signOut } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -214,7 +212,7 @@ const LoginPage = () => {
 
           {/* Sign Up Link */}
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p>
+            <p className="text-gray-600">
               Don't have an account?{' '}
               <Link to="/signup" className="text-[#008080] font-medium hover:underline cursor-pointer">
                 Join our community
