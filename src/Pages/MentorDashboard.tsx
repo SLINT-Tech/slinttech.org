@@ -8,8 +8,49 @@ import { useAuth } from '../hooks/useAuth';
 
 const MentorDashboard = () => {
   const { user } = useAuth();
-  const [mentorProfile, setMentorProfile] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [mentorProfile, setMentorProfile] = useState(() => {
+    // Check localStorage for existing user data
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        if (userData.role === 'Mentor') {
+          return {
+            id: userData.id,
+            fullName: userData.fullName,
+            email: userData.email,
+            specialization: userData.specialization || userData.careerPath,
+            status: userData.status,
+            membershipEnabled: userData.membershipEnabled,
+            membershipAmount: userData.membershipAmount,
+            membershipPaid: userData.membershipPaid,
+            paymentReference: userData.paymentReference,
+            paymentDate: userData.paymentDate,
+            joinedDate: new Date().toISOString(),
+            mentees: [],
+            courses: [],
+            pendingSubmissions: []
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing localStorage data:', error);
+    }
+    return null;
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    // If we have mentor profile from localStorage, don't show loading
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        return userData.role !== 'Mentor';
+      }
+    } catch (error) {
+      console.error('Error checking localStorage:', error);
+    }
+    return true;
+  });
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
@@ -57,6 +98,13 @@ const MentorDashboard = () => {
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
+        // If we already have mentor profile from localStorage, just verify auth
+        if (mentorProfile) {
+          console.log('Using cached mentor profile:', mentorProfile.fullName);
+          setIsLoading(false);
+          return;
+        }
+
         console.log('Fetching mentor data...');
         
         // Get current user session
@@ -64,9 +112,9 @@ const MentorDashboard = () => {
         
         if (userError || !user) {
           console.log('No authenticated user found, redirecting to mentor login');
-          localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           setIsLoading(false);
           return;
         }
@@ -82,19 +130,19 @@ const MentorDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           setIsLoading(false);
           return;
         }
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
-          console.log('User is not a mentor, redirecting');
           localStorage.clear();
           sessionStorage.clear();
           navigate('/mentor/login');
+          setIsLoading(false);
           setIsLoading(false);
           return;
         }
@@ -143,16 +191,16 @@ const MentorDashboard = () => {
         setIsLoading(false);
 
       } catch (error) {
-        console.error('Error fetching mentor data:', error);
         localStorage.clear();
         sessionStorage.clear();
+        setIsLoading(false);
         setIsLoading(false);
         navigate('/mentor/login');
       }
     };
 
     fetchMentorData();
-  }, [navigate]);
+  }, [navigate, mentorProfile]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;

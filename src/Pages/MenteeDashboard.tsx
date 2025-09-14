@@ -24,8 +24,29 @@ const MenteeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState<MentorMenteeRelationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
+  const [hasInitialData, setHasInitialData] = useState(() => {
+    // Check if we have valid user data in localStorage
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        return userData.role === 'Mentee' && userData.id;
+      }
+    } catch (error) {
+      console.error('Error checking localStorage:', error);
+    }
+    return false;
+  });
 
   useEffect(() => {
+    // If we have initial data from localStorage, show dashboard immediately
+    if (hasInitialData && !loading) {
+      console.log('Using cached user data, skipping auth wait');
+      if (user && profile) {
+        fetchMentorRelationships();
+      }
+      return;
+    }
 
     if (!loading && !user) {
       console.log('No user found, redirecting to login');
@@ -36,7 +57,7 @@ const MenteeDashboard: React.FC = () => {
     if (!loading && user && profile) {
       fetchMentorRelationships();
     }
-  }, [user, profile, loading, navigate]);
+  }, [user, profile, loading, navigate, hasInitialData]);
 
   const fetchMentorRelationships = async () => {
     if (!user) return;
@@ -75,7 +96,8 @@ const MenteeDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  if (loading) {
+  // Show loading only if we don't have initial data and auth is still loading
+  if (loading && !hasInitialData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
