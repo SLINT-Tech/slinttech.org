@@ -25,8 +25,7 @@ const MentorDashboard = () => {
     console.log('use effect start');
     const fetchMentorData = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        
 
         // Get current user session
         const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -104,7 +103,7 @@ const MentorDashboard = () => {
     };
 
     fetchMentorData();
-  }, [navigate, loading]);
+  }, [navigate]);
 
   const handleCreateCourse = () => {
     if (!mentorProfile) return;
