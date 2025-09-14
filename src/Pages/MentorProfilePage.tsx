@@ -332,18 +332,6 @@ const MentorProfilePage = () => {
               </button>
             </div>
           </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate('/mentor/dashboard')}
-            className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </button>
 
           {/* Profile Header */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
