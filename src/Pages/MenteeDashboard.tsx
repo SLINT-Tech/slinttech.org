@@ -22,10 +22,24 @@ const MenteeDashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true);
+        console.log('Fetching mentee data...');
+        
         // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
+        const authPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 10000)
+        );
+        
+        const { data: { user }, error: userError } = await Promise.race([
+          authPromise,
+          timeoutPromise
+        ]) as any;
+        
+        console.log('Auth result:', { user, userError });
         
         if (!user) {
+          console.log('No user found, redirecting to login');
           navigate('/login');
           return;
         }
@@ -39,7 +53,6 @@ const MenteeDashboard = () => {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          setLoading(false);
           return;
         }
         
@@ -136,10 +149,19 @@ const MenteeDashboard = () => {
             }
           ]
         });
+        
+        console.log('Mentee data loaded successfully');
       
       } catch (error) {
         console.error('Error fetching user data:', error);
+        
+        // Check if it's a timeout error
+        if (error.message === 'Auth timeout') {
+          console.log('Auth timeout, redirecting to login');
+          navigate('/login');
+        }
       } finally {
+        console.log('Setting loading to false');
         setLoading(false);
       }
     };

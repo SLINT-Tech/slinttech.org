@@ -28,10 +28,22 @@ const MentorDashboard = () => {
         setLoading(true);
         setError(null);
         console.log('before get supabase get user auth');
-        // Get current user session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        console.log('after get supabase get user auth');
+        
+        // Get current user session with timeout
+        const authPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 10000)
+        );
+        
+        const { data: { user }, error: userError } = await Promise.race([
+          authPromise,
+          timeoutPromise
+        ]) as any;
+        
+        console.log('after get supabase get user auth', { user, userError });
+        
         if (userError || !user) {
+          console.log('No user found, redirecting to login');
           navigate('/mentor/login');
           return;
         }
@@ -51,6 +63,7 @@ const MentorDashboard = () => {
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
+          console.log('User is not a mentor, redirecting');
           navigate('/mentor/login');
           return;
         }
@@ -93,10 +106,18 @@ const MentorDashboard = () => {
           pendingSubmissions: []
         });
        
+        console.log('Mentor data loaded successfully');
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-        setError('Failed to load dashboard data');
+        
+        // Check if it's a timeout error
+        if (error.message === 'Auth timeout') {
+          console.log('Auth timeout, redirecting to login');
+          navigate('/mentor/login');
+        } else {
+          setError('Failed to load dashboard data');
+        }
       } finally {
         console.log('finally run');
         setLoading(false);
