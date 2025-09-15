@@ -180,7 +180,7 @@ const AdminDashboard = () => {
         .range(from, to)
         .order('created_at', { ascending: false });
 
-      const { data: profiles, error, count } = await query;
+      const { data: profiles, error, count: totalCount } = await query;
 
       if (error) {
         console.error('Error fetching users:', error);
@@ -217,8 +217,8 @@ const AdminDashboard = () => {
         setUsers([]);
       }
       
-      setTotalUsers(count || 0);
-      setTotalPages(Math.ceil((count || 0) / usersPerPage));
+      setTotalUsers(totalCount || 0);
+      setTotalPages(Math.ceil((totalCount || 0) / usersPerPage));
     } catch (error) {
       console.error('Error fetching users:', error);
       setToast({
