@@ -144,11 +144,14 @@ const AdminDashboard = () => {
       // Apply pagination
       const from = (currentPage - 1) * usersPerPage;
       const to = from + usersPerPage - 1;
+      query = query.range(from, to);
 
-      // Order by created_at desc
-      const { data: profiles, error, count } = await query
+      // Apply pagination and ordering
+      query = query
         .range(from, to)
         .order('created_at', { ascending: false });
+
+      const { data: profiles, error, count } = await query;
 
       if (error) {
         console.error('Error fetching users:', error);
