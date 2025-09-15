@@ -1,8 +1,9 @@
 import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { supabase, UserProfile } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
 
 interface UserProfile {
@@ -56,6 +57,8 @@ const AdminDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
+  
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -116,34 +119,37 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     if (!isAdmin) return;
     
+      }
     setIsLoadingUsers(true);
-    try {
-      // First, get user profiles with pagination and filters
-      let query = supabase
-        .from('user_profiles')
-        .select('*', { count: 'exact' });
       
-      if (searchTerm) {
-        query = query.ilike('full_name', `%${searchTerm}%`);
+      // Call admin edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'list_users',
+          page: currentPage,
+          per_page: usersPerPage,
+          search: searchTerm || undefined,
+          role: filterRole !== 'all' ? filterRole : undefined,
+          membershipCategory: filterMembershipCategory !== 'all' ? filterMembershipCategory : undefined
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch users');
       }
 
-      // Apply status filter
-      if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
-      }
-
-      // Apply role filter
-      if (filterRole !== 'all') {
-        query = query.eq('role', filterRole);
-      }
-
-      // Apply pagination
-      const from = (currentPage - 1) * usersPerPage;
-      const to = from + usersPerPage - 1;
+      const { data, count } = await response.json();
       query = query.range(from, to);
 
       // Apply pagination and ordering
       query = query
+        .range(from, to)
         .order('created_at', { ascending: false });
 
       const { data: profiles, error, count } = await query;
@@ -186,40 +192,24 @@ const AdminDashboard = () => {
       setTotalUsers(count || 0);
       setTotalPages(Math.ceil((count || 0) / usersPerPage));
     } catch (error) {
-      console.error('Error fetching users:', error);
-      setToast({
-        message: 'Failed to fetch users. Please try again.',
-        type: 'error'
+      // Call admin edge function for stats
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'get_user_stats'
+        })
       });
-      setUsers([]);
-      setTotalUsers(0);
-      setTotalPages(0);
-    } finally {
-      setIsLoadingUsers(false);
-      setLoading(false);
-    }
-  };
 
-  const fetchStats = async () => {
-    if (!isAdmin) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('status');
-
-      if (error) {
-        console.error('Error fetching stats:', error);
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch stats');
       }
 
-      const statsData = data?.reduce((acc, user) => {
-        acc.total++;
-        acc[user.status]++;
-        return acc;
-      }, { total: 0, approved: 0, pending: 0, rejected: 0, suspended: 0 }) || {
-        total: 0, approved: 0, pending: 0, rejected: 0
-      };
+      const { stats } = await response.json();
 
       setStats(statsData);
     } catch (error) {
@@ -291,7 +281,7 @@ const AdminDashboard = () => {
     let existingAssignments = [];
     if (user.role === 'Mentee') {
       try {
-        const { data: relationships, error } = await supabase
+        const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers({
           .from('mentor_mentee_relationships')
           .select(`
             id,
@@ -332,6 +322,11 @@ const AdminDashboard = () => {
   const handleCreateUser = async () => {
     if (!isAdmin) return;
     
+      
+      // Check if admin client is available
+      if (!supabaseAdmin) {
+        throw new Error('Admin access not configured. Please check your environment variables.');
+      }
     if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
       setToast({
         message: 'Please fill in all required fields.',
@@ -352,7 +347,7 @@ const AdminDashboard = () => {
       const generatedPassword = newUser.password || generatePassword();
 
       // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: newUser.email,
         password: generatedPassword,
         email_confirm: true, // Auto-confirm email
@@ -367,7 +362,7 @@ const AdminDashboard = () => {
 
       if (authData.user) {
         // Create user profile
-        const { error: profileError } = await supabase
+        const { error: profileError } = await supabaseAdmin
           .from('user_profiles')
           .insert({
             id: authData.user.id,
@@ -421,9 +416,14 @@ const AdminDashboard = () => {
   const handleUpdateUser = async () => {
     if (!isAdmin || !selectedUser) return;
 
+      
+      // Check if admin client is available
+      if (!supabaseAdmin) {
+        throw new Error('Admin access not configured. Please check your environment variables.');
+      }
     try {
       // Update user profile
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabaseAdmin
         .from('user_profiles')
         .update({
           membership_category: editingUser.membershipCategory,
@@ -543,18 +543,23 @@ const AdminDashboard = () => {
   };
 
   const confirmDeleteUser = async () => {
+      
+      // Check if admin client is available
+      if (!supabaseAdmin) {
+        throw new Error('Admin access not configured. Please check your environment variables.');
+      }
     if (!isAdmin || !userToDelete) return;
 
     try {
       // Delete user from Supabase Auth (this will cascade to user_profiles due to foreign key)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userToDelete.id);
+      const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userToDelete.id);
 
       if (authError) {
         throw authError;
       }
 
       setToast({
-        message: 'User deleted successfully!',
+      const { error: profileError } = await supabaseAdmin
         type: 'success'
       });
 
