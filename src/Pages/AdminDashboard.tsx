@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
   
-  // Pagination state
+  const fetchUsers = async () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
