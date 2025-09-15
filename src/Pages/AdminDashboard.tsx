@@ -143,9 +143,9 @@ const AdminDashboard = () => {
       query = query.range(from, to);
 
       // Order by created_at desc
-      query = query.order('created_at', { ascending: false });
-
-      const { data, error, count } = await query;
+      const { data, error, count } = await query
+        .range(startIndex, endIndex)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching users:', error);
