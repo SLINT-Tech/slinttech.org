@@ -3,7 +3,6 @@ import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase, UserProfile } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
 import { Link } from 'react-router-dom';
 
