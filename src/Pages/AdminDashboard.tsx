@@ -3,6 +3,7 @@ import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase, UserProfile } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
 import { Link } from 'react-router-dom';
 
@@ -180,7 +181,7 @@ const AdminDashboard = () => {
         .range(from, to)
         .order('created_at', { ascending: false });
 
-      const { data: profiles, error, count: totalCount } = await query;
+      const { data: profiles, error, count } = await query;
 
       if (error) {
         console.error('Error fetching users:', error);
@@ -217,8 +218,8 @@ const AdminDashboard = () => {
         setUsers([]);
       }
       
-      setTotalUsers(totalCount || 0);
-      setTotalPages(Math.ceil((totalCount || 0) / usersPerPage));
+      setTotalUsers(count || 0);
+      setTotalPages(Math.ceil((count || 0) / usersPerPage));
     } catch (error) {
       console.error('Error fetching users:', error);
       setToast({
