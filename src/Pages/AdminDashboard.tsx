@@ -1,10 +1,63 @@
 import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
-import Toast from '../Components/Toast';
+
+// Mock data - this would come from your backend/database
+const mockUsers = [
+  {
+    id: 1,
+    fullName: 'Pending User',
+    email: 'pending@example.com',
+    membershipCategory: 'Student', 
+    careerPath: 'Full Stack Development',
+    role: 'Mentee',
+    status: 'pending',
+    contractFile: 'pending_user_contract.pdf',
+    assignedMentor: null,
+    discordLink: null,
+    courses: [],
+    createdAt: '2024-01-15',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
+  },
+  {
+    id: 2,
+    fullName: 'Approved No Payment',
+    email: 'approved.nopay@example.com',
+    membershipCategory: 'Student',
+    careerPath: 'Frontend Development',
+    role: 'Mentee',
+    status: 'approved',
+    contractFile: 'approved_nopay_contract.pdf',
+    assignedMentor: null,
+    discordLink: 'https://discord.gg/slinttech',
+    courses: [],
+    createdAt: '2024-01-10',
+    membershipEnabled: false,
+    membershipAmount: 30,
+    membershipPaid: false
+  },
+  {
+    id: 3,
+    fullName: 'Approved With Payment',
+    email: 'approved.payment@example.com',
+    membershipCategory: 'Professional',
+    careerPath: 'Backend Development',
+    role: 'Mentee',
+    status: 'approved',
+    contractFile: 'approved_payment_contract.pdf',
+    assignedMentor: null,
+    discordLink: 'https://discord.gg/slinttech',
+    courses: [],
+    createdAt: '2024-01-12',
+    membershipEnabled: true,
+    membershipAmount: 30,
+    membershipPaid: false
+  }
+];
 
 const courseOptions = [
   'Full Stack Development',
@@ -16,37 +69,31 @@ const courseOptions = [
   'UI/UX Design'
 ];
 
+const mentorOptions = [
+  'Dr. Sarah Johnson - Full Stack Development',
+  'Prof. Michael Chen - Frontend Development', 
+  'Ms. Emily Rodriguez - Backend Development',
+  'Mr. David Kim - Mobile Development',
+  'Dr. Lisa Thompson - Machine Learning/AI',
+  'Prof. James Wilson - Data Science',
+  'Ms. Anna Martinez - UI/UX Design',
+  'Mr. Robert Brown - Cybersecurity',
+  'Dr. Jennifer Lee - Cloud Computing',
+  'Prof. Alex Turner - DevOps Engineering'
+];
+
 const AdminDashboard = () => {
   const { signOut } = useAuth();
-  const navigate = useNavigate();
-  
-  // State management
-  const [users, setUsers] = useState([]);
-  const [mentors, setMentors] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState(mockUsers);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [toast, setToast] = useState(null);
-  
-  // Pagination and filtering
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  
-  // Form states
-  const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  
-  const itemsPerPage = 10;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [newUser, setNewUser] = useState({
     fullName: '',
@@ -73,134 +120,13 @@ const AdminDashboard = () => {
     membershipAmount: 30
   });
 
-  // Check admin authentication
-  useEffect(() => {
-    const checkAdminAuth = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          navigate('/admin/login');
-          return;
-        }
-
-        const { data: profile, error } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-
-        if (error || profile?.role !== 'Admin') {
-          navigate('/admin/login');
-          return;
-        }
-
-        // Admin authenticated, fetch initial data
-        await Promise.all([
-          fetchUsers(),
-          fetchMentors()
-        ]);
-      } catch (error) {
-        console.error('Auth check error:', error);
-        navigate('/admin/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAdminAuth();
-  }, [navigate]);
-
-  // Fetch users with pagination and filters
-  const fetchUsers = async (page = 1, search = searchTerm, statusFilter = filterStatus, roleFilter = filterRole) => {
-    setIsLoadingUsers(true);
-    
-    try {
-      let query = supabase
-        .from('user_profiles')
-        .select('*', { count: 'exact' });
-
-      // Apply filters
-      if (search) {
-        query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
-      }
-      
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      }
-      
-      if (roleFilter !== 'all') {
-        query = query.eq('role', roleFilter);
-      }
-
-      // Apply pagination
-      const from = (page - 1) * itemsPerPage;
-      const to = from + itemsPerPage - 1;
-      
-      query = query
-        .range(from, to)
-        .order('created_at', { ascending: false });
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        throw error;
-      }
-
-      setUsers(data || []);
-      setTotalUsers(count || 0);
-      setTotalPages(Math.ceil((count || 0) / itemsPerPage));
-      setCurrentPage(page);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      setToast({
-        message: 'Failed to fetch users',
-        type: 'error'
-      });
-    } finally {
-      setIsLoadingUsers(false);
-    }
-  };
-
-  // Fetch all mentors for assignment dropdown
-  const fetchMentors = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, full_name, specialization, career_path')
-        .eq('role', 'Mentor')
-        .eq('status', 'approved')
-        .order('full_name');
-
-      if (error) {
-        throw error;
-      }
-
-      setMentors(data || []);
-    } catch (error) {
-      console.error('Error fetching mentors:', error);
-    }
-  };
-
-  // Handle search and filter changes
-  const handleSearch = (newSearchTerm) => {
-    setSearchTerm(newSearchTerm);
-    fetchUsers(1, newSearchTerm, filterStatus, filterRole);
-  };
-
-  const handleStatusFilter = (newStatus) => {
-    setFilterStatus(newStatus);
-    fetchUsers(1, searchTerm, newStatus, filterRole);
-  };
-
-  const handleRoleFilter = (newRole) => {
-    setFilterRole(newRole);
-    fetchUsers(1, searchTerm, filterStatus, newRole);
-  };
-
-  const handlePageChange = (page) => {
-    fetchUsers(page, searchTerm, filterStatus, filterRole);
-  };
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    return matchesSearch && matchesStatus && matchesRole;
+  });
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -240,318 +166,106 @@ const AdminDashboard = () => {
     return password;
   };
 
-  const handleViewUser = async (user) => {
+  const handleViewUser = (user) => {
     setSelectedUser(user);
-    
-    // Fetch existing mentor assignments for this user
-    let mentorAssignments = [];
-    if (user.role === 'Mentee') {
-      try {
-        const { data: relationships, error } = await supabase
-          .from('mentor_mentee_relationships')
-          .select(`
-            id,
-            mentor_id,
-            course_name,
-            status,
-            progress_percentage,
-            notes,
-            mentor:user_profiles!mentor_id(full_name, specialization, career_path)
-          `)
-          .eq('mentee_id', user.id);
-
-        if (!error && relationships) {
-          mentorAssignments = relationships.map(rel => ({
-            id: rel.id,
-            mentor: rel.mentor_id,
-            mentorName: rel.mentor?.full_name,
-            courseName: rel.course_name,
-            status: rel.status,
-            progress: rel.progress_percentage,
-            notes: rel.notes
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching mentor assignments:', error);
-      }
-    }
-
     setEditingUser({
-      password: generatePassword(),
-      email: user.email || '',
-      membershipCategory: user.membership_category || '',
-      careerPath: user.career_path || '',
-      role: user.role || '',
-      discordLink: user.discord_link || '',
-      mentorAssignments: mentorAssignments,
-      status: user.status || 'pending',
-      membershipEnabled: user.membership_enabled || false,
-      membershipAmount: user.membership_amount || 30
+      password: user.password || generatePassword(),
+      email: user.email,
+      membershipCategory: user.membershipCategory,
+      careerPath: user.careerPath,
+      role: user.role,
+      discordLink: user.discordLink || '',
+      mentorAssignments: user.mentorAssignments || [],
+      status: user.status,
+      membershipEnabled: user.membershipEnabled || false,
+      membershipAmount: user.membershipAmount || 30
     });
     setShowUserModal(true);
   };
 
-  const handleCreateUser = async () => {
-    if (!newUser.fullName || !newUser.email || !newUser.password || !newUser.role || !newUser.membershipCategory) {
-      setToast({
-        message: 'Please fill in all required fields',
-        type: 'error'
-      });
-      return;
-    }
-
-    setIsCreating(true);
-    
-    try {
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: newUser.email,
-        password: newUser.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: newUser.fullName
-        }
-      });
-
-      if (authError) {
-        throw authError;
-      }
-
-      if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: authData.user.id,
-            full_name: newUser.fullName,
-            membership_category: newUser.membershipCategory,
-            career_path: newUser.careerPath,
-            role: newUser.role,
-            status: newUser.status,
-            specialization: newUser.role === 'Mentor' ? newUser.careerPath : null,
-            membership_enabled: newUser.membershipEnabled,
-            membership_amount: newUser.membershipAmount,
-            membership_paid: false
-          });
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        setToast({
-          message: 'User created successfully',
-          type: 'success'
-        });
-
-        // Reset form
-        setNewUser({
-          fullName: '',
-          email: '',
-          membershipCategory: '',
-          careerPath: '',
-          role: '',
-          status: 'pending',
-          password: '',
-          membershipEnabled: false,
-          membershipAmount: 30
-        });
-        
-        setShowCreateModal(false);
-        
-        // Refresh users list
-        await fetchUsers(currentPage, searchTerm, filterStatus, filterRole);
-      }
-    } catch (error) {
-      console.error('Error creating user:', error);
-      setToast({
-        message: error.message || 'Failed to create user',
-        type: 'error'
-      });
-    } finally {
-      setIsCreating(false);
-    }
+  const handleCreateUser = () => {
+    const generatedPassword = generatePassword();
+    const user = {
+      id: users.length + 1,
+      ...newUser,
+      password: generatedPassword,
+      contractFile: null,
+      assignedMentor: null,
+      discordLink: null,
+      courses: [],
+      mentorAssignments: [],
+      membershipEnabled: newUser.role === 'Mentee' ? newUser.membershipEnabled : false,
+      membershipAmount: newUser.membershipAmount,
+      membershipPaid: false,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    setUsers([...users, user]);
+    setNewUser({
+      fullName: '',
+      email: '',
+      membershipCategory: '',
+      careerPath: '',
+      role: '',
+      status: 'pending',
+      password: '',
+      membershipEnabled: false,
+      membershipAmount: 30
+    });
+    setShowCreateModal(false);
   };
 
-  const handleUpdateUser = async () => {
-    if (!selectedUser) return;
-
-    setIsUpdating(true);
-    
-    try {
-      // Update user profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .update({
-          membership_category: editingUser.membershipCategory,
-          career_path: editingUser.careerPath,
+  const handleUpdateUser = () => {
+    const updatedUsers = users.map(user => {
+      if (user.id === selectedUser.id) {
+        return {
+          ...user,
+          password: editingUser.password,
+          email: editingUser.email,
+          membershipCategory: editingUser.membershipCategory,
+          careerPath: editingUser.careerPath,
           role: editingUser.role,
+          discordLink: editingUser.discordLink,
+          mentorAssignments: editingUser.mentorAssignments,
           status: editingUser.status,
-          discord_link: editingUser.discordLink,
-          membership_enabled: editingUser.membershipEnabled,
-          membership_amount: editingUser.membershipAmount,
-          specialization: editingUser.role === 'Mentor' ? editingUser.careerPath : null
-        })
-        .eq('id', selectedUser.id);
-
-      if (profileError) {
-        throw profileError;
+          membershipEnabled: editingUser.membershipEnabled,
+          membershipAmount: editingUser.membershipAmount
+        };
       }
-
-      // Update password if provided
-      if (editingUser.password) {
-        const { error: passwordError } = await supabase.auth.admin.updateUserById(
-          selectedUser.id,
-          { password: editingUser.password }
-        );
-
-        if (passwordError) {
-          console.error('Password update error:', passwordError);
-          // Don't throw error for password update failure
-        }
-      }
-
-      // Handle mentor assignments for mentees
-      if (editingUser.role === 'Mentee') {
-        // Get existing relationships
-        const { data: existingRelationships, error: fetchError } = await supabase
-          .from('mentor_mentee_relationships')
-          .select('id, mentor_id, course_name')
-          .eq('mentee_id', selectedUser.id);
-
-        if (fetchError) {
-          console.error('Error fetching existing relationships:', fetchError);
-        }
-
-        const existingRelationshipIds = existingRelationships?.map(rel => rel.id) || [];
-        const newAssignmentIds = editingUser.mentorAssignments
-          .filter(assignment => assignment.id)
-          .map(assignment => assignment.id);
-
-        // Delete removed relationships
-        const relationshipsToDelete = existingRelationshipIds.filter(id => !newAssignmentIds.includes(id));
-        if (relationshipsToDelete.length > 0) {
-          const { error: deleteError } = await supabase
-            .from('mentor_mentee_relationships')
-            .delete()
-            .in('id', relationshipsToDelete);
-
-          if (deleteError) {
-            console.error('Error deleting relationships:', deleteError);
-          }
-        }
-
-        // Insert new relationships
-        const newAssignments = editingUser.mentorAssignments.filter(assignment => !assignment.id && assignment.mentor);
-        if (newAssignments.length > 0) {
-          const relationshipsToInsert = newAssignments.map(assignment => ({
-            mentor_id: assignment.mentor,
-            mentee_id: selectedUser.id,
-            course_name: assignment.courseName || 'General Mentorship',
-            status: 'active',
-            progress_percentage: 0
-          }));
-
-          const { error: insertError } = await supabase
-            .from('mentor_mentee_relationships')
-            .insert(relationshipsToInsert);
-
-          if (insertError) {
-            console.error('Error inserting relationships:', insertError);
-          }
-        }
-      }
-
-      setToast({
-        message: 'User updated successfully',
-        type: 'success'
-      });
-
-      setShowUserModal(false);
-      
-      // Refresh users list
-      await fetchUsers(currentPage, searchTerm, filterStatus, filterRole);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      setToast({
-        message: error.message || 'Failed to update user',
-        type: 'error'
-      });
-    } finally {
-      setIsUpdating(false);
-    }
+      return user;
+    });
+    setUsers(updatedUsers);
+    setShowUserModal(false);
   };
 
-  const handleDeleteUser = (user) => {
+  const handleDeleteUser = (userId) => {
+    const user = users.find(u => u.id === userId);
     setUserToDelete(user);
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteUser = async () => {
-    if (!userToDelete) return;
-
-    setIsDeleting(true);
-    
-    try {
-      // Delete user from auth (this will cascade to user_profiles due to foreign key)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userToDelete.id);
-
-      if (authError) {
-        throw authError;
-      }
-
-      setToast({
-        message: 'User deleted successfully',
-        type: 'success'
-      });
-
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      setUsers(users.filter(user => user.id !== userToDelete.id));
       setShowDeleteModal(false);
       setUserToDelete(null);
-      
-      // Refresh users list
-      await fetchUsers(currentPage, searchTerm, filterStatus, filterRole);
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      setToast({
-        message: error.message || 'Failed to delete user',
-        type: 'error'
-      });
-    } finally {
-      setIsDeleting(false);
     }
   };
 
-  const addMentorAssignment = () => {
+  const addCourse = () => {
     setEditingUser({
       ...editingUser,
-      mentorAssignments: [...editingUser.mentorAssignments, { mentor: '', courseName: '', mentorName: '' }]
+      mentorAssignments: [...editingUser.mentorAssignments, { mentor: '', courseName: '', duration: '' }]
     });
   };
 
-  const updateMentorAssignment = (index, field, value) => {
+  const updateCourse = (index, field, value) => {
     const updatedAssignments = editingUser.mentorAssignments.map((assignment, i) => {
       if (i === index) {
-        if (field === 'mentor') {
-          // Find mentor details
-          const mentor = mentors.find(m => m.id === value);
-          return { 
-            ...assignment, 
-            [field]: value,
-            mentorName: mentor ? mentor.full_name : '',
-            courseName: mentor ? (mentor.specialization || mentor.career_path) : assignment.courseName
-          };
-        }
         return { ...assignment, [field]: value };
       }
       return assignment;
     });
     setEditingUser({ ...editingUser, mentorAssignments: updatedAssignments });
-  };
-
-  const removeMentorAssignment = (index) => {
-    setEditingUser({
-      ...editingUser,
-      mentorAssignments: editingUser.mentorAssignments.filter((_, i) => i !== index)
-    });
   };
 
   // Handle role change and clear mentor assignments if role is Mentor or Admin
@@ -570,21 +284,12 @@ const AdminDashboard = () => {
     setEditingUser(updatedEditingUser);
   };
 
-  // Calculate stats from current users
-  const approvedCount = users.filter(u => u.status === 'approved').length;
-  const pendingCount = users.filter(u => u.status === 'pending').length;
-  const rejectedCount = users.filter(u => u.status === 'rejected').length;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-          <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading admin dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const removeCourse = (index) => {
+    setEditingUser({
+      ...editingUser,
+      mentorAssignments: editingUser.mentorAssignments.filter((_, i) => i !== index)
+    });
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -602,7 +307,6 @@ const AdminDashboard = () => {
               <span className="text-gray-600">Admin Portal</span>
               <Link 
                 to="/admin/login" 
-                onClick={signOut}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -634,7 +338,7 @@ const AdminDashboard = () => {
                 </Link>
                 <Link 
                   to="/admin/login" 
-                  onClick={signOut}
+                 onClick={signOut}
                   className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
                 >
                   Logout
@@ -669,7 +373,7 @@ const AdminDashboard = () => {
               <Users className="w-8 h-8 text-[#008080]" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
+                <p className="text-2xl font-bold text-gray-900">{users.length}</p>
               </div>
             </div>
           </div>
@@ -678,7 +382,9 @@ const AdminDashboard = () => {
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Approved</p>
-                <p className="text-2xl font-bold text-gray-900">{approvedCount}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter(u => u.status === 'approved').length}
+                </p>
               </div>
             </div>
           </div>
@@ -687,7 +393,9 @@ const AdminDashboard = () => {
               <Calendar className="w-8 h-8 text-yellow-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter(u => u.status === 'pending').length}
+                </p>
               </div>
             </div>
           </div>
@@ -696,7 +404,9 @@ const AdminDashboard = () => {
               <XCircle className="w-8 h-8 text-red-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold text-gray-900">{rejectedCount}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter(u => u.status === 'rejected').length}
+                </p>
               </div>
             </div>
           </div>
@@ -712,14 +422,14 @@ const AdminDashboard = () => {
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 />
               </div>
             </div>
             <select
               value={filterStatus}
-              onChange={(e) => handleStatusFilter(e.target.value)}
+              onChange={(e) => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
             >
               <option value="all">All Status</option>
@@ -730,7 +440,7 @@ const AdminDashboard = () => {
             </select>
             <select
               value={filterRole}
-              onChange={(e) => handleRoleFilter(e.target.value)}
+              onChange={(e) => setFilterRole(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
             >
               <option value="all">All Roles</option>
@@ -742,14 +452,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
-          {isLoadingUsers && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-              <div className="w-6 h-6 border-2 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-          
-          <div className="overflow-x-auto relative">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -762,7 +466,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -770,7 +474,7 @@ const AdminDashboard = () => {
                           <User className="w-5 h-5 text-white" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
+                          <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
                           <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
                       </div>
@@ -781,7 +485,7 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.membership_category}
+                      {user.membershipCategory}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}>
@@ -789,7 +493,7 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.career_path}
+                      {user.careerPath}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
@@ -800,7 +504,7 @@ const AdminDashboard = () => {
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user)}
+                          onClick={() => handleDeleteUser(user.id)}
                           className="text-red-600 hover:text-red-700 cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -813,70 +517,13 @@ const AdminDashboard = () => {
             </table>
           </div>
         </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalUsers)} of {totalUsers} users
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1 || isLoadingUsers}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Previous
-              </button>
-              
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let page;
-                  if (totalPages <= 5) {
-                    page = i + 1;
-                  } else if (currentPage <= 3) {
-                    page = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    page = totalPages - 4 + i;
-                  } else {
-                    page = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      disabled={isLoadingUsers}
-                      className={`px-3 py-2 rounded-lg cursor-pointer ${
-                        currentPage === page
-                          ? 'bg-[#008080] text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-              </div>
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || isLoadingUsers}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+           <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">User Details & Management</h2>
                 <button
@@ -888,7 +535,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+           <div className="p-6 space-y-6 overflow-y-auto flex-1">
               {/* User Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -896,16 +543,16 @@ const AdminDashboard = () => {
                   <div className="space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Full Name</label>
-                      <p className="text-gray-900">{selectedUser.full_name}</p>
+                      <p className="text-gray-900">{selectedUser.fullName}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                      <input
-                        type="email"
-                        value={editingUser.email}
-                        onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                      />
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                     <input
+                       type="email"
+                       value={editingUser.email}
+                       onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                     />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
@@ -963,21 +610,19 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   </div>
+
                 </div>
                 
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Contract Document</h3>
-                  {selectedUser.contract_file_url ? (
+                  {selectedUser.contractFile ? (
                     <div className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <FileText className="w-5 h-5 text-gray-400 mr-2" />
-                          <span className="text-sm text-gray-900">Contract Document</span>
+                          <span className="text-sm text-gray-900">{selectedUser.contractFile}</span>
                         </div>
-                        <button 
-                          onClick={() => window.open(selectedUser.contract_file_url, '_blank')}
-                          className="p-3 text-[#008080] hover:text-teal-700 cursor-pointer"
-                        >
+                        <button className="p-3 text-[#008080] hover:text-teal-700 cursor-pointer">
                           <Download className="w-4 h-4" />
                         </button>
                       </div>
@@ -1083,66 +728,52 @@ const AdminDashboard = () => {
 
                 {/* Mentor Assignments - Only show for Mentees */}
                 {editingUser.role === 'Mentee' && (
-                  <div className="mt-6">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
-                      <button
-                        onClick={addMentorAssignment}
-                        className="px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 bg-[#008080] text-white hover:bg-teal-700 cursor-pointer"
-                      >
-                        <Plus className="w-3 h-3" />
-                        Assign Mentor
-                      </button>
-                    </div>
-                    
-                    {editingUser.mentorAssignments.map((assignment, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
-                        <div className="flex justify-between items-start mb-3">
-                          <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
-                          <button
-                            onClick={() => removeMentorAssignment(index)}
-                            className="text-red-600 hover:text-red-700 cursor-pointer"
+                <div className="mt-6">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
+                    <button
+                      onClick={addCourse}
+                      className="px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 bg-[#008080] text-white hover:bg-teal-700 cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3" />
+                      Assign Mentor
+                    </button>
+                  </div>
+                  
+                  {editingUser.mentorAssignments.map((assignment, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
+                      <div className="flex justify-between items-start mb-3">
+                        <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
+                        <button
+                          onClick={() => removeCourse(index)}
+                          className="text-red-600 hover:text-red-700 cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="grid md:grid-cols-1 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Mentor</label>
+                          <select
+                            value={assignment.mentor}
+                            onChange={(e) => updateCourse(index, 'mentor', e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="grid md:grid-cols-1 gap-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Mentor</label>
-                            <select
-                              value={assignment.mentor}
-                              onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
-                              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                            >
-                              <option value="">Select mentor</option>
-                              {mentors.map(mentor => (
-                                <option key={mentor.id} value={mentor.id}>
-                                  {mentor.full_name} - {mentor.specialization || mentor.career_path}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          {assignment.mentor && (
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
-                              <input
-                                type="text"
-                                value={assignment.courseName}
-                                onChange={(e) => updateMentorAssignment(index, 'courseName', e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                                placeholder="Enter course name"
-                              />
-                            </div>
-                          )}
+                            <option value="">Select mentor</option>
+                            {mentorOptions.map(option => (
+                              <option key={option} value={option}>{option}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                </div>
                 )}
               </div>
 
               {/* Action Buttons */}
-              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
+             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowUserModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -1151,10 +782,9 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={handleUpdateUser}
-                  disabled={isUpdating}
-                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
                 >
-                  {isUpdating ? 'Updating...' : 'Update User'}
+                  Update User
                 </button>
               </div>
             </div>
@@ -1165,8 +795,8 @@ const AdminDashboard = () => {
       {/* Create User Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+           <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Create New User</h2>
                 <button
@@ -1178,10 +808,10 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+           <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                   <input
                     type="text"
                     value={newUser.fullName}
@@ -1191,7 +821,7 @@ const AdminDashboard = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
                     value={newUser.email}
@@ -1202,29 +832,9 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                    placeholder="Enter password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setNewUser({...newUser, password: generatePassword()})}
-                    className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-                  >
-                    Generate
-                  </button>
-                </div>
-              </div>
-
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
                   <select
                     value={newUser.membershipCategory}
                     onChange={(e) => setNewUser({...newUser, membershipCategory: e.target.value})}
@@ -1237,7 +847,7 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({...newUser, role: e.target.value})}
@@ -1251,21 +861,23 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Career Path *</label>
-                <select
-                  value={newUser.careerPath}
-                  onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                >
-                  <option value="">Select career path</option>
-                  {courseOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
+              {newUser.role === 'Mentee' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                  <select
+                    value={newUser.careerPath}
+                    onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  >
+                    <option value="">Select career path</option>
+                    {courseOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-              {/* Membership Settings - Only show for Mentees and Mentors */}
+              {/* Membership Settings - Only show for Mentees */}
               {(newUser.role === 'Mentee' || newUser.role === 'Mentor') && (
                 <div className="border-t border-gray-200 pt-4">
                   <h4 className="text-md font-semibold text-gray-900 mb-4">
@@ -1317,7 +929,7 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
+             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -1326,10 +938,9 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={handleCreateUser}
-                  disabled={isCreating}
-                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
                 >
-                  {isCreating ? 'Creating...' : 'Create User'}
+                  Create User
                 </button>
               </div>
             </div>
@@ -1371,7 +982,7 @@ const AdminDashboard = () => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{userToDelete.full_name}</p>
+                    <p className="font-medium text-gray-900">{userToDelete.fullName}</p>
                     <p className="text-sm text-gray-500">{userToDelete.email}</p>
                   </div>
                 </div>
@@ -1386,24 +997,14 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={confirmDeleteUser}
-                  disabled={isDeleting}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete User'}
+                  Delete User
                 </button>
               </div>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
       )}
     </div>
   );
