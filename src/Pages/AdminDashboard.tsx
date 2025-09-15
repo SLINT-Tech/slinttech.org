@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
   
-  const fetchUsers = async () => {
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -120,11 +120,15 @@ const AdminDashboard = () => {
     if (!isAdmin) return;
     
     setIsLoadingUsers(true);
+    try {
       // First, get user profiles with pagination and filters
       let query = supabase
         .from('user_profiles')
         .select('*', { count: 'exact' });
-        query = query.ilike('full_name', `%${search}%`);
+      
+      // Apply search filter
+      if (searchTerm) {
+        query = query.ilike('full_name', `%${searchTerm}%`);
       }
 
       // Apply status filter
@@ -142,12 +146,10 @@ const AdminDashboard = () => {
       const to = from + usersPerPage - 1;
       query = query.range(from, to);
 
-      // Apply pagination and ordering
-      query = query
-        .range(startIndex, endIndex)
-        .order('created_at', { ascending: false });
+      // Order by created_at desc
+      query = query.order('created_at', { ascending: false });
 
-      const { data, error, count } = await query;
+      const { data: profiles, error, count } = await query;
 
       if (error) {
         console.error('Error fetching users:', error);
