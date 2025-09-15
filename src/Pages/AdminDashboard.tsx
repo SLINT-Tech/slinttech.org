@@ -120,14 +120,11 @@ const AdminDashboard = () => {
     if (!isAdmin) return;
     
     setIsLoadingUsers(true);
-    try {
+      // First, get user profiles with pagination and filters
       let query = supabase
         .from('user_profiles')
-        .select('*, users!inner(email)', { count: 'exact' });
-
-      // Apply search filter
-      if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
+        .select('*', { count: 'exact' });
+        query = query.ilike('full_name', `%${search}%`);
       }
 
       // Apply status filter
@@ -159,13 +156,32 @@ const AdminDashboard = () => {
         return;
       }
 
-      // Transform data to include email from users table
-      const transformedUsers = data?.map(user => ({
-        ...user,
-        email: user.users?.email || ''
-      })) || [];
-
-      setUsers(transformedUsers);
+      // Get user emails from auth.users for each profile
+      const userIds = profiles?.map(profile => profile.id) || [];
+      
+      if (userIds.length > 0) {
+        // Fetch emails from auth.users using the admin client
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error('Error fetching auth users:', authError);
+          // Continue without emails if auth fetch fails
+        }
+        
+        // Combine profile data with email data
+        const usersWithEmails = profiles?.map(profile => {
+          const authUser = authUsers?.users?.find(user => user.id === profile.id);
+          return {
+            ...profile,
+            email: authUser?.email || 'N/A'
+          };
+        }) || [];
+        
+        setUsers(usersWithEmails);
+      } else {
+        setUsers([]);
+      }
+      
       setTotalUsers(count || 0);
       setTotalPages(Math.ceil((count || 0) / usersPerPage));
     } catch (error) {
@@ -174,6 +190,9 @@ const AdminDashboard = () => {
         message: 'Failed to fetch users. Please try again.',
         type: 'error'
       });
+      setUsers([]);
+      setTotalUsers(0);
+      setTotalPages(0);
     } finally {
       setIsLoadingUsers(false);
       setLoading(false);
