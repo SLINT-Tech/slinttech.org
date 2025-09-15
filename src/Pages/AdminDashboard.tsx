@@ -340,7 +340,7 @@ const AdminDashboard = () => {
                   to="/admin/login" 
                  onClick={signOut}
                   className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
-                  onClick={() => setIsMenuOpen(false)}
+              
                 >
                   Logout
                 </Link>
