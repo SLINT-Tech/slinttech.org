@@ -226,8 +226,12 @@ const AdminDashboard = () => {
         message: 'Failed to fetch users. Please try again.',
         type: 'error'
       });
+      setUsers([]);
+      setTotalUsers(0);
+      setTotalPages(0);
     } finally {
       setIsLoadingUsers(false);
+      setLoading(false);
     }
   };
 
@@ -235,24 +239,22 @@ const AdminDashboard = () => {
     if (!isAdmin) return;
     
     try {
-      // Call admin edge function for stats
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'get_user_stats'
-        })
-      });
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('status');
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch stats');
+      if (error) {
+        console.error('Error fetching stats:', error);
+        return;
       }
 
-      const { stats: statsData } = await response.json();
+      const statsData = data?.reduce((acc, user) => {
+        acc.total++;
+        acc[user.status]++;
+        return acc;
+      }, { total: 0, approved: 0, pending: 0, rejected: 0, suspended: 0 }) || {
+        total: 0, approved: 0, pending: 0, rejected: 0
+      };
 
       setStats(statsData);
     } catch (error) {
