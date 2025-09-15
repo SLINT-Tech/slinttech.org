@@ -180,44 +180,31 @@ const AdminDashboard = () => {
         .range(from, to)
         .order('created_at', { ascending: false });
 
-      const { data: profiles, error, count: totalCount } = await query;
+      // Use Edge Function for secure admin operations
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'list_users',
+          page: currentPage,
+          per_page: itemsPerPage,
+          search: searchTerm || undefined,
+          role: filterRole !== 'all' ? filterRole : undefined,
+          membershipCategory: filterMembershipCategory !== 'all' ? filterMembershipCategory : undefined
+        })
+      });
 
-      if (error) {
-        console.error('Error fetching users:', error);
-        setToast({
-          message: 'Failed to fetch users. Please try again.',
-          type: 'error'
-        });
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch users');
       }
 
-      // Get user emails from auth.users for each profile
-      const userIds = profiles?.map(profile => profile.id) || [];
-      
-      if (userIds.length > 0) {
-        // Fetch emails from auth.users using the admin client
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-        
-        if (authError) {
-          console.error('Error fetching auth users:', authError);
-          // Continue without emails if auth fetch fails
-        }
-        
-        // Combine profile data with email data
-        const usersWithEmails = profiles?.map(profile => {
-          const authUser = authUsers?.users?.find(user => user.id === profile.id);
-          return {
-            ...profile,
-            email: authUser?.email || 'N/A'
-          };
-        }) || [];
-        
-        setUsers(usersWithEmails);
-      } else {
-        setUsers([]);
-      }
-      
-      setTotalUsers(totalCount || 0);
+      const result = await response.json();
+      setUsers(result.data || []);
+      setTotalUsers(result.count || 0);
       setTotalPages(Math.ceil((count || 0) / usersPerPage));
     } catch (error) {
       console.error('Error fetching users:', error);
