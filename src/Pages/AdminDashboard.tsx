@@ -1,7 +1,7 @@
 import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { supabase, supabaseAdmin, UserProfile } from '../lib/supabase';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
@@ -57,8 +57,6 @@ const AdminDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
-  
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -119,19 +117,13 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     if (!isAdmin) return;
     
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
     setIsLoadingUsers(true);
     try {
       // First, get user profiles with pagination and filters
-      let query = supabaseAdmin
+      let query = supabase
         .from('user_profiles')
         .select('*', { count: 'exact' });
       
-      // Apply search filter
       if (searchTerm) {
         query = query.ilike('full_name', `%${searchTerm}%`);
       }
@@ -153,7 +145,6 @@ const AdminDashboard = () => {
 
       // Apply pagination and ordering
       query = query
-        .range(from, to)
         .order('created_at', { ascending: false });
 
       const { data: profiles, error, count } = await query;
@@ -301,7 +292,7 @@ const AdminDashboard = () => {
     let existingAssignments = [];
     if (user.role === 'Mentee') {
       try {
-        const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers({
+        const { data: relationships, error } = await supabase
           .from('mentor_mentee_relationships')
           .select(`
             id,
@@ -342,11 +333,6 @@ const AdminDashboard = () => {
   const handleCreateUser = async () => {
     if (!isAdmin) return;
     
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
     if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
       setToast({
         message: 'Please fill in all required fields.',
@@ -367,7 +353,7 @@ const AdminDashboard = () => {
       const generatedPassword = newUser.password || generatePassword();
 
       // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: newUser.email,
         password: generatedPassword,
         email_confirm: true, // Auto-confirm email
@@ -382,7 +368,7 @@ const AdminDashboard = () => {
 
       if (authData.user) {
         // Create user profile
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await supabase
           .from('user_profiles')
           .insert({
             id: authData.user.id,
@@ -436,14 +422,9 @@ const AdminDashboard = () => {
   const handleUpdateUser = async () => {
     if (!isAdmin || !selectedUser) return;
 
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
     try {
       // Update user profile
-      const { error: profileError } = await supabaseAdmin
+      const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
           membership_category: editingUser.membershipCategory,
