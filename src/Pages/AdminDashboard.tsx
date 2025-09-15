@@ -5,6 +5,7 @@ import { supabase, UserProfile } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
+import { Link } from 'react-router-dom';
 
 interface UserProfile {
   id: string;
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
+  const [filterMembershipCategory, setFilterMembershipCategory] = useState('all');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
@@ -119,36 +121,59 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     if (!isAdmin) return;
     
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
-    setIsLoadingUsers(true);
     try {
-      // First, get user profiles with pagination and filters
-      let query = supabaseAdmin
-        .from('user_profiles')
-        .select('*', { count: 'exact' });
+      setIsLoadingUsers(true);
       
-      // Apply search filter
-      if (searchTerm) {
-        query = query.ilike('full_name', `%${searchTerm}%`);
+      // Call admin edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'list_users',
+          page: currentPage,
+          per_page: usersPerPage,
+          search: searchTerm || undefined,
+          role: filterRole !== 'all' ? filterRole : undefined,
+          membershipCategory: filterMembershipCategory !== 'all' ? filterMembershipCategory : undefined
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch users');
       }
 
-      // Apply status filter
+      const { data, count } = await response.json();
+      
+      // Calculate pagination
+      const from = (currentPage - 1) * usersPerPage;
+      const to = from + usersPerPage - 1;
+
+      // Build query
+      let query = supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact' });
+
+      // Apply filters
+      if (searchTerm) {
+        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+      }
+
       if (filterStatus !== 'all') {
         query = query.eq('status', filterStatus);
       }
 
-      // Apply role filter
       if (filterRole !== 'all') {
         query = query.eq('role', filterRole);
       }
 
-      // Apply pagination
-      const from = (currentPage - 1) * usersPerPage;
-      const to = from + usersPerPage - 1;
+      if (filterMembershipCategory !== 'all') {
+        query = query.eq('membership_category', filterMembershipCategory);
+      }
+
       query = query.range(from, to);
 
       // Apply pagination and ordering
@@ -201,12 +226,8 @@ const AdminDashboard = () => {
         message: 'Failed to fetch users. Please try again.',
         type: 'error'
       });
-      setUsers([]);
-      setTotalUsers(0);
-      setTotalPages(0);
     } finally {
       setIsLoadingUsers(false);
-      setLoading(false);
     }
   };
 
@@ -214,22 +235,24 @@ const AdminDashboard = () => {
     if (!isAdmin) return;
     
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('status');
+      // Call admin edge function for stats
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'get_user_stats'
+        })
+      });
 
-      if (error) {
-        console.error('Error fetching stats:', error);
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch stats');
       }
 
-      const statsData = data?.reduce((acc, user) => {
-        acc.total++;
-        acc[user.status]++;
-        return acc;
-      }, { total: 0, approved: 0, pending: 0, rejected: 0, suspended: 0 }) || {
-        total: 0, approved: 0, pending: 0, rejected: 0
-      };
+      const { stats: statsData } = await response.json();
 
       setStats(statsData);
     } catch (error) {
@@ -342,32 +365,32 @@ const AdminDashboard = () => {
   const handleCreateUser = async () => {
     if (!isAdmin) return;
     
-      
+    try {
       // Check if admin client is available
-      if (!supabaseAdmin) {
+      if (!supabase) {
         throw new Error('Admin access not configured. Please check your environment variables.');
       }
-    if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
-      setToast({
-        message: 'Please fill in all required fields.',
-        type: 'error'
-      });
-      return;
-    }
+      
+      if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
+        setToast({
+          message: 'Please fill in all required fields.',
+          type: 'error'
+        });
+        return;
+      }
 
-    if (newUser.role === 'Mentee' && !newUser.careerPath) {
-      setToast({
-        message: 'Career path is required for mentees.',
-        type: 'error'
-      });
-      return;
-    }
+      if (newUser.role === 'Mentee' && !newUser.careerPath) {
+        setToast({
+          message: 'Career path is required for mentees.',
+          type: 'error'
+        });
+        return;
+      }
 
-    try {
       const generatedPassword = newUser.password || generatePassword();
 
       // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: newUser.email,
         password: generatedPassword,
         email_confirm: true, // Auto-confirm email
@@ -382,7 +405,7 @@ const AdminDashboard = () => {
 
       if (authData.user) {
         // Create user profile
-        const { error: profileError } = await supabaseAdmin
+        const { error: profileError } = await supabase
           .from('user_profiles')
           .insert({
             id: authData.user.id,
@@ -436,14 +459,14 @@ const AdminDashboard = () => {
   const handleUpdateUser = async () => {
     if (!isAdmin || !selectedUser) return;
 
-      
+    try {
       // Check if admin client is available
-      if (!supabaseAdmin) {
+      if (!supabase) {
         throw new Error('Admin access not configured. Please check your environment variables.');
       }
-    try {
+      
       // Update user profile
-      const { error: profileError } = await supabaseAdmin
+      const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
           membership_category: editingUser.membershipCategory,
@@ -563,16 +586,16 @@ const AdminDashboard = () => {
   };
 
   const confirmDeleteUser = async () => {
-      
-      // Check if admin client is available
-      if (!supabaseAdmin) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
     if (!isAdmin || !userToDelete) return;
 
     try {
+      // Check if admin client is available
+      if (!supabase) {
+        throw new Error('Admin access not configured. Please check your environment variables.');
+      }
+      
       // Delete user from Supabase Auth (this will cascade to user_profiles due to foreign key)
-      const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userToDelete.id);
+      const { error: authError } = await supabase.auth.admin.deleteUser(userToDelete.id);
 
       if (authError) {
         throw authError;
