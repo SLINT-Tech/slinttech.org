@@ -181,7 +181,7 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false });
 
       // Use Edge Function for secure admin operations
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+      const usersResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -197,12 +197,12 @@ const AdminDashboard = () => {
         })
       });
 
-      if (!response.ok) {
+      if (!usersResponse.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to fetch users');
       }
 
-      const result = await response.json();
+      const result = await usersResponse.json();
       setUsers(result.data || []);
       setTotalUsers(result.count || 0);
       setTotalPages(Math.ceil((count || 0) / usersPerPage));
