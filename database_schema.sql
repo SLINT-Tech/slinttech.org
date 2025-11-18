@@ -3,6 +3,14 @@
 -- =====================================================
 -- This file contains all tables, relationships, indexes,
 -- functions, triggers, and RLS policies for the platform.
+--
+-- IMPORTANT: This schema is designed for standalone PostgreSQL
+-- and uses application-level authentication instead of
+-- built-in authentication systems.
+--
+-- RLS POLICY NOTE: All RLS policies use current_setting('app.current_user_id')
+-- which must be set by your application layer for each database session.
+-- Example: SET LOCAL app.current_user_id = 'user-uuid-here';
 -- =====================================================
 
 -- =====================================================
@@ -16,10 +24,12 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- TABLE: user_profiles
 -- =====================================================
 -- Stores user profile information for all users (Mentees, Mentors, Admins)
--- References auth.users from Supabase Auth
+-- This is the primary user authentication and profile table
 
 CREATE TABLE IF NOT EXISTS user_profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text UNIQUE NOT NULL,
+  password_hash text NOT NULL,
   full_name text NOT NULL,
   membership_category text NOT NULL CHECK (membership_category IN ('Student', 'Professional', 'Volunteer')),
   career_path text,
@@ -204,10 +214,31 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- =====================================================
+-- TABLE: contract_files
+-- =====================================================
+-- Stores metadata for contract files stored in Amazon S3
+-- Files are stored in your Amazon S3 bucket, not in the database
+
+CREATE TABLE IF NOT EXISTS contract_files (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  file_name text NOT NULL,
+  file_size bigint NOT NULL CHECK (file_size > 0),
+  file_type text NOT NULL,
+  s3_key text NOT NULL UNIQUE,
+  s3_bucket text NOT NULL,
+  upload_status text NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
+  uploaded_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- =====================================================
 -- INDEXES
 -- =====================================================
 
 -- user_profiles indexes
+CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_role ON user_profiles(role);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_status ON user_profiles(status);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_membership_paid ON user_profiles(membership_paid);
@@ -258,45 +289,26 @@ CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient_id ON messages(recipient_id);
 CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(read);
 
+-- contract_files indexes
+CREATE INDEX IF NOT EXISTS idx_contract_files_user_id ON contract_files(user_id);
+CREATE INDEX IF NOT EXISTS idx_contract_files_s3_key ON contract_files(s3_key);
+CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(upload_status);
+
 -- =====================================================
 -- FUNCTIONS
 -- =====================================================
 
--- Function to handle user profile creation when user signs up
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+-- Function to get current user ID from application session
+-- This function retrieves the user ID set by the application layer
+CREATE OR REPLACE FUNCTION get_current_user_id()
+RETURNS uuid AS $$
 BEGIN
-  INSERT INTO public.user_profiles (
-    id,
-    full_name,
-    membership_category,
-    career_path,
-    role,
-    specialization,
-    status,
-    membership_enabled,
-    membership_amount,
-    membership_paid
-  )
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'membership_category', ''),
-    COALESCE(NEW.raw_user_meta_data->>'career_path', ''),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'Mentee'),
-    CASE
-      WHEN COALESCE(NEW.raw_user_meta_data->>'role', 'Mentee') = 'Mentor'
-      THEN COALESCE(NEW.raw_user_meta_data->>'career_path', '')
-      ELSE NULL
-    END,
-    'pending',
-    false,
-    30.00,
-    false
-  );
-  RETURN NEW;
+  RETURN NULLIF(current_setting('app.current_user_id', true), '')::uuid;
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN NULL;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE;
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -329,12 +341,6 @@ $$ LANGUAGE plpgsql;
 -- =====================================================
 -- TRIGGERS
 -- =====================================================
-
--- Trigger to create profile when user signs up
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- Triggers to update updated_at timestamp
 DROP TRIGGER IF EXISTS update_user_profiles_updated_at ON user_profiles;
@@ -387,6 +393,11 @@ CREATE TRIGGER update_messages_updated_at
   BEFORE UPDATE ON messages
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_contract_files_updated_at ON contract_files;
+CREATE TRIGGER update_contract_files_updated_at
+  BEFORE UPDATE ON contract_files
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- Trigger to update course enrolled count
 DROP TRIGGER IF EXISTS update_course_count_on_enrollment ON course_enrollments;
 CREATE TRIGGER update_course_count_on_enrollment
@@ -395,6 +406,12 @@ CREATE TRIGGER update_course_count_on_enrollment
 
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
+-- =====================================================
+-- IMPORTANT: Your application MUST set the current user ID for each session:
+-- SET LOCAL app.current_user_id = 'user-uuid-here';
+--
+-- This should be done immediately after establishing a database connection
+-- and before executing any queries that require user context.
 -- =====================================================
 
 -- Enable RLS on all tables
@@ -408,6 +425,7 @@ ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE task_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contract_files ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
 -- RLS POLICIES: user_profiles
@@ -416,26 +434,28 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own profile"
   ON user_profiles
   FOR SELECT
-  TO authenticated
-  USING (auth.uid() = id);
+  USING (get_current_user_id() = id);
 
 CREATE POLICY "Users can update own profile"
   ON user_profiles
   FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = id);
+  USING (get_current_user_id() = id)
+  WITH CHECK (get_current_user_id() = id);
 
 CREATE POLICY "Users can insert own profile"
   ON user_profiles
   FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (get_current_user_id() = id);
 
-CREATE POLICY "Service role can manage all profiles"
+CREATE POLICY "Admins can manage all profiles"
   ON user_profiles
   FOR ALL
-  TO service_role
-  USING (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles up
+      WHERE up.id = get_current_user_id() AND up.role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: mentor_mentee_relationships
@@ -444,85 +464,86 @@ CREATE POLICY "Service role can manage all profiles"
 CREATE POLICY "Mentors and mentees can view own relationships"
   ON mentor_mentee_relationships
   FOR SELECT
-  TO authenticated
   USING (
-    mentor_id = auth.uid() OR
-    mentee_id = auth.uid()
+    mentor_id = get_current_user_id() OR
+    mentee_id = get_current_user_id()
   );
 
 CREATE POLICY "Mentors can create mentee relationships"
   ON mentor_mentee_relationships
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    mentor_id = auth.uid() AND
+    mentor_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE id = auth.uid() AND role = 'Mentor'
+      WHERE id = get_current_user_id() AND role = 'Mentor'
     )
   );
 
 CREATE POLICY "Mentors can update own mentee relationships"
   ON mentor_mentee_relationships
   FOR UPDATE
-  TO authenticated
-  USING (mentor_id = auth.uid())
-  WITH CHECK (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id())
+  WITH CHECK (mentor_id = get_current_user_id());
 
 CREATE POLICY "Mentors can delete own mentee relationships"
   ON mentor_mentee_relationships
   FOR DELETE
-  TO authenticated
-  USING (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all mentor mentee relationships"
+CREATE POLICY "Admins can manage all relationships"
   ON mentor_mentee_relationships
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: courses
 -- =====================================================
 
-CREATE POLICY "Anyone can view active courses"
+CREATE POLICY "Anyone authenticated can view active courses"
   ON courses
   FOR SELECT
-  TO authenticated
-  USING (status = 'active');
+  USING (
+    status = 'active' AND
+    get_current_user_id() IS NOT NULL
+  );
 
 CREATE POLICY "Mentors can create courses"
   ON courses
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    mentor_id = auth.uid() AND
+    mentor_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE id = auth.uid() AND role = 'Mentor'
+      WHERE id = get_current_user_id() AND role = 'Mentor'
     )
   );
 
 CREATE POLICY "Mentors can update own courses"
   ON courses
   FOR UPDATE
-  TO authenticated
-  USING (mentor_id = auth.uid())
-  WITH CHECK (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id())
+  WITH CHECK (mentor_id = get_current_user_id());
 
 CREATE POLICY "Mentors can delete own courses"
   ON courses
   FOR DELETE
-  TO authenticated
-  USING (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all courses"
+CREATE POLICY "Admins can manage all courses"
   ON courses
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: course_enrollments
@@ -531,46 +552,46 @@ CREATE POLICY "Service role can manage all courses"
 CREATE POLICY "Mentees can view own enrollments"
   ON course_enrollments
   FOR SELECT
-  TO authenticated
   USING (
-    mentee_id = auth.uid() OR
+    mentee_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = course_enrollments.course_id
-      AND courses.mentor_id = auth.uid()
+      AND courses.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can enroll mentees in their courses"
   ON course_enrollments
   FOR INSERT
-  TO authenticated
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = course_enrollments.course_id
-      AND courses.mentor_id = auth.uid()
+      AND courses.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can update enrollments in their courses"
   ON course_enrollments
   FOR UPDATE
-  TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = course_enrollments.course_id
-      AND courses.mentor_id = auth.uid()
+      AND courses.mentor_id = get_current_user_id()
     )
   );
 
-CREATE POLICY "Service role can manage all enrollments"
+CREATE POLICY "Admins can manage all enrollments"
   ON course_enrollments
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: lessons
@@ -579,48 +600,47 @@ CREATE POLICY "Service role can manage all enrollments"
 CREATE POLICY "Mentees can view lessons in their enrolled courses"
   ON lessons
   FOR SELECT
-  TO authenticated
   USING (
-    mentor_id = auth.uid() OR
+    mentor_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM course_enrollments
       WHERE course_enrollments.course_id = lessons.course_id
-      AND course_enrollments.mentee_id = auth.uid()
+      AND course_enrollments.mentee_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can create lessons in their courses"
   ON lessons
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    mentor_id = auth.uid() AND
+    mentor_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = lessons.course_id
-      AND courses.mentor_id = auth.uid()
+      AND courses.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can update own lessons"
   ON lessons
   FOR UPDATE
-  TO authenticated
-  USING (mentor_id = auth.uid())
-  WITH CHECK (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id())
+  WITH CHECK (mentor_id = get_current_user_id());
 
 CREATE POLICY "Mentors can delete own lessons"
   ON lessons
   FOR DELETE
-  TO authenticated
-  USING (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all lessons"
+CREATE POLICY "Admins can manage all lessons"
   ON lessons
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: lesson_progress
@@ -629,35 +649,35 @@ CREATE POLICY "Service role can manage all lessons"
 CREATE POLICY "Mentees can view own lesson progress"
   ON lesson_progress
   FOR SELECT
-  TO authenticated
   USING (
-    mentee_id = auth.uid() OR
+    mentee_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM lessons
       WHERE lessons.id = lesson_progress.lesson_id
-      AND lessons.mentor_id = auth.uid()
+      AND lessons.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentees can create own lesson progress"
   ON lesson_progress
   FOR INSERT
-  TO authenticated
-  WITH CHECK (mentee_id = auth.uid());
+  WITH CHECK (mentee_id = get_current_user_id());
 
 CREATE POLICY "Mentees can update own lesson progress"
   ON lesson_progress
   FOR UPDATE
-  TO authenticated
-  USING (mentee_id = auth.uid())
-  WITH CHECK (mentee_id = auth.uid());
+  USING (mentee_id = get_current_user_id())
+  WITH CHECK (mentee_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all lesson progress"
+CREATE POLICY "Admins can manage all lesson progress"
   ON lesson_progress
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: tasks
@@ -666,48 +686,47 @@ CREATE POLICY "Service role can manage all lesson progress"
 CREATE POLICY "Mentees can view tasks in their enrolled courses"
   ON tasks
   FOR SELECT
-  TO authenticated
   USING (
-    mentor_id = auth.uid() OR
+    mentor_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM course_enrollments
       WHERE course_enrollments.course_id = tasks.course_id
-      AND course_enrollments.mentee_id = auth.uid()
+      AND course_enrollments.mentee_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can create tasks in their courses"
   ON tasks
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    mentor_id = auth.uid() AND
+    mentor_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM courses
       WHERE courses.id = tasks.course_id
-      AND courses.mentor_id = auth.uid()
+      AND courses.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentors can update own tasks"
   ON tasks
   FOR UPDATE
-  TO authenticated
-  USING (mentor_id = auth.uid())
-  WITH CHECK (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id())
+  WITH CHECK (mentor_id = get_current_user_id());
 
 CREATE POLICY "Mentors can delete own tasks"
   ON tasks
   FOR DELETE
-  TO authenticated
-  USING (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all tasks"
+CREATE POLICY "Admins can manage all tasks"
   ON tasks
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: task_submissions
@@ -716,41 +735,41 @@ CREATE POLICY "Service role can manage all tasks"
 CREATE POLICY "Mentees and mentors can view submissions"
   ON task_submissions
   FOR SELECT
-  TO authenticated
   USING (
-    mentee_id = auth.uid() OR
+    mentee_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM tasks
       WHERE tasks.id = task_submissions.task_id
-      AND tasks.mentor_id = auth.uid()
+      AND tasks.mentor_id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Mentees can create own submissions"
   ON task_submissions
   FOR INSERT
-  TO authenticated
-  WITH CHECK (mentee_id = auth.uid());
+  WITH CHECK (mentee_id = get_current_user_id());
 
 CREATE POLICY "Mentees can update own submissions"
   ON task_submissions
   FOR UPDATE
-  TO authenticated
   USING (
-    mentee_id = auth.uid() OR
+    mentee_id = get_current_user_id() OR
     EXISTS (
       SELECT 1 FROM tasks
       WHERE tasks.id = task_submissions.task_id
-      AND tasks.mentor_id = auth.uid()
+      AND tasks.mentor_id = get_current_user_id()
     )
   );
 
-CREATE POLICY "Service role can manage all submissions"
+CREATE POLICY "Admins can manage all submissions"
   ON task_submissions
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: announcements
@@ -759,40 +778,42 @@ CREATE POLICY "Service role can manage all submissions"
 CREATE POLICY "Users can view published announcements"
   ON announcements
   FOR SELECT
-  TO authenticated
-  USING (published = true);
+  USING (
+    published = true AND
+    get_current_user_id() IS NOT NULL
+  );
 
 CREATE POLICY "Mentors can create announcements"
   ON announcements
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    mentor_id = auth.uid() AND
+    mentor_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE id = auth.uid() AND role IN ('Mentor', 'Admin')
+      WHERE id = get_current_user_id() AND role IN ('Mentor', 'Admin')
     )
   );
 
 CREATE POLICY "Mentors can update own announcements"
   ON announcements
   FOR UPDATE
-  TO authenticated
-  USING (mentor_id = auth.uid())
-  WITH CHECK (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id())
+  WITH CHECK (mentor_id = get_current_user_id());
 
 CREATE POLICY "Mentors can delete own announcements"
   ON announcements
   FOR DELETE
-  TO authenticated
-  USING (mentor_id = auth.uid());
+  USING (mentor_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all announcements"
+CREATE POLICY "Admins can manage all announcements"
   ON announcements
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: messages
@@ -801,65 +822,31 @@ CREATE POLICY "Service role can manage all announcements"
 CREATE POLICY "Users can view own messages"
   ON messages
   FOR SELECT
-  TO authenticated
   USING (
-    sender_id = auth.uid() OR
-    recipient_id = auth.uid()
+    sender_id = get_current_user_id() OR
+    recipient_id = get_current_user_id()
   );
 
 CREATE POLICY "Users can send messages"
   ON messages
   FOR INSERT
-  TO authenticated
-  WITH CHECK (sender_id = auth.uid());
+  WITH CHECK (sender_id = get_current_user_id());
 
 CREATE POLICY "Recipients can update message read status"
   ON messages
   FOR UPDATE
-  TO authenticated
-  USING (recipient_id = auth.uid())
-  WITH CHECK (recipient_id = auth.uid());
+  USING (recipient_id = get_current_user_id())
+  WITH CHECK (recipient_id = get_current_user_id());
 
-CREATE POLICY "Service role can manage all messages"
+CREATE POLICY "Admins can manage all messages"
   ON messages
   FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
--- =====================================================
--- TABLE: contract_files
--- =====================================================
--- Stores metadata for contract files stored in Amazon S3
--- Files are NOT stored in Supabase Storage
-
-CREATE TABLE IF NOT EXISTS contract_files (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  file_name text NOT NULL,
-  file_size bigint NOT NULL CHECK (file_size > 0),
-  file_type text NOT NULL,
-  s3_key text NOT NULL UNIQUE,
-  s3_bucket text NOT NULL,
-  upload_status text NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
-  uploaded_at timestamptz,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
--- contract_files indexes
-CREATE INDEX IF NOT EXISTS idx_contract_files_user_id ON contract_files(user_id);
-CREATE INDEX IF NOT EXISTS idx_contract_files_s3_key ON contract_files(s3_key);
-CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(upload_status);
-
--- Trigger to update updated_at timestamp
-DROP TRIGGER IF EXISTS update_contract_files_updated_at ON contract_files;
-CREATE TRIGGER update_contract_files_updated_at
-  BEFORE UPDATE ON contract_files
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Enable RLS on contract_files
-ALTER TABLE contract_files ENABLE ROW LEVEL SECURITY;
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = get_current_user_id() AND role = 'Admin'
+    )
+  );
 
 -- =====================================================
 -- RLS POLICIES: contract_files
@@ -868,66 +855,61 @@ ALTER TABLE contract_files ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own contract files"
   ON contract_files
   FOR SELECT
-  TO authenticated
   USING (
-    user_id = auth.uid() AND
+    user_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Users can insert own contract files"
   ON contract_files
   FOR INSERT
-  TO authenticated
   WITH CHECK (
-    user_id = auth.uid() AND
+    user_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Users can update own contract files"
   ON contract_files
   FOR UPDATE
-  TO authenticated
   USING (
-    user_id = auth.uid() AND
+    user_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
     )
   )
   WITH CHECK (
-    user_id = auth.uid() AND
+    user_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Users can delete own contract files"
   ON contract_files
   FOR DELETE
-  TO authenticated
   USING (
-    user_id = auth.uid() AND
+    user_id = get_current_user_id() AND
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
     )
   );
 
 CREATE POLICY "Admins can read all contract files"
   ON contract_files
   FOR SELECT
-  TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
       AND user_profiles.role = 'Admin'
     )
   );
@@ -935,35 +917,69 @@ CREATE POLICY "Admins can read all contract files"
 CREATE POLICY "Admins can manage all contract files"
   ON contract_files
   FOR ALL
-  TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
       AND user_profiles.role = 'Admin'
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_profiles
-      WHERE user_profiles.id = auth.uid()
+      WHERE user_profiles.id = get_current_user_id()
       AND user_profiles.role = 'Admin'
     )
   );
 
-CREATE POLICY "Service role can manage all contract files"
-  ON contract_files
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+-- =====================================================
+-- COMMENTS
+-- =====================================================
 
--- Add comments explaining the table's purpose
-COMMENT ON TABLE contract_files IS 'Stores metadata for contract files stored in Amazon S3. Files are not stored in Supabase Storage.';
+-- Add comments explaining table purposes
+COMMENT ON TABLE user_profiles IS 'Main user authentication and profile table. Stores credentials and profile information for all platform users.';
+COMMENT ON COLUMN user_profiles.password_hash IS 'Hashed password using bcrypt or similar. NEVER store plain text passwords.';
+COMMENT ON COLUMN user_profiles.email IS 'User email address. Used for authentication and communication.';
+
+COMMENT ON TABLE contract_files IS 'Stores metadata for contract files stored in Amazon S3. Files are stored in your S3 bucket, not in the database.';
 COMMENT ON COLUMN contract_files.s3_key IS 'The S3 object key/path in format: {user_id}/{timestamp}_{filename}';
 COMMENT ON COLUMN contract_files.s3_bucket IS 'The Amazon S3 bucket name where the file is stored';
 COMMENT ON COLUMN contract_files.upload_status IS 'Upload status: pending (uploading), completed (successful), failed (error occurred)';
 
+-- =====================================================
+-- IMPORTANT IMPLEMENTATION NOTES
+-- =====================================================
+--
+-- 1. APPLICATION-LEVEL AUTHENTICATION:
+--    Your application must handle:
+--    - User registration (hash passwords using bcrypt, argon2, or similar)
+--    - User login (verify password hash)
+--    - Session management (JWT tokens, sessions, etc.)
+--    - Setting user context: SET LOCAL app.current_user_id = 'uuid'
+--
+-- 2. DATABASE CONNECTION SETUP:
+--    Before executing any queries, your application MUST run:
+--    SET LOCAL app.current_user_id = '<authenticated-user-uuid>';
+--
+--    Example in Node.js with pg library:
+--    await client.query("SET LOCAL app.current_user_id = $1", [userId]);
+--
+-- 3. AMAZON S3 INTEGRATION:
+--    - Use AWS SDK in your application to upload files to S3
+--    - Store file metadata (s3_key, s3_bucket, etc.) in contract_files table
+--    - Generate signed URLs for secure file access
+--
+-- 4. PASSWORD SECURITY:
+--    - NEVER store plain text passwords
+--    - Use bcrypt, argon2, or scrypt for password hashing
+--    - Implement password strength requirements in your application
+--    - Consider implementing rate limiting for login attempts
+--
+-- 5. RLS BYPASS:
+--    If you need to bypass RLS for admin operations or background jobs,
+--    you can create a separate database user with elevated privileges
+--    or temporarily disable RLS for specific operations.
+--
 -- =====================================================
 -- END OF SCHEMA
 -- =====================================================
