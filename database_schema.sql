@@ -828,5 +828,142 @@ CREATE POLICY "Service role can manage all messages"
   WITH CHECK (true);
 
 -- =====================================================
+-- TABLE: contract_files
+-- =====================================================
+-- Stores metadata for contract files stored in Amazon S3
+-- Files are NOT stored in Supabase Storage
+
+CREATE TABLE IF NOT EXISTS contract_files (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  file_name text NOT NULL,
+  file_size bigint NOT NULL CHECK (file_size > 0),
+  file_type text NOT NULL,
+  s3_key text NOT NULL UNIQUE,
+  s3_bucket text NOT NULL,
+  upload_status text NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
+  uploaded_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- contract_files indexes
+CREATE INDEX IF NOT EXISTS idx_contract_files_user_id ON contract_files(user_id);
+CREATE INDEX IF NOT EXISTS idx_contract_files_s3_key ON contract_files(s3_key);
+CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(upload_status);
+
+-- Trigger to update updated_at timestamp
+DROP TRIGGER IF EXISTS update_contract_files_updated_at ON contract_files;
+CREATE TRIGGER update_contract_files_updated_at
+  BEFORE UPDATE ON contract_files
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable RLS on contract_files
+ALTER TABLE contract_files ENABLE ROW LEVEL SECURITY;
+
+-- =====================================================
+-- RLS POLICIES: contract_files
+-- =====================================================
+
+CREATE POLICY "Users can read own contract files"
+  ON contract_files
+  FOR SELECT
+  TO authenticated
+  USING (
+    user_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert own contract files"
+  ON contract_files
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    user_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update own contract files"
+  ON contract_files
+  FOR UPDATE
+  TO authenticated
+  USING (
+    user_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    user_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete own contract files"
+  ON contract_files
+  FOR DELETE
+  TO authenticated
+  USING (
+    user_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Admins can read all contract files"
+  ON contract_files
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+      AND user_profiles.role = 'Admin'
+    )
+  );
+
+CREATE POLICY "Admins can manage all contract files"
+  ON contract_files
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+      AND user_profiles.role = 'Admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.id = auth.uid()
+      AND user_profiles.role = 'Admin'
+    )
+  );
+
+CREATE POLICY "Service role can manage all contract files"
+  ON contract_files
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+-- Add comments explaining the table's purpose
+COMMENT ON TABLE contract_files IS 'Stores metadata for contract files stored in Amazon S3. Files are not stored in Supabase Storage.';
+COMMENT ON COLUMN contract_files.s3_key IS 'The S3 object key/path in format: {user_id}/{timestamp}_{filename}';
+COMMENT ON COLUMN contract_files.s3_bucket IS 'The Amazon S3 bucket name where the file is stored';
+COMMENT ON COLUMN contract_files.upload_status IS 'Upload status: pending (uploading), completed (successful), failed (error occurred)';
+
+-- =====================================================
 -- END OF SCHEMA
 -- =====================================================
