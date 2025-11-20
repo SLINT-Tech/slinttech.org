@@ -214,8 +214,9 @@ CREATE TABLE IF NOT EXISTS messages (
 -- =====================================================
 -- TABLE: contract_files
 -- =====================================================
--- Stores metadata for contract files stored in Amazon S3
--- Files are stored in your Amazon S3 bucket, not in the database
+-- Stores metadata for contract files stored in cloud storage
+-- Storage agnostic: supports Amazon S3, Firebase Storage, etc.
+-- Files are stored in external cloud storage, not in the database
 
 CREATE TABLE IF NOT EXISTS contract_files (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -223,12 +224,15 @@ CREATE TABLE IF NOT EXISTS contract_files (
   file_name text NOT NULL,
   file_size bigint NOT NULL CHECK (file_size > 0),
   file_type text NOT NULL,
-  s3_key text NOT NULL UNIQUE,
-  s3_bucket text NOT NULL,
+  storage_provider text NOT NULL CHECK (storage_provider IN ('s3', 'firebase', 'gcs', 'azure', 'other')),
+  storage_key text NOT NULL,
+  storage_bucket text NOT NULL,
+  storage_url text,
   upload_status text NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
   uploaded_at timestamptz,
   created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(storage_provider, storage_key)
 );
 
 -- =====================================================
@@ -289,7 +293,8 @@ CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(read);
 
 -- contract_files indexes
 CREATE INDEX IF NOT EXISTS idx_contract_files_user_id ON contract_files(user_id);
-CREATE INDEX IF NOT EXISTS idx_contract_files_s3_key ON contract_files(s3_key);
+CREATE INDEX IF NOT EXISTS idx_contract_files_storage_key ON contract_files(storage_key);
+CREATE INDEX IF NOT EXISTS idx_contract_files_storage_provider ON contract_files(storage_provider);
 CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(upload_status);
 
 -- =====================================================
@@ -399,9 +404,11 @@ COMMENT ON TABLE user_profiles IS 'Main user authentication and profile table. S
 COMMENT ON COLUMN user_profiles.password_hash IS 'Hashed password using bcrypt or similar. NEVER store plain text passwords.';
 COMMENT ON COLUMN user_profiles.email IS 'User email address. Used for authentication and communication.';
 
-COMMENT ON TABLE contract_files IS 'Stores metadata for contract files stored in Amazon S3. Files are stored in your S3 bucket, not in the database.';
-COMMENT ON COLUMN contract_files.s3_key IS 'The S3 object key/path in format: {user_id}/{timestamp}_{filename}';
-COMMENT ON COLUMN contract_files.s3_bucket IS 'The Amazon S3 bucket name where the file is stored';
+COMMENT ON TABLE contract_files IS 'Stores metadata for contract files stored in cloud storage. Storage agnostic - supports multiple providers (S3, Firebase, GCS, Azure, etc.).';
+COMMENT ON COLUMN contract_files.storage_provider IS 'Cloud storage provider: s3 (Amazon S3), firebase (Firebase Storage), gcs (Google Cloud Storage), azure (Azure Blob Storage), other (custom provider)';
+COMMENT ON COLUMN contract_files.storage_key IS 'The storage object key/path, typically in format: {user_id}/{timestamp}_{filename}';
+COMMENT ON COLUMN contract_files.storage_bucket IS 'The bucket/container name where the file is stored';
+COMMENT ON COLUMN contract_files.storage_url IS 'Optional: Full URL to access the file (can be a signed URL or public URL)';
 COMMENT ON COLUMN contract_files.upload_status IS 'Upload status: pending (uploading), completed (successful), failed (error occurred)';
 
 -- =====================================================
@@ -428,11 +435,16 @@ COMMENT ON COLUMN contract_files.upload_status IS 'Upload status: pending (uploa
 --    - Mentors can only manage their own courses and lessons
 --    - Admins have full access to all resources
 --
--- 3. AMAZON S3 INTEGRATION:
---    - Use AWS SDK in your application to upload files to S3
---    - Store file metadata (s3_key, s3_bucket, etc.) in contract_files table
---    - Generate signed URLs for secure file access
+-- 3. CLOUD STORAGE INTEGRATION:
+--    - Use appropriate SDK for your chosen storage provider:
+--      * Amazon S3: AWS SDK (storage_provider = 's3')
+--      * Firebase Storage: Firebase SDK (storage_provider = 'firebase')
+--      * Google Cloud Storage: GCS SDK (storage_provider = 'gcs')
+--      * Azure Blob Storage: Azure SDK (storage_provider = 'azure')
+--    - Store file metadata (storage_key, storage_bucket, storage_provider) in contract_files table
+--    - Generate signed URLs for secure file access (store in storage_url if needed)
 --    - Implement file access control in your API endpoints
+--    - The schema is storage-agnostic, allowing you to switch providers without database changes
 --
 -- 4. PASSWORD SECURITY:
 --    - NEVER store plain text passwords
