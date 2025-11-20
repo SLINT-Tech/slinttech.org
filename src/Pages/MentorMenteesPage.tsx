@@ -1,8 +1,7 @@
 import { ArrowLeft, BookOpen, CheckCircle, Clock, Eye, MessageSquare, Target, User, Users, X, Plus, Send } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-import type { MentorMenteeRelationship, UserProfile } from '../lib/supabase';
+import type { MentorMenteeRelationship, UserProfile } from '../hooks/useAuth';
 
 const MentorMenteesPage = () => {
   const [mentorData, setMentorData] = useState(null);

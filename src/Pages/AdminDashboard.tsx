@@ -1,7 +1,7 @@
 import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { supabase, UserProfile } from '../lib/supabase';
+import { UserProfile } from '../hooks/useAuth';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { Link } from 'react-router-dom';

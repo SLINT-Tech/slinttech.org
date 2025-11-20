@@ -2,8 +2,6 @@ import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-r
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-import { supabase } from '../lib/supabase';
-import { uploadContract, sendSignupNotification } from '../lib/storage';
 
 const SignUpPage = () => {
   const navigate = useNavigate();

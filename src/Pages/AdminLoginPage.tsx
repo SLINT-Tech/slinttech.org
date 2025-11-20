@@ -1,7 +1,6 @@
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import Toast from '../Components/Toast';
 import { useAuth } from '../hooks/useAuth';
 
