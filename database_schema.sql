@@ -15,10 +15,8 @@
 -- EXTENSIONS
 -- =====================================================
 
--- Enable UUID generation (built-in gen_random_uuid() function)
--- Note: PostgreSQL 13+ includes gen_random_uuid() by default in pgcrypto
--- For PostgreSQL 18+, gen_random_uuid() is a built-in function
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =====================================================
 -- TABLE: user_profiles
@@ -27,24 +25,24 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- This is the primary user authentication and profile table
 
 CREATE TABLE IF NOT EXISTS user_profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  full_name TEXT NOT NULL,
-  membership_category TEXT NOT NULL CHECK (membership_category IN ('Student', 'Professional', 'Volunteer')),
-  career_path TEXT,
-  role TEXT NOT NULL DEFAULT 'Mentee' CHECK (role IN ('Admin', 'Mentor', 'Mentee')),
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'suspended')),
-  specialization TEXT,
-  contract_file_url TEXT,
-  membership_enabled BOOLEAN DEFAULT FALSE,
-  membership_amount DECIMAL(10, 2) DEFAULT 30.00,
-  membership_paid BOOLEAN DEFAULT FALSE,
-  payment_reference TEXT,
-  payment_date TIMESTAMPTZ,
-  discord_link TEXT,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text UNIQUE NOT NULL,
+  password_hash text NOT NULL,
+  full_name text NOT NULL,
+  membership_category text NOT NULL CHECK (membership_category IN ('Student', 'Professional', 'Volunteer')),
+  career_path text,
+  role text NOT NULL DEFAULT 'Mentee' CHECK (role IN ('Admin', 'Mentor', 'Mentee')),
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'suspended')),
+  specialization text,
+  contract_file_url text,
+  membership_enabled boolean DEFAULT false,
+  membership_amount decimal(10,2) DEFAULT 30.00,
+  membership_paid boolean DEFAULT false,
+  payment_reference text,
+  payment_date timestamptz,
+  discord_link text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
 -- =====================================================
@@ -54,18 +52,18 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- including course assignments and progress
 
 CREATE TABLE IF NOT EXISTS mentor_mentee_relationships (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  mentor_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  mentee_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  course_name TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'completed', 'paused')),
-  assigned_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  completion_date TIMESTAMPTZ,
-  progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_mentor_mentee_course UNIQUE (mentor_id, mentee_id, course_name)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  mentor_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  mentee_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  course_name text NOT NULL,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'completed', 'paused')),
+  assigned_date timestamptz NOT NULL DEFAULT now(),
+  completion_date timestamptz,
+  progress_percentage integer DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+  notes text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(mentor_id, mentee_id, course_name)
 );
 
 -- =====================================================
@@ -74,16 +72,16 @@ CREATE TABLE IF NOT EXISTS mentor_mentee_relationships (
 -- Stores course information created by mentors
 
 CREATE TABLE IF NOT EXISTS courses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  mentor_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  duration TEXT NOT NULL,
-  description TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
-  enrolled_mentees_count INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_mentor_course UNIQUE (mentor_id, name)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  mentor_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  duration text NOT NULL,
+  description text NOT NULL,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
+  enrolled_mentees_count integer DEFAULT 0,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(mentor_id, name)
 );
 
 -- =====================================================
@@ -92,16 +90,16 @@ CREATE TABLE IF NOT EXISTS courses (
 -- Tracks which mentees are enrolled in which courses
 
 CREATE TABLE IF NOT EXISTS course_enrollments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  mentee_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  enrolled_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  completed_at TIMESTAMPTZ,
-  progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'dropped')),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_course_mentee UNIQUE (course_id, mentee_id)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id uuid NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  mentee_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  enrolled_at timestamptz DEFAULT now(),
+  completed_at timestamptz,
+  progress_percentage integer DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'dropped')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(course_id, mentee_id)
 );
 
 -- =====================================================
@@ -110,16 +108,16 @@ CREATE TABLE IF NOT EXISTS course_enrollments (
 -- Stores lesson content created by mentors for their courses
 
 CREATE TABLE IF NOT EXISTS lessons (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  mentor_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  link TEXT NOT NULL,
-  order_index INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id uuid NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  mentor_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  title text NOT NULL,
+  description text NOT NULL,
+  link text NOT NULL,
+  order_index integer NOT NULL DEFAULT 0,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
 -- =====================================================
@@ -128,14 +126,14 @@ CREATE TABLE IF NOT EXISTS lessons (
 -- Tracks mentee progress on individual lessons
 
 CREATE TABLE IF NOT EXISTS lesson_progress (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  lesson_id UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
-  mentee_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  completed BOOLEAN DEFAULT FALSE,
-  completed_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_lesson_mentee UNIQUE (lesson_id, mentee_id)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lesson_id uuid NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+  mentee_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  completed boolean DEFAULT false,
+  completed_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(lesson_id, mentee_id)
 );
 
 -- =====================================================
@@ -144,16 +142,16 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
 -- Stores tasks/assignments created by mentors for mentees
 
 CREATE TABLE IF NOT EXISTS tasks (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  mentor_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  requirements TEXT,
-  deadline TIMESTAMPTZ,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id uuid NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  mentor_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  title text NOT NULL,
+  description text NOT NULL,
+  requirements text,
+  deadline timestamptz,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
 -- =====================================================
@@ -162,18 +160,18 @@ CREATE TABLE IF NOT EXISTS tasks (
 -- Stores mentee submissions for tasks with mentor feedback
 
 CREATE TABLE IF NOT EXISTS task_submissions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-  mentee_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  submission_link TEXT,
-  submission_notes TEXT,
-  submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'submitted', 'approved', 'rejected')),
-  mentor_feedback TEXT,
-  reviewed_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_task_mentee UNIQUE (task_id, mentee_id)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_id uuid NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  mentee_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  submission_link text,
+  submission_notes text,
+  submitted_at timestamptz DEFAULT now(),
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'submitted', 'approved', 'rejected')),
+  mentor_feedback text,
+  reviewed_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(task_id, mentee_id)
 );
 
 -- =====================================================
@@ -182,18 +180,18 @@ CREATE TABLE IF NOT EXISTS task_submissions (
 -- Stores announcements that can be sent to mentees
 
 CREATE TABLE IF NOT EXISTS announcements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  mentor_id UUID REFERENCES user_profiles(id) ON DELETE SET NULL,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  target_audience TEXT NOT NULL DEFAULT 'all' CHECK (target_audience IN ('all', 'mentees', 'mentors', 'specific')),
-  target_course_id UUID REFERENCES courses(id) ON DELETE SET NULL,
-  priority TEXT NOT NULL DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
-  published BOOLEAN DEFAULT FALSE,
-  published_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  mentor_id uuid REFERENCES user_profiles(id) ON DELETE SET NULL,
+  title text NOT NULL,
+  content text NOT NULL,
+  target_audience text NOT NULL DEFAULT 'all' CHECK (target_audience IN ('all', 'mentees', 'mentors', 'specific')),
+  target_course_id uuid REFERENCES courses(id) ON DELETE SET NULL,
+  priority text NOT NULL DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+  published boolean DEFAULT false,
+  published_at timestamptz,
+  expires_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
 -- =====================================================
@@ -202,15 +200,15 @@ CREATE TABLE IF NOT EXISTS announcements (
 -- Stores messages between mentors and mentees
 
 CREATE TABLE IF NOT EXISTS messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  recipient_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  subject TEXT,
-  content TEXT NOT NULL,
-  read BOOLEAN DEFAULT FALSE,
-  read_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  recipient_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  subject text,
+  content text NOT NULL,
+  read boolean DEFAULT false,
+  read_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
 -- =====================================================
@@ -221,20 +219,20 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Files are stored in external cloud storage, not in the database
 
 CREATE TABLE IF NOT EXISTS contract_files (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  file_name TEXT NOT NULL,
-  file_size BIGINT NOT NULL CHECK (file_size > 0),
-  file_type TEXT NOT NULL,
-  storage_provider TEXT NOT NULL CHECK (storage_provider IN ('s3', 'firebase', 'gcs', 'azure', 'other')),
-  storage_key TEXT NOT NULL,
-  storage_bucket TEXT NOT NULL,
-  storage_url TEXT,
-  upload_status TEXT NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
-  uploaded_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_storage_provider_key UNIQUE (storage_provider, storage_key)
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  file_name text NOT NULL,
+  file_size bigint NOT NULL CHECK (file_size > 0),
+  file_type text NOT NULL,
+  storage_provider text NOT NULL CHECK (storage_provider IN ('s3', 'firebase', 'gcs', 'azure', 'other')),
+  storage_key text NOT NULL,
+  storage_bucket text NOT NULL,
+  storage_url text,
+  upload_status text NOT NULL DEFAULT 'pending' CHECK (upload_status IN ('pending', 'completed', 'failed')),
+  uploaded_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(storage_provider, storage_key)
 );
 
 -- =====================================================
@@ -307,7 +305,7 @@ CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(up
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.updated_at = CURRENT_TIMESTAMP;
+  NEW.updated_at = now();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
