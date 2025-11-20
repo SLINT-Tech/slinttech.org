@@ -240,62 +240,62 @@ CREATE TABLE IF NOT EXISTS contract_files (
 -- =====================================================
 
 -- user_profiles indexes
-CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON user_profiles(email);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_role ON user_profiles(role);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_status ON user_profiles(status);
-CREATE INDEX IF NOT EXISTS idx_user_profiles_membership_paid ON user_profiles(membership_paid);
+CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX idx_user_profiles_role ON user_profiles(role);
+CREATE INDEX idx_user_profiles_status ON user_profiles(status);
+CREATE INDEX idx_user_profiles_membership_paid ON user_profiles(membership_paid);
 
 -- mentor_mentee_relationships indexes
-CREATE INDEX IF NOT EXISTS idx_mentor_mentee_relationships_mentor_id ON mentor_mentee_relationships(mentor_id);
-CREATE INDEX IF NOT EXISTS idx_mentor_mentee_relationships_mentee_id ON mentor_mentee_relationships(mentee_id);
-CREATE INDEX IF NOT EXISTS idx_mentor_mentee_relationships_mentor_mentee ON mentor_mentee_relationships(mentor_id, mentee_id);
-CREATE INDEX IF NOT EXISTS idx_mentor_mentee_relationships_status ON mentor_mentee_relationships(status);
+CREATE INDEX idx_mentor_mentee_relationships_mentor_id ON mentor_mentee_relationships(mentor_id);
+CREATE INDEX idx_mentor_mentee_relationships_mentee_id ON mentor_mentee_relationships(mentee_id);
+CREATE INDEX idx_mentor_mentee_relationships_mentor_mentee ON mentor_mentee_relationships(mentor_id, mentee_id);
+CREATE INDEX idx_mentor_mentee_relationships_status ON mentor_mentee_relationships(status);
 
 -- courses indexes
-CREATE INDEX IF NOT EXISTS idx_courses_mentor_id ON courses(mentor_id);
-CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status);
+CREATE INDEX idx_courses_mentor_id ON courses(mentor_id);
+CREATE INDEX idx_courses_status ON courses(status);
 
 -- course_enrollments indexes
-CREATE INDEX IF NOT EXISTS idx_course_enrollments_course_id ON course_enrollments(course_id);
-CREATE INDEX IF NOT EXISTS idx_course_enrollments_mentee_id ON course_enrollments(mentee_id);
-CREATE INDEX IF NOT EXISTS idx_course_enrollments_status ON course_enrollments(status);
+CREATE INDEX idx_course_enrollments_course_id ON course_enrollments(course_id);
+CREATE INDEX idx_course_enrollments_mentee_id ON course_enrollments(mentee_id);
+CREATE INDEX idx_course_enrollments_status ON course_enrollments(status);
 
 -- lessons indexes
-CREATE INDEX IF NOT EXISTS idx_lessons_course_id ON lessons(course_id);
-CREATE INDEX IF NOT EXISTS idx_lessons_mentor_id ON lessons(mentor_id);
-CREATE INDEX IF NOT EXISTS idx_lessons_order_index ON lessons(order_index);
+CREATE INDEX idx_lessons_course_id ON lessons(course_id);
+CREATE INDEX idx_lessons_mentor_id ON lessons(mentor_id);
+CREATE INDEX idx_lessons_order_index ON lessons(order_index);
 
 -- lesson_progress indexes
-CREATE INDEX IF NOT EXISTS idx_lesson_progress_lesson_id ON lesson_progress(lesson_id);
-CREATE INDEX IF NOT EXISTS idx_lesson_progress_mentee_id ON lesson_progress(mentee_id);
-CREATE INDEX IF NOT EXISTS idx_lesson_progress_completed ON lesson_progress(completed);
+CREATE INDEX idx_lesson_progress_lesson_id ON lesson_progress(lesson_id);
+CREATE INDEX idx_lesson_progress_mentee_id ON lesson_progress(mentee_id);
+CREATE INDEX idx_lesson_progress_completed ON lesson_progress(completed);
 
 -- tasks indexes
-CREATE INDEX IF NOT EXISTS idx_tasks_course_id ON tasks(course_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_mentor_id ON tasks(mentor_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX idx_tasks_course_id ON tasks(course_id);
+CREATE INDEX idx_tasks_mentor_id ON tasks(mentor_id);
+CREATE INDEX idx_tasks_status ON tasks(status);
 
 -- task_submissions indexes
-CREATE INDEX IF NOT EXISTS idx_task_submissions_task_id ON task_submissions(task_id);
-CREATE INDEX IF NOT EXISTS idx_task_submissions_mentee_id ON task_submissions(mentee_id);
-CREATE INDEX IF NOT EXISTS idx_task_submissions_status ON task_submissions(status);
+CREATE INDEX idx_task_submissions_task_id ON task_submissions(task_id);
+CREATE INDEX idx_task_submissions_mentee_id ON task_submissions(mentee_id);
+CREATE INDEX idx_task_submissions_status ON task_submissions(status);
 
 -- announcements indexes
-CREATE INDEX IF NOT EXISTS idx_announcements_mentor_id ON announcements(mentor_id);
-CREATE INDEX IF NOT EXISTS idx_announcements_target_audience ON announcements(target_audience);
-CREATE INDEX IF NOT EXISTS idx_announcements_published ON announcements(published);
-CREATE INDEX IF NOT EXISTS idx_announcements_target_course_id ON announcements(target_course_id);
+CREATE INDEX idx_announcements_mentor_id ON announcements(mentor_id);
+CREATE INDEX idx_announcements_target_audience ON announcements(target_audience);
+CREATE INDEX idx_announcements_published ON announcements(published);
+CREATE INDEX idx_announcements_target_course_id ON announcements(target_course_id);
 
 -- messages indexes
-CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
-CREATE INDEX IF NOT EXISTS idx_messages_recipient_id ON messages(recipient_id);
-CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(read);
+CREATE INDEX idx_messages_sender_id ON messages(sender_id);
+CREATE INDEX idx_messages_recipient_id ON messages(recipient_id);
+CREATE INDEX idx_messages_read ON messages(read);
 
 -- contract_files indexes
-CREATE INDEX IF NOT EXISTS idx_contract_files_user_id ON contract_files(user_id);
-CREATE INDEX IF NOT EXISTS idx_contract_files_storage_key ON contract_files(storage_key);
-CREATE INDEX IF NOT EXISTS idx_contract_files_storage_provider ON contract_files(storage_provider);
-CREATE INDEX IF NOT EXISTS idx_contract_files_upload_status ON contract_files(upload_status);
+CREATE INDEX idx_contract_files_user_id ON contract_files(user_id);
+CREATE INDEX idx_contract_files_storage_key ON contract_files(storage_key);
+CREATE INDEX idx_contract_files_storage_provider ON contract_files(storage_provider);
+CREATE INDEX idx_contract_files_upload_status ON contract_files(upload_status);
 
 -- =====================================================
 -- FUNCTIONS
