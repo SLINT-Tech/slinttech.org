@@ -8,8 +8,8 @@ interface ProtectedRouteProps {
   requirePayment?: boolean;
 }
 
-const ProtectedRoute = ({ 
-  children, 
+const ProtectedRoute = ({
+  children,
   requiredRole,
   requireApproval = true,
   requirePayment = true
@@ -39,10 +39,6 @@ const ProtectedRoute = ({
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (currentUser.status === 'pending') {
-    return <Navigate to="/pending-approval" replace />;
-  }
-
   if (currentUser.status === 'rejected') {
     const loginPath = currentUser.role === 'Mentor' ? '/mentor/login' : '/login';
     return <Navigate to={loginPath} replace />;
@@ -51,6 +47,10 @@ const ProtectedRoute = ({
   if (currentUser.status === 'suspended') {
     const loginPath = currentUser.role === 'Mentor' ? '/mentor/login' : '/login';
     return <Navigate to={loginPath} replace />;
+  }
+
+  if (requireApproval && currentUser.status === 'pending') {
+    return <Navigate to="/pending-approval" replace />;
   }
 
   if (requireApproval && currentUser.status !== 'approved') {
