@@ -5,9 +5,6 @@ import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME!;
-const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY!;
-const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -92,58 +89,27 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    console.log('Original Cloudinary URL:', user.contractFileUrl);
+    console.log('Fetching contract from Cloudinary:', user.contractFileUrl);
 
-    // Fetch the file directly from the stored URL using Basic Authentication
-    // Cloudinary accepts Basic Auth for private resources
-    const basicAuth = Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString('base64');
-
-    const cloudinaryResponse = await fetch(user.contractFileUrl, {
-      headers: {
-        'Authorization': `Basic ${basicAuth}`
-      }
-    });
-
-    console.log('Cloudinary response status:', cloudinaryResponse.status);
+    // Fetch the file directly from Cloudinary
+    // PDF delivery is enabled in Cloudinary settings, so no auth needed
+    const cloudinaryResponse = await fetch(user.contractFileUrl);
 
     if (!cloudinaryResponse.ok) {
       console.error('Cloudinary fetch failed:', cloudinaryResponse.status, cloudinaryResponse.statusText);
-
-      // If Basic Auth fails, try without auth (in case files are public)
-      const publicResponse = await fetch(user.contractFileUrl);
-
-      if (!publicResponse.ok) {
-        throw new Error(`Failed to fetch file from Cloudinary. Status: ${cloudinaryResponse.status}`);
-      }
-
-      // Use the public response
-      const fileBuffer = await publicResponse.arrayBuffer();
-      const sanitizedName = user.fullName
-        ? user.fullName.replace(/[^a-zA-Z0-9]/g, '_')
-        : 'user';
-      const downloadFileName = `${sanitizedName}_contract.pdf`;
-
-      return new Response(fileBuffer, {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${downloadFileName}"`,
-          'Content-Length': fileBuffer.byteLength.toString(),
-        }
-      });
+      throw new Error(`Failed to fetch file from Cloudinary. Status: ${cloudinaryResponse.status}`);
     }
 
     // Get the file as a buffer
     const fileBuffer = await cloudinaryResponse.arrayBuffer();
 
-    // Generate a clean filename
+    // Generate a clean filename (preserve spaces, remove special chars)
     const sanitizedName = user.fullName
-      ? user.fullName.replace(/[^a-zA-Z0-9]/g, '_')
+      ? user.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()
       : 'user';
     const downloadFileName = `${sanitizedName}_contract.pdf`;
 
-    console.log('Successfully fetched file, size:', fileBuffer.byteLength);
+    console.log('Successfully fetched file, size:', fileBuffer.byteLength, 'filename:', downloadFileName);
 
     // Stream the file back to the client with proper headers
     return new Response(fileBuffer, {
@@ -153,6 +119,7 @@ export default async (req: Request, context: Context) => {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${downloadFileName}"`,
         'Content-Length': fileBuffer.byteLength.toString(),
+        'Cache-Control': 'no-cache',
       }
     });
 
