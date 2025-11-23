@@ -313,13 +313,8 @@ const AdminDashboard = () => {
 
   const handleCreateUser = async () => {
     if (!isAdmin) return;
-    
+
     try {
-      // Check if admin client is available
-      if (!supabase) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
-      }
-      
       if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
         setToast({
           message: 'Please fill in all required fields.',
@@ -328,9 +323,10 @@ const AdminDashboard = () => {
         return;
       }
 
-      if (newUser.role === 'Mentee' && !newUser.careerPath) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newUser.email)) {
         setToast({
-          message: 'Career path is required for mentees.',
+          message: 'Please enter a valid email address.',
           type: 'error'
         });
         return;
@@ -338,64 +334,64 @@ const AdminDashboard = () => {
 
       const generatedPassword = newUser.password || generatePassword();
 
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: newUser.email,
-        password: generatedPassword,
-        email_confirm: true, // Auto-confirm email
-        user_metadata: {
-          full_name: newUser.fullName
-        }
+      if (generatedPassword.length < 8) {
+        setToast({
+          message: 'Password must be at least 8 characters long.',
+          type: 'error'
+        });
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('/.netlify/functions/admin-create-user', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: newUser.fullName,
+          email: newUser.email,
+          password: generatedPassword,
+          membershipCategory: newUser.membershipCategory,
+          careerPath: newUser.careerPath || null,
+          role: newUser.role,
+          status: newUser.status,
+          membershipEnabled: newUser.membershipEnabled,
+          membershipAmount: newUser.membershipAmount
+        })
       });
 
-      if (authError) {
-        throw authError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user');
       }
 
-      if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: authData.user.id,
-            full_name: newUser.fullName,
-            membership_category: newUser.membershipCategory,
-            career_path: newUser.careerPath,
-            role: newUser.role,
-            status: newUser.status,
-            specialization: newUser.role === 'Mentor' ? newUser.careerPath : null,
-            membership_enabled: newUser.role === 'Mentee' ? newUser.membershipEnabled : false,
-            membership_amount: newUser.membershipAmount,
-            membership_paid: false
-          });
+      setToast({
+        message: `User created successfully! Temporary password: ${generatedPassword}`,
+        type: 'success'
+      });
 
-        if (profileError) {
-          throw profileError;
-        }
+      setNewUser({
+        fullName: '',
+        email: '',
+        membershipCategory: '',
+        careerPath: '',
+        role: '',
+        status: 'pending',
+        password: '',
+        membershipEnabled: false,
+        membershipAmount: 30
+      });
+      setShowCreateModal(false);
 
-        setToast({
-          message: `User created successfully! Password: ${generatedPassword}`,
-          type: 'success'
-        });
-
-        // Reset form
-        setNewUser({
-          fullName: '',
-          email: '',
-          membershipCategory: '',
-          careerPath: '',
-          role: '',
-          status: 'pending',
-          password: '',
-          membershipEnabled: false,
-          membershipAmount: 30
-        });
-        setShowCreateModal(false);
-        
-        // Refresh users list
-        fetchUsers();
-        fetchStats();
-      }
+      fetchUsers();
+      fetchStats();
     } catch (error: any) {
       console.error('Error creating user:', error);
       setToast({
@@ -1290,34 +1286,43 @@ const AdminDashboard = () => {
            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={newUser.fullName}
                     onChange={(e) => setNewUser({...newUser, fullName: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                     placeholder="Enter full name"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                     placeholder="Enter email"
+                    required
                   />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Membership Category <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={newUser.membershipCategory}
                     onChange={(e) => setNewUser({...newUser, membershipCategory: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    required
                   >
                     <option value="">Select category</option>
                     <option value="Student">Student</option>
@@ -1326,11 +1331,14 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Role <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({...newUser, role: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    required
                   >
                     <option value="">Select role</option>
                     <option value="Admin">Admin</option>
@@ -1340,38 +1348,58 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
-                <select
-                  value={newUser.careerPath}
-                  onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                >
-                  <option value="">Select career path</option>
-                  {courseOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                  <select
+                    value={newUser.careerPath}
+                    onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  >
+                    <option value="">Select career path</option>
+                    {courseOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={newUser.status}
+                    onChange={(e) => setNewUser({...newUser, status: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password <span className="text-red-500">*</span>
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={newUser.password}
                     onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                     className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                    placeholder="Auto-generated password"
+                    placeholder="Click Generate or enter password"
+                    minLength={8}
+                    required
                   />
                   <button
                     type="button"
                     onClick={() => setNewUser({...newUser, password: generatePassword()})}
-                    className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer whitespace-nowrap"
                   >
                     Generate
                   </button>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
               </div>
 
               {/* Membership Settings - Only show for Mentees and Mentors */}
