@@ -446,9 +446,34 @@ const AdminDashboard = () => {
   const handleUpdateUser = async () => {
     if (!isAdmin || !selectedUser || isUpdating) return;
 
-    setIsUpdating(true);
-
     try {
+      if (!editingUser.fullName || !editingUser.email || !editingUser.membershipCategory || !editingUser.role) {
+        setToast({
+          message: 'Please fill in all required fields.',
+          type: 'error'
+        });
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(editingUser.email)) {
+        setToast({
+          message: 'Please enter a valid email address.',
+          type: 'error'
+        });
+        return;
+      }
+
+      if (editingUser.password && editingUser.password.length < 8) {
+        setToast({
+          message: 'Password must be at least 8 characters long.',
+          type: 'error'
+        });
+        return;
+      }
+
+      setIsUpdating(true);
+
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
