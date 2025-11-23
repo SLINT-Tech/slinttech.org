@@ -221,8 +221,13 @@ const AdminDashboard = () => {
     setIsLoadingMentors(true);
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        console.error('No token found');
+        setIsLoadingMentors(false);
+        return;
+      }
 
+      console.log('Fetching mentors...');
       const response = await fetch('/.netlify/functions/admin-get-mentors', {
         method: 'GET',
         headers: {
@@ -232,12 +237,22 @@ const AdminDashboard = () => {
       });
 
       if (!response.ok) {
-        console.error('Error fetching mentors');
+        const errorData = await response.json();
+        console.error('Error fetching mentors:', response.status, errorData);
+        setToast({
+          message: `Failed to load mentors: ${errorData.error || 'Unknown error'}`,
+          type: 'error'
+        });
         return;
       }
 
       const { mentors } = await response.json();
+      console.log('Mentors fetched:', mentors);
       setAvailableMentors(mentors || []);
+
+      if (!mentors || mentors.length === 0) {
+        console.warn('No approved mentors found in the database');
+      }
     } catch (error) {
       console.error('Error fetching mentors:', error);
       setToast({
@@ -1248,12 +1263,18 @@ const AdminDashboard = () => {
                           <select
                             value={assignment.mentor}
                             onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
-                            disabled={isLoadingMentors}
+                            disabled={isLoadingMentors || availableMentors.length === 0}
                             className={`w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm ${
-                              isLoadingMentors ? 'opacity-50 cursor-not-allowed' : ''
+                              isLoadingMentors || availableMentors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                           >
-                            <option value="">{isLoadingMentors ? 'Loading mentors...' : 'Select mentor'}</option>
+                            <option value="">
+                              {isLoadingMentors
+                                ? 'Loading mentors...'
+                                : availableMentors.length === 0
+                                  ? 'No approved mentors available'
+                                  : 'Select mentor'}
+                            </option>
                             {availableMentors.map(mentor => (
                               <option key={mentor.id} value={mentor.id}>
                                 {mentor.full_name} - {mentor.specialization}
@@ -1267,6 +1288,14 @@ const AdminDashboard = () => {
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                               Loading available mentors...
+                            </p>
+                          )}
+                          {!isLoadingMentors && availableMentors.length === 0 && (
+                            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                              No approved mentors in the system. Please approve mentors first.
                             </p>
                           )}
                         </div>
