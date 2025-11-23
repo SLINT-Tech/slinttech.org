@@ -183,8 +183,7 @@ export default async (req: Request, context: Context) => {
         {
           folder: 'contract_files',
           resource_type: 'raw',
-          public_id: `contract_${userId}_${Date.now()}`,
-          format: 'pdf',
+          public_id: `contract_${userId}_${Date.now()}.pdf`,
         },
         (error, result) => {
           if (error) {

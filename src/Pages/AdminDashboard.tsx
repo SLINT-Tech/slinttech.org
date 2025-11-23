@@ -310,12 +310,14 @@ const AdminDashboard = () => {
 
       // Get the filename from Content-Disposition header or use default
       const contentDisposition = response.headers.get('Content-Disposition');
-      let fileName = `${userName.replace(/[^a-zA-Z0-9]/g, '_')}_contract.pdf`;
+      let fileName = `${userName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`;
 
       if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
-        if (fileNameMatch && fileNameMatch[1]) {
-          fileName = fileNameMatch[1];
+        // Match filename with or without quotes, and extract just the name
+        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"|filename=([^\s;]+)/i);
+        if (fileNameMatch) {
+          // Use the quoted version (group 1) if available, otherwise the unquoted version (group 2)
+          fileName = fileNameMatch[1] || fileNameMatch[2];
         }
       }
 
