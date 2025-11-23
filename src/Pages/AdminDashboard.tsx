@@ -89,7 +89,7 @@ const AdminDashboard = () => {
     role: '',
     status: 'pending',
     password: '',
-    membershipEnabled: false,
+    membershipEnabled: true,
     membershipAmount: 30
   });
 
