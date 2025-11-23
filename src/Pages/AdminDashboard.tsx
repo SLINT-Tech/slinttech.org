@@ -529,7 +529,15 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = (user: UserProfile) => {
     if (!isAdmin) return;
-    
+
+    if (user.id === currentUser.id) {
+      setToast({
+        message: 'You cannot delete yourself',
+        type: 'error'
+      });
+      return;
+    }
+
     setUserToDelete(user);
     setShowDeleteModal(true);
   };
@@ -538,16 +546,26 @@ const AdminDashboard = () => {
     if (!isAdmin || !userToDelete) return;
 
     try {
-      // Check if admin client is available
-      if (!supabase) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
       }
-      
-      // Delete user from Supabase Auth (this will cascade to user_profiles due to foreign key)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userToDelete.id);
 
-      if (authError) {
-        throw authError;
+      const response = await fetch('/.netlify/functions/admin-delete-user', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userToDelete.id
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete user');
       }
 
       setToast({
@@ -880,12 +898,19 @@ const AdminDashboard = () => {
                           <button
                             onClick={() => handleViewUser(user)}
                             className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                            title="View user details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteUser(user)}
-                            className="text-red-600 hover:text-red-700 cursor-pointer"
+                            disabled={user.id === currentUser.id}
+                            className={`${
+                              user.id === currentUser.id
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : 'text-red-600 hover:text-red-700 cursor-pointer'
+                            }`}
+                            title={user.id === currentUser.id ? 'Cannot delete yourself' : 'Delete user'}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
