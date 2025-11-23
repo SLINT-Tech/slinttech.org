@@ -1450,7 +1450,7 @@ const AdminDashboard = () => {
                         When enabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        When disabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} can access dashboard immediately (marked as paid)
+                        When disabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} can access dashboard without payment requirement
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">

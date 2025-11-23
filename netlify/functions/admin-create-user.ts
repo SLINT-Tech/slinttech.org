@@ -152,7 +152,7 @@ export default async (req: Request, context: Context) => {
         specialization: role === 'Mentor' && careerPath ? careerPath : null,
         membershipEnabled: (role === 'Mentee' || role === 'Mentor') ? membershipEnabled : false,
         membershipAmount: membershipAmount.toString(),
-        membershipPaid: (role === 'Mentee' || role === 'Mentor') ? !membershipEnabled : true,
+        membershipPaid: false,
       })
       .returning({
         id: userProfiles.id,
