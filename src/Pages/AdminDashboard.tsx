@@ -94,6 +94,7 @@ const AdminDashboard = () => {
   });
 
   const [editingUser, setEditingUser] = useState({
+    fullName: '',
     password: '',
     email: '',
     membershipCategory: '',
@@ -315,7 +316,8 @@ const AdminDashboard = () => {
     }
 
     setEditingUser({
-      password: generatePassword(),
+      fullName: user.full_name || '',
+      password: '',
       email: user.email || '',
       membershipCategory: user.membership_category,
       careerPath: user.career_path,
@@ -419,59 +421,41 @@ const AdminDashboard = () => {
     setIsUpdating(true);
 
     try {
-      // Check if admin client is available
-      if (!supabase) {
-        throw new Error('Admin access not configured. Please check your environment variables.');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
       }
-      
-      // Update user profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .update({
-          membership_category: editingUser.membershipCategory,
-          career_path: editingUser.careerPath,
+
+      // Update user profile via Netlify function
+      const response = await fetch('/.netlify/functions/admin-update-user', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          fullName: editingUser.fullName,
+          email: editingUser.email,
+          password: editingUser.password || undefined,
+          membershipCategory: editingUser.membershipCategory,
+          careerPath: editingUser.careerPath,
           role: editingUser.role,
           status: editingUser.status,
-          discord_link: editingUser.discordLink,
-          membership_enabled: editingUser.membershipEnabled,
-          membership_amount: editingUser.membershipAmount,
-          specialization: editingUser.role === 'Mentor' ? editingUser.careerPath : null,
-          updated_at: new Date().toISOString()
+          discordLink: editingUser.discordLink,
+          membershipEnabled: editingUser.membershipEnabled,
+          membershipAmount: editingUser.membershipAmount
         })
-        .eq('id', selectedUser.id);
+      });
 
-      if (profileError) {
-        throw profileError;
-      }
+      const data = await response.json();
 
-      // Update email if changed
-      if (editingUser.email !== selectedUser.email) {
-        const { error: emailError } = await supabase.auth.admin.updateUserById(
-          selectedUser.id,
-          { email: editingUser.email }
-        );
-
-        if (emailError) {
-          console.error('Error updating email:', emailError);
-          // Don't throw error for email update failure
-        }
-      }
-
-      // Update password if provided
-      if (editingUser.password) {
-        const { error: passwordError } = await supabase.auth.admin.updateUserById(
-          selectedUser.id,
-          { password: editingUser.password }
-        );
-
-        if (passwordError) {
-          console.error('Error updating password:', passwordError);
-          // Don't throw error for password update failure
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update user');
       }
 
       // Handle mentor assignments for mentees
-      if (editingUser.role === 'Mentee') {
+      if (editingUser.role === 'Mentee' && supabase) {
         // Get existing assignments
         const { data: existingAssignments } = await supabase
           .from('mentor_mentee_relationships')
@@ -1023,8 +1007,13 @@ const AdminDashboard = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Details</h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Full Name</label>
-                      <p className="text-gray-900">{selectedUser.full_name}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <input
+                        type="text"
+                        value={editingUser.fullName}
+                        onChange={(e) => setEditingUser({...editingUser, fullName: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      />
                     </div>
                     <div>
                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -1169,6 +1158,9 @@ const AdminDashboard = () => {
                         </label>
                         <p className="text-xs text-gray-500">
                           When enabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          When disabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} can access dashboard without payment requirement
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
