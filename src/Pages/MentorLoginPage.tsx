@@ -53,8 +53,14 @@ const MentorLoginPage = () => {
             role: profile.role,
             status: 'pending',
             specialization: profile.specialization,
+            membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+            membershipAmount: profile.membershipAmount || profile.membership_amount,
+            membershipPaid: profile.membershipPaid || profile.membership_paid,
           };
           localStorage.setItem('currentUser', JSON.stringify(userData));
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
           navigate('/pending-approval');
           return;
         }
