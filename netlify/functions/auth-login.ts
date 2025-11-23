@@ -74,10 +74,17 @@ export default async (req: Request, context: Context) => {
 
     const { passwordHash, ...userWithoutPassword } = user;
 
+    const token = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    });
+
     if (user.status === 'pending') {
       return new Response(JSON.stringify({
         error: 'Your account is pending approval',
-        profile: userWithoutPassword
+        profile: userWithoutPassword,
+        token
       }), {
         status: 403,
         headers: corsHeaders
@@ -103,12 +110,6 @@ export default async (req: Request, context: Context) => {
         headers: corsHeaders
       });
     }
-
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role
-    });
 
     return new Response(JSON.stringify({
       token,
