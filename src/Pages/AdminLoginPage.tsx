@@ -2,10 +2,8 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-import { useAuth } from '../hooks/useAuth';
 
 const AdminLoginPage = () => {
-  const { signOut } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -26,47 +24,56 @@ const AdminLoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Sign in with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password
+      const response = await fetch('/.netlify/functions/auth-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
       });
 
-      if (authError) {
-        throw authError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
 
-      if (authData.user) {
-        // Get user profile from database
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', authData.user.id)
-          .single();
+      const profile = data.profile;
 
-        if (profileError) {
-          throw new Error('Failed to load user profile');
-        }
-
-        // Verify user is an admin
-        if (profile.role !== 'Admin') {
-          throw new Error('Access denied. Admin privileges required.');
-        }
-
-        // Store user data in localStorage
-        const userData = {
-          id: authData.user.id,
-          email: authData.user.email,
-          fullName: profile.full_name,
-          role: profile.role,
-          status: profile.status
-        };
-        
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        navigate('/admin/dashboard');
+      if (profile.role !== 'Admin') {
+        setToast({
+          message: 'Access denied. Admin privileges required.',
+          type: 'error'
+        });
+        setIsSubmitting(false);
+        return;
       }
+
+      const userData = {
+        id: profile.id,
+        email: profile.email,
+        fullName: profile.fullName || profile.full_name,
+        membershipCategory: profile.membershipCategory || profile.membership_category,
+        careerPath: profile.careerPath || profile.career_path,
+        role: profile.role,
+        status: profile.status,
+        specialization: profile.specialization,
+        membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+        membershipAmount: profile.membershipAmount || profile.membership_amount,
+        membershipPaid: profile.membershipPaid || profile.membership_paid,
+        paymentReference: profile.paymentReference || profile.payment_reference,
+        paymentDate: profile.paymentDate || profile.payment_date,
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      localStorage.setItem('token', data.token);
+
+      navigate('/admin/dashboard');
     } catch (error: any) {
       setToast({
         message: error.message || 'Login failed. Please check your credentials.',

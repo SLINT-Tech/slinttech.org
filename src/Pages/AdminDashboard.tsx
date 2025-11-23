@@ -717,8 +717,8 @@ const AdminDashboard = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-600">Admin Portal</span>
-              <button 
-                onClick={signOut}
+              <button
+                onClick={() => signOut('/admin/login')}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -748,9 +748,9 @@ const AdminDashboard = () => {
                 >
                   User Management
                 </Link>
-                <button 
+                <button
                   onClick={() => {
-                    signOut();
+                    signOut('/admin/login');
                     setIsMenuOpen(false);
                   }}
                   className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 text-left"
