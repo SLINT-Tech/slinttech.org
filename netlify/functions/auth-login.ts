@@ -72,22 +72,33 @@ export default async (req: Request, context: Context) => {
       });
     }
 
+    const { passwordHash, ...userWithoutPassword } = user;
+
     if (user.status === 'pending') {
-      return new Response(JSON.stringify({ error: 'Your account is pending approval' }), {
+      return new Response(JSON.stringify({
+        error: 'Your account is pending approval',
+        profile: userWithoutPassword
+      }), {
         status: 403,
         headers: corsHeaders
       });
     }
 
     if (user.status === 'rejected') {
-      return new Response(JSON.stringify({ error: 'Your account has been rejected' }), {
+      return new Response(JSON.stringify({
+        error: 'Your account has been rejected',
+        profile: userWithoutPassword
+      }), {
         status: 403,
         headers: corsHeaders
       });
     }
 
     if (user.status === 'suspended') {
-      return new Response(JSON.stringify({ error: 'Your account has been suspended' }), {
+      return new Response(JSON.stringify({
+        error: 'Your account has been suspended',
+        profile: userWithoutPassword
+      }), {
         status: 403,
         headers: corsHeaders
       });
@@ -98,8 +109,6 @@ export default async (req: Request, context: Context) => {
       email: user.email,
       role: user.role
     });
-
-    const { passwordHash, ...userWithoutPassword } = user;
 
     return new Response(JSON.stringify({
       token,

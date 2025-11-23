@@ -43,11 +43,16 @@ const MentorLoginPage = () => {
 
       if (!response.ok) {
         if (response.status === 403 && data.error.includes('pending approval')) {
+          const profile = data.profile;
           const userData = {
-            email: formData.email.trim(),
-            fullName: 'Mentor',
+            id: profile.id,
+            email: profile.email,
+            fullName: profile.fullName || profile.full_name,
+            membershipCategory: profile.membershipCategory || profile.membership_category,
+            careerPath: profile.careerPath || profile.career_path,
+            role: profile.role,
             status: 'pending',
-            role: 'Mentor',
+            specialization: profile.specialization,
           };
           localStorage.setItem('currentUser', JSON.stringify(userData));
           navigate('/pending-approval');
