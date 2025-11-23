@@ -2,10 +2,10 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-import { useAuth } from '../hooks/useAuth';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const LoginPage = () => {
-  const { signOut } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -26,72 +26,93 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Sign in with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password
+      const response = await fetch(`${API_BASE_URL}/auth-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
       });
 
-      if (authError) {
-        throw authError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 403 && data.error.includes('pending approval')) {
+          const userData = {
+            email: formData.email.trim(),
+            fullName: 'User',
+            status: 'pending',
+          };
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          navigate('/pending-approval');
+          return;
+        }
+        throw new Error(data.error || 'Login failed');
       }
 
-      if (authData.user) {
-        // Get user profile from database
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', authData.user.id)
-          .single();
+      const profile = data.profile;
+      const userData = {
+        id: profile.id,
+        email: profile.email,
+        fullName: profile.fullName || profile.full_name,
+        membershipCategory: profile.membershipCategory || profile.membership_category,
+        careerPath: profile.careerPath || profile.career_path,
+        role: profile.role,
+        status: profile.status,
+        specialization: profile.specialization,
+        membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+        membershipAmount: profile.membershipAmount || profile.membership_amount,
+        membershipPaid: profile.membershipPaid || profile.membership_paid,
+        paymentReference: profile.paymentReference || profile.payment_reference,
+        paymentDate: profile.paymentDate || profile.payment_date,
+      };
 
-        if (profileError) {
-          throw new Error('Failed to load user profile');
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      localStorage.setItem('token', data.token);
+
+      if (profile.status === 'pending') {
+        navigate('/pending-approval');
+        return;
+      }
+
+      if (profile.status === 'rejected') {
+        setToast({
+          message: 'Your account has been rejected. Please contact support.',
+          type: 'error'
+        });
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        return;
+      }
+
+      if (profile.status === 'suspended') {
+        setToast({
+          message: 'Your account has been suspended. Please contact support.',
+          type: 'error'
+        });
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        return;
+      }
+
+      if (profile.role === 'Admin') {
+        navigate('/admin/dashboard');
+      } else if (profile.role === 'Mentor') {
+        if (profile.membership_enabled && !profile.membership_paid) {
+          navigate('/payment');
+        } else {
+          navigate('/mentor/dashboard');
         }
-
-        // Store user data in localStorage for other components to access
-        const userData = {
-          id: authData.user.id,
-          email: authData.user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
-          role: profile.role,
-          status: profile.status,
-          specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date
-        };
-        
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Route based on user role and status
-        if (profile.role === 'Admin') {
-          navigate('/admin/dashboard');
-        } else if (profile.role === 'Mentor') {
-          if (profile.status === 'approved') {
-            if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
-            } else {
-              navigate('/mentor/dashboard');
-            }
-          } else {
-            navigate('/mentor/dashboard'); // Preview for pending mentors
-          }
-        } else { // Mentee
-          if (profile.status === 'approved') {
-            if (profile.membership_enabled && !profile.membership_paid) {
-              navigate('/payment-wall');
-            } else {
-              navigate('/dashboard');
-            }
-          } else {
-            navigate('/dashboard'); // Preview for pending mentees
-          }
+      } else {
+        if (profile.membership_enabled && !profile.membership_paid) {
+          navigate('/payment');
+        } else {
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {
@@ -106,15 +127,14 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
             </Link>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <X className="w-6 h-6" />
@@ -123,10 +143,8 @@ const LoginPage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-xl shadow-sm p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <img
               src="/assets/education.svg"
@@ -141,9 +159,7 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Address */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Email Address
@@ -159,7 +175,6 @@ const LoginPage = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Password
@@ -184,14 +199,12 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Forgot Password */}
             <div className="text-right">
               <a href="#" className="text-[#008080] text-sm font-medium hover:underline cursor-pointer">
                 Forgot your password?
               </a>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -211,7 +224,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Sign Up Link */}
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
             <p>
               Don't have an account?{' '}
@@ -223,7 +235,6 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Toast Notification */}
       {toast && (
         <Toast
           message={toast.message}
