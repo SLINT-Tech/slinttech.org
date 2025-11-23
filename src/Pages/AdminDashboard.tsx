@@ -5,25 +5,26 @@ import { UserProfile } from '../hooks/useAuth';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { Link } from 'react-router-dom';
+import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 
 interface UserProfile {
   id: string;
-  full_name: string;
+  fullName: string;
   email?: string;
-  membership_category: 'Student' | 'Professional' | 'Volunteer';
-  career_path: string;
+  membershipCategory: 'Student' | 'Professional' | 'Volunteer';
+  careerPath: string;
   role: 'Admin' | 'Mentor' | 'Mentee';
   status: 'pending' | 'approved' | 'rejected' | 'suspended';
   specialization?: string;
-  contract_file_url?: string;
-  membership_enabled: boolean;
-  membership_amount: number;
-  membership_paid: boolean;
-  payment_reference?: string;
-  payment_date?: string;
-  discord_link?: string;
-  created_at: string;
-  updated_at: string;
+  contractFileUrl?: string;
+  membershipEnabled: boolean;
+  membershipAmount: string;
+  membershipPaid: boolean;
+  paymentReference?: string;
+  paymentDate?: string;
+  discordLink?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface MentorOption {
@@ -119,24 +120,28 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
-    
+
     try {
       setIsLoadingUsers(true);
-      
-      // Call admin edge function
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('/.netlify/functions/admin-get-users', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'list_users',
           page: currentPage,
-          per_page: usersPerPage,
-          search: searchTerm || undefined,
-          role: filterRole !== 'all' ? filterRole : undefined,
-          membershipCategory: filterMembershipCategory !== 'all' ? filterMembershipCategory : undefined
+          perPage: usersPerPage,
+          search: searchTerm || '',
+          status: filterStatus,
+          role: filterRole,
+          membershipCategory: filterMembershipCategory
         })
       });
 
@@ -145,67 +150,10 @@ const AdminDashboard = () => {
         throw new Error(errorData.error || 'Failed to fetch users');
       }
 
-      const { data, count } = await response.json();
-      
-      // Calculate pagination
-      const from = (currentPage - 1) * usersPerPage;
-      const to = from + usersPerPage - 1;
-
-      // Build query
-      let query = supabase
-        .from('user_profiles')
-        .select('*', { count: 'exact' });
-
-      // Apply filters
-      if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
-      }
-
-      if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
-      }
-
-      if (filterRole !== 'all') {
-        query = query.eq('role', filterRole);
-      }
-
-      if (filterMembershipCategory !== 'all') {
-        query = query.eq('membership_category', filterMembershipCategory);
-      }
-
-      query = query.range(from, to);
-
-      // Apply pagination and ordering
-      query = query
-        .range(from, to)
-        .order('created_at', { ascending: false });
-
-      // Use Edge Function for secure admin operations
-      const usersResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'list_users',
-          page: currentPage,
-          per_page: itemsPerPage,
-          search: searchTerm || undefined,
-          role: filterRole !== 'all' ? filterRole : undefined,
-          membershipCategory: filterMembershipCategory !== 'all' ? filterMembershipCategory : undefined
-        })
-      });
-
-      if (!usersResponse.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch users');
-      }
-
-      const result = await usersResponse.json();
-      setUsers(result.data || []);
-      setTotalUsers(result.count || 0);
-      setTotalPages(Math.ceil((count || 0) / usersPerPage));
+      const result = await response.json();
+      setUsers(result.users || []);
+      setTotalUsers(result.totalCount || 0);
+      setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.error('Error fetching users:', error);
       setToast({
@@ -214,23 +162,25 @@ const AdminDashboard = () => {
       });
     } finally {
       setIsLoadingUsers(false);
+      setLoading(false);
     }
   };
 
   const fetchStats = async () => {
     if (!isAdmin) return;
-    
+
     try {
-      // Call admin edge function for stats
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-operations`, {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('/.netlify/functions/admin-get-stats', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'get_user_stats'
-        })
+        }
       });
 
       if (!response.ok) {
@@ -239,7 +189,6 @@ const AdminDashboard = () => {
       }
 
       const { stats: statsData } = await response.json();
-
       setStats(statsData);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -781,44 +730,48 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <Users className="w-8 h-8 text-[#008080]" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        {loading ? (
+          <StatsSkeletonLoader />
+        ) : (
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center">
+                <Users className="w-8 h-8 text-[#008080]" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Users</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Approved</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center">
+                <Calendar className="w-8 h-8 text-yellow-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Pending</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center">
+                <XCircle className="w-8 h-8 text-red-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Rejected</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
+                </div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Approved</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <Calendar className="w-8 h-8 text-yellow-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <XCircle className="w-8 h-8 text-red-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -862,9 +815,8 @@ const AdminDashboard = () => {
         {/* Users Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
           {isLoadingUsers ? (
-            <div className="p-8 text-center">
-              <div className="w-8 h-8 border-2 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading users...</p>
+            <div className="p-8">
+              <TableSkeletonLoader />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -888,7 +840,7 @@ const AdminDashboard = () => {
                             <User className="w-5 h-5 text-white" />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
+                            <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
                             <div className="text-sm text-gray-500">{user.email}</div>
                           </div>
                         </div>
@@ -899,7 +851,7 @@ const AdminDashboard = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.membership_category}
+                        {user.membershipCategory}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}>
@@ -907,7 +859,7 @@ const AdminDashboard = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.career_path}
+                        {user.careerPath}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
