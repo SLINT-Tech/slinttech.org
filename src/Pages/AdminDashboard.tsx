@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Download, CreditCard as Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { UserProfile } from '../hooks/useAuth';
