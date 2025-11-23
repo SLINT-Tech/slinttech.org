@@ -267,6 +267,21 @@ const AdminDashboard = () => {
     return password;
   };
 
+  // Reset create user form to defaults
+  const resetCreateUserForm = () => {
+    setNewUser({
+      fullName: '',
+      email: '',
+      membershipCategory: '',
+      careerPath: '',
+      role: '',
+      status: 'pending',
+      password: '',
+      membershipEnabled: true,
+      membershipAmount: 30
+    });
+  };
+
   const handleViewUser = async (user: UserProfile) => {
     if (!isAdmin) return;
     
@@ -382,17 +397,7 @@ const AdminDashboard = () => {
         type: 'success'
       });
 
-      setNewUser({
-        fullName: '',
-        email: '',
-        membershipCategory: '',
-        careerPath: '',
-        role: '',
-        status: 'pending',
-        password: '',
-        membershipEnabled: false,
-        membershipAmount: 30
-      });
+      resetCreateUserForm();
       setShowCreateModal(false);
 
       fetchUsers();
@@ -1306,7 +1311,10 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Create New User</h2>
                 <button
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => {
+                    resetCreateUserForm();
+                    setShowCreateModal(false);
+                  }}
                   className="text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
                   <X className="w-6 h-6" />
@@ -1490,7 +1498,10 @@ const AdminDashboard = () => {
 
              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => {
+                    resetCreateUserForm();
+                    setShowCreateModal(false);
+                  }}
                   disabled={isCreating}
                   className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
                     isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
