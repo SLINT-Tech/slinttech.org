@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { uploadContractToCloudinary } from '../lib/cloudinary';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -152,7 +154,7 @@ const SignUpPage = () => {
     try {
       let response;
       try {
-        response = await fetch('/.netlify/functions/auth/signup', {
+        response = await fetch(`${API_BASE_URL}/auth/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -205,7 +207,7 @@ const SignUpPage = () => {
       }
 
       try {
-        const updateResponse = await fetch('/.netlify/functions/auth/update-profile', {
+        const updateResponse = await fetch(`${API_BASE_URL}/auth/update-profile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

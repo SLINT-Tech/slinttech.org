@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 export interface UploadResult {
   success: boolean;
   url?: string;
@@ -14,7 +16,7 @@ export const uploadContractToCloudinary = async (
     formData.append('file', file);
     formData.append('userId', userId);
 
-    const response = await fetch('/.netlify/functions/upload-contract', {
+    const response = await fetch(`${API_BASE_URL}/upload-contract`, {
       method: 'POST',
       body: formData,
     });

@@ -1,4 +1,4 @@
-import { Handler } from '@netlify/functions';
+import type { Context } from '@netlify/functions';
 import { v2 as cloudinary } from 'cloudinary';
 import Busboy from 'busboy';
 import { Readable } from 'stream';
@@ -15,141 +15,151 @@ interface FileData {
   mimeType: string;
 }
 
-const parseMultipartForm = (event: any): Promise<{ fields: Record<string, string>; file: FileData | null }> => {
-  return new Promise((resolve, reject) => {
-    const fields: Record<string, string> = {};
-    let fileData: FileData | null = null;
-
-    const busboy = Busboy({
-      headers: {
-        'content-type': event.headers['content-type'] || event.headers['Content-Type'],
-      }
+export default async (req: Request, context: Context) => {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({
+      error: 'Method not allowed',
+      details: 'Only POST requests are accepted'
+    }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
     });
-
-    busboy.on('field', (fieldname, value) => {
-      fields[fieldname] = value;
-    });
-
-    busboy.on('file', (fieldname, file, info) => {
-      const { filename, mimeType } = info;
-      const chunks: Buffer[] = [];
-
-      file.on('data', (chunk) => {
-        chunks.push(chunk);
-      });
-
-      file.on('end', () => {
-        fileData = {
-          buffer: Buffer.concat(chunks),
-          filename,
-          mimeType,
-        };
-      });
-    });
-
-    busboy.on('finish', () => {
-      resolve({ fields, file: fileData });
-    });
-
-    busboy.on('error', (error) => {
-      reject(error);
-    });
-
-    const bodyBuffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
-    busboy.write(bodyBuffer);
-    busboy.end();
-  });
-};
-
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({
-        error: 'Method not allowed',
-        details: 'Only POST requests are accepted'
-      }),
-    };
   }
 
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     console.error('Cloudinary configuration missing');
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Server configuration error',
-        details: 'File upload service is not properly configured'
-      }),
-    };
+    return new Response(JSON.stringify({
+      error: 'Server configuration error',
+      details: 'File upload service is not properly configured'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
   try {
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.includes('multipart/form-data')) {
+      return new Response(JSON.stringify({
+        error: 'Invalid content type',
+        details: 'Request must be multipart/form-data'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const arrayBuffer = await req.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     let fields, file;
     try {
-      const parseResult = await parseMultipartForm(event);
+      const parseResult = await new Promise<{ fields: Record<string, string>; file: FileData | null }>((resolve, reject) => {
+        const fields: Record<string, string> = {};
+        let fileData: FileData | null = null;
+
+        const busboy = Busboy({
+          headers: {
+            'content-type': contentType
+          }
+        });
+
+        busboy.on('field', (fieldname, value) => {
+          fields[fieldname] = value;
+        });
+
+        busboy.on('file', (fieldname, file, info) => {
+          const { filename, mimeType } = info;
+          const chunks: Buffer[] = [];
+
+          file.on('data', (chunk) => {
+            chunks.push(chunk);
+          });
+
+          file.on('end', () => {
+            fileData = {
+              buffer: Buffer.concat(chunks),
+              filename,
+              mimeType,
+            };
+          });
+        });
+
+        busboy.on('finish', () => {
+          resolve({ fields, file: fileData });
+        });
+
+        busboy.on('error', (error) => {
+          reject(error);
+        });
+
+        busboy.write(buffer);
+        busboy.end();
+      });
+
       fields = parseResult.fields;
       file = parseResult.file;
     } catch (parseError: any) {
       console.error('Form parsing error:', parseError);
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Invalid file upload',
-          details: 'Unable to process the uploaded file. Please try again.'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'Invalid file upload',
+        details: 'Unable to process the uploaded file. Please try again.'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (!file) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'No file provided',
-          details: 'Please select a file to upload'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'No file provided',
+        details: 'Please select a file to upload'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const userId = fields.userId;
     if (!userId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Missing user ID',
-          details: 'User identification is required for file upload'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'Missing user ID',
+        details: 'User identification is required for file upload'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (file.mimeType !== 'application/pdf') {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Invalid file type',
-          details: 'Only PDF files are allowed. Please upload a PDF document.'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'Invalid file type',
+        details: 'Only PDF files are allowed. Please upload a PDF document.'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const maxFileSize = 10 * 1024 * 1024;
     if (file.buffer.length > maxFileSize) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'File too large',
-          details: 'File size must not exceed 10MB'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'File too large',
+        details: 'File size must not exceed 10MB'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (file.buffer.length === 0) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Empty file',
-          details: 'The uploaded file appears to be empty'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'Empty file',
+        details: 'The uploaded file appears to be empty'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const bufferStream = Readable.from(file.buffer);
@@ -182,43 +192,43 @@ export const handler: Handler = async (event) => {
       throw new Error('Upload completed but no URL was returned');
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        url: result.secure_url,
-        publicId: result.public_id,
-      }),
-    };
+    return new Response(JSON.stringify({
+      success: true,
+      url: result.secure_url,
+      publicId: result.public_id,
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error: any) {
     console.error('Upload error:', error);
 
     if (error.http_code === 401 || error.http_code === 403) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: 'Upload service authentication failed',
-          details: 'Unable to authenticate with file storage service. Please contact support.'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'Upload service authentication failed',
+        details: 'Unable to authenticate with file storage service. Please contact support.'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (error.http_code === 413) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'File too large',
-          details: 'The uploaded file exceeds the maximum allowed size'
-        }),
-      };
+      return new Response(JSON.stringify({
+        error: 'File too large',
+        details: 'The uploaded file exceeds the maximum allowed size'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Upload failed',
-        details: error.message || 'Unable to upload file. Please try again later.'
-      }),
-    };
+    return new Response(JSON.stringify({
+      error: 'Upload failed',
+      details: error.message || 'Unable to upload file. Please try again later.'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
