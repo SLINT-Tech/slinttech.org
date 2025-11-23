@@ -63,6 +63,7 @@ const AdminDashboard = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoadingAssignments, setIsLoadingAssignments] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -286,11 +287,26 @@ const AdminDashboard = () => {
   const handleViewUser = async (user: UserProfile) => {
     if (!isAdmin) return;
 
+    // Set user and show modal immediately
     setSelectedUser(user);
+    setEditingUser({
+      fullName: user.fullName || '',
+      password: '',
+      email: user.email || '',
+      membershipCategory: user.membershipCategory,
+      careerPath: user.careerPath,
+      role: user.role,
+      discordLink: user.discordLink || '',
+      mentorAssignments: [],
+      status: user.status,
+      membershipEnabled: user.membershipEnabled || false,
+      membershipAmount: user.membershipAmount || 30
+    });
+    setShowUserModal(true);
 
-    // Fetch existing mentor assignments for this user
-    let existingAssignments = [];
+    // Fetch mentor assignments in background if user is a Mentee
     if (user.role === 'Mentee') {
+      setIsLoadingAssignments(true);
       try {
         const token = localStorage.getItem('token');
         if (token) {
@@ -304,28 +320,22 @@ const AdminDashboard = () => {
 
           if (response.ok) {
             const { assignments } = await response.json();
-            existingAssignments = assignments || [];
+            setEditingUser(prev => ({
+              ...prev,
+              mentorAssignments: assignments || []
+            }));
           }
         }
       } catch (error) {
         console.error('Error fetching mentor assignments:', error);
+        setToast({
+          message: 'Failed to load mentor assignments',
+          type: 'error'
+        });
+      } finally {
+        setIsLoadingAssignments(false);
       }
     }
-
-    setEditingUser({
-      fullName: user.fullName || '',
-      password: '',
-      email: user.email || '',
-      membershipCategory: user.membershipCategory,
-      careerPath: user.careerPath,
-      role: user.role,
-      discordLink: user.discordLink || '',
-      mentorAssignments: existingAssignments,
-      status: user.status,
-      membershipEnabled: user.membershipEnabled || false,
-      membershipAmount: user.membershipAmount || 30
-    });
-    setShowUserModal(true);
   };
 
   const handleCreateUser = async () => {
@@ -954,8 +964,8 @@ const AdminDashboard = () => {
 
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn">
+         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-slideUp">
            <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">User Details & Management</h2>
@@ -1174,14 +1184,36 @@ const AdminDashboard = () => {
                     <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
                     <button
                       onClick={addMentorAssignment}
-                      className="px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 bg-[#008080] text-white hover:bg-teal-700 cursor-pointer"
+                      disabled={isLoadingAssignments}
+                      className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${
+                        isLoadingAssignments
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-[#008080] hover:bg-teal-700 cursor-pointer'
+                      } text-white`}
                     >
                       <Plus className="w-3 h-3" />
                       Assign Mentor
                     </button>
                   </div>
-                  
-                  {editingUser.mentorAssignments.map((assignment, index) => (
+
+                  {isLoadingAssignments ? (
+                    <div className="border border-gray-200 rounded-lg p-8 mb-3">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <svg className="animate-spin h-8 w-8 text-[#008080]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p className="text-sm text-gray-600">Loading mentor assignments...</p>
+                      </div>
+                    </div>
+                  ) : editingUser.mentorAssignments.length === 0 ? (
+                    <div className="border border-gray-200 rounded-lg p-6 mb-3 text-center">
+                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">No mentors assigned yet</p>
+                      <p className="text-xs text-gray-500 mt-1">Click "Assign Mentor" to add a mentor</p>
+                    </div>
+                  ) : (
+                    editingUser.mentorAssignments.map((assignment, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
                       <div className="flex justify-between items-start mb-3">
                         <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
@@ -1222,7 +1254,8 @@ const AdminDashboard = () => {
                         )}
                       </div>
                     </div>
-                  ))}
+                  ))
+                  )}
                 </div>
                 )}
               </div>
@@ -1240,10 +1273,11 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={handleUpdateUser}
-                  disabled={isUpdating}
+                  disabled={isUpdating || isLoadingAssignments}
                   className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isUpdating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
+                    isUpdating || isLoadingAssignments ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
                   }`}
+                  title={isLoadingAssignments ? 'Please wait for mentor assignments to load' : ''}
                 >
                   {isUpdating ? (
                     <>
@@ -1252,6 +1286,14 @@ const AdminDashboard = () => {
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Updating...
+                    </>
+                  ) : isLoadingAssignments ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading...
                     </>
                   ) : (
                     'Update User'
@@ -1265,8 +1307,8 @@ const AdminDashboard = () => {
 
       {/* Create User Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn">
+         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-slideUp">
            <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Create New User</h2>
