@@ -15,7 +15,7 @@ import MenteeDashboard from './Pages/MenteeDashboard';
 import AdminLoginPage from './Pages/AdminLoginPage';
 import AdminDashboard from './Pages/AdminDashboard';
 import MentorsPage from './Pages/MentorsPage';
-import LessonsPage from './Pages/LessonsPage'; 
+import LessonsPage from './Pages/LessonsPage';
 import TasksPage from './Pages/TasksPage';
 import TaskDetailPage from './Pages/TaskDetailPage';
 import MentorDetailPage from './Pages/MentorDetailPage';
@@ -30,6 +30,7 @@ import MenteeProfilePage from './Pages/MenteeProfilePage';
 import PendingApprovalPage from './Pages/PendingApprovalPage';
 import PaymentWallPage from './Pages/PaymentWallPage';
 import MentorProfilePage from './Pages/MentorProfilePage';
+import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
   return (
@@ -39,25 +40,110 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<MenteeDashboard />} />
-          <Route path="/profile" element={<MenteeProfilePage />} />
-          <Route path="/mentors" element={<MentorsPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/lessons" element={<LessonsPage />} />
-          <Route path="/tasks" element={<TasksPage />} />
-          <Route path="/task/:taskId" element={<TaskDetailPage />} />
-          <Route path="/mentor/:mentorId" element={<MentorDetailPage />} />
           <Route path="/mentor/login" element={<MentorLoginPage />} />
-          <Route path="/mentor/dashboard" element={<MentorDashboard />} />
-          <Route path="/mentor/mentees" element={<MentorMenteesPage />} />
-          <Route path="/mentor/mentee/:menteeId" element={<MentorMenteeDetailPage />} />
-          <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
-          <Route path="/mentor/course/:courseId" element={<MentorCourseDetailPage />} />
-          <Route path="/mentor/courses" element={<MentorCoursesPage />} />
-          <Route path="/mentor/profile" element={<MentorProfilePage />} />
-          <Route path="/pending-approval" element={<PendingApprovalPage />} />
-          <Route path="/payment-wall" element={<PaymentWallPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+
+          <Route path="/pending-approval" element={
+            <ProtectedRoute requireApproval={false} requirePayment={false}>
+              <PendingApprovalPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/payment-wall" element={
+            <ProtectedRoute requirePayment={false}>
+              <PaymentWallPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/profile" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeProfilePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentors" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/lessons" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <LessonsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/tasks" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <TasksPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/task/:taskId" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <TaskDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/:mentorId" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute requiredRole="Admin" requirePayment={false}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/dashboard" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/mentees" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorMenteesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/mentee/:menteeId" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorMenteeDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/submissions" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorSubmissionsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/course/:courseId" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorCourseDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/courses" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorCoursesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/profile" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorProfilePage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>
