@@ -275,6 +275,59 @@ const AdminDashboard = () => {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
+  const handleDownloadContract = async (userId: string, userName: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setToast({
+          message: 'Authentication required',
+          type: 'error'
+        });
+        return;
+      }
+
+      setToast({
+        message: 'Preparing download...',
+        type: 'success'
+      });
+
+      const response = await fetch(`/.netlify/functions/download-contract?userId=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to download contract');
+      }
+
+      const { downloadUrl, fileName } = await response.json();
+
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName || `${userName}_contract.pdf`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setToast({
+        message: 'Contract downloaded successfully!',
+        type: 'success'
+      });
+    } catch (error: any) {
+      console.error('Error downloading contract:', error);
+      setToast({
+        message: error.message || 'Failed to download contract',
+        type: 'error'
+      });
+    }
+  };
+
   // Generate random password
   const generatePassword = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -1114,20 +1167,39 @@ const AdminDashboard = () => {
                 
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Contract Document</h3>
-                  {selectedUser.contract_file_url ? (
-                    <div className="border border-gray-200 rounded-lg p-4">
+                  {selectedUser.contractFileUrl ? (
+                    <div className="border border-teal-100 bg-teal-50/50 rounded-lg p-4 hover:bg-teal-50 transition-colors">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <FileText className="w-5 h-5 text-gray-400 mr-2" />
-                          <span className="text-sm text-gray-900">Contract uploaded</span>
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="flex items-center justify-center w-10 h-10 bg-teal-100 rounded-lg">
+                            <FileText className="w-5 h-5 text-[#008080]" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">Membership Contract</p>
+                            <p className="text-xs text-gray-500">PDF Document</p>
+                          </div>
                         </div>
-                        <button className="p-3 text-[#008080] hover:text-teal-700 cursor-pointer">
+                        <button
+                          onClick={() => handleDownloadContract(selectedUser.id, selectedUser.fullName)}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                        >
                           <Download className="w-4 h-4" />
+                          <span className="text-sm font-medium">Download</span>
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-500">No contract uploaded</p>
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-lg">
+                          <FileText className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">No contract uploaded</p>
+                          <p className="text-xs text-gray-400">Contract document not available</p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
