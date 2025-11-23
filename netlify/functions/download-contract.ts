@@ -3,15 +3,11 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
-import { v2 as cloudinary } from 'cloudinary';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME!;
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY!;
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,6 +19,21 @@ interface JWTPayload {
   userId: string;
   email: string;
   role: string;
+}
+
+// Helper function to generate Cloudinary authenticated URL
+function generateAuthenticatedUrl(publicId: string): string {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const crypto = require('crypto');
+
+  // Create signature for authenticated URL
+  const stringToSign = `timestamp=${timestamp}&${publicId}${CLOUDINARY_API_SECRET}`;
+  const signature = crypto.createHash('sha1').update(stringToSign).digest('hex');
+
+  // Build authenticated URL
+  const authenticatedUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/${publicId}?api_key=${CLOUDINARY_API_KEY}&timestamp=${timestamp}&signature=${signature}`;
+
+  return authenticatedUrl;
 }
 
 export default async (req: Request, context: Context) => {
@@ -99,34 +110,59 @@ export default async (req: Request, context: Context) => {
     }
 
     // Extract public_id from Cloudinary URL
-    // Format: https://res.cloudinary.com/{cloud_name}/{resource_type}/{type}/v{version}/{public_id}.{format}
+    // URL format: https://res.cloudinary.com/{cloud_name}/raw/upload/v{version}/{folder}/{filename}.pdf
     const urlParts = user.contractFileUrl.split('/');
     const fileNameWithExt = urlParts[urlParts.length - 1];
-    const versionIndex = urlParts.findIndex(part => part.startsWith('v'));
-    const publicIdParts = urlParts.slice(versionIndex + 1);
-    const publicId = publicIdParts.join('/').replace(/\.[^/.]+$/, ''); // Remove extension
 
-    // Generate a signed URL with short expiration (5 minutes)
-    const signedUrl = cloudinary.url(publicId, {
-      resource_type: 'raw',
-      type: 'upload',
-      sign_url: true,
-      secure: true,
-      flags: 'attachment',
-      attachment: `${user.fullName || 'user'}_contract.pdf`
-    });
+    // Find the version part and extract everything after it (that's the public_id with extension)
+    const versionIndex = urlParts.findIndex(part => part.startsWith('v') && /^v\d+$/.test(part));
+    if (versionIndex === -1) {
+      throw new Error('Invalid Cloudinary URL format');
+    }
 
-    return new Response(JSON.stringify({
-      downloadUrl: signedUrl,
-      fileName: fileNameWithExt
-    }), {
+    // Get public_id (everything after version, including folder structure)
+    const publicIdWithExt = urlParts.slice(versionIndex + 1).join('/');
+
+    console.log('Original URL:', user.contractFileUrl);
+    console.log('Public ID with extension:', publicIdWithExt);
+
+    // Fetch the file from Cloudinary using authenticated URL
+    const authenticatedUrl = generateAuthenticatedUrl(publicIdWithExt);
+
+    console.log('Fetching from Cloudinary...');
+    const cloudinaryResponse = await fetch(authenticatedUrl);
+
+    if (!cloudinaryResponse.ok) {
+      console.error('Cloudinary fetch failed:', cloudinaryResponse.status, cloudinaryResponse.statusText);
+      throw new Error(`Failed to fetch file from Cloudinary: ${cloudinaryResponse.statusText}`);
+    }
+
+    // Get the file as a blob
+    const fileBuffer = await cloudinaryResponse.arrayBuffer();
+
+    // Generate a clean filename
+    const sanitizedName = user.fullName
+      ? user.fullName.replace(/[^a-zA-Z0-9]/g, '_')
+      : 'user';
+    const downloadFileName = `${sanitizedName}_contract.pdf`;
+
+    // Stream the file back to the client with proper headers
+    return new Response(fileBuffer, {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${downloadFileName}"`,
+        'Content-Length': fileBuffer.byteLength.toString(),
+      }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Download contract error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({
+      error: 'Internal server error',
+      details: error.message
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

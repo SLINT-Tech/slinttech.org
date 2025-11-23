@@ -287,7 +287,7 @@ const AdminDashboard = () => {
       }
 
       setToast({
-        message: 'Preparing download...',
+        message: 'Downloading contract...',
         type: 'success'
       });
 
@@ -295,25 +295,46 @@ const AdminDashboard = () => {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
         }
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to download contract');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to download contract');
+        } else {
+          throw new Error('Failed to download contract');
+        }
       }
 
-      const { downloadUrl, fileName } = await response.json();
+      // Get the filename from Content-Disposition header or use default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = `${userName.replace(/[^a-zA-Z0-9]/g, '_')}_contract.pdf`;
+
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1];
+        }
+      }
+
+      // Get the file as a blob
+      const blob = await response.blob();
+
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob);
 
       // Create a temporary link and trigger download
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName || `${userName}_contract.pdf`;
-      link.target = '_blank';
+      link.href = blobUrl;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
+
+      // Cleanup
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
 
       setToast({
         message: 'Contract downloaded successfully!',
