@@ -64,6 +64,7 @@ const AdminDashboard = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoadingAssignments, setIsLoadingAssignments] = useState(false);
+  const [isLoadingMentors, setIsLoadingMentors] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -217,6 +218,7 @@ const AdminDashboard = () => {
   const fetchAvailableMentors = async () => {
     if (!isAdmin) return;
 
+    setIsLoadingMentors(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -238,6 +240,12 @@ const AdminDashboard = () => {
       setAvailableMentors(mentors || []);
     } catch (error) {
       console.error('Error fetching mentors:', error);
+      setToast({
+        message: 'Failed to load mentors',
+        type: 'error'
+      });
+    } finally {
+      setIsLoadingMentors(false);
     }
   };
 
@@ -303,6 +311,11 @@ const AdminDashboard = () => {
       membershipAmount: user.membershipAmount || 30
     });
     setShowUserModal(true);
+
+    // Ensure mentors are loaded for the dropdown
+    if (availableMentors.length === 0) {
+      fetchAvailableMentors();
+    }
 
     // Fetch mentor assignments in background if user is a Mentee
     if (user.role === 'Mentee') {
@@ -609,13 +622,18 @@ const AdminDashboard = () => {
       ...editingUser,
       role: newRole
     };
-    
+
     // Clear mentor assignments if role is Mentor or Admin
     if (newRole === 'Mentor' || newRole === 'Admin') {
       updatedEditingUser.mentorAssignments = [];
       updatedEditingUser.membershipEnabled = false;
     }
-    
+
+    // Fetch mentors if changing to Mentee role and mentors not loaded
+    if (newRole === 'Mentee' && availableMentors.length === 0) {
+      fetchAvailableMentors();
+    }
+
     setEditingUser(updatedEditingUser);
   };
 
@@ -1147,7 +1165,6 @@ const AdminDashboard = () => {
                           checked={editingUser.membershipEnabled}
                           onChange={(e) => setEditingUser({...editingUser, membershipEnabled: e.target.checked})}
                           className="sr-only peer"
-                          disabled={editingUser.status !== 'approved'}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
                       </label>
@@ -1230,15 +1247,27 @@ const AdminDashboard = () => {
                           <select
                             value={assignment.mentor}
                             onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
+                            disabled={isLoadingMentors}
+                            className={`w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm ${
+                              isLoadingMentors ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                           >
-                            <option value="">Select mentor</option>
+                            <option value="">{isLoadingMentors ? 'Loading mentors...' : 'Select mentor'}</option>
                             {availableMentors.map(mentor => (
                               <option key={mentor.id} value={mentor.id}>
                                 {mentor.full_name} - {mentor.specialization}
                               </option>
                             ))}
                           </select>
+                          {isLoadingMentors && (
+                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                              <svg className="animate-spin h-3 w-3 text-[#008080]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Loading available mentors...
+                            </p>
+                          )}
                         </div>
                         {assignment.mentor && (
                           <div>
