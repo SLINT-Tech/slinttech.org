@@ -231,6 +231,20 @@ const SignUpPage = () => {
         type: 'success'
       });
 
+      const userInfo = {
+        id: data.userId,
+        email: formData.email.trim(),
+        fullName: formData.fullName.trim(),
+        membershipCategory: formData.membershipCategory,
+        careerPath: formData.careerPath,
+        role: formData.role,
+        status: 'pending',
+        membershipPaid: false,
+        contractFileUrl: uploadResult.url,
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(userInfo));
+
       setFormData({
         fullName: '',
         email: '',

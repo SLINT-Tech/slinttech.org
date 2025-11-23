@@ -23,14 +23,28 @@ const sanitizeInput = (input: string): string => {
   return input.trim().replace(/[<>]/g, '');
 };
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
+};
+
 export default async (req: Request, context: Context) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({
       error: 'Method not allowed',
       details: 'Only POST requests are accepted'
     }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -44,7 +58,7 @@ export default async (req: Request, context: Context) => {
         details: 'Request body must be valid JSON'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -56,7 +70,7 @@ export default async (req: Request, context: Context) => {
         details: 'Email, password, full name, and membership category are required'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -66,7 +80,7 @@ export default async (req: Request, context: Context) => {
         details: 'Please provide a valid email address'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -77,7 +91,7 @@ export default async (req: Request, context: Context) => {
         details: passwordValidation.error
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -87,7 +101,7 @@ export default async (req: Request, context: Context) => {
         details: 'Full name must be between 2 and 100 characters'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -98,7 +112,7 @@ export default async (req: Request, context: Context) => {
         details: 'Please select a valid membership category'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -110,7 +124,7 @@ export default async (req: Request, context: Context) => {
         details: 'Role must be either Mentee or Mentor'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -131,7 +145,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to check existing users. Please try again later.'
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -141,7 +155,7 @@ export default async (req: Request, context: Context) => {
         details: 'This email is already associated with an account. Please use a different email or try logging in.'
       }), {
         status: 409,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -155,7 +169,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to secure your password. Please try again.'
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -185,7 +199,7 @@ export default async (req: Request, context: Context) => {
           details: 'This email is already in use. Please use a different email.'
         }), {
           status: 409,
-          headers: { 'Content-Type': 'application/json' }
+          headers: corsHeaders
         });
       }
 
@@ -194,7 +208,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to create your account. Please try again later.'
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -204,7 +218,7 @@ export default async (req: Request, context: Context) => {
       userId: newUser.id
     }), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   } catch (error: any) {
     console.error('Unexpected signup error:', error);
@@ -213,7 +227,7 @@ export default async (req: Request, context: Context) => {
       details: 'An unexpected error occurred. Please try again later.'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 };

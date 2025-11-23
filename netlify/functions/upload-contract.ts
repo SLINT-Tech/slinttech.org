@@ -15,14 +15,28 @@ interface FileData {
   mimeType: string;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
+};
+
 export default async (req: Request, context: Context) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({
       error: 'Method not allowed',
       details: 'Only POST requests are accepted'
     }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -33,7 +47,7 @@ export default async (req: Request, context: Context) => {
       details: 'File upload service is not properly configured'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -45,7 +59,7 @@ export default async (req: Request, context: Context) => {
         details: 'Request must be multipart/form-data'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -106,7 +120,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to process the uploaded file. Please try again.'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -116,7 +130,7 @@ export default async (req: Request, context: Context) => {
         details: 'Please select a file to upload'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -127,7 +141,7 @@ export default async (req: Request, context: Context) => {
         details: 'User identification is required for file upload'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -137,7 +151,7 @@ export default async (req: Request, context: Context) => {
         details: 'Only PDF files are allowed. Please upload a PDF document.'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -148,7 +162,7 @@ export default async (req: Request, context: Context) => {
         details: 'File size must not exceed 10MB'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -158,7 +172,7 @@ export default async (req: Request, context: Context) => {
         details: 'The uploaded file appears to be empty'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -198,7 +212,7 @@ export default async (req: Request, context: Context) => {
       publicId: result.public_id,
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   } catch (error: any) {
     console.error('Upload error:', error);
@@ -209,7 +223,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to authenticate with file storage service. Please contact support.'
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -219,7 +233,7 @@ export default async (req: Request, context: Context) => {
         details: 'The uploaded file exceeds the maximum allowed size'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -228,7 +242,7 @@ export default async (req: Request, context: Context) => {
       details: error.message || 'Unable to upload file. Please try again later.'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 };

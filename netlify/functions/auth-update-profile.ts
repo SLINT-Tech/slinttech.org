@@ -3,14 +3,28 @@ import { db } from '../../src/db';
 import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
+};
+
 export default async (req: Request, context: Context) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({
       error: 'Method not allowed',
       details: 'Only POST requests are accepted'
     }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -24,7 +38,7 @@ export default async (req: Request, context: Context) => {
         details: 'Request body must be valid JSON'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -36,7 +50,7 @@ export default async (req: Request, context: Context) => {
         details: 'User ID and contract file URL are required'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -46,7 +60,7 @@ export default async (req: Request, context: Context) => {
         details: 'Contract file URL must be a secure HTTPS URL'
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -66,7 +80,7 @@ export default async (req: Request, context: Context) => {
           details: 'Unable to find user with the provided ID'
         }), {
           status: 404,
-          headers: { 'Content-Type': 'application/json' }
+          headers: corsHeaders
         });
       }
 
@@ -75,7 +89,7 @@ export default async (req: Request, context: Context) => {
         message: 'Profile updated successfully'
       }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     } catch (dbError) {
       console.error('Database update error:', dbError);
@@ -84,7 +98,7 @@ export default async (req: Request, context: Context) => {
         details: 'Unable to update profile. Please try again later.'
       }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
   } catch (error: any) {
@@ -94,7 +108,7 @@ export default async (req: Request, context: Context) => {
       details: 'An unexpected error occurred. Please try again later.'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 };

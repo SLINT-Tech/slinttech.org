@@ -13,15 +13,29 @@ interface JWTPayload {
   role: string;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
+};
+
 const generateToken = (payload: JWTPayload): string => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 };
 
 export default async (req: Request, context: Context) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -32,7 +46,7 @@ export default async (req: Request, context: Context) => {
     if (!email || !password) {
       return new Response(JSON.stringify({ error: 'Email and password are required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -45,7 +59,7 @@ export default async (req: Request, context: Context) => {
     if (!user) {
       return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -54,28 +68,28 @@ export default async (req: Request, context: Context) => {
     if (!validPassword) {
       return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
     if (user.status === 'pending') {
       return new Response(JSON.stringify({ error: 'Your account is pending approval' }), {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
     if (user.status === 'rejected') {
       return new Response(JSON.stringify({ error: 'Your account has been rejected' }), {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
     if (user.status === 'suspended') {
       return new Response(JSON.stringify({ error: 'Your account has been suspended' }), {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -92,13 +106,13 @@ export default async (req: Request, context: Context) => {
       profile: userWithoutPassword
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   } catch (error) {
     console.error('Login error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 };
