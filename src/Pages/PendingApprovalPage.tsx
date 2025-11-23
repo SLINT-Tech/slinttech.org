@@ -1,11 +1,16 @@
 import { Clock, Mail, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { logout } from '../lib/auth';
 
 const PendingApprovalPage = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  
+
   // Check if user is a mentor
   const isMentor = currentUser.role === 'Mentor';
+
+  const handleLogout = () => {
+    logout('/login');
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -17,12 +22,12 @@ const PendingApprovalPage = () => {
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
             </Link>
-            <Link 
-              to="/login" 
+            <button
+              onClick={handleLogout}
               className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
             >
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </header>

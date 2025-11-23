@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { logout } from '../lib/auth';
 
 export interface UserProfile {
   id: string;
@@ -26,7 +27,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
 
       if (!token) {
         setLoading(false);
@@ -45,10 +46,12 @@ export const useAuth = () => {
           setProfile(data.profile);
         } else {
           localStorage.removeItem('authToken');
+          localStorage.removeItem('token');
         }
       } catch (error) {
         console.error('Error checking auth:', error);
         localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
       }
 
       setLoading(false);
@@ -57,24 +60,9 @@ export const useAuth = () => {
     checkAuth();
   }, []);
 
-  const signOut = async () => {
-    try {
-      localStorage.removeItem('authToken');
-      sessionStorage.clear();
-
-      document.cookie.split(";").forEach((c) => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-
-      setProfile(null);
-      console.log('Successfully logged out and cleared all data');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      localStorage.clear();
-      sessionStorage.clear();
-    }
+  const signOut = (redirectTo: string = '/login') => {
+    setProfile(null);
+    logout(redirectTo);
   };
 
   return {
