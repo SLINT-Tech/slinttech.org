@@ -60,6 +60,9 @@ const AdminDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -312,7 +315,7 @@ const AdminDashboard = () => {
   };
 
   const handleCreateUser = async () => {
-    if (!isAdmin) return;
+    if (!isAdmin || isCreating) return;
 
     try {
       if (!newUser.fullName || !newUser.email || !newUser.membershipCategory || !newUser.role) {
@@ -341,6 +344,8 @@ const AdminDashboard = () => {
         });
         return;
       }
+
+      setIsCreating(true);
 
       const token = localStorage.getItem('token');
       if (!token) {
@@ -398,11 +403,15 @@ const AdminDashboard = () => {
         message: error.message || 'Failed to create user. Please try again.',
         type: 'error'
       });
+    } finally {
+      setIsCreating(false);
     }
   };
 
   const handleUpdateUser = async () => {
-    if (!isAdmin || !selectedUser) return;
+    if (!isAdmin || !selectedUser || isUpdating) return;
+
+    setIsUpdating(true);
 
     try {
       // Check if admin client is available
@@ -520,6 +529,8 @@ const AdminDashboard = () => {
         message: error.message || 'Failed to update user. Please try again.',
         type: 'error'
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -539,7 +550,9 @@ const AdminDashboard = () => {
   };
 
   const confirmDeleteUser = async () => {
-    if (!isAdmin || !userToDelete) return;
+    if (!isAdmin || !userToDelete || isDeleting) return;
+
+    setIsDeleting(true);
 
     try {
       const token = localStorage.getItem('token');
@@ -579,6 +592,8 @@ const AdminDashboard = () => {
         message: error.message || 'Failed to delete user. Please try again.',
         type: 'error'
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1251,15 +1266,31 @@ const AdminDashboard = () => {
              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowUserModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  disabled={isUpdating}
+                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
+                    isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpdateUser}
-                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                  disabled={isUpdating}
+                  className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${
+                    isUpdating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
+                  }`}
                 >
-                  Update User
+                  {isUpdating ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Updating...
+                    </>
+                  ) : (
+                    'Update User'
+                  )}
                 </button>
               </div>
             </div>
@@ -1457,15 +1488,31 @@ const AdminDashboard = () => {
              <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  disabled={isCreating}
+                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
+                    isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateUser}
-                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                  disabled={isCreating}
+                  className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${
+                    isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
+                  }`}
                 >
-                  Create User
+                  {isCreating ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create User'
+                  )}
                 </button>
               </div>
             </div>
@@ -1516,15 +1563,31 @@ const AdminDashboard = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  disabled={isDeleting}
+                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
+                    isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteUser}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+                  disabled={isDeleting}
+                  className={`px-4 py-2 bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2 ${
+                    isDeleting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700 cursor-pointer'
+                  }`}
                 >
-                  Delete User
+                  {isDeleting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete User'
+                  )}
                 </button>
               </div>
             </div>
