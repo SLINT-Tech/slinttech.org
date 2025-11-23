@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Download, Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { UserProfile } from '../hooks/useAuth';
@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { Link } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface UserProfile {
   id: string;
@@ -59,13 +60,15 @@ const AdminDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const usersPerPage = 10;
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -112,11 +115,22 @@ const AdminDashboard = () => {
       });
       return;
     }
-    
-    fetchUsers();
+
     fetchStats();
     fetchAvailableMentors();
-  }, [currentPage, searchTerm, filterStatus, filterRole, isAdmin]);
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, filterStatus, filterRole, filterMembershipCategory]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    fetchUsers();
+  }, [currentPage, debouncedSearchTerm, filterStatus, filterRole, filterMembershipCategory]);
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -138,7 +152,7 @@ const AdminDashboard = () => {
         body: JSON.stringify({
           page: currentPage,
           perPage: usersPerPage,
-          search: searchTerm || '',
+          search: debouncedSearchTerm || '',
           status: filterStatus,
           role: filterRole,
           membershipCategory: filterMembershipCategory
@@ -886,57 +900,60 @@ const AdminDashboard = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {((currentPage - 1) * usersPerPage) + 1} to {Math.min(currentPage * usersPerPage, totalUsers)} of {totalUsers} users
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1 || isLoadingUsers}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Previous
-              </button>
-              
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      disabled={isLoadingUsers}
-                      className={`px-3 py-2 rounded-lg cursor-pointer ${
-                        currentPage === pageNum
-                          ? 'bg-[#008080] text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
+        {!isLoadingUsers && totalPages > 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-6 mt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-gray-600">
+                Showing <span className="font-semibold text-gray-900">{((currentPage - 1) * usersPerPage) + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(currentPage * usersPerPage, totalUsers)}</span> of <span className="font-semibold text-gray-900">{totalUsers}</span> users
               </div>
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || isLoadingUsers}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Next
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
+                          currentPage === pageNum
+                            ? 'bg-[#008080] text-white shadow-md'
+                            : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}
