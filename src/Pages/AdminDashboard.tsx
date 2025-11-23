@@ -215,26 +215,26 @@ const AdminDashboard = () => {
 
   const fetchAvailableMentors = async () => {
     if (!isAdmin) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, full_name, specialization, career_path')
-        .eq('role', 'Mentor')
-        .eq('status', 'approved');
 
-      if (error) {
-        console.error('Error fetching mentors:', error);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('/.netlify/functions/admin-get-mentors', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Error fetching mentors');
         return;
       }
 
-      const mentors = data?.map(mentor => ({
-        id: mentor.id,
-        full_name: mentor.full_name,
-        specialization: mentor.specialization || mentor.career_path
-      })) || [];
-
-      setAvailableMentors(mentors);
+      const { mentors } = await response.json();
+      setAvailableMentors(mentors || []);
     } catch (error) {
       console.error('Error fetching mentors:', error);
     }
@@ -285,30 +285,27 @@ const AdminDashboard = () => {
 
   const handleViewUser = async (user: UserProfile) => {
     if (!isAdmin) return;
-    
+
     setSelectedUser(user);
-    
+
     // Fetch existing mentor assignments for this user
     let existingAssignments = [];
     if (user.role === 'Mentee') {
       try {
-        const { data: relationships, error } = await supabase
-          .from('mentor_mentee_relationships')
-          .select(`
-            id,
-            mentor_id,
-            course_name,
-            user_profiles!mentor_id(full_name, specialization, career_path)
-          `)
-          .eq('mentee_id', user.id);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await fetch(`/.netlify/functions/admin-get-mentor-assignments?menteeId=${user.id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            }
+          });
 
-        if (!error && relationships) {
-          existingAssignments = relationships.map(rel => ({
-            id: rel.id,
-            mentor: rel.mentor_id,
-            courseName: rel.course_name,
-            mentorName: rel.user_profiles?.full_name || 'Unknown Mentor'
-          }));
+          if (response.ok) {
+            const { assignments } = await response.json();
+            existingAssignments = assignments || [];
+          }
         }
       } catch (error) {
         console.error('Error fetching mentor assignments:', error);
@@ -316,17 +313,17 @@ const AdminDashboard = () => {
     }
 
     setEditingUser({
-      fullName: user.full_name || '',
+      fullName: user.fullName || '',
       password: '',
       email: user.email || '',
-      membershipCategory: user.membership_category,
-      careerPath: user.career_path,
+      membershipCategory: user.membershipCategory,
+      careerPath: user.careerPath,
       role: user.role,
-      discordLink: user.discord_link || '',
+      discordLink: user.discordLink || '',
       mentorAssignments: existingAssignments,
       status: user.status,
-      membershipEnabled: user.membership_enabled || false,
-      membershipAmount: user.membership_amount || 30
+      membershipEnabled: user.membershipEnabled || false,
+      membershipAmount: user.membershipAmount || 30
     });
     setShowUserModal(true);
   };
@@ -455,52 +452,23 @@ const AdminDashboard = () => {
       }
 
       // Handle mentor assignments for mentees
-      if (editingUser.role === 'Mentee' && supabase) {
-        // Get existing assignments
-        const { data: existingAssignments } = await supabase
-          .from('mentor_mentee_relationships')
-          .select('id, mentor_id, course_name')
-          .eq('mentee_id', selectedUser.id);
+      if (editingUser.role === 'Mentee') {
+        const assignmentResponse = await fetch('/.netlify/functions/admin-update-mentor-assignments', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            menteeId: selectedUser.id,
+            assignments: editingUser.mentorAssignments
+          })
+        });
 
-        const existingIds = existingAssignments?.map(a => a.id) || [];
-        const newAssignmentIds = editingUser.mentorAssignments
-          .filter(a => a.id)
-          .map(a => a.id);
-
-        // Remove deleted assignments
-        const toDelete = existingIds.filter(id => !newAssignmentIds.includes(id));
-        if (toDelete.length > 0) {
-          await supabase
-            .from('mentor_mentee_relationships')
-            .delete()
-            .in('id', toDelete);
-        }
-
-        // Add new assignments
-        const newAssignments = editingUser.mentorAssignments.filter(a => !a.id);
-        if (newAssignments.length > 0) {
-          const assignmentsToInsert = newAssignments.map(assignment => ({
-            mentor_id: assignment.mentor,
-            mentee_id: selectedUser.id,
-            course_name: assignment.courseName || 'General Mentorship',
-            status: 'active',
-            progress_percentage: 0
-          }));
-
-          await supabase
-            .from('mentor_mentee_relationships')
-            .insert(assignmentsToInsert);
-        }
-
-        // Update existing assignments
-        for (const assignment of editingUser.mentorAssignments.filter(a => a.id)) {
-          await supabase
-            .from('mentor_mentee_relationships')
-            .update({
-              mentor_id: assignment.mentor,
-              course_name: assignment.courseName || 'General Mentorship'
-            })
-            .eq('id', assignment.id);
+        if (!assignmentResponse.ok) {
+          const assignmentError = await assignmentResponse.json();
+          console.error('Error updating mentor assignments:', assignmentError);
+          // Don't throw error for mentor assignment update failure
         }
       }
 
