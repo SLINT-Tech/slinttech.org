@@ -26,7 +26,7 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/.netlify/functions/auth-login', {
+      const response = await fetch('/.netlify/functions/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,15 +44,6 @@ const AdminLoginPage = () => {
       }
 
       const profile = data.profile;
-
-      if (profile.role !== 'Admin') {
-        setToast({
-          message: 'Access denied. Admin privileges required.',
-          type: 'error'
-        });
-        setIsSubmitting(false);
-        return;
-      }
 
       const userData = {
         id: profile.id,

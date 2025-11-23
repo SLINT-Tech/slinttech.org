@@ -63,9 +63,9 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    // Check if user is a mentee (regular users)
-    if (user.role !== 'Mentee') {
-      return new Response(JSON.stringify({ error: 'Please use the appropriate login page for your account type.' }), {
+    // Check if user is an admin
+    if (user.role !== 'Admin') {
+      return new Response(JSON.stringify({ error: 'Access denied. Admin privileges required.' }), {
         status: 403,
         headers: corsHeaders
       });
@@ -127,7 +127,7 @@ export default async (req: Request, context: Context) => {
       headers: corsHeaders
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Admin login error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: corsHeaders

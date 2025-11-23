@@ -28,7 +28,7 @@ const MentorLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth-login`, {
+      const response = await fetch(`${API_BASE_URL}/mentor-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,15 +68,6 @@ const MentorLoginPage = () => {
       }
 
       const profile = data.profile;
-
-      if (profile.role !== 'Mentor') {
-        setToast({
-          message: 'This login is for mentors only. Please use the regular login page.',
-          type: 'error'
-        });
-        setIsSubmitting(false);
-        return;
-      }
 
       const userData = {
         id: profile.id,

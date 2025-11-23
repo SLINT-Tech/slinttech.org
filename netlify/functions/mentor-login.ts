@@ -63,9 +63,9 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    // Check if user is a mentee (regular users)
-    if (user.role !== 'Mentee') {
-      return new Response(JSON.stringify({ error: 'Please use the appropriate login page for your account type.' }), {
+    // Check if user is a mentor
+    if (user.role !== 'Mentor') {
+      return new Response(JSON.stringify({ error: 'This login is for mentors only. Please use the appropriate login page.' }), {
         status: 403,
         headers: corsHeaders
       });
@@ -127,7 +127,7 @@ export default async (req: Request, context: Context) => {
       headers: corsHeaders
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Mentor login error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: corsHeaders
