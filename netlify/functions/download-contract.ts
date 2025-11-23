@@ -21,21 +21,6 @@ interface JWTPayload {
   role: string;
 }
 
-// Helper function to generate Cloudinary authenticated URL
-function generateAuthenticatedUrl(publicId: string): string {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const crypto = require('crypto');
-
-  // Create signature for authenticated URL
-  const stringToSign = `timestamp=${timestamp}&${publicId}${CLOUDINARY_API_SECRET}`;
-  const signature = crypto.createHash('sha1').update(stringToSign).digest('hex');
-
-  // Build authenticated URL
-  const authenticatedUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/${publicId}?api_key=${CLOUDINARY_API_KEY}&timestamp=${timestamp}&signature=${signature}`;
-
-  return authenticatedUrl;
-}
-
 export default async (req: Request, context: Context) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -83,8 +68,6 @@ export default async (req: Request, context: Context) => {
     }
 
     // Check authorization
-    // Admins can download any contract
-    // Regular users can only download their own contract
     if (decoded.role !== 'Admin' && decoded.userId !== targetUserId) {
       return new Response(JSON.stringify({ error: 'Access denied. You can only download your own contract.' }), {
         status: 403,
@@ -109,35 +92,49 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    // Extract public_id from Cloudinary URL
-    // URL format: https://res.cloudinary.com/{cloud_name}/raw/upload/v{version}/{folder}/{filename}.pdf
-    const urlParts = user.contractFileUrl.split('/');
-    const fileNameWithExt = urlParts[urlParts.length - 1];
+    console.log('Original Cloudinary URL:', user.contractFileUrl);
 
-    // Find the version part and extract everything after it (that's the public_id with extension)
-    const versionIndex = urlParts.findIndex(part => part.startsWith('v') && /^v\d+$/.test(part));
-    if (versionIndex === -1) {
-      throw new Error('Invalid Cloudinary URL format');
-    }
+    // Fetch the file directly from the stored URL using Basic Authentication
+    // Cloudinary accepts Basic Auth for private resources
+    const basicAuth = Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString('base64');
 
-    // Get public_id (everything after version, including folder structure)
-    const publicIdWithExt = urlParts.slice(versionIndex + 1).join('/');
+    const cloudinaryResponse = await fetch(user.contractFileUrl, {
+      headers: {
+        'Authorization': `Basic ${basicAuth}`
+      }
+    });
 
-    console.log('Original URL:', user.contractFileUrl);
-    console.log('Public ID with extension:', publicIdWithExt);
-
-    // Fetch the file from Cloudinary using authenticated URL
-    const authenticatedUrl = generateAuthenticatedUrl(publicIdWithExt);
-
-    console.log('Fetching from Cloudinary...');
-    const cloudinaryResponse = await fetch(authenticatedUrl);
+    console.log('Cloudinary response status:', cloudinaryResponse.status);
 
     if (!cloudinaryResponse.ok) {
       console.error('Cloudinary fetch failed:', cloudinaryResponse.status, cloudinaryResponse.statusText);
-      throw new Error(`Failed to fetch file from Cloudinary: ${cloudinaryResponse.statusText}`);
+
+      // If Basic Auth fails, try without auth (in case files are public)
+      const publicResponse = await fetch(user.contractFileUrl);
+
+      if (!publicResponse.ok) {
+        throw new Error(`Failed to fetch file from Cloudinary. Status: ${cloudinaryResponse.status}`);
+      }
+
+      // Use the public response
+      const fileBuffer = await publicResponse.arrayBuffer();
+      const sanitizedName = user.fullName
+        ? user.fullName.replace(/[^a-zA-Z0-9]/g, '_')
+        : 'user';
+      const downloadFileName = `${sanitizedName}_contract.pdf`;
+
+      return new Response(fileBuffer, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${downloadFileName}"`,
+          'Content-Length': fileBuffer.byteLength.toString(),
+        }
+      });
     }
 
-    // Get the file as a blob
+    // Get the file as a buffer
     const fileBuffer = await cloudinaryResponse.arrayBuffer();
 
     // Generate a clean filename
@@ -145,6 +142,8 @@ export default async (req: Request, context: Context) => {
       ? user.fullName.replace(/[^a-zA-Z0-9]/g, '_')
       : 'user';
     const downloadFileName = `${sanitizedName}_contract.pdf`;
+
+    console.log('Successfully fetched file, size:', fileBuffer.byteLength);
 
     // Stream the file back to the client with proper headers
     return new Response(fileBuffer, {

@@ -291,7 +291,7 @@ const AdminDashboard = () => {
         type: 'success'
       });
 
-      const response = await fetch(`/.netlify/functions/download-contract?userId=${userId}`, {
+      const response = await fetch(`/api/download-contract?userId=${userId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
