@@ -31,24 +31,31 @@ const SignUpPage = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       if (file.type !== 'application/pdf') {
         setToast({
-          message: 'Please upload a PDF file only.',
+          message: 'Invalid file type. Please upload a PDF file only.',
           type: 'error'
         });
-        e.target.value = ''; // Clear the input
+        e.target.value = '';
         return;
       }
 
-      // Validate file size (1MB = 1 * 1024 * 1024 bytes)
-      const maxSize = 1 * 1024 * 1024;
+      const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
         setToast({
-          message: 'File size must be less than 1MB.',
+          message: 'File too large. Maximum file size is 10MB.',
           type: 'error'
         });
-        e.target.value = ''; // Clear the input
+        e.target.value = '';
+        return;
+      }
+
+      if (file.size === 0) {
+        setToast({
+          message: 'Empty file detected. Please select a valid PDF file.',
+          type: 'error'
+        });
+        e.target.value = '';
         return;
       }
 
@@ -58,7 +65,7 @@ const SignUpPage = () => {
       }));
 
       setToast({
-        message: 'Contract uploaded successfully!',
+        message: 'Contract file selected successfully!',
         type: 'success'
       });
     }
@@ -66,17 +73,40 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
+
+    if (!formData.fullName.trim()) {
       setToast({
-        message: 'Passwords do not match.',
+        message: 'Please enter your full name.',
         type: 'error'
       });
       return;
     }
 
-    // Validate password length
+    if (formData.fullName.trim().length < 2) {
+      setToast({
+        message: 'Full name must be at least 2 characters long.',
+        type: 'error'
+      });
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setToast({
+        message: 'Please enter your email address.',
+        type: 'error'
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setToast({
+        message: 'Please enter a valid email address.',
+        type: 'error'
+      });
+      return;
+    }
+
     if (formData.password.length < 6) {
       setToast({
         message: 'Password must be at least 6 characters long.',
@@ -85,47 +115,96 @@ const SignUpPage = () => {
       return;
     }
 
-    // Check if contract file is uploaded
-    if (!formData.contractFile) {
+    if (formData.password !== formData.confirmPassword) {
       setToast({
-        message: 'Please upload the signed agreement document before submitting.',
+        message: 'Passwords do not match. Please check and try again.',
         type: 'error'
       });
       return;
     }
-    
+
+    if (!formData.membershipCategory) {
+      setToast({
+        message: 'Please select a membership category.',
+        type: 'error'
+      });
+      return;
+    }
+
+    if (!formData.careerPath) {
+      setToast({
+        message: `Please select your ${formData.role === 'Mentor' ? 'specialization' : 'career path'}.`,
+        type: 'error'
+      });
+      return;
+    }
+
+    if (!formData.contractFile) {
+      setToast({
+        message: 'Please upload the signed membership agreement before submitting.',
+        type: 'error'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/.netlify/functions/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName,
-          membershipCategory: formData.membershipCategory,
-          careerPath: formData.careerPath,
-          role: formData.role,
-          specialization: formData.role === 'Mentor' ? formData.careerPath : null
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+      let response;
+      try {
+        response = await fetch('/.netlify/functions/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email.trim(),
+            password: formData.password,
+            fullName: formData.fullName.trim(),
+            membershipCategory: formData.membershipCategory,
+            careerPath: formData.careerPath,
+            role: formData.role,
+            specialization: formData.role === 'Mentor' ? formData.careerPath : null
+          }),
+        });
+      } catch (networkError) {
+        throw new Error('Network error. Please check your internet connection and try again.');
       }
 
-      if (data.userId) {
-        const uploadResult = await uploadContractToCloudinary(formData.contractFile, data.userId);
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid server response. Please try again later.');
+      }
 
-        if (!uploadResult.success) {
-          throw new Error(uploadResult.error || 'Failed to upload contract');
-        }
+      if (!response.ok) {
+        const errorMessage = data.details || data.error || 'Registration failed';
+        throw new Error(errorMessage);
+      }
 
+      if (!data.userId) {
+        throw new Error('Account created but user ID was not returned. Please contact support.');
+      }
+
+      setToast({
+        message: 'Account created! Uploading your contract...',
+        type: 'success'
+      });
+
+      let uploadResult;
+      try {
+        uploadResult = await uploadContractToCloudinary(formData.contractFile, data.userId);
+      } catch (uploadError: any) {
+        console.error('Contract upload error:', uploadError);
+        throw new Error('Account created but contract upload failed. Please contact support with your email to complete registration.');
+      }
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Failed to upload contract. Please contact support to complete your registration.');
+      }
+
+      try {
         const updateResponse = await fetch('/.netlify/functions/auth/update-profile', {
           method: 'POST',
           headers: {
@@ -138,37 +217,41 @@ const SignUpPage = () => {
         });
 
         if (!updateResponse.ok) {
-          console.error('Failed to update profile with contract URL');
+          const updateData = await updateResponse.json();
+          console.error('Profile update failed:', updateData);
         }
-
-        setToast({
-          message: 'Registration successful! Your account has been created and is under review. You will receive an email notification once approved.',
-          type: 'success'
-        });
-
-        setFormData({
-          fullName: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          membershipCategory: '',
-          careerPath: '',
-          role: 'Mentee',
-          contractFile: null
-        });
-
-        const fileInput = document.getElementById('contract-upload') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
-        }
-
-        setTimeout(() => {
-          navigate('/pending-approval');
-        }, 2000);
+      } catch (updateError) {
+        console.error('Profile update error:', updateError);
       }
-    } catch (error: any) {
+
       setToast({
-        message: error.message || 'Registration failed. Please try again.',
+        message: 'Registration successful! Your account is under review. You will be notified once approved.',
+        type: 'success'
+      });
+
+      setFormData({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        membershipCategory: '',
+        careerPath: '',
+        role: 'Mentee',
+        contractFile: null
+      });
+
+      const fileInput = document.getElementById('contract-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
+      setTimeout(() => {
+        navigate('/pending-approval');
+      }, 2500);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      setToast({
+        message: error.message || 'An unexpected error occurred. Please try again.',
         type: 'error'
       });
     } finally {

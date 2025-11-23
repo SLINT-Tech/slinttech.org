@@ -65,17 +65,48 @@ export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      body: JSON.stringify({
+        error: 'Method not allowed',
+        details: 'Only POST requests are accepted'
+      }),
+    };
+  }
+
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error('Cloudinary configuration missing');
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'Server configuration error',
+        details: 'File upload service is not properly configured'
+      }),
     };
   }
 
   try {
-    const { fields, file } = await parseMultipartForm(event);
+    let fields, file;
+    try {
+      const parseResult = await parseMultipartForm(event);
+      fields = parseResult.fields;
+      file = parseResult.file;
+    } catch (parseError: any) {
+      console.error('Form parsing error:', parseError);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Invalid file upload',
+          details: 'Unable to process the uploaded file. Please try again.'
+        }),
+      };
+    }
 
     if (!file) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'No file uploaded' }),
+        body: JSON.stringify({
+          error: 'No file provided',
+          details: 'Please select a file to upload'
+        }),
       };
     }
 
@@ -83,45 +114,45 @@ export const handler: Handler = async (event) => {
     if (!userId) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'User ID is required' }),
+        body: JSON.stringify({
+          error: 'Missing user ID',
+          details: 'User identification is required for file upload'
+        }),
       };
     }
 
     if (file.mimeType !== 'application/pdf') {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Only PDF files are allowed' }),
+        body: JSON.stringify({
+          error: 'Invalid file type',
+          details: 'Only PDF files are allowed. Please upload a PDF document.'
+        }),
       };
     }
 
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'contract_files',
-        resource_type: 'raw',
-        public_id: `contract_${userId}_${Date.now()}`,
-        format: 'pdf',
-      },
-      (error, result) => {
-        if (error) {
-          throw error;
-        }
-        return result;
-      }
-    );
+    const maxFileSize = 10 * 1024 * 1024;
+    if (file.buffer.length > maxFileSize) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'File too large',
+          details: 'File size must not exceed 10MB'
+        }),
+      };
+    }
+
+    if (file.buffer.length === 0) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Empty file',
+          details: 'The uploaded file appears to be empty'
+        }),
+      };
+    }
 
     const bufferStream = Readable.from(file.buffer);
-
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      uploadStream.on('finish', () => {
-        resolve(uploadStream);
-      });
-
-      uploadStream.on('error', (error) => {
-        reject(error);
-      });
-
-      bufferStream.pipe(uploadStream);
-    });
 
     const result = await new Promise<any>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -140,8 +171,16 @@ export const handler: Handler = async (event) => {
         }
       );
 
+      stream.on('error', (error) => {
+        reject(error);
+      });
+
       bufferStream.pipe(stream);
     });
+
+    if (!result || !result.secure_url) {
+      throw new Error('Upload completed but no URL was returned');
+    }
 
     return {
       statusCode: 200,
@@ -153,10 +192,32 @@ export const handler: Handler = async (event) => {
     };
   } catch (error: any) {
     console.error('Upload error:', error);
+
+    if (error.http_code === 401 || error.http_code === 403) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: 'Upload service authentication failed',
+          details: 'Unable to authenticate with file storage service. Please contact support.'
+        }),
+      };
+    }
+
+    if (error.http_code === 413) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'File too large',
+          details: 'The uploaded file exceeds the maximum allowed size'
+        }),
+      };
+    }
+
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: error.message || 'Failed to upload file to Cloudinary'
+        error: 'Upload failed',
+        details: error.message || 'Unable to upload file. Please try again later.'
       }),
     };
   }
