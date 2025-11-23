@@ -222,12 +222,10 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No token found');
         setIsLoadingMentors(false);
         return;
       }
 
-      console.log('Fetching mentors...');
       const response = await fetch('/.netlify/functions/admin-get-mentors', {
         method: 'GET',
         headers: {
@@ -238,7 +236,7 @@ const AdminDashboard = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error fetching mentors:', response.status, errorData);
+        console.error('Failed to fetch mentors:', errorData);
         setToast({
           message: `Failed to load mentors: ${errorData.error || 'Unknown error'}`,
           type: 'error'
@@ -247,12 +245,7 @@ const AdminDashboard = () => {
       }
 
       const { mentors } = await response.json();
-      console.log('Mentors fetched:', mentors);
       setAvailableMentors(mentors || []);
-
-      if (!mentors || mentors.length === 0) {
-        console.warn('No approved mentors found in the database');
-      }
     } catch (error) {
       console.error('Error fetching mentors:', error);
       setToast({
