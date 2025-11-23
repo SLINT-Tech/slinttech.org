@@ -1,9 +1,21 @@
 import type { Context } from '@netlify/functions';
-import { db } from '../../../src/db';
-import { userProfiles } from '../../../src/db/schema';
+import { db } from '../../src/db';
+import { userProfiles } from '../../src/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
-import { generateToken } from './utils';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
+
+interface JWTPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
+
+const generateToken = (payload: JWTPayload): string => {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+};
 
 export default async (req: Request, context: Context) => {
   if (req.method !== 'POST') {

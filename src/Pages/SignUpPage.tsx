@@ -154,7 +154,7 @@ const SignUpPage = () => {
     try {
       let response;
       try {
-        response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        response = await fetch(`${API_BASE_URL}/auth-signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ const SignUpPage = () => {
       }
 
       try {
-        const updateResponse = await fetch(`${API_BASE_URL}/auth/update-profile`, {
+        const updateResponse = await fetch(`${API_BASE_URL}/auth-update-profile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

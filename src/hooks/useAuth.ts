@@ -34,7 +34,7 @@ export const useAuth = () => {
       }
 
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch('/api/auth-me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

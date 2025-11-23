@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/functions';
-import { db } from '../../../src/db';
-import { userProfiles } from '../../../src/db/schema';
+import { db } from '../../src/db';
+import { userProfiles } from '../../src/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 

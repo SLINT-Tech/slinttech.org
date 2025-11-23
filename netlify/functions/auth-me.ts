@@ -1,8 +1,31 @@
 import type { Context } from '@netlify/functions';
-import { db } from '../../../src/db';
-import { userProfiles } from '../../../src/db/schema';
+import { db } from '../../src/db';
+import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
-import { extractToken, verifyToken } from './utils';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
+
+interface JWTPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
+
+const verifyToken = (token: string): JWTPayload | null => {
+  try {
+    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  } catch (error) {
+    return null;
+  }
+};
+
+const extractToken = (authHeader: string | null): string | null => {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authHeader.substring(7);
+};
 
 export default async (req: Request, context: Context) => {
   if (req.method !== 'GET') {
