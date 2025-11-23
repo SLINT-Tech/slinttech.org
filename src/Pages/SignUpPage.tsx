@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-r
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import { uploadContractToCloudinary } from '../lib/cloudinary';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -96,71 +97,55 @@ const SignUpPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Sign up user with Supabase Auth (auto-confirm for immediate authentication)
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: undefined, // Disable email confirmation
-          data: {
-            full_name: formData.fullName,
-            membership_category: formData.membershipCategory,
-            career_path: formData.careerPath,
-            role: formData.role,
-            specialization: formData.role === 'Mentor' ? formData.careerPath : null
-          }
-        }
+      const response = await fetch('/.netlify/functions/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          membershipCategory: formData.membershipCategory,
+          careerPath: formData.careerPath,
+          role: formData.role,
+          specialization: formData.role === 'Mentor' ? formData.careerPath : null
+        }),
       });
 
-      if (authError) {
-        throw authError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
 
-      if (authData.user) {
-        // Wait a moment for the user to be fully authenticated
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Upload contract file to Supabase Storage
-        const uploadResult = await uploadContract(formData.contractFile, authData.user.id);
-        
+      if (data.userId) {
+        const uploadResult = await uploadContractToCloudinary(formData.contractFile, data.userId);
+
         if (!uploadResult.success) {
           throw new Error(uploadResult.error || 'Failed to upload contract');
         }
 
-        // Update user profile with contract URL
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .update({ 
-            contract_file_url: uploadResult.url 
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-          // Don't throw error here as user is already created
-        }
-
-        // Send signup notification email
-        const emailResult = await sendSignupNotification({
-          email: formData.email,
-          fullName: formData.fullName,
-          role: formData.role,
-          membershipCategory: formData.membershipCategory,
-          careerPath: formData.careerPath
+        const updateResponse = await fetch('/.netlify/functions/auth/update-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: data.userId,
+            contractFileUrl: uploadResult.url,
+          }),
         });
 
-        if (emailResult.success) {
-          console.log('Signup notification email sent successfully');
-        } else {
-          console.warn('Failed to send signup notification email:', emailResult.error);
+        if (!updateResponse.ok) {
+          console.error('Failed to update profile with contract URL');
         }
-        
+
         setToast({
           message: 'Registration successful! Your account has been created and is under review. You will receive an email notification once approved.',
           type: 'success'
         });
-        
-        // Reset form
+
         setFormData({
           fullName: '',
           email: '',
@@ -171,12 +156,15 @@ const SignUpPage = () => {
           role: 'Mentee',
           contractFile: null
         });
-        
-        // Clear file input
+
         const fileInput = document.getElementById('contract-upload') as HTMLInputElement;
         if (fileInput) {
           fileInput.value = '';
         }
+
+        setTimeout(() => {
+          navigate('/pending-approval');
+        }, 2000);
       }
     } catch (error: any) {
       setToast({

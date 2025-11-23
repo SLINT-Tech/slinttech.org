@@ -14,7 +14,7 @@ export default async (req: Request, context: Context) => {
 
   try {
     const body = await req.json();
-    const { email, password, fullName, membershipCategory, careerPath, specialization } = body;
+    const { email, password, fullName, membershipCategory, careerPath, specialization, role } = body;
 
     if (!email || !password || !fullName || !membershipCategory) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -47,7 +47,7 @@ export default async (req: Request, context: Context) => {
         membershipCategory,
         careerPath: careerPath || null,
         specialization: specialization || null,
-        role: 'Mentee',
+        role: role || 'Mentee',
         status: 'pending',
         membershipEnabled: false,
         membershipPaid: false,
