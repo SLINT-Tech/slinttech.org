@@ -1,15 +1,16 @@
 import { Clock, Mail, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 
 const PendingApprovalPage = () => {
+  const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
   // Check if user is a mentor
   const isMentor = currentUser.role === 'Mentor';
 
   const handleLogout = () => {
-    logout('/login');
+    logout(navigate, '/login');
   };
 
   return (

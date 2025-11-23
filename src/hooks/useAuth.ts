@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { logout } from '../lib/auth';
+import { useNavigate } from 'react-router-dom';
+import { logout, clearAuthData } from '../lib/auth';
 
 export interface UserProfile {
   id: string;
@@ -22,6 +23,7 @@ export interface UserProfile {
 }
 
 export const useAuth = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,13 +47,11 @@ export const useAuth = () => {
           const data = await response.json();
           setProfile(data.profile);
         } else {
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('token');
+          clearAuthData();
         }
       } catch (error) {
         console.error('Error checking auth:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('token');
+        clearAuthData();
       }
 
       setLoading(false);
@@ -62,7 +62,7 @@ export const useAuth = () => {
 
   const signOut = (redirectTo: string = '/login') => {
     setProfile(null);
-    logout(redirectTo);
+    logout(navigate, redirectTo);
   };
 
   return {
