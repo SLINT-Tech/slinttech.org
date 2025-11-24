@@ -1,221 +1,240 @@
-import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, MessageSquare, Send, Target, User, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, FileText, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import Toast from '../Components/Toast';
 
-// Mock data - this would come from your backend/database based on mentor name
-const getMentorData = (mentorId) => {
-  const mockData = {
-    'gfyffa54afvctrdt': {
-      fullName: 'Dr. Sarah Johnson',
-      specialization: 'Full Stack Development',
-      email: 'sarah.johnson@slinttech.org',
-      phone: '+1 (555) 123-4567',
-      courseName: 'React Fundamentals',
-      duration: '8 weeks',
-      lessons: [
-        {
-          id: 1,
-          title: 'Introduction to React Components',
-          link: 'https://example.com/lesson1',
-          completed: false,
-          createdAt: '2024-01-20',
-          description: 'Learn the basics of React components and how to create your first functional component.'
-        },
-        {
-          id: 2,
-          title: 'State Management with useState',
-          link: 'https://example.com/lesson2',
-          completed: true,
-          createdAt: '2024-01-18',
-          description: 'Master the useState hook for managing component state in React applications.'
-        },
-        {
-          id: 4,
-          title: 'React Hooks Deep Dive',
-          link: 'https://example.com/lesson4',
-          completed: false,
-          createdAt: '2024-01-25',
-          description: 'Explore advanced React hooks like useEffect, useContext, and custom hooks.'
-        }
-      ],
-      tasks: [
-        {
-          id: 1,
-          title: 'Build a Todo App with React',
-          description: 'Create a fully functional todo application using React hooks. Include features like adding, editing, deleting, and marking todos as complete.',
-          deadline: '2024-02-15',
-          status: 'pending',
-          submissionLink: '',
-          submissionNotes: '',
-          mentorFeedback: '',
-          createdAt: '2024-01-21'
-        },
-        {
-          id: 3,
-          title: 'API Integration Exercise',
-          description: 'Integrate a REST API into your React application. Handle loading states, error handling, and display data in a user-friendly format.',
-          deadline: '2024-02-10',
-          status: 'rejected',
-          submissionLink: 'https://github.com/johndoe/api-project',
-          submissionNotes: 'Implemented with fetch API and error handling',
-          mentorFeedback: 'Good attempt, but error handling needs improvement. Please add loading states and better user feedback. Resubmit after addressing these issues.',
-          createdAt: '2024-01-16'
-        }
-      ]
-    },
-    'hgkjh67890mnbvcx': {
-      fullName: 'Prof. Michael Chen',
-      specialization: 'Frontend Development',
-      email: 'michael.chen@slinttech.org',
-      phone: '+1 (555) 987-6543',
-      courseName: 'Advanced CSS & Animations',
-      duration: '6 weeks',
-      lessons: [
-        {
-          id: 3,
-          title: 'CSS Grid Layout Mastery',
-          link: 'https://example.com/lesson3',
-          completed: false,
-          createdAt: '2024-01-22',
-          description: 'Deep dive into CSS Grid and learn how to create complex layouts with ease.'
-        }
-      ],
-      tasks: [
-        {
-          id: 2,
-          title: 'Responsive Portfolio Website',
-          description: 'Design and build a responsive portfolio website with CSS animations. Showcase your projects and skills with smooth transitions and mobile-first design.',
-          deadline: '2024-02-20',
-          status: 'approved',
-          submissionLink: 'https://netlify.app/my-portfolio',
-          submissionNotes: 'Added extra animations and mobile-first approach',
-          mentorFeedback: 'Excellent work! Great attention to detail and smooth animations. The mobile responsiveness is perfect.',
-          createdAt: '2024-01-19'
-        },
-        {
-          id: 4,
-          title: 'CSS Animation Showcase',
-          description: 'Create a showcase page demonstrating various CSS animations and transitions. Include keyframe animations, hover effects, and scroll-triggered animations.',
-          deadline: '2024-02-25',
-          status: 'submitted',
-          submissionLink: 'https://codepen.io/johndoe/pen/animation-showcase',
-          submissionNotes: 'Created 8 different animation examples with smooth transitions',
-          mentorFeedback: '',
-          createdAt: '2024-01-23'
-        }
-      ]
-    }
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  orderIndex: number;
+  status: string;
+  completed: boolean;
+  completedAt: string | null;
+  createdAt: string;
+}
+
+interface TaskSubmission {
+  id: string;
+  submissionLink: string;
+  submissionNotes: string;
+  status: string;
+  mentorFeedback: string;
+  submittedAt: string;
+  reviewedAt: string | null;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  deadline: string;
+  status: string;
+  orderIndex: number;
+  createdAt: string;
+  submission: TaskSubmission | null;
+}
+
+interface MentorDetail {
+  id: string;
+  relationshipId: string;
+  fullName: string;
+  email: string;
+  specialization: string | null;
+  courseName: string;
+  courseDescription: string;
+  duration: string;
+  status: string;
+  progressPercentage: number;
+  assignedDate: string;
+  notes: string | null;
+  lessons: Lesson[];
+  tasks: Task[];
+  stats: {
+    totalLessons: number;
+    completedLessons: number;
+    totalTasks: number;
+    completedTasks: number;
+    pendingTasks: number;
+    submittedTasks: number;
   };
-
-  return mockData[mentorId] || null;
-};
+}
 
 const MentorDetailPage = () => {
   const { mentorId } = useParams();
-  const mentorData = getMentorData(mentorId);
+  const { signOut } = useAuth();
   const navigate = useNavigate();
-  
-  const [taskSubmissions, setTaskSubmissions] = useState({});
-  const [lessons, setLessons] = useState(mentorData?.lessons || []);
-  const [tasks, setTasks] = useState(mentorData?.tasks || []);
+  const [mentorData, setMentorData] = useState<MentorDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(user);
+  }, []);
+
+  useEffect(() => {
+    if (mentorId) {
+      fetchMentorDetail();
+    }
+  }, [mentorId]);
+
+  const fetchMentorDetail = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+      const response = await fetch(`${API_BASE_URL}/mentee-get-mentor-detail?mentorId=${mentorId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch mentor details');
+      }
+
+      const result = await response.json();
+      setMentorData(result.data);
+    } catch (error: any) {
+      console.error('Error fetching mentor detail:', error);
+      setToast({
+        message: error.message || 'Failed to load mentor details',
+        type: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTaskStatusBadge = (task: Task) => {
+    const submission = task.submission;
+
+    if (!submission) {
+      const isOverdue = new Date(task.deadline) < new Date();
+      return {
+        text: isOverdue ? 'Overdue' : 'Pending',
+        color: isOverdue ? 'bg-red-100 text-red-800 border-red-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        icon: isOverdue ? AlertCircle : Clock
+      };
+    }
+
+    switch (submission.status) {
+      case 'approved':
+        return {
+          text: 'Approved',
+          color: 'bg-green-100 text-green-800 border-green-200',
+          icon: CheckCircle
+        };
+      case 'rejected':
+        return {
+          text: 'Rejected',
+          color: 'bg-red-100 text-red-800 border-red-200',
+          icon: XCircle
+        };
+      case 'submitted':
+        return {
+          text: 'Under Review',
+          color: 'bg-blue-100 text-blue-800 border-blue-200',
+          icon: Clock
+        };
+      default:
+        return {
+          text: 'Pending',
+          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+          icon: Clock
+        };
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8]">
+        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#008080] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading mentor details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!mentorData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center bg-white rounded-xl shadow-sm p-8 max-w-md">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Mentor Not Found</h1>
-          <p className="text-gray-600 mb-4">The mentor you're looking for doesn't exist.</p>
-          <Link to="/dashboard" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-            Back to Dashboard
+          <p className="text-gray-600 mb-6">The mentor you're looking for doesn't exist or you don't have access.</p>
+          <Link
+            to="/mentors"
+            className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Mentors
           </Link>
         </div>
       </div>
     );
   }
 
-  const handleLessonComplete = (lessonId) => {
-    setLessons(prev => 
-      prev.map(lesson => 
-        lesson.id === lessonId ? { ...lesson, completed: true } : lesson
-      )
-    );
-  };
-
-  const handleTaskSubmission = (taskId) => {
-    const submission = taskSubmissions[taskId];
-    if (!submission?.link) return;
-
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === taskId ? { 
-          ...task, 
-          status: 'submitted',
-          submissionLink: submission.link,
-          submissionNotes: submission.notes || ''
-        } : task
-      )
-    );
-
-    // Clear the form
-    setTaskSubmissions(prev => ({
-      ...prev,
-      [taskId]: { link: '', notes: '' }
-    }));
-  };
-
-  const updateTaskSubmission = (taskId, field, value) => {
-    setTaskSubmissions(prev => ({
-      ...prev,
-      [taskId]: {
-        ...prev[taskId],
-        [field]: value
-      }
-    }));
-  };
-
-  const getTaskStatusColor = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'submitted':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const isTaskOverdue = (deadline) => {
-    return new Date(deadline) < new Date() && new Date(deadline).toDateString() !== new Date().toDateString();
-  };
-
-  const completedLessons = lessons.filter(lesson => lesson.completed).length;
-  const totalLessons = lessons.length;
+  const progressPercentage = mentorData.stats.totalLessons > 0
+    ? Math.round((mentorData.stats.completedLessons / mentorData.stats.totalLessons) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link 
-              to="/"
-              className="flex items-center cursor-pointer"
-            >
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">Mentor: {mentorData.fullName}</span>
-              <Link 
-                to="/login" 
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+              <span className="text-gray-600 hidden md:block">Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}</span>
+              <Link
+                to="/profile"
+                className="text-gray-500 hover:text-gray-700 font-medium"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={() => signOut('/login')}
+                className="text-[#008080] hover:text-teal-700 font-medium"
               >
                 Logout
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -225,101 +244,245 @@ const MentorDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
+          onClick={() => navigate('/mentors')}
+          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
+          Back to Mentors
         </button>
 
-        {/* Mentor Info */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex items-center mb-4">
-            <div className="w-16 h-16 bg-[#008080] rounded-full flex items-center justify-center mr-4">
-              <User className="w-8 h-8 text-white" />
+        {/* Mentor Profile Card */}
+        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-8 mb-8 text-white">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-4 ring-white/30">
+              <User className="w-10 h-10 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{mentorData.fullName}</h1>
-              <p className="text-gray-600">{mentorData.specialization}</p>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold mb-2">{mentorData.fullName}</h1>
+              <p className="text-teal-100 text-lg mb-3">{mentorData.specialization || 'Mentor'}</p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                  <Calendar className="w-4 h-4" />
+                  <span>Assigned {formatDate(mentorData.assignedDate)}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                  <Clock className="w-4 h-4" />
+                  <span>{mentorData.duration}</span>
+                </div>
+              </div>
             </div>
           </div>
-          
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-2">
+              <BookOpen className="w-5 h-5 text-blue-500" />
+              <span className="text-2xl font-bold text-gray-900">{mentorData.stats.totalLessons}</span>
+            </div>
+            <p className="text-sm text-gray-600">Total Lessons</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between mb-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-2xl font-bold text-gray-900">{mentorData.stats.completedLessons}</span>
+            </div>
+            <p className="text-sm text-gray-600">Completed</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-5 h-5 text-orange-500" />
+              <span className="text-2xl font-bold text-gray-900">{mentorData.stats.totalTasks}</span>
+            </div>
+            <p className="text-sm text-gray-600">Total Tasks</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-teal-500">
+            <div className="flex items-center justify-between mb-2">
+              <Award className="w-5 h-5 text-teal-500" />
+              <span className="text-2xl font-bold text-gray-900">{mentorData.stats.completedTasks}</span>
+            </div>
+            <p className="text-sm text-gray-600">Approved</p>
+          </div>
+        </div>
+
+        {/* Course Information */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Course Information</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Contact Information</h3>
-              <div className="space-y-1 text-sm text-gray-600">
-                <p>📧 {mentorData.email}</p>
-                <p>📞 {mentorData.phone}</p>
-              </div>
+              <label className="text-sm font-medium text-gray-600">Course Name</label>
+              <p className="text-lg text-gray-900 mt-1">{mentorData.courseName}</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Course Details</h3>
-              <div className="space-y-1 text-sm text-gray-600">
-                <p><span className="font-medium">Course:</span> {mentorData.courseName}</p>
-                <p><span className="font-medium">Duration:</span> {mentorData.duration}</p>
-              </div>
+              <label className="text-sm font-medium text-gray-600">Contact Email</label>
+              <p className="text-lg text-gray-900 mt-1">{mentorData.email}</p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-600">Description</label>
+              <p className="text-gray-900 mt-1">{mentorData.courseDescription}</p>
             </div>
           </div>
         </div>
 
+        {/* Progress Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-[#008080]" />
+              Learning Progress
+            </h2>
+            <span className="text-2xl font-bold text-[#008080]">{progressPercentage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+            <div
+              className="bg-gradient-to-r from-teal-500 to-teal-600 h-3 rounded-full transition-all duration-500 shadow-md"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-600">
+            You've completed {mentorData.stats.completedLessons} out of {mentorData.stats.totalLessons} lessons
+          </p>
+        </div>
+
+        {/* Recent Lessons & Tasks Grid */}
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Quick Access Cards */}
+          {/* Recent Lessons */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center mb-6">
-              <BookOpen className="w-6 h-6 text-[#008080] mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Current Lessons</h2>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-900">
-                  {completedLessons}/{totalLessons}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0}%` }}
-                ></div>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-gray-600 mb-4">
-                View and complete lessons from {mentorData.fullName}
-              </p>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-[#008080]" />
+                Recent Lessons
+              </h2>
               <Link
                 to={`/lessons?mentor_id=${mentorId}`}
-                className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                className="text-[#008080] hover:text-teal-700 text-sm font-medium"
               >
-                <BookOpen className="w-5 h-5" />
-                View All Lessons
+                View All
               </Link>
             </div>
+
+            {mentorData.lessons.length > 0 ? (
+              <div className="space-y-3">
+                {mentorData.lessons.slice(0, 5).map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      lesson.completed
+                        ? 'bg-green-50 border-green-200'
+                        : 'bg-gray-50 border-gray-200 hover:border-teal-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">{lesson.title}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-2">{lesson.description}</p>
+                      </div>
+                      {lesson.completed ? (
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <a
+                          href={lesson.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#008080] hover:text-teal-700"
+                        >
+                          <ExternalLink className="w-5 h-5" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No lessons available yet</p>
+              </div>
+            )}
           </div>
 
+          {/* Recent Tasks */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center mb-6">
-              <Target className="w-6 h-6 text-[#008080] mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Tasks & Assignments</h2>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-gray-600 mb-4">
-                Submit assignments and track your progress with {mentorData.fullName}
-              </p>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Target className="w-6 h-6 text-[#008080]" />
+                Recent Tasks
+              </h2>
               <Link
                 to={`/tasks?mentor_id=${mentorId}`}
-                className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                className="text-[#008080] hover:text-teal-700 text-sm font-medium"
               >
-                <Target className="w-5 h-5" />
-                View All Tasks
+                View All
               </Link>
             </div>
+
+            {mentorData.tasks.length > 0 ? (
+              <div className="space-y-3">
+                {mentorData.tasks.slice(0, 5).map((task) => {
+                  const statusBadge = getTaskStatusBadge(task);
+                  const StatusIcon = statusBadge.icon;
+
+                  return (
+                    <div
+                      key={task.id}
+                      className="p-4 rounded-lg border-2 border-gray-200 hover:border-teal-300 transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <h3 className="font-medium text-gray-900 flex-1">{task.title}</h3>
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border ${statusBadge.color}`}>
+                          <StatusIcon className="w-3 h-3" />
+                          {statusBadge.text}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Due: {formatDate(task.deadline)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No tasks available yet</p>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="grid md:grid-cols-2 gap-4 mt-8">
+          <Link
+            to={`/lessons?mentor_id=${mentorId}`}
+            className="flex items-center justify-center gap-3 bg-[#008080] text-white px-6 py-4 rounded-xl hover:bg-teal-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="font-semibold">View All Lessons</span>
+          </Link>
+          <Link
+            to={`/tasks?mentor_id=${mentorId}`}
+            className="flex items-center justify-center gap-3 bg-white text-[#008080] border-2 border-[#008080] px-6 py-4 rounded-xl hover:bg-teal-50 transition-all shadow-md hover:shadow-lg"
+          >
+            <Target className="w-5 h-5" />
+            <span className="font-semibold">View All Tasks</span>
+          </Link>
+        </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
