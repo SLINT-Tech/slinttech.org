@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle, CreditCard, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { PageLoader } from '../Components/SkeletonLoader';
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/.netlify/functions';
@@ -71,14 +72,7 @@ const PaymentWallPage = () => {
   }, [profile, authLoading, token, navigate]);
 
   if (authLoading || isLoading || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5722] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading payment information..." />;
   }
 
   const handlePayment = async () => {
@@ -189,14 +183,7 @@ const PaymentWallPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
-          <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading payment information..." />;
   }
 
   if (!profile || !membershipAmount || membershipAmount <= 0) {
