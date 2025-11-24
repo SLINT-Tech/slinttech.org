@@ -108,33 +108,75 @@ const MenteeProfilePage = () => {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
+      setToast({
+        message: 'New passwords do not match!',
+        type: 'error'
+      });
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!');
+      setToast({
+        message: 'Password must be at least 8 characters long!',
+        type: 'error'
+      });
       return;
     }
 
     setIsUpdating(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Password update:', passwordData);
-    
-    setIsUpdating(false);
-    setShowPasswordForm(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    
-    alert('Password updated successfully!');
+
+    try {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setToast({
+          message: 'Authentication required',
+          type: 'error'
+        });
+        setIsUpdating(false);
+        return;
+      }
+
+      const response = await fetch('/api/auth-change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update password');
+      }
+
+      setToast({
+        message: 'Password updated successfully!',
+        type: 'success'
+      });
+
+      setShowPasswordForm(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      console.error('Password update error:', error);
+      setToast({
+        message: error instanceof Error ? error.message : 'Failed to update password',
+        type: 'error'
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const downloadContract = async () => {
