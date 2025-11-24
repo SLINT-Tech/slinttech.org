@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { userProfiles, mentorMenteeRelationships, lessons, lessonProgress, tasks, taskSubmissions, courses } from '../../src/db/schema';
+import { userProfiles, mentorMenteeRelationships, courseEnrollments, courses, lessons, lessonProgress, tasks, taskSubmissions } from '../../src/db/schema';
 import { eq, and, sql, desc } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -57,74 +57,70 @@ export default async (req: Request, context: Context) => {
 
     const menteeId = decoded.userId;
 
-    const url = new URL(req.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-    const offset = (page - 1) * limit;
-
-    const totalCountResult = await db
+    const assignedMentorsResult = await db
       .select({
-        count: sql<number>`count(*)`
-      })
-      .from(mentorMenteeRelationships)
-      .where(eq(mentorMenteeRelationships.menteeId, menteeId));
-
-    const totalCount = Number(totalCountResult[0]?.count || 0);
-
-    const mentorAssignmentsResult = await db
-      .select({
-        relationshipId: mentorMenteeRelationships.id,
         mentorId: mentorMenteeRelationships.mentorId,
         mentorName: userProfiles.fullName,
         mentorEmail: userProfiles.email,
         mentorSpecialization: userProfiles.specialization,
-        courseName: mentorMenteeRelationships.courseName,
         status: mentorMenteeRelationships.status,
-        progressPercentage: mentorMenteeRelationships.progressPercentage,
         assignedDate: mentorMenteeRelationships.assignedDate,
         notes: mentorMenteeRelationships.notes
       })
       .from(mentorMenteeRelationships)
       .leftJoin(userProfiles, eq(mentorMenteeRelationships.mentorId, userProfiles.id))
-      .where(eq(mentorMenteeRelationships.menteeId, menteeId))
-      .orderBy(desc(mentorMenteeRelationships.assignedDate))
-      .limit(limit)
-      .offset(offset);
+      .where(and(
+        eq(mentorMenteeRelationships.menteeId, menteeId),
+        eq(mentorMenteeRelationships.status, 'active')
+      ))
+      .orderBy(desc(mentorMenteeRelationships.assignedDate));
 
-    const mentorsWithProgress = await Promise.all(
-      mentorAssignmentsResult.map(async (mentor) => {
-        const courseResult = await db
-          .select({
-            id: courses.id,
-            duration: courses.duration,
-            description: courses.description
-          })
-          .from(courses)
-          .where(eq(courses.name, mentor.courseName))
-          .limit(1);
+    const enrolledCoursesResult = await db
+      .select({
+        courseId: courses.id,
+        courseName: courses.name,
+        courseDescription: courses.description,
+        courseDuration: courses.duration,
+        courseStatus: courses.status,
+        mentorId: courses.mentorId,
+        mentorName: userProfiles.fullName,
+        mentorEmail: userProfiles.email,
+        mentorSpecialization: userProfiles.specialization,
+        enrollmentStatus: courseEnrollments.status,
+        progressPercentage: courseEnrollments.progressPercentage,
+        enrolledAt: courseEnrollments.enrolledAt,
+        completedAt: courseEnrollments.completedAt
+      })
+      .from(courseEnrollments)
+      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+      .leftJoin(userProfiles, eq(courses.mentorId, userProfiles.id))
+      .where(and(
+        eq(courseEnrollments.menteeId, menteeId),
+        eq(courseEnrollments.status, 'active')
+      ))
+      .orderBy(desc(courseEnrollments.enrolledAt));
 
-        const course = courseResult[0];
+    const assignedMentors = await Promise.all(
+      assignedMentorsResult.map(async (mentor) => {
+        const enrolledCoursesForMentor = enrolledCoursesResult.filter(
+          (course) => course.mentorId === mentor.mentorId
+        );
 
-        if (!course) {
-          return {
-            id: mentor.mentorId,
-            relationshipId: mentor.relationshipId,
-            fullName: mentor.mentorName,
-            email: mentor.mentorEmail,
-            specialization: mentor.mentorSpecialization,
-            courseName: mentor.courseName,
-            duration: 'N/A',
-            status: mentor.status,
-            progressPercentage: mentor.progressPercentage,
-            assignedDate: mentor.assignedDate,
-            notes: mentor.notes,
-            lessonsCount: 0,
-            tasksCount: 0,
-            completedLessons: 0,
-            approvedTasks: 0
-          };
-        }
+        return {
+          id: mentor.mentorId,
+          fullName: mentor.mentorName,
+          email: mentor.mentorEmail,
+          specialization: mentor.mentorSpecialization,
+          status: mentor.status,
+          assignedDate: mentor.assignedDate,
+          notes: mentor.notes,
+          enrolledCoursesCount: enrolledCoursesForMentor.length
+        };
+      })
+    );
 
+    const activeCourses = await Promise.all(
+      enrolledCoursesResult.map(async (enrollment) => {
         const lessonsProgressResult = await db
           .select({
             totalLessons: sql<number>`count(distinct ${lessons.id})`,
@@ -135,7 +131,7 @@ export default async (req: Request, context: Context) => {
             eq(lessons.id, lessonProgress.lessonId),
             eq(lessonProgress.menteeId, menteeId)
           ))
-          .where(eq(lessons.courseId, course.id));
+          .where(eq(lessons.courseId, enrollment.courseId));
 
         const tasksProgressResult = await db
           .select({
@@ -147,20 +143,21 @@ export default async (req: Request, context: Context) => {
             eq(tasks.id, taskSubmissions.taskId),
             eq(taskSubmissions.menteeId, menteeId)
           ))
-          .where(eq(tasks.courseId, course.id));
+          .where(eq(tasks.courseId, enrollment.courseId));
 
         return {
-          id: mentor.mentorId,
-          relationshipId: mentor.relationshipId,
-          fullName: mentor.mentorName,
-          email: mentor.mentorEmail,
-          specialization: mentor.mentorSpecialization,
-          courseName: mentor.courseName,
-          duration: course.duration,
-          status: mentor.status,
-          progressPercentage: mentor.progressPercentage,
-          assignedDate: mentor.assignedDate,
-          notes: mentor.notes,
+          courseId: enrollment.courseId,
+          courseName: enrollment.courseName,
+          courseDescription: enrollment.courseDescription,
+          duration: enrollment.courseDuration,
+          mentorId: enrollment.mentorId,
+          mentorName: enrollment.mentorName,
+          mentorEmail: enrollment.mentorEmail,
+          mentorSpecialization: enrollment.mentorSpecialization,
+          enrollmentStatus: enrollment.enrollmentStatus,
+          progressPercentage: enrollment.progressPercentage,
+          enrolledAt: enrollment.enrolledAt,
+          completedAt: enrollment.completedAt,
           lessonsCount: Number(lessonsProgressResult[0]?.totalLessons || 0),
           tasksCount: Number(tasksProgressResult[0]?.totalTasks || 0),
           completedLessons: Number(lessonsProgressResult[0]?.completedLessons || 0),
@@ -169,20 +166,11 @@ export default async (req: Request, context: Context) => {
       })
     );
 
-    const totalPages = Math.ceil(totalCount / limit);
-
     return new Response(JSON.stringify({
       success: true,
       data: {
-        mentors: mentorsWithProgress,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          limit,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
-        }
+        assignedMentors,
+        activeCourses
       }
     }), {
       status: 200,

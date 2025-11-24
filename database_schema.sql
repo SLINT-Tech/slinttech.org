@@ -48,14 +48,14 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- =====================================================
 -- TABLE: mentor_mentee_relationships
 -- =====================================================
--- Tracks the relationships between mentors and mentees
--- including course assignments and progress
+-- Tracks the assignment relationships between mentors and mentees
+-- This is separate from course enrollments - it just defines who can mentor whom
+-- Mentors can only enroll mentees who are assigned to them
 
 CREATE TABLE IF NOT EXISTS mentor_mentee_relationships (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   mentor_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   mentee_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
-  course_name text NOT NULL,
   status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'completed', 'paused')),
   assigned_date timestamptz NOT NULL DEFAULT now(),
   completion_date timestamptz,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS mentor_mentee_relationships (
   notes text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
-  UNIQUE(mentor_id, mentee_id, course_name)
+  UNIQUE(mentor_id, mentee_id)
 );
 
 -- =====================================================
@@ -329,6 +329,36 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Function to validate course enrollment (only assigned mentors can enroll mentees)
+CREATE OR REPLACE FUNCTION validate_course_enrollment()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_mentor_id uuid;
+  v_is_assigned boolean;
+BEGIN
+  -- Get the mentor_id for the course
+  SELECT mentor_id INTO v_mentor_id
+  FROM courses
+  WHERE id = NEW.course_id;
+
+  -- Check if this mentor is assigned to this mentee
+  SELECT EXISTS (
+    SELECT 1
+    FROM mentor_mentee_relationships
+    WHERE mentor_id = v_mentor_id
+      AND mentee_id = NEW.mentee_id
+      AND status = 'active'
+  ) INTO v_is_assigned;
+
+  -- If not assigned, raise an error
+  IF NOT v_is_assigned THEN
+    RAISE EXCEPTION 'Cannot enroll mentee: mentor % is not assigned to mentee %', v_mentor_id, NEW.mentee_id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- =====================================================
 -- TRIGGERS
 -- =====================================================
@@ -394,6 +424,12 @@ DROP TRIGGER IF EXISTS update_course_count_on_enrollment ON course_enrollments;
 CREATE TRIGGER update_course_count_on_enrollment
   AFTER INSERT OR DELETE ON course_enrollments
   FOR EACH ROW EXECUTE FUNCTION update_course_enrolled_count();
+
+-- Trigger to validate course enrollment (only assigned mentors can enroll mentees)
+DROP TRIGGER IF EXISTS validate_enrollment_assignment ON course_enrollments;
+CREATE TRIGGER validate_enrollment_assignment
+  BEFORE INSERT ON course_enrollments
+  FOR EACH ROW EXECUTE FUNCTION validate_course_enrollment();
 
 -- =====================================================
 -- COMMENTS

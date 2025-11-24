@@ -76,7 +76,6 @@ export default async (req: Request, context: Context) => {
       .select({
         id: mentorMenteeRelationships.id,
         mentorId: mentorMenteeRelationships.mentorId,
-        courseName: mentorMenteeRelationships.courseName,
         mentorFullName: userProfiles.fullName,
         mentorSpecialization: userProfiles.specialization,
         mentorCareerPath: userProfiles.careerPath
@@ -88,7 +87,6 @@ export default async (req: Request, context: Context) => {
     const assignments = relationships.map(rel => ({
       id: rel.id,
       mentor: rel.mentorId,
-      courseName: rel.courseName,
       mentorName: rel.mentorFullName || 'Unknown Mentor'
     }));
 

@@ -15,7 +15,6 @@ interface JWTPayload {
 interface MentorAssignment {
   id?: string;
   mentor: string;
-  courseName: string;
 }
 
 interface UpdateMentorAssignmentsRequest {
@@ -87,8 +86,7 @@ export default async (req: Request, context: Context) => {
     const existingAssignments = await db
       .select({
         id: mentorMenteeRelationships.id,
-        mentorId: mentorMenteeRelationships.mentorId,
-        courseName: mentorMenteeRelationships.courseName
+        mentorId: mentorMenteeRelationships.mentorId
       })
       .from(mentorMenteeRelationships)
       .where(eq(mentorMenteeRelationships.menteeId, menteeId));
@@ -110,7 +108,6 @@ export default async (req: Request, context: Context) => {
       const assignmentsToInsert = newAssignments.map(assignment => ({
         mentorId: assignment.mentor,
         menteeId: menteeId,
-        courseName: assignment.courseName || 'General Mentorship',
         status: 'active',
         progressPercentage: 0
       }));
@@ -126,7 +123,6 @@ export default async (req: Request, context: Context) => {
         .update(mentorMenteeRelationships)
         .set({
           mentorId: assignment.mentor,
-          courseName: assignment.courseName || 'General Mentorship',
           updatedAt: new Date()
         })
         .where(eq(mentorMenteeRelationships.id, assignment.id!));

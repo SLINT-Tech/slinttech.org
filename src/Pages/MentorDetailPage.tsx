@@ -274,28 +274,28 @@ const MentorDetailPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate('/mentors')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors"
+          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Mentors
         </button>
 
-        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-8 mb-8 text-white">
+        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-200">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-4 ring-white/30">
-              <User className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 bg-teal-100 rounded-2xl flex items-center justify-center">
+              <User className="w-10 h-10 text-[#008080]" />
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">{mentorData.fullName}</h1>
-              <p className="text-teal-100 text-base md:text-lg mb-3">{mentorData.specialization || 'Mentor'}</p>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">{mentorData.fullName}</h1>
+              <p className="text-gray-600 text-base md:text-lg mb-3">{mentorData.specialization || 'Mentor'}</p>
               <div className="flex flex-wrap gap-3 text-sm">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-xs md:text-sm">Assigned {formatDate(mentorData.assignedDate)}</span>
+                <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+                  <Calendar className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs md:text-sm text-gray-700">Assigned {formatDate(mentorData.assignedDate)}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                  <Clock className="w-4 h-4" />
-                  <span className="text-xs md:text-sm">{mentorData.duration}</span>
+                <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+                  <Clock className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs md:text-sm text-gray-700">{mentorData.duration}</span>
                 </div>
               </div>
             </div>
@@ -303,7 +303,7 @@ const MentorDetailPage = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+          <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <BookOpen className="w-5 h-5 text-blue-500" />
               <span className="text-2xl font-bold text-gray-900">{mentorData.stats.totalLessons}</span>
@@ -311,7 +311,7 @@ const MentorDetailPage = () => {
             <p className="text-sm text-gray-600">Total Lessons</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+          <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
               <span className="text-2xl font-bold text-gray-900">{mentorData.stats.completedLessons}</span>
@@ -319,7 +319,7 @@ const MentorDetailPage = () => {
             <p className="text-sm text-gray-600">Completed</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
+          <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-orange-500" />
               <span className="text-2xl font-bold text-gray-900">{mentorData.stats.totalTasks}</span>
@@ -327,7 +327,7 @@ const MentorDetailPage = () => {
             <p className="text-sm text-gray-600">Total Tasks</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-teal-500">
+          <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <Award className="w-5 h-5 text-teal-500" />
               <span className="text-2xl font-bold text-gray-900">{mentorData.stats.completedTasks}</span>
