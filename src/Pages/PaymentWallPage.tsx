@@ -125,37 +125,40 @@ const PaymentWallPage = () => {
             }
           ]
         },
-        callback: async function(response) {
+        callback: function(response) {
           if (response.status === 'success') {
             console.log('Payment successful, verifying...');
 
-            try {
-              const verifyResponse = await fetch(`${API_BASE_URL}/payment-verify`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ reference: response.reference })
+            fetch(`${API_BASE_URL}/payment-verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ reference: response.reference })
+            })
+              .then(verifyResponse => {
+                if (!verifyResponse.ok) {
+                  throw new Error('Payment verification failed');
+                }
+                return verifyResponse.json();
+              })
+              .then(verifyData => {
+                console.log('Payment verified:', verifyData);
+                setShowPaymentModal(true);
+              })
+              .catch(verifyError => {
+                console.error('Verification error:', verifyError);
+                alert('Payment was successful but verification failed. Please contact support.');
+              })
+              .finally(() => {
+                setIsProcessing(false);
               });
-
-              if (!verifyResponse.ok) {
-                throw new Error('Payment verification failed');
-              }
-
-              const verifyData = await verifyResponse.json();
-              console.log('Payment verified:', verifyData);
-
-              setShowPaymentModal(true);
-            } catch (verifyError) {
-              console.error('Verification error:', verifyError);
-              alert('Payment was successful but verification failed. Please contact support.');
-            }
           } else {
             console.log('Payment failed:', response);
             alert('Payment was not successful. Please try again.');
+            setIsProcessing(false);
           }
-          setIsProcessing(false);
         },
         onClose: function() {
           console.log('Payment modal closed');
