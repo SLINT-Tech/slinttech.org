@@ -1,8 +1,9 @@
-import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, FileText, XCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
+import { PageLoader } from '../Components/SkeletonLoader';
 
 interface Lesson {
   id: string;
@@ -92,8 +93,7 @@ const MentorDetailPage = () => {
         return;
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-      const response = await fetch(`${API_BASE_URL}/mentee-get-mentor-detail?mentorId=${mentorId}`, {
+      const response = await fetch(`/api/mentee-get-mentor-detail?mentorId=${mentorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -101,7 +101,7 @@ const MentorDetailPage = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch mentor details');
+        throw new Error(errorData.message || errorData.error || 'Failed to fetch mentor details');
       }
 
       const result = await response.json();
@@ -112,6 +112,9 @@ const MentorDetailPage = () => {
         message: error.message || 'Failed to load mentor details',
         type: 'error'
       });
+      setTimeout(() => {
+        navigate('/mentors');
+      }, 2000);
     } finally {
       setLoading(false);
     }
@@ -166,6 +169,10 @@ const MentorDetailPage = () => {
   };
 
   if (loading) {
+    return <PageLoader message="Loading mentor details..." />;
+  }
+
+  if (!mentorData) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
@@ -179,29 +186,18 @@ const MentorDetailPage = () => {
           </div>
         </header>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#008080] mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading mentor details...</p>
+          <div className="text-center bg-white rounded-xl shadow-sm p-8 max-w-md">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+            <p className="text-gray-600 mb-6">This mentor is not assigned to you or the assignment does not exist.</p>
+            <Link
+              to="/mentors"
+              className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Mentors
+            </Link>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!mentorData) {
-    return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center bg-white rounded-xl shadow-sm p-8 max-w-md">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Mentor Not Found</h1>
-          <p className="text-gray-600 mb-6">The mentor you're looking for doesn't exist or you don't have access.</p>
-          <Link
-            to="/mentors"
-            className="inline-flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Mentors
-          </Link>
         </div>
       </div>
     );
@@ -213,7 +209,6 @@ const MentorDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -240,9 +235,7 @@ const MentorDetailPage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
         <button
           onClick={() => navigate('/mentors')}
           className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors"
@@ -251,7 +244,6 @@ const MentorDetailPage = () => {
           Back to Mentors
         </button>
 
-        {/* Mentor Profile Card */}
         <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-lg p-8 mb-8 text-white">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center ring-4 ring-white/30">
@@ -274,7 +266,6 @@ const MentorDetailPage = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between mb-2">
@@ -309,7 +300,6 @@ const MentorDetailPage = () => {
           </div>
         </div>
 
-        {/* Course Information */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Course Information</h2>
           <div className="grid md:grid-cols-2 gap-6">
@@ -328,7 +318,6 @@ const MentorDetailPage = () => {
           </div>
         </div>
 
-        {/* Progress Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -348,9 +337,7 @@ const MentorDetailPage = () => {
           </p>
         </div>
 
-        {/* Recent Lessons & Tasks Grid */}
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Recent Lessons */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -405,7 +392,6 @@ const MentorDetailPage = () => {
             )}
           </div>
 
-          {/* Recent Tasks */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -456,7 +442,6 @@ const MentorDetailPage = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid md:grid-cols-2 gap-4 mt-8">
           <Link
             to={`/lessons?mentor_id=${mentorId}`}
@@ -475,7 +460,6 @@ const MentorDetailPage = () => {
         </div>
       </div>
 
-      {/* Toast Notification */}
       {toast && (
         <Toast
           message={toast.message}
