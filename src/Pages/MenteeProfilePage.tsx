@@ -145,38 +145,54 @@ const MenteeProfilePage = () => {
       }
 
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userId = currentUser.id;
+
+      if (!token || !userId) {
         alert('Authentication required');
         return;
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-
-      const response = await fetch(`${API_BASE_URL}/download-contract`, {
-        method: 'POST',
+      const response = await fetch(`/api/download-contract?userId=${userId}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ contractUrl })
+          'Authorization': `Bearer ${token}`,
+        }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to download contract');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to download contract');
+        } else {
+          throw new Error('Failed to download contract');
+        }
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`;
+
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"|filename=([^\s;]+)/i);
+        if (fileNameMatch) {
+          fileName = fileNameMatch[1] || fileNameMatch[2];
+        }
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'membership_contract.pdf';
+      a.href = blobUrl;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
       document.body.removeChild(a);
+
+      alert('Contract downloaded successfully!');
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download contract. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to download contract. Please try again.');
     }
   };
 

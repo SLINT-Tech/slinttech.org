@@ -28,26 +28,29 @@ const MentorProfilePage = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
           navigate('/mentor/login');
           return;
         }
 
-        // Fetch user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Error fetching profile');
           setLoading(false);
           return;
         }
+
+        const data = await response.json();
+        const profile = data.profile;
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
@@ -57,35 +60,36 @@ const MentorProfilePage = () => {
 
         // Update localStorage with fresh data
         const userData = {
-          id: user.id,
-          email: user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.fullName || profile.full_name,
+          membershipCategory: profile.membershipCategory || profile.membership_category,
+          careerPath: profile.careerPath || profile.career_path,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          contractFileUrl: profile.contract_file_url
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date,
+          contractFileUrl: profile.contractFileUrl || profile.contract_file_url
         };
-        
+
         localStorage.setItem('currentUser', JSON.stringify(userData));
+
         setProfileData({
-          fullName: profile.full_name,
-          email: user.email,
+          fullName: profile.fullName || profile.full_name,
+          email: profile.email,
           specialization: profile.specialization,
-          contractFile: profile.contract_file_url,
-          joinedDate: profile.created_at,
+          contractFile: profile.contractFileUrl || profile.contract_file_url,
+          joinedDate: profile.createdAt || profile.created_at,
           status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentDate: profile.payment_date,
-          paymentReference: profile.payment_reference
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentDate: profile.paymentDate || profile.payment_date,
+          paymentReference: profile.paymentReference || profile.payment_reference
         });
       } catch (error) {
         console.error('Error fetching profile data:', error);
@@ -148,10 +152,62 @@ const MentorProfilePage = () => {
 
   const downloadContract = async () => {
     try {
-      await downloadContractFile(profileData.contractFile);
+      const contractUrl = profileData?.contractFile;
+
+      if (!contractUrl) {
+        alert('No contract document available');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const userId = currentUser.id;
+
+      if (!token || !userId) {
+        alert('Authentication required');
+        return;
+      }
+
+      const response = await fetch(`/api/download-contract?userId=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to download contract');
+        } else {
+          throw new Error('Failed to download contract');
+        }
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`;
+
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"|filename=([^\s;]+)/i);
+        if (fileNameMatch) {
+          fileName = fileNameMatch[1] || fileNameMatch[2];
+        }
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+
+      alert('Contract downloaded successfully!');
     } catch (error) {
-      console.error('Error downloading contract:', error);
-      alert('Failed to download contract file');
+      console.error('Download error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to download contract. Please try again.');
     }
   };
 
