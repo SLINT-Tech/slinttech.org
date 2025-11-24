@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout, clearAuthData } from '../lib/auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
 export interface UserProfile {
   id: string;
   email: string;
@@ -39,7 +37,7 @@ export const useAuth = () => {
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+        const response = await fetch('/api/auth-me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -47,7 +45,7 @@ export const useAuth = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setProfile(data);
+          setProfile(data.profile);
         } else {
           clearAuthData();
         }

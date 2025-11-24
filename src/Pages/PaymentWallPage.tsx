@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/.netlify/functions';
 
 // Declare PaystackPop for TypeScript
 declare global {
