@@ -113,7 +113,7 @@ const LoginPage = () => {
       }
 
       if (data.requiresPayment) {
-        navigate('/payment');
+        navigate('/payment-wall');
         return;
       }
 

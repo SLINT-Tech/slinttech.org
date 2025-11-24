@@ -44,8 +44,12 @@ const PaymentWallPage = () => {
   const isMentor = user?.role === 'Mentor';
 
   useEffect(() => {
-    if (!user || !token) {
+    if (!token) {
       navigate('/login');
+      return;
+    }
+
+    if (!user) {
       return;
     }
 
@@ -64,6 +68,17 @@ const PaymentWallPage = () => {
     setMembershipAmount(parseFloat(user.membershipAmount || '30.00'));
     setIsLoading(false);
   }, [user, token, navigate]);
+
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5722] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handlePayment = async () => {
     if (!window.PaystackPop) {
