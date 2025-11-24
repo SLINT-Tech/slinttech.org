@@ -307,13 +307,16 @@ const MentorDashboard = () => {
               >
                 Profile
               </Link>
-              <Link 
-                to="/mentor/login" 
-               onClick={signOut}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut();
+                  navigate('/mentor/login');
+                }}
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
-              </Link>
+              </button>
             </div>
             
             {/* Mobile menu button */}
@@ -367,13 +370,16 @@ const MentorDashboard = () => {
                 >
                   Profile
                 </Link>
-                <Link 
-                  to="/mentor/login" 
-                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200"
-                  onClick={() => setIsMenuOpen(false)}
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    signOut();
+                    navigate('/mentor/login');
+                  }}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 cursor-pointer"
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             </div>
           )}

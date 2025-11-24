@@ -57,13 +57,13 @@ const PaymentWallPage = () => {
 
     if (profile.membershipPaid) {
       const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
-      navigate(dashboardPath);
+      navigate(dashboardPath, { replace: true });
       return;
     }
 
     if (!profile.membershipEnabled) {
       const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
-      navigate(dashboardPath);
+      navigate(dashboardPath, { replace: true });
       return;
     }
 
@@ -149,9 +149,15 @@ const PaymentWallPage = () => {
                 setIsProcessing(false);
                 setPaymentStatus('success');
 
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                currentUser.membershipPaid = true;
+                currentUser.paymentReference = response.reference;
+                currentUser.paymentDate = new Date().toISOString();
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
                 setTimeout(() => {
                   const dashboardPath = isMentor ? '/mentor/dashboard' : '/dashboard';
-                  window.location.href = dashboardPath;
+                  navigate(dashboardPath, { replace: true });
                 }, 3000);
               })
               .catch(verifyError => {

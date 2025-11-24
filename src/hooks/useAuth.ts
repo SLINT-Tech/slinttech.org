@@ -37,7 +37,8 @@ export const useAuth = () => {
       }
 
       try {
-        const response = await fetch('/api/auth-me', {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
