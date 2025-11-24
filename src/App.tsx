@@ -55,6 +55,12 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/payment" element={
+            <ProtectedRoute requirePayment={false}>
+              <PaymentWallPage />
+            </ProtectedRoute>
+          } />
+
           <Route path="/dashboard" element={
             <ProtectedRoute requiredRole="Mentee">
               <MenteeDashboard />
