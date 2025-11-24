@@ -36,7 +36,6 @@ declare global {
 const PaymentWallPage = () => {
   const { profile, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -145,13 +144,13 @@ const PaymentWallPage = () => {
               })
               .then(verifyData => {
                 console.log('Payment verified:', verifyData);
-                setShowPaymentModal(true);
+                setIsProcessing(false);
+                const dashboardPath = isMentor ? '/mentor/dashboard' : '/dashboard';
+                window.location.href = dashboardPath;
               })
               .catch(verifyError => {
                 console.error('Verification error:', verifyError);
                 alert('Payment was successful but verification failed. Please contact support.');
-              })
-              .finally(() => {
                 setIsProcessing(false);
               });
           } else {
@@ -175,15 +174,6 @@ const PaymentWallPage = () => {
     }
   };
 
-  const handlePaymentSuccess = () => {
-    setShowPaymentModal(false);
-    // Navigate to appropriate dashboard based on user role
-    if (isMentor) {
-      navigate('/mentor/dashboard');
-    } else {
-      navigate('/dashboard');
-    }
-  };
 
   if (isLoading) {
     return <PageLoader message="Loading payment information..." />;
@@ -359,30 +349,6 @@ const PaymentWallPage = () => {
         </div>
       </div>
 
-      {/* Payment Success Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full">
-            <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-              
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-              <p className="text-gray-600 mb-6">
-                Welcome to SlintTech! Your membership is now active.
-              </p>
-              
-              <button
-                onClick={handlePaymentSuccess}
-                className="w-full bg-[#008080] text-white font-semibold py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
-              >
-                Access Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
