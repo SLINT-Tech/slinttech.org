@@ -33,7 +33,7 @@ declare global {
 }
 
 const PaymentWallPage = () => {
-  const { user, token } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
@@ -41,35 +41,36 @@ const PaymentWallPage = () => {
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  const isMentor = user?.role === 'Mentor';
+  const token = localStorage.getItem('token');
+  const isMentor = profile?.role === 'Mentor';
 
   useEffect(() => {
-    if (!token) {
+    if (authLoading) {
+      return;
+    }
+
+    if (!token || !profile) {
       navigate('/login');
       return;
     }
 
-    if (!user) {
-      return;
-    }
-
-    if (user.membershipPaid) {
-      const dashboardPath = user.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+    if (profile.membershipPaid) {
+      const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
       navigate(dashboardPath);
       return;
     }
 
-    if (!user.membershipEnabled) {
-      const dashboardPath = user.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+    if (!profile.membershipEnabled) {
+      const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
       navigate(dashboardPath);
       return;
     }
 
-    setMembershipAmount(parseFloat(user.membershipAmount || '30.00'));
+    setMembershipAmount(parseFloat(profile.membershipAmount || '30.00'));
     setIsLoading(false);
-  }, [user, token, navigate]);
+  }, [profile, authLoading, token, navigate]);
 
-  if (isLoading || !user) {
+  if (authLoading || isLoading || !profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -198,7 +199,7 @@ const PaymentWallPage = () => {
     );
   }
 
-  if (!user || !membershipAmount || membershipAmount <= 0) {
+  if (!profile || !membershipAmount || membershipAmount <= 0) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
@@ -248,7 +249,7 @@ const PaymentWallPage = () => {
             </h1>
             
             <p className="text-gray-600 mb-2">
-              Congratulations <span className="font-semibold text-[#008080]">{user.fullName}</span>!
+              Congratulations <span className="font-semibold text-[#008080]">{profile.fullName}</span>!
               Your account has been approved.
             </p>
             
