@@ -1,36 +1,92 @@
 import { Clock, Mail, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { PageLoader } from '../Components/SkeletonLoader';
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-
-  // Check if user is a mentor
-  const isMentor = currentUser.role === 'Mentor';
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (currentUser.status === 'approved') {
-      if (currentUser.membershipEnabled && !currentUser.membershipPaid) {
-        navigate('/payment-wall');
-      } else if (currentUser.role === 'Mentor') {
-        navigate('/mentor/dashboard');
-      } else if (currentUser.role === 'Admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
-    } else if (currentUser.status !== 'pending') {
-      if (currentUser.role === 'Mentor') {
-        navigate('/mentor/login');
-      } else if (currentUser.role === 'Admin') {
-        navigate('/admin/login');
-      } else {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
         navigate('/login');
+        return;
       }
-    }
-  }, [currentUser.status, currentUser.role, currentUser.membershipEnabled, currentUser.membershipPaid, navigate]);
+
+      try {
+        const response = await fetch('/api/auth-me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          logout(navigate, '/login');
+          return;
+        }
+
+        const data = await response.json();
+        const profile = data.profile;
+
+        const userData = {
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.fullName || profile.full_name,
+          membershipCategory: profile.membershipCategory || profile.membership_category,
+          careerPath: profile.careerPath || profile.career_path,
+          role: profile.role,
+          status: profile.status,
+          specialization: profile.specialization,
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date
+        };
+
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        setCurrentUser(userData);
+
+        if (userData.status === 'approved') {
+          if (userData.membershipEnabled && !userData.membershipPaid) {
+            navigate('/payment-wall', { replace: true });
+          } else if (userData.role === 'Mentor') {
+            navigate('/mentor/dashboard', { replace: true });
+          } else if (userData.role === 'Admin') {
+            navigate('/admin/dashboard', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
+        } else if (userData.status !== 'pending') {
+          if (userData.role === 'Mentor') {
+            navigate('/mentor/login', { replace: true });
+          } else if (userData.role === 'Admin') {
+            navigate('/admin/login', { replace: true });
+          } else {
+            navigate('/login', { replace: true });
+          }
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        logout(navigate, '/login');
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  if (loading || !currentUser) {
+    return <PageLoader message="Checking approval status..." />;
+  }
+
+  const isMentor = currentUser.role === 'Mentor';
 
   const handleLogout = () => {
     logout(navigate, '/login');
