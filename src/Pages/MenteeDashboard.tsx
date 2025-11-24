@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { CardSkeletonLoader } from '../Components/SkeletonLoader';
 
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
@@ -258,29 +257,63 @@ const MenteeDashboard = () => {
       {/* Loading State with Skeleton */}
       {loading && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section Skeleton */}
           <div className="mb-8">
             <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
           </div>
 
+          {/* Overview Panel Skeleton */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="h-6 bg-gray-200 rounded w-24 mb-6 animate-pulse"></div>
             <div className="grid md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <CardSkeletonLoader key={i} />
+                <div key={i} className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+                  </div>
+                  <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </div>
               ))}
             </div>
           </div>
 
+          {/* Quick Access Cards Skeleton */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <CardSkeletonLoader key={i} />
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+              </div>
             ))}
           </div>
 
+          {/* Bottom Section Skeleton */}
           <div className="grid lg:grid-cols-2 gap-6">
-            <CardSkeletonLoader />
-            <CardSkeletonLoader />
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-40 animate-pulse"></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

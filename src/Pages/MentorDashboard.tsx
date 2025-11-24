@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { CardSkeletonLoader } from '../Components/SkeletonLoader';
 
 const MentorDashboard = () => {
   const { signOut } = useAuth();
@@ -27,26 +26,30 @@ const MentorDashboard = () => {
         setLoading(true);
         setError(null);
 
-        // Get current user session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
           navigate('/mentor/login');
           return;
         }
 
-        // Fetch user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Error fetching profile');
           setError('Failed to load profile data');
+          setLoading(false);
           return;
         }
+
+        const data = await response.json();
+        const profile = data.profile;
 
         // Verify user is a mentor
         if (profile.role !== 'Mentor') {
@@ -56,36 +59,36 @@ const MentorDashboard = () => {
 
         // Update localStorage with fresh data
         const userData = {
-          id: user.id,
-          email: user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.fullName || profile.full_name,
+          membershipCategory: profile.membershipCategory || profile.membership_category,
+          careerPath: profile.careerPath || profile.career_path,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date
         };
-        
+
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
         // Set mentor profile data
         setMentorProfile({
-          id: user.id,
-          fullName: profile.full_name,
-          email: user.email,
-          specialization: profile.specialization || profile.career_path,
+          id: profile.id,
+          fullName: profile.fullName || profile.full_name,
+          email: profile.email,
+          specialization: profile.specialization || profile.careerPath || profile.career_path,
           status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          joinedDate: profile.created_at,
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date,
+          joinedDate: profile.createdAt || profile.created_at,
           // Mock data for now - these would come from actual tables
           mentees: [],
           courses: [],
@@ -152,24 +155,66 @@ const MentorDashboard = () => {
 
         {/* Main Content Skeleton */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section Skeleton */}
           <div className="mb-8">
             <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
           </div>
 
+          {/* Stats Cards Skeleton */}
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <CardSkeletonLoader key={i} />
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="ml-4 flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-7 bg-gray-200 rounded w-12 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
+          {/* Quick Actions Skeleton */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <CardSkeletonLoader key={i} />
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-gray-200 rounded w-36 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
             ))}
           </div>
 
-          <CardSkeletonLoader />
+          {/* Courses List Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+            </div>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="border border-gray-200 rounded-lg p-4">
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div className="flex items-center gap-4">
+                      <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
