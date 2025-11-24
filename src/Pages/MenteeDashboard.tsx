@@ -43,23 +43,24 @@ const MenteeDashboard = () => {
           return;
         }
 
-        const profile = await response.json();
+        const data = await response.json();
+        const profile = data.profile;
 
         const userData = {
           id: profile.id,
           email: profile.email,
-          fullName: profile.fullName,
-          membershipCategory: profile.membershipCategory,
-          careerPath: profile.careerPath,
+          fullName: profile.fullName || profile.full_name,
+          membershipCategory: profile.membershipCategory || profile.membership_category,
+          careerPath: profile.careerPath || profile.career_path,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membershipEnabled,
-          membershipAmount: profile.membershipAmount,
-          membershipPaid: profile.membershipPaid,
-          paymentReference: profile.paymentReference,
-          paymentDate: profile.paymentDate,
-          discordLink: profile.discordLink
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date,
+          discordLink: profile.discordLink || profile.discord_link
         };
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
@@ -88,17 +89,17 @@ const MenteeDashboard = () => {
         });
 
         setMenteeData({
-          fullName: profile.fullName,
+          fullName: profile.fullName || profile.full_name,
           email: profile.email,
-          membershipCategory: profile.membershipCategory,
-          careerPath: profile.careerPath,
+          membershipCategory: profile.membershipCategory || profile.membership_category,
+          careerPath: profile.careerPath || profile.career_path,
           status: profile.status,
-          discordLink: profile.discordLink,
-          membershipEnabled: profile.membershipEnabled,
-          membershipAmount: profile.membershipAmount,
-          membershipPaid: profile.membershipPaid,
-          paymentReference: profile.paymentReference,
-          paymentDate: profile.paymentDate,
+          discordLink: profile.discordLink || profile.discord_link,
+          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipPaid: profile.membershipPaid || profile.membership_paid,
+          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date,
           mentorAssignments: [
             {
               mentor: 'Dr. Sarah Johnson - Full Stack Development',
