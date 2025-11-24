@@ -18,9 +18,19 @@ const MenteeDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Get current user status from localStorage
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  const isPending = currentUser.status === 'pending';
+  // Safely get current user from localStorage
+  const getCurrentUser = () => {
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      return userStr ? JSON.parse(userStr) : {};
+    } catch (error) {
+      console.error('Error parsing currentUser from localStorage:', error);
+      return {};
+    }
+  };
+
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const isPending = currentUser?.status === 'pending';
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -28,7 +38,8 @@ const MenteeDashboard = () => {
         const token = localStorage.getItem('token');
 
         if (!token) {
-          navigate('/login');
+          setLoading(false);
+          navigate('/login', { replace: true });
           return;
         }
 
@@ -44,7 +55,8 @@ const MenteeDashboard = () => {
           if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('token');
             localStorage.removeItem('currentUser');
-            navigate('/login');
+            setLoading(false);
+            navigate('/login', { replace: true });
             return;
           }
 
@@ -77,6 +89,7 @@ const MenteeDashboard = () => {
         };
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
+        setCurrentUser(userData);
 
         const mockLessons = [
           { id: 1, completed: true },
@@ -135,7 +148,9 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setError(error.message || 'Failed to load dashboard');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard';
+        setError(errorMessage);
+      } finally {
         setLoading(false);
       }
     };
@@ -386,8 +401,33 @@ const MenteeDashboard = () => {
         </div>
       )}
 
+      {/* Fallback State - No data and no error */}
+      {!loading && !error && !menteeData && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">No Data Available</h1>
+            <p className="text-gray-600 mb-4">Unable to load dashboard data. Please try again.</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Reload
+              </button>
+              <Link
+                to="/login"
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Back to Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      {!loading && menteeData && (
+      {!loading && !error && menteeData && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Pending Status Banner */}
           {isPending && (
