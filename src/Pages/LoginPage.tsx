@@ -112,20 +112,17 @@ const LoginPage = () => {
         return;
       }
 
+      if (data.requiresPayment) {
+        navigate('/payment');
+        return;
+      }
+
       if (profile.role === 'Admin') {
         navigate('/admin/dashboard');
       } else if (profile.role === 'Mentor') {
-        if (profile.membership_enabled && !profile.membership_paid) {
-          navigate('/payment');
-        } else {
-          navigate('/mentor/dashboard');
-        }
+        navigate('/mentor/dashboard');
       } else {
-        if (profile.membership_enabled && !profile.membership_paid) {
-          navigate('/payment');
-        } else {
-          navigate('/dashboard');
-        }
+        navigate('/dashboard');
       }
     } catch (error: any) {
       setToast({

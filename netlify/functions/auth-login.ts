@@ -119,6 +119,17 @@ export default async (req: Request, context: Context) => {
       });
     }
 
+    if (user.status === 'approved' && user.membershipEnabled && !user.membershipPaid) {
+      return new Response(JSON.stringify({
+        requiresPayment: true,
+        token,
+        profile: userWithoutPassword
+      }), {
+        status: 200,
+        headers: corsHeaders
+      });
+    }
+
     return new Response(JSON.stringify({
       token,
       profile: userWithoutPassword

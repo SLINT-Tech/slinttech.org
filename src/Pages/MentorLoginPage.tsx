@@ -113,11 +113,12 @@ const MentorLoginPage = () => {
         return;
       }
 
-      if (profile.membership_enabled && !profile.membership_paid) {
+      if (data.requiresPayment) {
         navigate('/payment');
-      } else {
-        navigate('/mentor/dashboard');
+        return;
       }
+
+      navigate('/mentor/dashboard');
     } catch (error: any) {
       setToast({
         message: error.message || 'Login failed. Please check your credentials.',

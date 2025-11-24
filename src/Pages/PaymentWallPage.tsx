@@ -1,9 +1,10 @@
 import { ArrowRight, CheckCircle, CreditCard, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-// Paystack configuration
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/.netlify/functions';
 
 // Declare PaystackPop for TypeScript
 declare global {
@@ -32,25 +33,37 @@ declare global {
 }
 
 const PaymentWallPage = () => {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const { user, token } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [membershipAmount, setMembershipAmount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  // Check if user is a mentor
-  const isMentor = currentUser.role === 'Mentor';
+  const isMentor = user?.role === 'Mentor';
 
-  // Generate unique payment reference
-  const generatePaymentRef = () => {
-    return `slint_${currentUser.id}_${Date.now()}`;
-  };
+  useEffect(() => {
+    if (!user || !token) {
+      navigate('/login');
+      return;
+    }
 
-  // Verify payment amount from user data (simulate database check)
-  const verifyPaymentAmount = () => {
-    // In production, this would be a secure API call to verify the amount
-    // For now, we use the stored user data
-    return currentUser.membershipAmount || 30;
-  };
+    if (user.membershipPaid) {
+      const dashboardPath = user.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+      navigate(dashboardPath);
+      return;
+    }
+
+    if (!user.membershipEnabled) {
+      const dashboardPath = user.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+      navigate(dashboardPath);
+      return;
+    }
+
+    setMembershipAmount(parseFloat(user.membershipAmount || '30.00'));
+    setIsLoading(false);
+  }, [user, token, navigate]);
 
   const handlePayment = async () => {
     if (!window.PaystackPop) {
@@ -59,75 +72,92 @@ const PaymentWallPage = () => {
     }
 
     setIsProcessing(true);
-    
+    setError('');
+
     try {
-      // Verify amount from secure source (simulate database check)
-      const verifiedAmount = verifyPaymentAmount();
-      
-      // Convert amount to kobo (Paystack uses kobo for GHS)
-      const amountInKobo = verifiedAmount * 100;
-      
-      const paymentRef = generatePaymentRef();
-      
+      const response = await fetch(`${API_BASE_URL}/payment-initialize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to initialize payment');
+      }
+
+      const paymentData = await response.json();
+
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
-        email: currentUser.email,
-        amount: amountInKobo,
+        email: paymentData.email,
+        amount: paymentData.amount,
         currency: 'GHS',
-        ref: paymentRef,
+        ref: paymentData.reference,
         metadata: {
           custom_fields: [
             {
               display_name: "User ID",
-              variable_name: "user_id",
-              value: currentUser.id.toString()
+              variable_name: "userId",
+              value: paymentData.metadata.userId
             },
             {
               display_name: "Full Name",
-              variable_name: "full_name",
-              value: currentUser.fullName
+              variable_name: "fullName",
+              value: paymentData.metadata.fullName
             },
             {
               display_name: "Membership Type",
-              variable_name: "membership_type",
-              value: "One-time Membership"
+              variable_name: "membershipType",
+              value: paymentData.metadata.membershipType
             }
           ]
         },
-        callback: function(response) {
+        callback: async function(response) {
           if (response.status === 'success') {
-            // Payment successful
-            console.log('Payment successful:', response);
-            
-            // Update user payment status
-            const updatedUser = { 
-              ...currentUser, 
-              membershipPaid: true,
-              paymentReference: response.reference,
-              paymentDate: new Date().toISOString()
-            };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            
-            // Show success modal
-            setShowPaymentModal(true);
+            console.log('Payment successful, verifying...');
+
+            try {
+              const verifyResponse = await fetch(`${API_BASE_URL}/payment-verify`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reference: response.reference })
+              });
+
+              if (!verifyResponse.ok) {
+                throw new Error('Payment verification failed');
+              }
+
+              const verifyData = await verifyResponse.json();
+              console.log('Payment verified:', verifyData);
+
+              setShowPaymentModal(true);
+            } catch (verifyError) {
+              console.error('Verification error:', verifyError);
+              alert('Payment was successful but verification failed. Please contact support.');
+            }
           } else {
-            // Payment failed
             console.log('Payment failed:', response);
             alert('Payment was not successful. Please try again.');
           }
           setIsProcessing(false);
         },
         onClose: function() {
-          // User closed the payment modal
           console.log('Payment modal closed');
           setIsProcessing(false);
         }
       });
-      
+
       handler.openIframe();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment initialization error:', error);
-      alert('Failed to initialize payment. Please try again.');
+      setError(error.message || 'Failed to initialize payment');
+      alert(error.message || 'Failed to initialize payment. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -142,10 +172,18 @@ const PaymentWallPage = () => {
     }
   };
 
-  // Security check - ensure user has valid membership amount
-  const membershipAmount = verifyPaymentAmount();
-  
-  if (!membershipAmount || membershipAmount <= 0) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+          <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !membershipAmount || membershipAmount <= 0) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
@@ -195,7 +233,7 @@ const PaymentWallPage = () => {
             </h1>
             
             <p className="text-gray-600 mb-2">
-              Congratulations <span className="font-semibold text-[#008080]">{currentUser.fullName}</span>! 
+              Congratulations <span className="font-semibold text-[#008080]">{user.fullName}</span>!
               Your account has been approved.
             </p>
             
@@ -215,7 +253,7 @@ const PaymentWallPage = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold">₵{currentUser.membershipAmount}</div>
+                <div className="text-3xl font-bold">₵{membershipAmount}</div>
                 <div className="text-teal-100 text-sm">GHS</div>
               </div>
             </div>
@@ -297,7 +335,7 @@ const PaymentWallPage = () => {
               </>
             ) : (
               <>
-                Pay ₵{currentUser.membershipAmount}
+                Pay ₵{membershipAmount.toFixed(2)}
               </>
             )}
           </button>
