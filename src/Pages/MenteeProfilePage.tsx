@@ -35,9 +35,7 @@ const MenteeProfilePage = () => {
           return;
         }
 
-        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-
-        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+        const response = await fetch('/api/auth-me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -143,9 +141,8 @@ const MenteeProfilePage = () => {
       }
 
       const token = localStorage.getItem('token');
-      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
-      const response = await fetch(`${API_BASE_URL}/download-contract`, {
+      const response = await fetch('/api/download-contract', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -26,7 +26,7 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/.netlify/functions/admin-login', {
+      const response = await fetch('/api/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
