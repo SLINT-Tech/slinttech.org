@@ -11,152 +11,146 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Safely get current user from localStorage
-  const getCurrentUser = () => {
-    try {
-      const userStr = localStorage.getItem('currentUser');
-      return userStr ? JSON.parse(userStr) : {};
-    } catch (error) {
-      console.error('Error parsing currentUser from localStorage:', error);
-      return {};
-    }
-  };
-
-  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  // Check if current user is mentee
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const isMentee = currentUser.role === 'Mentee';
   const isPending = currentUser?.status === 'pending';
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
+    if (!isMentee) {
+      return;
+    }
 
-        if (!token) {
-          setLoading(false);
-          navigate('/login', { replace: true });
+    fetchProfileData();
+  }, [isMentee]);
+
+  const fetchProfileData = async () => {
+    if (!isMentee) return;
+
+    try {
+      setIsLoadingProfile(true);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth-me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+          window.location.href = '/login';
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/auth-me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          console.error('Error fetching profile:', response.status);
-
-          if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('currentUser');
-            setLoading(false);
-            navigate('/login', { replace: true });
-            return;
-          }
-
-          throw new Error('Failed to fetch profile');
-        }
-
         const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error('Received non-JSON response:', contentType);
-          throw new Error('Invalid response from server');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch profile');
         }
-
-        const profile = await response.json();
-
-        const userData = {
-          id: profile.id,
-          email: profile.email,
-          fullName: profile.fullName,
-          membershipCategory: profile.membershipCategory,
-          careerPath: profile.careerPath,
-          role: profile.role,
-          status: profile.status,
-          specialization: profile.specialization,
-          membershipEnabled: profile.membershipEnabled,
-          membershipAmount: profile.membershipAmount,
-          membershipPaid: profile.membershipPaid,
-          paymentReference: profile.paymentReference,
-          paymentDate: profile.paymentDate,
-          discordLink: profile.discordLink
-        };
-
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        setCurrentUser(userData);
-
-        const mockLessons = [
-          { id: 1, completed: true },
-          { id: 2, completed: false },
-          { id: 3, completed: true }
-        ];
-
-        setLessonsData({
-          completed: mockLessons.filter(l => l.completed).length,
-          total: mockLessons.length
-        });
-
-        const mockTasks = [
-          { id: 1, status: 'approved' },
-          { id: 2, status: 'pending' },
-          { id: 3, status: 'approved' },
-          { id: 4, status: 'rejected' }
-        ];
-
-        setTasksData({
-          approved: mockTasks.filter(t => t.status === 'approved').length,
-          total: mockTasks.length
-        });
-
-        setMenteeData({
-          fullName: profile.fullName,
-          email: profile.email,
-          membershipCategory: profile.membershipCategory,
-          careerPath: profile.careerPath,
-          status: profile.status,
-          discordLink: profile.discordLink,
-          membershipEnabled: profile.membershipEnabled,
-          membershipAmount: profile.membershipAmount,
-          membershipPaid: profile.membershipPaid,
-          paymentReference: profile.paymentReference,
-          paymentDate: profile.paymentDate,
-          mentorAssignments: [
-            {
-              mentor: 'Dr. Sarah Johnson - Full Stack Development',
-              courseName: 'React Fundamentals',
-              duration: '8 weeks',
-              mentorEmail: 'sarah.johnson@slinttech.org',
-              mentorPhone: '+1 (555) 123-4567'
-            }
-          ],
-          announcements: [
-            {
-              id: 1,
-              title: 'Welcome to SlintTech!',
-              message: 'Your account has been created successfully. Welcome to our community!',
-              date: new Date().toISOString().split('T')[0],
-              type: 'info'
-            }
-          ]
-        });
-
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard';
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
+        throw new Error('Failed to fetch profile');
       }
-    };
 
-    fetchUserData();
-  }, [navigate]);
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Received non-JSON response:', contentType);
+        throw new Error('Invalid response from server');
+      }
+
+      const profile = await response.json();
+
+      const userData = {
+        id: profile.id,
+        email: profile.email,
+        fullName: profile.fullName,
+        membershipCategory: profile.membershipCategory,
+        careerPath: profile.careerPath,
+        role: profile.role,
+        status: profile.status,
+        specialization: profile.specialization,
+        membershipEnabled: profile.membershipEnabled,
+        membershipAmount: profile.membershipAmount,
+        membershipPaid: profile.membershipPaid,
+        paymentReference: profile.paymentReference,
+        paymentDate: profile.paymentDate,
+        discordLink: profile.discordLink
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+
+      const mockLessons = [
+        { id: 1, completed: true },
+        { id: 2, completed: false },
+        { id: 3, completed: true }
+      ];
+
+      setLessonsData({
+        completed: mockLessons.filter(l => l.completed).length,
+        total: mockLessons.length
+      });
+
+      const mockTasks = [
+        { id: 1, status: 'approved' },
+        { id: 2, status: 'pending' },
+        { id: 3, status: 'approved' },
+        { id: 4, status: 'rejected' }
+      ];
+
+      setTasksData({
+        approved: mockTasks.filter(t => t.status === 'approved').length,
+        total: mockTasks.length
+      });
+
+      setMenteeData({
+        fullName: profile.fullName,
+        email: profile.email,
+        membershipCategory: profile.membershipCategory,
+        careerPath: profile.careerPath,
+        status: profile.status,
+        discordLink: profile.discordLink,
+        membershipEnabled: profile.membershipEnabled,
+        membershipAmount: profile.membershipAmount,
+        membershipPaid: profile.membershipPaid,
+        paymentReference: profile.paymentReference,
+        paymentDate: profile.paymentDate,
+        mentorAssignments: [
+          {
+            mentor: 'Dr. Sarah Johnson - Full Stack Development',
+            courseName: 'React Fundamentals',
+            duration: '8 weeks',
+            mentorEmail: 'sarah.johnson@slinttech.org',
+            mentorPhone: '+1 (555) 123-4567'
+          }
+        ],
+        announcements: [
+          {
+            id: 1,
+            title: 'Welcome to SlintTech!',
+            message: 'Your account has been created successfully. Welcome to our community!',
+            date: new Date().toISOString().split('T')[0],
+            type: 'info'
+          }
+        ]
+      });
+
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -187,6 +181,21 @@ const MenteeDashboard = () => {
         return 'Unknown';
     }
   };
+
+  // Access control
+  if (!isMentee) {
+    return (
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
+          <Link to="/login" className="text-[#008080] hover:text-teal-700 font-medium">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -283,390 +292,14 @@ const MenteeDashboard = () => {
         </div>
       </header>
 
-      {/* Loading State with Skeleton */}
-      {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
-          </div>
-
-          {/* Overview Panel Skeleton */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="h-6 bg-gray-200 rounded w-24 mb-6 animate-pulse"></div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Lessons Progress Skeleton */}
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3"></div>
-                  <div className="h-4 bg-gray-200 rounded w-12"></div>
-                </div>
-                <div className="h-3 bg-gray-200 rounded w-28"></div>
-              </div>
-
-              {/* Tasks Progress Skeleton */}
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-28 mb-2"></div>
-                <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3"></div>
-                  <div className="h-4 bg-gray-200 rounded w-12"></div>
-                </div>
-                <div className="h-3 bg-gray-200 rounded w-24"></div>
-              </div>
-
-              {/* Status Skeleton */}
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-24 mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-32"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Access Cards Skeleton */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-200 rounded mr-4"></div>
-                    <div>
-                      <div className="h-5 bg-gray-200 rounded w-28 mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-40"></div>
-                    </div>
-                  </div>
-                  <div className="w-5 h-5 bg-gray-200 rounded"></div>
-                </div>
-                <div className="h-3 bg-gray-200 rounded w-32"></div>
-              </div>
-            ))}
-          </div>
-
-          {/* Community and Announcements Skeleton */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
-              <div className="flex items-center mb-4">
-                <div className="w-6 h-6 bg-gray-200 rounded mr-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-40"></div>
-              </div>
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-48 mx-auto mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-64 mx-auto"></div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
-              <div className="flex items-center mb-4">
-                <div className="w-6 h-6 bg-gray-200 rounded mr-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-48"></div>
-              </div>
-              <div className="space-y-4">
-                {[1, 2].map((i) => (
-                  <div key={i} className="border-l-4 border-gray-200 p-4 rounded-r-lg bg-gray-50">
-                    <div className="h-4 bg-gray-200 rounded w-40 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-20"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {!loading && error && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                Retry
-              </button>
-              <Link
-                to="/login"
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Back to Login
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback State - No data and no error */}
-      {!loading && !error && !menteeData && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">No Data Available</h1>
-            <p className="text-gray-600 mb-4">Unable to load dashboard data. Please try again.</p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                Reload
-              </button>
-              <Link
-                to="/login"
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Back to Login
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      {!loading && !error && menteeData && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Pending Status Banner */}
-          {isPending && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
-              <div className="flex items-start">
-                <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Account Under Review</h3>
-                  <p className="text-yellow-700 mb-3">
-                    Your account is currently being reviewed by our admin team. You're viewing a preview of your dashboard.
-                    Once approved, you'll have full access to all features including lessons, tasks, and community Discord.
-                  </p>
-                  <div className="text-sm text-yellow-600">
-                    <p>✓ Application submitted successfully</p>
-                    <p>⏳ Admin review in progress</p>
-                    <p>📧 You'll receive an email notification once approved</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back, {menteeData.fullName?.split(' ')[0]}!
-            </h1>
-            <p className="text-gray-600">
-              Track your progress, complete lessons, and submit tasks
-            </p>
-          </div>
-
-          {/* Overview Panel */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Overview</h2>
-            
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
-              {/* Progress Stats */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Lessons Progress</h3>
-                <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
-                    <div 
-                      className="bg-[#008080] h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${lessonsData.total > 0 ? (lessonsData.completed / lessonsData.total) * 100 : 0}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {lessonsData.completed}/{lessonsData.total}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">Lessons completed</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Tasks Progress</h3>
-                <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
-                    <div 
-                      className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${tasksData.total > 0 ? (tasksData.approved / tasksData.total) * 100 : 0}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {tasksData.approved}/{tasksData.total}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">Tasks approved</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(menteeData.status)}`}>
-                  {getStatusText(menteeData.status)}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
-              </div>
-            </div>
-            
-            {/* Mentor Contact Info */}
-          </div>
-
-          {/* Quick Access Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Link 
-              to="/mentors" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Users className="w-8 h-8 text-[#008080] mr-4" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">My Mentors</h3>
-                    <p className="text-gray-600">
-                      {isPending ? 'Available after approval' : 'View your assigned mentors'}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="mt-4 text-sm text-gray-500">
-                {isPending ? 'Pending approval' : `${menteeData.mentorAssignments.length} mentors assigned`}
-              </div>
-            </Link>
-
-            <Link 
-              to="/lessons" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">All Lessons</h3>
-                    <p className="text-gray-600">
-                      {isPending ? 'Available after approval' : 'View and complete your lessons'}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="mt-4 text-sm text-gray-500">
-                {isPending ? 'Pending approval' : `${lessonsData.completed} of ${lessonsData.total} lessons completed`}
-              </div>
-            </Link>
-
-            <Link 
-              to="/tasks" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Target className="w-8 h-8 text-[#008080] mr-4" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">All Tasks</h3>
-                    <p className="text-gray-600">
-                      {isPending ? 'Available after approval' : 'Submit and track your assignments'}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="mt-4 text-sm text-gray-500">
-                {isPending ? 'Pending approval' : `${tasksData.approved} of ${tasksData.total} tasks approved`}
-              </div>
-            </Link>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Community Discord */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center mb-4">
-                <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
-                <h2 className="text-xl font-semibold text-gray-900">Community Discord</h2>
-              </div>
-              
-              {menteeData.discordLink && !isPending ? (
-                <div>
-                  <p className="text-gray-600 mb-4">
-                    Join our Discord community to connect with other members and mentors.
-                  </p>
-                  <a
-                    href={menteeData.discordLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#5865F2] text-white px-4 py-2 rounded-lg hover:bg-[#4752C4] transition-colors cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    Join Discord Server
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">
-                    {isPending ? 'Discord access available after approval' : 'Discord invite not available yet'}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {isPending 
-                      ? 'Complete the approval process to join our community'
-                      : 'You\'ll receive a Discord invite once your membership is approved'
-                    }
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Recent Announcements */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center mb-4">
-                <Users className="w-6 h-6 text-[#008080] mr-2" />
-                <h2 className="text-xl font-semibold text-gray-900">Recent Announcements</h2>
-              </div>
-              
-              {menteeData.announcements?.length > 0 ? (
-                <div className="space-y-4">
-                  {menteeData.announcements.slice(0, 3).map((announcement) => (
-                    <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg ${
-                      announcement.type === 'warning' ? 'border-yellow-500 bg-yellow-50' : 'border-[#008080] bg-gray-50'
-                    }`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
-                          <p className="text-gray-600 mb-2">{announcement.message}</p>
-                          <p className="text-xs text-gray-500">{announcement.date}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No announcements yet</p>
-                  <p className="text-sm text-gray-400">
-                    Check back later for updates and announcements
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Main Content - Always rendered */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isLoadingProfile ? (
+          <CardSkeletonLoader />
+        ) : (
+          <div>Dashboard content</div>
+        )}
+      </div>
     </div>
   );
 };
