@@ -1,5 +1,5 @@
 import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 
@@ -12,6 +12,21 @@ const AdminLoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+    if (token && currentUser.role) {
+      if (currentUser.role === 'Admin') {
+        navigate('/admin/dashboard');
+      } else if (currentUser.role === 'Mentor') {
+        navigate('/mentor/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

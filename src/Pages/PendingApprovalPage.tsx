@@ -1,6 +1,7 @@
 import { Clock, Mail, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
+import { useEffect } from 'react';
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
@@ -8,6 +9,28 @@ const PendingApprovalPage = () => {
 
   // Check if user is a mentor
   const isMentor = currentUser.role === 'Mentor';
+
+  useEffect(() => {
+    if (currentUser.status === 'approved') {
+      if (currentUser.membershipEnabled && !currentUser.membershipPaid) {
+        navigate('/payment-wall');
+      } else if (currentUser.role === 'Mentor') {
+        navigate('/mentor/dashboard');
+      } else if (currentUser.role === 'Admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    } else if (currentUser.status !== 'pending') {
+      if (currentUser.role === 'Mentor') {
+        navigate('/mentor/login');
+      } else if (currentUser.role === 'Admin') {
+        navigate('/admin/login');
+      } else {
+        navigate('/login');
+      }
+    }
+  }, [currentUser.status, currentUser.role, currentUser.membershipEnabled, currentUser.membershipPaid, navigate]);
 
   const handleLogout = () => {
     logout(navigate, '/login');

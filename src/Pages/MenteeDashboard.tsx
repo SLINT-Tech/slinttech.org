@@ -45,6 +45,21 @@ const MenteeDashboard = () => {
         const data = await response.json();
         const profile = data.profile;
 
+        // Check if user should be redirected elsewhere
+        if (profile.status === 'pending') {
+          navigate('/pending-approval');
+          return;
+        }
+
+        // Check payment requirement - handle both camelCase and snake_case
+        const membershipEnabled = profile.membershipEnabled || profile.membership_enabled;
+        const membershipPaid = profile.membershipPaid || profile.membership_paid;
+
+        if (profile.status === 'approved' && membershipEnabled && !membershipPaid) {
+          navigate('/payment-wall');
+          return;
+        }
+
         const userData = {
           id: profile.id,
           email: profile.email,
