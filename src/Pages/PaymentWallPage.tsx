@@ -39,6 +39,7 @@ const PaymentWallPage = () => {
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'verifying' | 'success'>('idle');
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
@@ -127,6 +128,7 @@ const PaymentWallPage = () => {
         callback: function(response) {
           if (response.status === 'success') {
             console.log('Payment successful, verifying...');
+            setPaymentStatus('verifying');
 
             fetch(`${API_BASE_URL}/payment-verify`, {
               method: 'POST',
@@ -145,11 +147,16 @@ const PaymentWallPage = () => {
               .then(verifyData => {
                 console.log('Payment verified:', verifyData);
                 setIsProcessing(false);
-                const dashboardPath = isMentor ? '/mentor/dashboard' : '/dashboard';
-                window.location.href = dashboardPath;
+                setPaymentStatus('success');
+
+                setTimeout(() => {
+                  const dashboardPath = isMentor ? '/mentor/dashboard' : '/dashboard';
+                  window.location.href = dashboardPath;
+                }, 3000);
               })
               .catch(verifyError => {
                 console.error('Verification error:', verifyError);
+                setPaymentStatus('idle');
                 alert('Payment was successful but verification failed. Please contact support.');
                 setIsProcessing(false);
               });
@@ -348,6 +355,59 @@ const PaymentWallPage = () => {
           </div>
         </div>
       </div>
+
+      {paymentStatus === 'verifying' && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-8 text-center">
+            <svg
+              className="animate-spin h-16 w-16 text-[#008080] mx-auto mb-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Payment</h2>
+            <p className="text-gray-600">Please wait while we confirm your payment...</p>
+          </div>
+        </div>
+      )}
+
+      {paymentStatus === 'success' && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-8 text-center animate-in fade-in duration-300">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
+              <CheckCircle className="w-12 h-12 text-green-600" />
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Payment Successful!</h2>
+            <p className="text-gray-600 mb-2">
+              Welcome to SlintTech, <span className="font-semibold text-[#008080]">{profile?.fullName}</span>!
+            </p>
+            <p className="text-gray-500 text-sm mb-6">
+              Your membership is now active. Redirecting to your dashboard...
+            </p>
+
+            <div className="flex items-center justify-center gap-2 text-[#008080]">
+              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
