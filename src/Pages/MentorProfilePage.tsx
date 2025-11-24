@@ -2,12 +2,14 @@ import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'l
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Toast from '../Components/Toast';
 
 const MentorProfilePage = () => {
   const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+
   // Get current user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   
@@ -155,7 +157,10 @@ const MentorProfilePage = () => {
       const contractUrl = profileData?.contractFile;
 
       if (!contractUrl) {
-        alert('No contract document available');
+        setToast({
+          message: 'No contract document available',
+          type: 'error'
+        });
         return;
       }
 
@@ -163,9 +168,17 @@ const MentorProfilePage = () => {
       const userId = currentUser.id;
 
       if (!token || !userId) {
-        alert('Authentication required');
+        setToast({
+          message: 'Authentication required',
+          type: 'error'
+        });
         return;
       }
+
+      setToast({
+        message: 'Downloading contract...',
+        type: 'success'
+      });
 
       const response = await fetch(`/api/download-contract?userId=${userId}`, {
         method: 'GET',
@@ -196,18 +209,24 @@ const MentorProfilePage = () => {
 
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
 
-      alert('Contract downloaded successfully!');
+      setToast({
+        message: 'Contract downloaded successfully!',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Download error:', error);
-      alert(error instanceof Error ? error.message : 'Failed to download contract. Please try again.');
+      setToast({
+        message: error instanceof Error ? error.message : 'Failed to download contract',
+        type: 'error'
+      });
     }
   };
 
@@ -622,6 +641,14 @@ const MentorProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
