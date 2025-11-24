@@ -1,8 +1,8 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { userProfiles, mentorMenteeRelationships, courses, lessons, lessonProgress, tasks, taskSubmissions } from '../../src/db/schema';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { userProfiles, mentorMenteeRelationships, courseEnrollments, courses, lessons, lessonProgress, tasks, taskSubmissions } from '../../src/db/schema';
+import { eq, and, sql } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -70,73 +70,63 @@ export default async (req: Request, context: Context) => {
       .select({
         relationshipId: mentorMenteeRelationships.id,
         mentorId: mentorMenteeRelationships.mentorId,
-        courseName: mentorMenteeRelationships.courseName,
-        status: mentorMenteeRelationships.status,
-        progressPercentage: mentorMenteeRelationships.progressPercentage,
-        assignedDate: mentorMenteeRelationships.assignedDate,
-        notes: mentorMenteeRelationships.notes,
         mentorName: userProfiles.fullName,
         mentorEmail: userProfiles.email,
-        mentorSpecialization: userProfiles.specialization
+        mentorSpecialization: userProfiles.specialization,
+        status: mentorMenteeRelationships.status,
+        assignedDate: mentorMenteeRelationships.assignedDate,
+        notes: mentorMenteeRelationships.notes
       })
       .from(mentorMenteeRelationships)
       .leftJoin(userProfiles, eq(mentorMenteeRelationships.mentorId, userProfiles.id))
-      .where(
-        and(
-          eq(mentorMenteeRelationships.mentorId, mentorId),
-          eq(mentorMenteeRelationships.menteeId, menteeId)
-        )
-      )
+      .where(and(
+        eq(mentorMenteeRelationships.mentorId, mentorId),
+        eq(mentorMenteeRelationships.menteeId, menteeId)
+      ))
       .limit(1);
 
-    if (!relationshipResult || relationshipResult.length === 0) {
-      return new Response(JSON.stringify({ error: 'Mentor assignment not found' }), {
-        status: 404,
+    if (!relationshipResult.length) {
+      return new Response(JSON.stringify({
+        error: 'Access denied',
+        message: 'This mentor is not assigned to you'
+      }), {
+        status: 403,
         headers: corsHeaders
       });
     }
 
     const relationship = relationshipResult[0];
 
-    console.log('Relationship found:', {
-      mentorId: relationship.mentorId,
-      menteeId,
-      courseName: relationship.courseName,
-      status: relationship.status
-    });
-
-    const courseResult = await db
+    const enrolledCoursesResult = await db
       .select({
-        id: courses.id,
-        name: courses.name,
-        duration: courses.duration,
-        description: courses.description,
-        status: courses.status
+        courseId: courses.id,
+        courseName: courses.name,
+        courseDescription: courses.description,
+        courseDuration: courses.duration,
+        enrollmentStatus: courseEnrollments.status,
+        progressPercentage: courseEnrollments.progressPercentage,
+        enrolledAt: courseEnrollments.enrolledAt
       })
-      .from(courses)
-      .where(eq(courses.name, relationship.courseName))
-      .limit(1);
+      .from(courseEnrollments)
+      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+      .where(and(
+        eq(courseEnrollments.menteeId, menteeId),
+        eq(courses.mentorId, mentorId),
+        eq(courseEnrollments.status, 'active')
+      ));
 
-    const course = courseResult[0];
-
-    console.log('Course lookup result:', {
-      courseName: relationship.courseName,
-      found: !!course,
-      courseId: course?.id
-    });
-
-    if (!course) {
+    if (!enrolledCoursesResult.length) {
       const mentorDetail = {
         id: relationship.mentorId,
         relationshipId: relationship.relationshipId,
         fullName: relationship.mentorName,
         email: relationship.mentorEmail,
         specialization: relationship.mentorSpecialization,
-        courseName: relationship.courseName,
-        courseDescription: 'Course details not available yet',
-        duration: 'TBD',
+        courseName: 'No courses assigned yet',
+        courseDescription: 'Your mentor has not enrolled you in any courses yet. They will add you to courses once they create them.',
+        duration: 'N/A',
         status: relationship.status,
-        progressPercentage: relationship.progressPercentage,
+        progressPercentage: 0,
         assignedDate: relationship.assignedDate,
         notes: relationship.notes,
         lessons: [],
@@ -160,56 +150,125 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const lessonsResult = await db
-      .select({
-        id: lessons.id,
-        title: lessons.title,
-        description: lessons.description,
-        link: lessons.link,
-        orderIndex: lessons.orderIndex,
-        status: lessons.status,
-        createdAt: lessons.createdAt,
-        completed: lessonProgress.completed,
-        completedAt: lessonProgress.completedAt
-      })
-      .from(lessons)
-      .leftJoin(
-        lessonProgress,
-        and(
-          eq(lessons.id, lessonProgress.lessonId),
-          eq(lessonProgress.menteeId, menteeId)
-        )
-      )
-      .where(eq(lessons.courseId, course.id))
-      .orderBy(lessons.orderIndex);
+    const coursesWithDetails = await Promise.all(
+      enrolledCoursesResult.map(async (enrollment) => {
+        const lessonsResult = await db
+          .select({
+            id: lessons.id,
+            title: lessons.title,
+            description: lessons.description,
+            link: lessons.link,
+            orderIndex: lessons.orderIndex,
+            status: lessons.status,
+            completedAt: lessonProgress.completedAt,
+            completed: lessonProgress.completed,
+            createdAt: lessons.createdAt
+          })
+          .from(lessons)
+          .leftJoin(lessonProgress, and(
+            eq(lessons.id, lessonProgress.lessonId),
+            eq(lessonProgress.menteeId, menteeId)
+          ))
+          .where(eq(lessons.courseId, enrollment.courseId))
+          .orderBy(lessons.orderIndex);
 
-    const tasksResult = await db
-      .select({
-        id: tasks.id,
-        title: tasks.title,
-        description: tasks.description,
-        deadline: tasks.deadline,
-        status: tasks.status,
-        orderIndex: tasks.orderIndex,
-        createdAt: tasks.createdAt,
-        submissionId: taskSubmissions.id,
-        submissionLink: taskSubmissions.submissionLink,
-        submissionNotes: taskSubmissions.submissionNotes,
-        submissionStatus: taskSubmissions.status,
-        mentorFeedback: taskSubmissions.mentorFeedback,
-        submittedAt: taskSubmissions.submittedAt,
-        reviewedAt: taskSubmissions.reviewedAt
+        const tasksResult = await db
+          .select({
+            id: tasks.id,
+            title: tasks.title,
+            description: tasks.description,
+            deadline: tasks.deadline,
+            status: tasks.status,
+            orderIndex: tasks.orderIndex,
+            createdAt: tasks.createdAt,
+            submissionId: taskSubmissions.id,
+            submissionLink: taskSubmissions.submissionLink,
+            submissionNotes: taskSubmissions.submissionNotes,
+            submissionStatus: taskSubmissions.status,
+            mentorFeedback: taskSubmissions.mentorFeedback,
+            submittedAt: taskSubmissions.submittedAt,
+            reviewedAt: taskSubmissions.reviewedAt
+          })
+          .from(tasks)
+          .leftJoin(taskSubmissions, and(
+            eq(tasks.id, taskSubmissions.taskId),
+            eq(taskSubmissions.menteeId, menteeId)
+          ))
+          .where(eq(tasks.courseId, enrollment.courseId))
+          .orderBy(tasks.orderIndex);
+
+        const lessonsData = lessonsResult.map(lesson => ({
+          id: lesson.id,
+          title: lesson.title,
+          description: lesson.description,
+          link: lesson.link,
+          orderIndex: lesson.orderIndex,
+          status: lesson.status,
+          completed: lesson.completed || false,
+          completedAt: lesson.completedAt,
+          createdAt: lesson.createdAt
+        }));
+
+        const tasksData = tasksResult.map(task => ({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          deadline: task.deadline,
+          status: task.status,
+          orderIndex: task.orderIndex,
+          createdAt: task.createdAt,
+          submission: task.submissionId ? {
+            id: task.submissionId,
+            submissionLink: task.submissionLink,
+            submissionNotes: task.submissionNotes,
+            status: task.submissionStatus,
+            mentorFeedback: task.mentorFeedback,
+            submittedAt: task.submittedAt,
+            reviewedAt: task.reviewedAt
+          } : null
+        }));
+
+        return {
+          courseId: enrollment.courseId,
+          courseName: enrollment.courseName,
+          courseDescription: enrollment.courseDescription,
+          duration: enrollment.courseDuration,
+          progressPercentage: enrollment.progressPercentage,
+          enrolledAt: enrollment.enrolledAt,
+          lessons: lessonsData,
+          tasks: tasksData,
+          stats: {
+            totalLessons: lessonsData.length,
+            completedLessons: lessonsData.filter(l => l.completed).length,
+            totalTasks: tasksData.length,
+            completedTasks: tasksData.filter(t => t.submission?.status === 'approved').length,
+            pendingTasks: tasksData.filter(t => !t.submission).length,
+            submittedTasks: tasksData.filter(t => t.submission && t.submission.status === 'submitted').length
+          }
+        };
       })
-      .from(tasks)
-      .leftJoin(
-        taskSubmissions,
-        and(
-          eq(tasks.id, taskSubmissions.taskId),
-          eq(taskSubmissions.menteeId, menteeId)
-        )
-      )
-      .where(eq(tasks.courseId, course.id))
-      .orderBy(tasks.orderIndex);
+    );
+
+    const aggregateStats = coursesWithDetails.reduce((acc, course) => ({
+      totalLessons: acc.totalLessons + course.stats.totalLessons,
+      completedLessons: acc.completedLessons + course.stats.completedLessons,
+      totalTasks: acc.totalTasks + course.stats.totalTasks,
+      completedTasks: acc.completedTasks + course.stats.completedTasks,
+      pendingTasks: acc.pendingTasks + course.stats.pendingTasks,
+      submittedTasks: acc.submittedTasks + course.stats.submittedTasks
+    }), {
+      totalLessons: 0,
+      completedLessons: 0,
+      totalTasks: 0,
+      completedTasks: 0,
+      pendingTasks: 0,
+      submittedTasks: 0
+    });
+
+    const allLessons = coursesWithDetails.flatMap(c => c.lessons).slice(0, 10);
+    const allTasks = coursesWithDetails.flatMap(c => c.tasks).slice(0, 10);
+
+    const primaryCourse = coursesWithDetails[0];
 
     const mentorDetail = {
       id: relationship.mentorId,
@@ -217,50 +276,24 @@ export default async (req: Request, context: Context) => {
       fullName: relationship.mentorName,
       email: relationship.mentorEmail,
       specialization: relationship.mentorSpecialization,
-      courseName: relationship.courseName,
-      courseDescription: course.description,
-      duration: course.duration,
+      courseName: coursesWithDetails.length === 1
+        ? primaryCourse.courseName
+        : `${coursesWithDetails.length} Active Courses`,
+      courseDescription: coursesWithDetails.length === 1
+        ? primaryCourse.courseDescription
+        : `You are enrolled in ${coursesWithDetails.length} courses with this mentor.`,
+      duration: coursesWithDetails.length === 1
+        ? primaryCourse.duration
+        : 'Multiple',
       status: relationship.status,
-      progressPercentage: relationship.progressPercentage,
+      progressPercentage: coursesWithDetails.length > 0
+        ? Math.round(coursesWithDetails.reduce((sum, c) => sum + (c.progressPercentage || 0), 0) / coursesWithDetails.length)
+        : 0,
       assignedDate: relationship.assignedDate,
       notes: relationship.notes,
-      lessons: lessonsResult.map(lesson => ({
-        id: lesson.id,
-        title: lesson.title,
-        description: lesson.description,
-        link: lesson.link,
-        orderIndex: lesson.orderIndex,
-        status: lesson.status,
-        completed: lesson.completed || false,
-        completedAt: lesson.completedAt,
-        createdAt: lesson.createdAt
-      })),
-      tasks: tasksResult.map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        deadline: task.deadline,
-        status: task.status,
-        orderIndex: task.orderIndex,
-        createdAt: task.createdAt,
-        submission: task.submissionId ? {
-          id: task.submissionId,
-          submissionLink: task.submissionLink,
-          submissionNotes: task.submissionNotes,
-          status: task.submissionStatus,
-          mentorFeedback: task.mentorFeedback,
-          submittedAt: task.submittedAt,
-          reviewedAt: task.reviewedAt
-        } : null
-      })),
-      stats: {
-        totalLessons: lessonsResult.length,
-        completedLessons: lessonsResult.filter(l => l.completed).length,
-        totalTasks: tasksResult.length,
-        completedTasks: tasksResult.filter(t => t.submissionStatus === 'approved').length,
-        pendingTasks: tasksResult.filter(t => !t.submissionStatus || t.submissionStatus === 'pending').length,
-        submittedTasks: tasksResult.filter(t => t.submissionStatus === 'submitted').length
-      }
+      lessons: allLessons,
+      tasks: allTasks,
+      stats: aggregateStats
     };
 
     return new Response(JSON.stringify({
