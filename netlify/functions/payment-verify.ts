@@ -103,6 +103,7 @@ export default async (req: Request, context: Context) => {
       .select({
         id: userProfiles.id,
         membershipPaid: userProfiles.membershipPaid,
+        membershipAmount: userProfiles.membershipAmount,
         role: userProfiles.role
       })
       .from(userProfiles)
@@ -122,6 +123,33 @@ export default async (req: Request, context: Context) => {
         alreadyPaid: true
       }), {
         status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const expectedAmount = parseFloat(user.membershipAmount || '30.00');
+    const expectedAmountInKobo = Math.round(expectedAmount * 100);
+    const actualAmountPaid = paystackData.data.amount;
+
+    console.log('Amount verification:', {
+      expectedAmount,
+      expectedAmountInKobo,
+      actualAmountPaid,
+      userId
+    });
+
+    if (actualAmountPaid !== expectedAmountInKobo) {
+      console.error('Amount mismatch:', {
+        expected: expectedAmountInKobo,
+        actual: actualAmountPaid,
+        difference: actualAmountPaid - expectedAmountInKobo
+      });
+      return new Response(JSON.stringify({
+        error: 'Payment amount does not match membership fee',
+        expectedAmount: expectedAmount,
+        paidAmount: actualAmountPaid / 100
+      }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
