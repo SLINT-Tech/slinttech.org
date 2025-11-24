@@ -12,11 +12,12 @@ const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   // Get current user status from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
@@ -38,11 +39,22 @@ const MenteeDashboard = () => {
         });
 
         if (!response.ok) {
-          console.error('Error fetching profile');
-          localStorage.removeItem('token');
-          localStorage.removeItem('currentUser');
-          navigate('/login');
-          return;
+          console.error('Error fetching profile:', response.status);
+
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            navigate('/login');
+            return;
+          }
+
+          throw new Error('Failed to fetch profile');
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error('Received non-JSON response:', contentType);
+          throw new Error('Invalid response from server');
         }
 
         const profile = await response.json();
@@ -123,7 +135,7 @@ const MenteeDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching user data:', error);
-      } finally {
+        setError(error.message || 'Failed to load dashboard');
         setLoading(false);
       }
     };
@@ -350,14 +362,26 @@ const MenteeDashboard = () => {
       )}
 
       {/* Error State */}
-      {!loading && !menteeData && (
+      {!loading && error && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
-            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
-              Back to Login
-            </Link>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Retry
+              </button>
+              <Link
+                to="/login"
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Back to Login
+              </Link>
+            </div>
           </div>
         </div>
       )}
