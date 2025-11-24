@@ -104,7 +104,7 @@ function App() {
           } />
 
           <Route path="/admin/dashboard" element={
-            <ProtectedRoute requiredRole="Admin" requirePayment={false}>
+            <ProtectedRoute requiredRole="Admin" requireApproval={false} requirePayment={false}>
               <AdminDashboard />
             </ProtectedRoute>
           } />
