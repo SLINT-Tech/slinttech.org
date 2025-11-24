@@ -98,6 +98,13 @@ export default async (req: Request, context: Context) => {
 
     const relationship = relationshipResult[0];
 
+    console.log('Relationship found:', {
+      mentorId: relationship.mentorId,
+      menteeId,
+      courseName: relationship.courseName,
+      status: relationship.status
+    });
+
     const courseResult = await db
       .select({
         id: courses.id,
@@ -112,12 +119,43 @@ export default async (req: Request, context: Context) => {
 
     const course = courseResult[0];
 
+    console.log('Course lookup result:', {
+      courseName: relationship.courseName,
+      found: !!course,
+      courseId: course?.id
+    });
+
     if (!course) {
+      const mentorDetail = {
+        id: relationship.mentorId,
+        relationshipId: relationship.relationshipId,
+        fullName: relationship.mentorName,
+        email: relationship.mentorEmail,
+        specialization: relationship.mentorSpecialization,
+        courseName: relationship.courseName,
+        courseDescription: 'Course details not available yet',
+        duration: 'TBD',
+        status: relationship.status,
+        progressPercentage: relationship.progressPercentage,
+        assignedDate: relationship.assignedDate,
+        notes: relationship.notes,
+        lessons: [],
+        tasks: [],
+        stats: {
+          totalLessons: 0,
+          completedLessons: 0,
+          totalTasks: 0,
+          completedTasks: 0,
+          pendingTasks: 0,
+          submittedTasks: 0
+        }
+      };
+
       return new Response(JSON.stringify({
-        error: 'Course not found',
-        details: 'The assigned course does not exist or is not created by this mentor'
+        success: true,
+        data: mentorDetail
       }), {
-        status: 404,
+        status: 200,
         headers: corsHeaders
       });
     }
