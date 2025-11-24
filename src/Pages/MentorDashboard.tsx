@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { CardSkeletonLoader } from '../Components/SkeletonLoader';
 
 const MentorDashboard = () => {
   const { signOut } = useAuth();
@@ -151,95 +152,24 @@ const MentorDashboard = () => {
 
         {/* Main Content Skeleton */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Section Skeleton */}
           <div className="mb-8">
             <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
           </div>
 
-          {/* Stats Cards Skeleton */}
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="ml-4">
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
-                    <div className="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
+              <CardSkeletonLoader key={i} />
             ))}
           </div>
 
-          {/* Quick Actions Skeleton */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-200 rounded mr-4 animate-pulse"></div>
-                    <div>
-                      <div className="h-5 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
-                </div>
-              </div>
+              <CardSkeletonLoader key={i} />
             ))}
           </div>
 
-          {/* Recent Courses Skeleton */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {[1, 2, 3].map((i) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-gray-200 rounded-full mr-3 animate-pulse"></div>
-                          <div>
-                            <div className="h-4 bg-gray-200 rounded w-32 mb-1 animate-pulse"></div>
-                            <div className="h-3 bg-gray-200 rounded w-40 animate-pulse"></div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <CardSkeletonLoader />
         </div>
       </div>
     );
