@@ -28,60 +28,61 @@ const MenteeProfilePage = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
           navigate('/login');
           return;
         }
 
-        // Fetch user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Error fetching profile');
           setLoading(false);
           return;
         }
 
-        // Update localStorage with fresh data
+        const profile = await response.json();
+
         const userData = {
-          id: user.id,
-          email: user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.fullName,
+          membershipCategory: profile.membershipCategory,
+          careerPath: profile.careerPath,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          contractFileUrl: profile.contract_file_url
+          membershipEnabled: profile.membershipEnabled,
+          membershipAmount: profile.membershipAmount,
+          membershipPaid: profile.membershipPaid,
+          paymentReference: profile.paymentReference,
+          paymentDate: profile.paymentDate,
+          contractFileUrl: profile.contractFileUrl
         };
-        
+
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
         setProfileData({
-          fullName: profile.full_name,
-          email: user.email,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
-          contractFileUrl: profile.contract_file_url,
-          joinedDate: profile.created_at,
+          fullName: profile.fullName,
+          email: profile.email,
+          membershipCategory: profile.membershipCategory,
+          careerPath: profile.careerPath,
+          contractFileUrl: profile.contractFileUrl,
+          joinedDate: profile.createdAt,
           status: profile.status,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentDate: profile.payment_date,
-          paymentReference: profile.payment_reference
+          membershipEnabled: profile.membershipEnabled,
+          membershipAmount: profile.membershipAmount,
+          membershipPaid: profile.membershipPaid,
+          paymentDate: profile.paymentDate,
+          paymentReference: profile.paymentReference
         });
       } catch (error) {
         console.error('Error fetching profile data:', error);
@@ -132,32 +133,40 @@ const MenteeProfilePage = () => {
     alert('Password updated successfully!');
   };
 
-  const checkContractsBucket = async () => {
-    try {
-      const { data, error } = await supabase.storage.getBucket('contracts');
-      return !error && data;
-    } catch (error) {
-      console.error('Error checking bucket:', error);
-      return false;
-    }
-  };
-
   const downloadContract = async () => {
     try {
-      // Get the contract URL from current user or profile data
       const contractUrl = profileData?.contractFileUrl;
-      
+
       if (!contractUrl) {
         alert('No contract document available');
         return;
       }
 
-      // Use the new download method for private buckets
-      const result = await downloadContractFile(contractUrl, 'membership_contract.pdf');
-      
-      if (!result.success) {
-        alert(result.error || 'Failed to download contract');
+      const token = localStorage.getItem('token');
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+
+      const response = await fetch(`${API_BASE_URL}/download-contract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ fileUrl: contractUrl })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download contract');
       }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'membership_contract.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Download error:', error);
       alert('Failed to download contract. Please try again.');
