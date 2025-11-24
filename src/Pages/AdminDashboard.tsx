@@ -1481,14 +1481,20 @@ const AdminDashboard = () => {
                         </div>
                         {assignment.mentor && (
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Course Name
+                              <span className="text-xs text-gray-500 ml-2">(Enter the course name the mentor will teach)</span>
+                            </label>
                             <input
                               type="text"
                               value={assignment.courseName}
                               onChange={(e) => updateMentorAssignment(index, 'courseName', e.target.value)}
                               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm"
-                              placeholder="Course name"
+                              placeholder="Enter course name (e.g., Web Development Bootcamp)"
                             />
+                            <p className="text-xs text-gray-500 mt-1">
+                              The mentor can create course content for this later. If the course already exists, use the exact same name.
+                            </p>
                           </div>
                         )}
                       </div>
