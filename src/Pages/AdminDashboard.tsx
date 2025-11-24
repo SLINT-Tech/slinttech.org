@@ -965,6 +965,7 @@ const AdminDashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Career Path</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -997,6 +998,25 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.careerPath}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {user.membershipEnabled ? (
+                          user.membershipPaid ? (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Paid
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                              <XCircle className="w-3 h-3 mr-1" />
+                              Unpaid
+                            </span>
+                          )
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                            N/A
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
@@ -1189,7 +1209,41 @@ const AdminDashboard = () => {
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Contract Document</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Status</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                      <select
+                        value={editingUser.status}
+                        onChange={(e) => {
+                          const newStatus = e.target.value;
+                          setEditingUser({
+                            ...editingUser,
+                            status: newStatus,
+                            membershipEnabled: newStatus === 'approved' && (editingUser.role === 'Mentee' || editingUser.role === 'Mentor') ? true : editingUser.membershipEnabled
+                          });
+                        }}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Discord Community Link</label>
+                      <input
+                        type="url"
+                        value={editingUser.discordLink}
+                        onChange={(e) => setEditingUser({...editingUser, discordLink: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        placeholder="https://discord.gg/..."
+                      />
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-6">Contract Document</h3>
                   {selectedUser.contractFileUrl ? (
                     <div className="border border-teal-100 bg-teal-50/50 rounded-lg p-4 hover:bg-teal-50 transition-colors">
                       <div className="flex items-center justify-between">
@@ -1227,45 +1281,58 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Admin Management Fields */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Management</h3>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select
-                      value={editingUser.status}
-                      onChange={(e) => {
-                        const newStatus = e.target.value;
-                        setEditingUser({
-                          ...editingUser, 
-                          status: newStatus,
-                          membershipEnabled: newStatus === 'approved' && (editingUser.role === 'Mentee' || editingUser.role === 'Mentor') ? true : editingUser.membershipEnabled
-                        });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="suspended">Suspended</option>
-                    </select>
-                  </div>
-
-                  {/* Discord Link */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Discord Community Link</label>
-                    <input
-                      type="url"
-                      value={editingUser.discordLink}
-                      onChange={(e) => setEditingUser({...editingUser, discordLink: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                      placeholder="https://discord.gg/..."
-                    />
+              {/* Payment Information */}
+              {(selectedUser.role === 'Mentee' || selectedUser.role === 'Mentor') && selectedUser.membershipEnabled && (
+                <div className="border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
+                  <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg p-4 border border-teal-100">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Payment Status</label>
+                        <div className="flex items-center gap-2">
+                          {selectedUser.membershipPaid ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <span className="text-sm font-semibold text-green-700">Paid</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-4 h-4 text-yellow-600" />
+                              <span className="text-sm font-semibold text-yellow-700">Unpaid</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Amount</label>
+                        <p className="text-sm font-semibold text-gray-900">GHS {selectedUser.membershipAmount || 30}</p>
+                      </div>
+                      {selectedUser.membershipPaid && selectedUser.paymentReference && (
+                        <>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Reference</label>
+                            <p className="text-sm font-mono text-gray-900">{selectedUser.paymentReference}</p>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Payment Date</label>
+                            <p className="text-sm text-gray-900">
+                              {selectedUser.paymentDate ? new Date(selectedUser.paymentDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              }) : 'N/A'}
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
+              )}
+
+              {/* Admin Management Fields */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Membership Settings</h3>
 
                 {/* Membership Settings - Only show for Mentees and Mentors */}
                 {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
