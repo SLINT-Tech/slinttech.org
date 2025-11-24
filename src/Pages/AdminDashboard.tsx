@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 interface UserProfile {
   id: string;
   fullName: string;
@@ -149,7 +151,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-users', {
+      const response = await fetch(`${API_BASE_URL}/admin-get-users`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -195,7 +197,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-stats', {
+      const response = await fetch(`${API_BASE_URL}/admin-get-stats`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -226,7 +228,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      const response = await fetch('/api/admin-get-mentors', {
+      const response = await fetch(`${API_BASE_URL}/admin-get-mentors`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -407,7 +409,7 @@ const AdminDashboard = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const response = await fetch(`/api/admin-get-mentor-assignments?menteeId=${user.id}`, {
+          const response = await fetch(`${API_BASE_URL}/admin-get-mentor-assignments?menteeId=${user.id}`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -473,7 +475,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-create-user', {
+      const response = await fetch(`${API_BASE_URL}/admin-create-user`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -556,7 +558,7 @@ const AdminDashboard = () => {
       }
 
       // Update user profile via Netlify function
-      const response = await fetch('/api/admin-update-user', {
+      const response = await fetch(`${API_BASE_URL}/admin-update-user`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -585,7 +587,7 @@ const AdminDashboard = () => {
 
       // Handle mentor assignments for mentees
       if (editingUser.role === 'Mentee') {
-        const assignmentResponse = await fetch('/api/admin-update-mentor-assignments', {
+        const assignmentResponse = await fetch(`${API_BASE_URL}/admin-update-mentor-assignments`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -649,7 +651,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-delete-user', {
+      const response = await fetch(`${API_BASE_URL}/admin-delete-user`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

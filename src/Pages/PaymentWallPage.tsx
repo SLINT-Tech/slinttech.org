@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
 // Declare PaystackPop for TypeScript
@@ -84,7 +85,7 @@ const PaymentWallPage = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/payment-initialize', {
+      const response = await fetch(`${API_BASE_URL}/payment-initialize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +130,7 @@ const PaymentWallPage = () => {
             console.log('Payment successful, verifying...');
             setPaymentStatus('verifying');
 
-            fetch('/api/payment-verify', {
+            fetch(`${API_BASE_URL}/payment-verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

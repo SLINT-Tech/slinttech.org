@@ -6,6 +6,8 @@ import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { CardSkeletonLoader } from '../Components/SkeletonLoader';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
   const [menteeData, setMenteeData] = useState(null);
@@ -29,7 +31,7 @@ const MenteeDashboard = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -37,7 +39,9 @@ const MenteeDashboard = () => {
 
         if (!response.ok) {
           console.error('Error fetching profile');
-          setLoading(false);
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+          navigate('/login');
           return;
         }
 
@@ -260,24 +264,87 @@ const MenteeDashboard = () => {
             <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
           </div>
 
+          {/* Overview Panel Skeleton */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="h-6 bg-gray-200 rounded w-24 mb-6 animate-pulse"></div>
             <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <CardSkeletonLoader key={i} />
-              ))}
+              {/* Lessons Progress Skeleton */}
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="flex items-center mb-2">
+                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-12"></div>
+                </div>
+                <div className="h-3 bg-gray-200 rounded w-28"></div>
+              </div>
+
+              {/* Tasks Progress Skeleton */}
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-28 mb-2"></div>
+                <div className="flex items-center mb-2">
+                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-12"></div>
+                </div>
+                <div className="h-3 bg-gray-200 rounded w-24"></div>
+              </div>
+
+              {/* Status Skeleton */}
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-24 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-32"></div>
+              </div>
             </div>
           </div>
 
+          {/* Quick Access Cards Skeleton */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <CardSkeletonLoader key={i} />
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-gray-200 rounded mr-4"></div>
+                    <div>
+                      <div className="h-5 bg-gray-200 rounded w-28 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40"></div>
+                    </div>
+                  </div>
+                  <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                </div>
+                <div className="h-3 bg-gray-200 rounded w-32"></div>
+              </div>
             ))}
           </div>
 
+          {/* Community and Announcements Skeleton */}
           <div className="grid lg:grid-cols-2 gap-6">
-            <CardSkeletonLoader />
-            <CardSkeletonLoader />
+            <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
+              <div className="flex items-center mb-4">
+                <div className="w-6 h-6 bg-gray-200 rounded mr-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-40"></div>
+              </div>
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-48 mx-auto mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-64 mx-auto"></div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
+              <div className="flex items-center mb-4">
+                <div className="w-6 h-6 bg-gray-200 rounded mr-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-48"></div>
+              </div>
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="border-l-4 border-gray-200 p-4 rounded-r-lg bg-gray-50">
+                    <div className="h-4 bg-gray-200 rounded w-40 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const MenteeProfilePage = () => {
   const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
@@ -35,7 +37,7 @@ const MenteeProfilePage = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -142,7 +144,7 @@ const MenteeProfilePage = () => {
 
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/download-contract', {
+      const response = await fetch(`${API_BASE_URL}/download-contract`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

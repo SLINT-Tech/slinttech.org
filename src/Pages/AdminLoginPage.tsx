@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const AdminLoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -26,7 +28,7 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/admin-login', {
+      const response = await fetch(`${API_BASE_URL}/admin-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
