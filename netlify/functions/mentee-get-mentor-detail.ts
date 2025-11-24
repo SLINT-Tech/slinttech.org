@@ -107,12 +107,7 @@ export default async (req: Request, context: Context) => {
         status: courses.status
       })
       .from(courses)
-      .where(
-        and(
-          eq(courses.mentorId, mentorId),
-          eq(courses.name, relationship.courseName)
-        )
-      )
+      .where(eq(courses.name, relationship.courseName))
       .limit(1);
 
     const course = courseResult[0];
