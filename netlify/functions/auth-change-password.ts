@@ -9,8 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
 };
 
 interface JWTPayload {
@@ -30,7 +31,7 @@ export default async (req: Request, context: Context) => {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 
@@ -39,7 +40,7 @@ export default async (req: Request, context: Context) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -49,25 +50,29 @@ export default async (req: Request, context: Context) => {
     try {
       decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     } catch (error) {
+      console.error('Token verification error:', error);
       return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
-    const { currentPassword, newPassword } = await req.json();
+    const body = await req.json();
+    const { currentPassword, newPassword } = body;
+
+    console.log('Change password request for user:', decoded.userId);
 
     if (!currentPassword || !newPassword) {
       return new Response(JSON.stringify({ error: 'Current password and new password are required' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
     if (newPassword.length < 8) {
       return new Response(JSON.stringify({ error: 'New password must be at least 8 characters long' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
@@ -81,37 +86,44 @@ export default async (req: Request, context: Context) => {
       .limit(1);
 
     if (!user) {
+      console.error('User not found:', decoded.userId);
       return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
+    console.log('Verifying current password...');
     const isValidPassword = await bcrypt.compare(currentPassword, user.passwordHash);
 
     if (!isValidPassword) {
+      console.log('Current password is incorrect');
       return new Response(JSON.stringify({ error: 'Current password is incorrect' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       });
     }
 
+    console.log('Current password verified, updating to new password...');
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-    await db
+    const result = await db
       .update(userProfiles)
       .set({
         passwordHash: newPasswordHash,
         updatedAt: new Date()
       })
-      .where(eq(userProfiles.id, decoded.userId));
+      .where(eq(userProfiles.id, decoded.userId))
+      .returning({ id: userProfiles.id });
+
+    console.log('Password updated successfully for user:', decoded.userId, 'Result:', result);
 
     return new Response(JSON.stringify({
       success: true,
       message: 'Password updated successfully'
     }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
 
   } catch (error: any) {
@@ -121,7 +133,7 @@ export default async (req: Request, context: Context) => {
       details: error.message
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: corsHeaders
     });
   }
 };
