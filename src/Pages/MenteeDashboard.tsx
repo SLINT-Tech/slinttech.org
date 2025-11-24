@@ -79,60 +79,54 @@ const MenteeDashboard = () => {
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        const mockLessons = [
-          { id: 1, completed: true },
-          { id: 2, completed: false },
-          { id: 3, completed: true }
-        ];
-
-        setLessonsData({
-          completed: mockLessons.filter(l => l.completed).length,
-          total: mockLessons.length
+        const dashboardResponse = await fetch(`${API_BASE_URL}/mentee-get-dashboard`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
 
-        const mockTasks = [
-          { id: 1, status: 'approved' },
-          { id: 2, status: 'pending' },
-          { id: 3, status: 'approved' },
-          { id: 4, status: 'rejected' }
-        ];
+        if (dashboardResponse.ok) {
+          const dashboardData = await dashboardResponse.json();
+          const { mentorAssignments, lessonsData, tasksData, announcements } = dashboardData.data;
 
-        setTasksData({
-          approved: mockTasks.filter(t => t.status === 'approved').length,
-          total: mockTasks.length
-        });
+          setLessonsData(lessonsData);
+          setTasksData(tasksData);
 
-        setMenteeData({
-          fullName: profile.fullName || profile.full_name,
-          email: profile.email,
-          membershipCategory: profile.membershipCategory || profile.membership_category,
-          careerPath: profile.careerPath || profile.career_path,
-          status: profile.status,
-          discordLink: profile.discordLink || profile.discord_link,
-          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
-          membershipAmount: profile.membershipAmount || profile.membership_amount,
-          membershipPaid: profile.membershipPaid || profile.membership_paid,
-          paymentReference: profile.paymentReference || profile.payment_reference,
-          paymentDate: profile.paymentDate || profile.payment_date,
-          mentorAssignments: [
-            {
-              mentor: 'Dr. Sarah Johnson - Full Stack Development',
-              courseName: 'React Fundamentals',
-              duration: '8 weeks',
-              mentorEmail: 'sarah.johnson@slinttech.org',
-              mentorPhone: '+1 (555) 123-4567'
-            }
-          ],
-          announcements: [
-            {
-              id: 1,
-              title: 'Welcome to SlintTech!',
-              message: 'Your account has been created successfully. Welcome to our community!',
-              date: new Date().toISOString().split('T')[0],
-              type: 'info'
-            }
-          ]
-        });
+          setMenteeData({
+            fullName: profile.fullName || profile.full_name,
+            email: profile.email,
+            membershipCategory: profile.membershipCategory || profile.membership_category,
+            careerPath: profile.careerPath || profile.career_path,
+            status: profile.status,
+            discordLink: profile.discordLink || profile.discord_link,
+            membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+            membershipAmount: profile.membershipAmount || profile.membership_amount,
+            membershipPaid: profile.membershipPaid || profile.membership_paid,
+            paymentReference: profile.paymentReference || profile.payment_reference,
+            paymentDate: profile.paymentDate || profile.payment_date,
+            mentorAssignments: mentorAssignments,
+            announcements: announcements
+          });
+        } else {
+          setLessonsData({ completed: 0, total: 0 });
+          setTasksData({ approved: 0, total: 0 });
+
+          setMenteeData({
+            fullName: profile.fullName || profile.full_name,
+            email: profile.email,
+            membershipCategory: profile.membershipCategory || profile.membership_category,
+            careerPath: profile.careerPath || profile.career_path,
+            status: profile.status,
+            discordLink: profile.discordLink || profile.discord_link,
+            membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
+            membershipAmount: profile.membershipAmount || profile.membership_amount,
+            membershipPaid: profile.membershipPaid || profile.membership_paid,
+            paymentReference: profile.paymentReference || profile.payment_reference,
+            paymentDate: profile.paymentDate || profile.payment_date,
+            mentorAssignments: [],
+            announcements: []
+          });
+        }
 
       } catch (error) {
         console.error('Error fetching user data:', error);
