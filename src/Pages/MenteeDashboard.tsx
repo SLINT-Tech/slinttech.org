@@ -21,101 +21,84 @@ const MenteeDashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
           navigate('/login');
           return;
         }
 
-        // Fetch user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
+        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          console.error('Error fetching profile');
           setLoading(false);
           return;
         }
 
-        // Update localStorage with fresh data
+        const profile = await response.json();
+
         const userData = {
-          id: user.id,
-          email: user.email,
-          fullName: profile.full_name,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.fullName,
+          membershipCategory: profile.membershipCategory,
+          careerPath: profile.careerPath,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
-          discordLink: profile.discord_link
+          membershipEnabled: profile.membershipEnabled,
+          membershipAmount: profile.membershipAmount,
+          membershipPaid: profile.membershipPaid,
+          paymentReference: profile.paymentReference,
+          paymentDate: profile.paymentDate,
+          discordLink: profile.discordLink
         };
-        
+
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        // Fetch lessons data (mock for now - replace with real Supabase query)
-        // TODO: Replace with actual lessons table query
-        // const { data: lessons } = await supabase
-        //   .from('lessons')
-        //   .select('id, completed')
-        //   .eq('mentee_id', user.id);
-        
-        // Mock lessons data for now
         const mockLessons = [
           { id: 1, completed: true },
           { id: 2, completed: false },
           { id: 3, completed: true }
         ];
-        
+
         setLessonsData({
           completed: mockLessons.filter(l => l.completed).length,
           total: mockLessons.length
         });
 
-        // Fetch tasks data (mock for now - replace with real Supabase query)
-        // TODO: Replace with actual tasks table query
-        // const { data: tasks } = await supabase
-        //   .from('tasks')
-        //   .select('id, status')
-        //   .eq('mentee_id', user.id);
-        
-        // Mock tasks data for now
         const mockTasks = [
           { id: 1, status: 'approved' },
           { id: 2, status: 'pending' },
           { id: 3, status: 'approved' },
           { id: 4, status: 'rejected' }
         ];
-        
+
         setTasksData({
           approved: mockTasks.filter(t => t.status === 'approved').length,
           total: mockTasks.length
         });
 
-        // Set mentee data with real user info
         setMenteeData({
-          fullName: profile.full_name,
-          email: user.email,
-          membershipCategory: profile.membership_category,
-          careerPath: profile.career_path,
+          fullName: profile.fullName,
+          email: profile.email,
+          membershipCategory: profile.membershipCategory,
+          careerPath: profile.careerPath,
           status: profile.status,
-          discordLink: profile.discord_link,
-          membershipEnabled: profile.membership_enabled,
-          membershipAmount: profile.membership_amount,
-          membershipPaid: profile.membership_paid,
-          paymentReference: profile.payment_reference,
-          paymentDate: profile.payment_date,
+          discordLink: profile.discordLink,
+          membershipEnabled: profile.membershipEnabled,
+          membershipAmount: profile.membershipAmount,
+          membershipPaid: profile.membershipPaid,
+          paymentReference: profile.paymentReference,
+          paymentDate: profile.paymentDate,
           mentorAssignments: [
-            // TODO: Replace with actual mentor assignments from database
             {
               mentor: 'Dr. Sarah Johnson - Full Stack Development',
               courseName: 'React Fundamentals',
@@ -125,7 +108,6 @@ const MenteeDashboard = () => {
             }
           ],
           announcements: [
-            // TODO: Replace with actual announcements from database
             {
               id: 1,
               title: 'Welcome to SlintTech!',
