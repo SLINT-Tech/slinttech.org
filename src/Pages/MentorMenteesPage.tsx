@@ -17,57 +17,13 @@ const MentorMenteesPage = () => {
   useEffect(() => {
     const fetchMentorData = async () => {
       try {
-        // Get current user session
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          navigate('/mentor/login');
-          return;
-        }
-
-        // Fetch mentor profile
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError || profile.role !== 'Mentor') {
-          navigate('/mentor/login');
-          return;
-        }
-
-        setMentorData({
-          fullName: profile.full_name,
-          email: user.email,
-          specialization: profile.specialization || profile.career_path,
-          courses: [] // Mock courses for now
-        });
-
-        // Fetch mentor-mentee relationships with mentee details
-        const { data: relationships, error: relationshipsError } = await supabase
-          .from('mentor_mentee_relationships')
-          .select(`
-            *,
-            mentee:user_profiles!mentee_id(
-              id,
-              full_name,
-              email,
-              created_at
-            )
-          `)
-          .eq('mentor_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (relationshipsError) {
-          console.error('Error fetching relationships:', relationshipsError);
-        } else {
-          setMenteeRelationships(relationships || []);
-        }
-
+        // TODO: Replace with Neon DB API call
+        // This page needs to be refactored to use Netlify functions with Neon DB
+        console.error('MentorMenteesPage needs to be refactored to use Neon DB');
+        setLoading(false);
+        navigate('/mentor/dashboard');
       } catch (error) {
         console.error('Error fetching mentor data:', error);
-      } finally {
         setLoading(false);
       }
     };

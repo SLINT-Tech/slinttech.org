@@ -95,19 +95,30 @@ const MentorDetailPage = () => {
         return;
       }
 
+      console.log('Fetching mentor detail for mentorId:', mentorId);
       const response = await fetch(`/api/mentee-get-mentor-detail?mentorId=${mentorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Error response:', errorData);
         throw new Error(errorData.message || errorData.error || 'Failed to fetch mentor details');
       }
 
       const result = await response.json();
-      setMentorData(result.data);
+      console.log('API result:', result);
+
+      if (result.success && result.data) {
+        setMentorData(result.data);
+        console.log('Mentor data set:', result.data);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error: any) {
       console.error('Error fetching mentor detail:', error);
       setToast({
