@@ -1,6 +1,6 @@
 import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, XCircle, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { MentorDetailSkeletonLoader } from '../Components/SkeletonLoader';
@@ -64,7 +64,8 @@ interface MentorDetail {
 }
 
 const MentorDetailPage = () => {
-  const { mentorId } = useParams();
+  const [searchParams] = useSearchParams();
+  const mentorId = searchParams.get('mentorId');
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [mentorData, setMentorData] = useState<MentorDetail | null>(null);
@@ -94,7 +95,8 @@ const MentorDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-mentor-detail?mentorId=${mentorId}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+      const response = await fetch(`${API_BASE_URL}/mentee-get-mentor-detail?mentorId=${mentorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
