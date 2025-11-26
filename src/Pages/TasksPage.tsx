@@ -1,187 +1,123 @@
-import React from 'react';
-import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { AlertCircle, ArrowLeft, Clock, Target, User, Search, ChevronLeft, ChevronRight, Eye, Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 
-// Mock data - this would come from your backend/database
-const mockTasksData = {
-  fullName: 'John Doe',
-  tasks: [
-    {
-      id: 1,
-      title: 'Build a Todo App with React',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      description: 'Create a fully functional todo application using React hooks. Include features like adding, editing, deleting, and marking todos as complete.',
-      deadline: '2024-02-15',
-      status: 'pending',
-      submissionLink: '',
-      submissionNotes: '',
-      mentorFeedback: '',
-      createdAt: '2024-01-21'
-    },
-    {
-      id: 2,
-      title: 'Responsive Portfolio Website',
-      mentor: 'Prof. Michael Chen',
-      course: 'Advanced CSS & Animations',
-      description: 'Design and build a responsive portfolio website with CSS animations. Showcase your projects and skills with smooth transitions and mobile-first design.',
-      deadline: '2024-02-20',
-      status: 'approved',
-      submissionLink: 'https://netlify.app/my-portfolio',
-      submissionNotes: 'Added extra animations and mobile-first approach',
-      mentorFeedback: 'Excellent work! Great attention to detail and smooth animations. The mobile responsiveness is perfect.',
-      createdAt: '2024-01-19'
-    },
-    {
-      id: 3,
-      title: 'API Integration Exercise',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      description: 'Integrate a REST API into your React application. Handle loading states, error handling, and display data in a user-friendly format.',
-      deadline: '2024-02-10',
-      status: 'rejected',
-      submissionLink: 'https://github.com/johndoe/api-project',
-      submissionNotes: 'Implemented with fetch API and error handling',
-      mentorFeedback: 'Good attempt, but error handling needs improvement. Please add loading states and better user feedback. Resubmit after addressing these issues.',
-      createdAt: '2024-01-16'
-    },
-    {
-      id: 4,
-      title: 'CSS Animation Showcase',
-      mentor: 'Prof. Michael Chen',
-      course: 'Advanced CSS & Animations',
-      description: 'Create a showcase page demonstrating various CSS animations and transitions. Include keyframe animations, hover effects, and scroll-triggered animations.',
-      deadline: '2024-02-25',
-      status: 'submitted',
-      submissionLink: 'https://codepen.io/johndoe/pen/animation-showcase',
-      submissionNotes: 'Created 8 different animation examples with smooth transitions',
-      mentorFeedback: '',
-      createdAt: '2024-01-23'
-    },
-    {
-      id: 5,
-      title: 'JavaScript Calculator',
-      mentor: 'Dr. Sarah Johnson',
-      course: 'React Fundamentals',
-      description: 'Build a functional calculator using vanilla JavaScript with proper error handling and keyboard support.',
-      deadline: '2024-02-28',
-      status: 'pending',
-      submissionLink: '',
-      submissionNotes: '',
-      mentorFeedback: '',
-      createdAt: '2024-01-24'
-    },
-    {
-      id: 6,
-      title: 'Landing Page Design',
-      mentor: 'Prof. Michael Chen',
-      course: 'Advanced CSS & Animations',
-      description: 'Create a modern landing page with smooth scrolling, parallax effects, and responsive design.',
-      deadline: '2024-03-05',
-      status: 'approved',
-      submissionLink: 'https://netlify.app/landing-page',
-      submissionNotes: 'Implemented all requested features with additional micro-interactions',
-      mentorFeedback: 'Outstanding work! The parallax effects are smooth and the design is very professional.',
-      createdAt: '2024-01-26'
-    }
-  ]
-};
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  requirements: string | null;
+  deadline: string | null;
+  status: string;
+  createdAt: string;
+  course: {
+    id: string;
+    name: string;
+  };
+  mentor: {
+    id: string;
+    name: string;
+  };
+  submission: {
+    id: string;
+    submissionLink: string | null;
+    submissionNotes: string | null;
+    status: string;
+    mentorFeedback: string | null;
+    submittedAt: string | null;
+    reviewedAt: string | null;
+  } | null;
+}
 
 const TasksPage = () => {
-  const [tasksData, setTasksData] = useState(mockTasksData);
-  const [taskSubmissions, setTaskSubmissions] = useState({});
+  const { signOut } = useAuth();
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMentor, setFilterMentor] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const mentorId = searchParams.get('mentor_id');
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
 
-  // Get mentor name from ID for filtering
-  const getMentorNameFromId = (id) => {
-    const mentorMap = {
-      'gfyffa54afvctrdt': 'Dr. Sarah Johnson',
-      'hgkjh67890mnbvcx': 'Prof. Michael Chen'
-    };
-    return mentorMap[id] || null;
-  };
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(user);
+    fetchTasks();
+  }, []);
 
-  // Set initial filter if mentor_id is provided
-  React.useEffect(() => {
-    if (mentorId) {
-      const mentorName = getMentorNameFromId(mentorId);
-      console.log('TasksPage - Setting filter to mentor:', mentorName);
-      if (mentorName) {
-        setFilterMentor(mentorName);
-        setCurrentPage(1); // Reset to first page when filtering
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        navigate('/login');
+        return;
       }
+
+      const response = await fetch('/api/mentee-get-tasks', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const result = await response.json();
+      setTasks(result.data.tasks || []);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [mentorId]);
-
-  const handleTaskSubmission = (taskId) => {
-    const submission = taskSubmissions[taskId];
-    if (!submission?.link) return;
-
-    setTasksData(prev => ({
-      ...prev,
-      tasks: prev.tasks.map(task => 
-        task.id === taskId ? { 
-          ...task, 
-          status: 'submitted',
-          submissionLink: submission.link,
-          submissionNotes: submission.notes || ''
-        } : task
-      )
-    }));
-
-    // Clear the form
-    setTaskSubmissions(prev => ({
-      ...prev,
-      [taskId]: { link: '', notes: '' }
-    }));
   };
 
-  const updateTaskSubmission = (taskId, field, value) => {
-    setTaskSubmissions(prev => ({
-      ...prev,
-      [taskId]: {
-        ...prev[taskId],
-        [field]: value
-      }
-    }));
-  };
+  const activeTasks = tasks.filter(task =>
+    !task.submission || task.submission.status === 'pending' || task.submission.status === 'submitted' || task.submission.status === 'rejected'
+  );
 
-  // Filter tasks based on completion status
-  const activeTasks = tasksData.tasks.filter(task => task.status === 'pending' || task.status === 'submitted' || task.status === 'rejected');
-  const completedTasks = tasksData.tasks.filter(task => task.status === 'approved');
-  
-  // Choose which tasks to display
+  const completedTasks = tasks.filter(task =>
+    task.submission && task.submission.status === 'approved'
+  );
+
   const tasksToShow = showCompleted ? completedTasks : activeTasks;
 
-  // Apply search and filters
   const filteredTasks = tasksToShow.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMentor = filterMentor === 'all' || task.mentor === filterMentor;
-    const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
-    
+    const matchesMentor = filterMentor === 'all' || task.mentor.name === filterMentor;
+    const matchesStatus = filterStatus === 'all' || (task.submission ? task.submission.status === filterStatus : filterStatus === 'not_submitted');
+
     return matchesSearch && matchesMentor && matchesStatus;
   });
 
-  // Pagination
   const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTasks = filteredTasks.slice(startIndex, startIndex + itemsPerPage);
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
 
-  // Get unique mentors for filters
-  const uniqueMentors = [...new Set(tasksData.tasks.map(task => task.mentor))];
+  const uniqueMentors = [...new Set(tasks.map(task => task.mentor.name))];
 
-  const getTaskStatusColor = (status) => {
+  const approvedTasks = completedTasks.length;
+  const totalTasks = tasks.length;
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -196,16 +132,36 @@ const TasksPage = () => {
     }
   };
 
-  const isTaskOverdue = (deadline) => {
+  const getTaskStatus = (task: Task) => {
+    if (!task.submission) return 'not_submitted';
+    return task.submission.status;
+  };
+
+  const getTaskStatusLabel = (task: Task) => {
+    const status = getTaskStatus(task);
+    switch (status) {
+      case 'not_submitted':
+        return 'Not Submitted';
+      case 'approved':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
+      case 'submitted':
+        return 'Submitted';
+      case 'pending':
+        return 'Pending';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const isTaskOverdue = (deadline: string | null) => {
+    if (!deadline) return false;
     return new Date(deadline) < new Date() && new Date(deadline).toDateString() !== new Date().toDateString();
   };
 
-  const approvedTasks = completedTasks.length;
-  const totalTasks = tasksData.tasks.length;
-
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -213,43 +169,82 @@ const TasksPage = () => {
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
             </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600">Welcome, {tasksData.fullName}</span>
-              <Link 
-                to="/login" 
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+
+            <div className="hidden md:flex items-center gap-4">
+              <span className="text-gray-600">Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}</span>
+              <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 font-medium">
+                Dashboard
+              </Link>
+              <Link to="/mentors" className="text-gray-500 hover:text-gray-700 font-medium">
+                My Mentors
+              </Link>
+              <Link to="/profile" className="text-gray-500 hover:text-gray-700 font-medium">
+                Profile
+              </Link>
+              <button
+                onClick={() => signOut('/login')}
+                className="text-[#008080] hover:text-teal-700 font-medium"
               >
                 Logout
-              </Link>
+              </button>
             </div>
+
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
+          {isMenuOpen && (
+            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
+              <div className="flex flex-col space-y-4">
+                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
+                  Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}
+                </div>
+                <Link to="/dashboard" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  Dashboard
+                </Link>
+                <Link to="/mentors" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  My Mentors
+                </Link>
+                <Link to="/profile" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    signOut('/login');
+                  }}
+                  className="px-4 py-2 text-[#008080] hover:text-teal-700 text-left"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
-        </button>
+        </Link>
 
-        {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Target className="w-8 h-8 text-[#008080] mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              {mentorId ? `Tasks from ${getMentorNameFromId(mentorId)}` : 'Tasks & Assignments'}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">Tasks & Assignments</h1>
           </div>
           <p className="text-gray-600 mb-4">
-            {mentorId ? `Submit assignments and track your progress with ${getMentorNameFromId(mentorId)}` : 'Submit your assignments and track your progress'}
+            Submit your assignments and track your progress
           </p>
-          
-          {/* Progress Bar */}
+
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Tasks Approved</span>
@@ -258,7 +253,7 @@ const TasksPage = () => {
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
+              <div
                 className="bg-yellow-500 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${totalTasks > 0 ? (approvedTasks / totalTasks) * 100 : 0}%` }}
               ></div>
@@ -269,10 +264,8 @@ const TasksPage = () => {
           </div>
         </div>
 
-        {/* Filters and Search */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
             <div className="flex-1">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -288,8 +281,7 @@ const TasksPage = () => {
                 />
               </div>
             </div>
-            
-            {/* Filters */}
+
             <div className="flex flex-col sm:flex-row gap-4">
               <select
                 value={filterMentor}
@@ -304,7 +296,7 @@ const TasksPage = () => {
                   <option key={mentor} value={mentor}>{mentor}</option>
                 ))}
               </select>
-              
+
               {!showCompleted && (
                 <select
                   value={filterStatus}
@@ -315,6 +307,7 @@ const TasksPage = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
                 >
                   <option value="all">All Status</option>
+                  <option value="not_submitted">Not Submitted</option>
                   <option value="pending">Pending</option>
                   <option value="submitted">Submitted</option>
                   <option value="rejected">Rejected</option>
@@ -324,7 +317,6 @@ const TasksPage = () => {
           </div>
         </div>
 
-        {/* Toggle between Active and Completed */}
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => {
@@ -332,8 +324,8 @@ const TasksPage = () => {
               setCurrentPage(1);
             }}
             className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              !showCompleted 
-                ? 'bg-[#008080] text-white' 
+              !showCompleted
+                ? 'bg-[#008080] text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -345,8 +337,8 @@ const TasksPage = () => {
               setCurrentPage(1);
             }}
             className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              showCompleted 
-                ? 'bg-[#008080] text-white' 
+              showCompleted
+                ? 'bg-[#008080] text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -354,10 +346,11 @@ const TasksPage = () => {
           </button>
         </div>
 
-        {/* Tasks Table */}
-        {paginatedTasks.length > 0 ? (
+        {loading ? (
+          <TableSkeletonLoader />
+        ) : paginatedTasks.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -373,7 +366,7 @@ const TasksPage = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {paginatedTasks.map((task) => (
                       <tr key={task.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-900">{task.title}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -381,27 +374,31 @@ const TasksPage = () => {
                             <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-2">
                               <User className="w-4 h-4 text-white" />
                             </div>
-                            <div className="text-sm text-gray-900">{task.mentor}</div>
+                            <div className="text-sm text-gray-900">{task.mentor.name}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {task.course}
+                          {task.course.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTaskStatusColor(task.status)}`}>
-                            {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTaskStatusColor(getTaskStatus(task))}`}>
+                            {getTaskStatusLabel(task)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-sm ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
-                            {new Date(task.deadline).toLocaleDateString()}
-                            {isTaskOverdue(task.deadline) && (
-                              <div className="flex items-center gap-1 mt-1">
-                                <AlertCircle className="w-3 h-3" />
-                                <span className="text-xs">Overdue</span>
-                              </div>
-                            )}
-                          </div>
+                          {task.deadline ? (
+                            <div className={`text-sm ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                              {new Date(task.deadline).toLocaleDateString()}
+                              {isTaskOverdue(task.deadline) && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <AlertCircle className="w-3 h-3" />
+                                  <span className="text-xs">Overdue</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">No deadline</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
@@ -418,54 +415,73 @@ const TasksPage = () => {
               </div>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </button>
-                
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-gray-600">
+                    Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredTasks.length)}</span> of <span className="font-semibold text-gray-900">{filteredTasks.length}</span> tasks
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-2 rounded-lg cursor-pointer ${
-                        currentPage === page
-                          ? 'bg-[#008080] text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                     >
-                      {page}
+                      <ChevronLeft className="w-4 h-4" />
+                      <span className="hidden sm:inline">Previous</span>
                     </button>
-                  ))}
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
+                              currentPage === pageNum
+                                ? 'bg-[#008080] text-white shadow-md'
+                                : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
             )}
           </>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-200">
             <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               {showCompleted ? 'No completed tasks yet' : 'No active tasks found'}
             </h3>
             <p className="text-gray-500">
-              {showCompleted 
-                ? 'Complete some tasks to see them here!' 
+              {showCompleted
+                ? 'Complete some tasks to see them here!'
                 : filteredTasks.length === 0 && (searchTerm || filterMentor !== 'all' || filterStatus !== 'all')
                   ? 'Try adjusting your search or filters.'
                   : 'Your mentors will assign tasks for you to complete. Check back later!'
