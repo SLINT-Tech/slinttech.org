@@ -30,6 +30,8 @@ import MenteeProfilePage from './Pages/MenteeProfilePage';
 import PendingApprovalPage from './Pages/PendingApprovalPage';
 import PaymentWallPage from './Pages/PaymentWallPage';
 import MentorProfilePage from './Pages/MentorProfilePage';
+import MenteeMentorCoursesPage from './Pages/MenteeMentorCoursesPage';
+import MenteeCourseDetailPage from './Pages/MenteeCourseDetailPage';
 import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
@@ -106,6 +108,18 @@ function App() {
           <Route path="/mentor-detail" element={
             <ProtectedRoute requiredRole="Mentee">
               <MentorDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor-courses" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeMentorCoursesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor-course-detail" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeCourseDetailPage />
             </ProtectedRoute>
           } />
 

@@ -253,7 +253,7 @@ const MentorsPage = () => {
                             Specialization
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Enrolled Courses
+                            Total Courses
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Assigned Date
@@ -305,11 +305,11 @@ const MentorsPage = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <Link
-                                to={`/mentor-detail?mentorId=${mentor.id}`}
+                                to={`/mentor-courses?mentorId=${mentor.id}`}
                                 className="flex items-center gap-1 text-[#008080] hover:text-teal-700 font-medium transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
-                                View
+                                View Courses
                               </Link>
                             </td>
                           </tr>

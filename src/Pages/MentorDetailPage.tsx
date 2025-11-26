@@ -284,13 +284,13 @@ const MentorDetailPage = () => {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button
-          onClick={() => navigate('/mentors')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors cursor-pointer"
+        <Link
+          to="/mentors"
+          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Mentors
-        </button>
+        </Link>
 
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-200">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
