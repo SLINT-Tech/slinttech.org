@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { userProfiles, mentorMenteeRelationships, lessons, lessonProgress, tasks, taskSubmissions, announcements, courses } from '../../src/db/schema';
+import { userProfiles, mentorMenteeRelationships, courseEnrollments, lessons, lessonProgress, tasks, taskSubmissions, announcements, courses } from '../../src/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -57,73 +57,85 @@ export default async (req: Request, context: Context) => {
 
     const menteeId = decoded.userId;
 
-    const mentorAssignmentsResult = await db
+    const enrolledCoursesResult = await db
       .select({
         id: mentorMenteeRelationships.id,
         mentorId: mentorMenteeRelationships.mentorId,
         mentorName: userProfiles.fullName,
         mentorEmail: userProfiles.email,
         mentorSpecialization: userProfiles.specialization,
-        courseName: mentorMenteeRelationships.courseName,
+        courseId: courses.id,
+        courseName: courses.name,
+        duration: courses.duration,
         status: mentorMenteeRelationships.status,
-        progressPercentage: mentorMenteeRelationships.progressPercentage,
+        progressPercentage: courseEnrollments.progressPercentage,
         assignedDate: mentorMenteeRelationships.assignedDate,
         notes: mentorMenteeRelationships.notes
       })
       .from(mentorMenteeRelationships)
       .leftJoin(userProfiles, eq(mentorMenteeRelationships.mentorId, userProfiles.id))
+      .leftJoin(courses, eq(courses.mentorId, mentorMenteeRelationships.mentorId))
+      .leftJoin(courseEnrollments, and(
+        eq(courseEnrollments.courseId, courses.id),
+        eq(courseEnrollments.menteeId, menteeId)
+      ))
       .where(eq(mentorMenteeRelationships.menteeId, menteeId));
 
-    const enrolledCoursesResult = await db
-      .select({
-        courseId: courses.id,
-        courseName: courses.name,
-        duration: courses.duration,
-        description: courses.description,
-        mentorId: courses.mentorId
-      })
-      .from(courses)
-      .innerJoin(mentorMenteeRelationships, eq(courses.name, mentorMenteeRelationships.courseName))
-      .where(eq(mentorMenteeRelationships.menteeId, menteeId));
+    const enrolledCourseIds = enrolledCoursesResult
+      .filter(r => r.courseId)
+      .map(r => r.courseId);
 
-    const coursesMap = new Map();
-    enrolledCoursesResult.forEach(course => {
-      coursesMap.set(course.courseName, course);
-    });
+    let lessonsData = {
+      completed: 0,
+      total: 0
+    };
 
-    const lessonsProgressResult = await db
-      .select({
-        totalLessons: sql<number>`count(distinct ${lessons.id})`,
-        completedLessons: sql<number>`count(distinct case when ${lessonProgress.completed} = true then ${lessons.id} end)`
-      })
-      .from(lessons)
-      .leftJoin(lessonProgress, and(
-        eq(lessons.id, lessonProgress.lessonId),
-        eq(lessonProgress.menteeId, menteeId)
-      ))
-      .innerJoin(courses, eq(lessons.courseId, courses.id))
-      .innerJoin(mentorMenteeRelationships, and(
-        eq(courses.name, mentorMenteeRelationships.courseName),
-        eq(mentorMenteeRelationships.menteeId, menteeId)
-      ));
+    let tasksData = {
+      approved: 0,
+      pending: 0,
+      rejected: 0,
+      total: 0
+    };
 
-    const tasksProgressResult = await db
-      .select({
-        totalTasks: sql<number>`count(distinct ${tasks.id})`,
-        approvedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'approved' then ${tasks.id} end)`,
-        pendingTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'pending' then ${tasks.id} end)`,
-        rejectedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'rejected' then ${tasks.id} end)`
-      })
-      .from(tasks)
-      .leftJoin(taskSubmissions, and(
-        eq(tasks.id, taskSubmissions.taskId),
-        eq(taskSubmissions.menteeId, menteeId)
-      ))
-      .innerJoin(courses, eq(tasks.courseId, courses.id))
-      .innerJoin(mentorMenteeRelationships, and(
-        eq(courses.name, mentorMenteeRelationships.courseName),
-        eq(mentorMenteeRelationships.menteeId, menteeId)
-      ));
+    if (enrolledCourseIds.length > 0) {
+      const lessonsProgressResult = await db
+        .select({
+          totalLessons: sql<number>`count(distinct ${lessons.id})`,
+          completedLessons: sql<number>`count(distinct case when ${lessonProgress.completed} = true then ${lessons.id} end)`
+        })
+        .from(lessons)
+        .leftJoin(lessonProgress, and(
+          eq(lessons.id, lessonProgress.lessonId),
+          eq(lessonProgress.menteeId, menteeId)
+        ))
+        .where(sql`${lessons.courseId} = ANY(${enrolledCourseIds})`);
+
+      const tasksProgressResult = await db
+        .select({
+          totalTasks: sql<number>`count(distinct ${tasks.id})`,
+          approvedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'approved' then ${tasks.id} end)`,
+          pendingTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'pending' or ${taskSubmissions.status} = 'submitted' then ${tasks.id} end)`,
+          rejectedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'rejected' then ${tasks.id} end)`
+        })
+        .from(tasks)
+        .leftJoin(taskSubmissions, and(
+          eq(tasks.id, taskSubmissions.taskId),
+          eq(taskSubmissions.menteeId, menteeId)
+        ))
+        .where(sql`${tasks.courseId} = ANY(${enrolledCourseIds})`);
+
+      lessonsData = {
+        completed: Number(lessonsProgressResult[0]?.completedLessons || 0),
+        total: Number(lessonsProgressResult[0]?.totalLessons || 0)
+      };
+
+      tasksData = {
+        approved: Number(tasksProgressResult[0]?.approvedTasks || 0),
+        pending: Number(tasksProgressResult[0]?.pendingTasks || 0),
+        rejected: Number(tasksProgressResult[0]?.rejectedTasks || 0),
+        total: Number(tasksProgressResult[0]?.totalTasks || 0)
+      };
+    }
 
     const announcementsResult = await db
       .select({
@@ -144,34 +156,46 @@ export default async (req: Request, context: Context) => {
       .orderBy(sql`${announcements.publishedAt} DESC`)
       .limit(10);
 
-    const mentorAssignments = mentorAssignmentsResult.map(assignment => {
-      const courseInfo = coursesMap.get(assignment.courseName);
-      return {
-        id: assignment.id,
-        mentor: `${assignment.mentorName} - ${assignment.mentorSpecialization || 'General Mentorship'}`,
-        mentorName: assignment.mentorName,
-        mentorEmail: assignment.mentorEmail,
-        mentorSpecialization: assignment.mentorSpecialization,
-        courseName: assignment.courseName,
-        duration: courseInfo?.duration || 'N/A',
-        status: assignment.status,
-        progressPercentage: assignment.progressPercentage,
-        assignedDate: assignment.assignedDate,
-        notes: assignment.notes
-      };
+    const mentorMap = new Map();
+    enrolledCoursesResult.forEach(assignment => {
+      if (!mentorMap.has(assignment.mentorId)) {
+        mentorMap.set(assignment.mentorId, {
+          id: assignment.id,
+          mentor: `${assignment.mentorName} - ${assignment.mentorSpecialization || 'General Mentorship'}`,
+          mentorName: assignment.mentorName,
+          mentorEmail: assignment.mentorEmail,
+          mentorSpecialization: assignment.mentorSpecialization,
+          courseName: assignment.courseName || 'No courses yet',
+          duration: assignment.duration || 'N/A',
+          status: assignment.status,
+          progressPercentage: assignment.progressPercentage || 0,
+          assignedDate: assignment.assignedDate,
+          notes: assignment.notes,
+          courses: []
+        });
+      }
+
+      if (assignment.courseId && assignment.courseName) {
+        const mentor = mentorMap.get(assignment.mentorId);
+        mentor.courses.push({
+          id: assignment.courseId,
+          name: assignment.courseName,
+          duration: assignment.duration
+        });
+      }
     });
 
-    const lessonsData = {
-      completed: Number(lessonsProgressResult[0]?.completedLessons || 0),
-      total: Number(lessonsProgressResult[0]?.totalLessons || 0)
-    };
-
-    const tasksData = {
-      approved: Number(tasksProgressResult[0]?.approvedTasks || 0),
-      pending: Number(tasksProgressResult[0]?.pendingTasks || 0),
-      rejected: Number(tasksProgressResult[0]?.rejectedTasks || 0),
-      total: Number(tasksProgressResult[0]?.totalTasks || 0)
-    };
+    const mentorAssignments = Array.from(mentorMap.values()).map(mentor => {
+      if (mentor.courses.length > 1) {
+        mentor.courseName = `${mentor.courses.length} Active Courses`;
+        mentor.duration = 'Multiple';
+      } else if (mentor.courses.length === 1) {
+        mentor.courseName = mentor.courses[0].name;
+        mentor.duration = mentor.courses[0].duration;
+      }
+      delete mentor.courses;
+      return mentor;
+    });
 
     const announcementsList = announcementsResult.map(announcement => ({
       id: announcement.id,

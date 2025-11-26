@@ -612,6 +612,7 @@ const AdminDashboard = () => {
       setShowUserModal(false);
       fetchUsers();
       fetchStats();
+      fetchMentors();
     } catch (error: any) {
       console.error('Error updating user:', error);
       setToast({
@@ -697,19 +698,33 @@ const AdminDashboard = () => {
   };
 
   const updateMentorAssignment = (index: number, field: string, value: string) => {
+    // Check for duplicate mentor assignment
+    if (field === 'mentor' && value) {
+      const isDuplicate = editingUser.mentorAssignments.some((assignment, i) =>
+        i !== index && assignment.mentor === value
+      );
+
+      if (isDuplicate) {
+        setToast({
+          message: 'This mentor has already been assigned to this mentee',
+          type: 'error'
+        });
+        return;
+      }
+    }
+
     const updatedAssignments = editingUser.mentorAssignments.map((assignment, i) => {
       if (i === index) {
         const updated = { ...assignment, [field]: value };
-        
-        // Auto-populate course name when mentor is selected
+
+        // Auto-populate mentor name when mentor is selected
         if (field === 'mentor' && value) {
           const selectedMentor = availableMentors.find(m => m.id === value);
           if (selectedMentor) {
-            updated.courseName = selectedMentor.specialization;
             updated.mentorName = selectedMentor.full_name;
           }
         }
-        
+
         return updated;
       }
       return assignment;
@@ -1454,11 +1469,20 @@ const AdminDashboard = () => {
                                   ? 'No approved mentors available'
                                   : 'Select mentor'}
                             </option>
-                            {availableMentors.map(mentor => (
-                              <option key={mentor.id} value={mentor.id}>
-                                {mentor.full_name} - {mentor.specialization}
-                              </option>
-                            ))}
+                            {availableMentors
+                              .filter(mentor => {
+                                // Show the currently selected mentor or mentors not yet assigned
+                                const isCurrentSelection = assignment.mentor === mentor.id;
+                                const isAlreadyAssigned = editingUser.mentorAssignments.some(
+                                  (a, i) => i !== index && a.mentor === mentor.id
+                                );
+                                return isCurrentSelection || !isAlreadyAssigned;
+                              })
+                              .map(mentor => (
+                                <option key={mentor.id} value={mentor.id}>
+                                  {mentor.full_name} - {mentor.specialization}
+                                </option>
+                              ))}
                           </select>
                           {isLoadingMentors && (
                             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
