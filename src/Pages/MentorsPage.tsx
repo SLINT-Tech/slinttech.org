@@ -59,8 +59,7 @@ const MentorsPage = () => {
         return;
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-      const response = await fetch(`${API_BASE_URL}/mentee-get-mentors`, {
+      const response = await fetch('/api/mentee-get-mentors', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

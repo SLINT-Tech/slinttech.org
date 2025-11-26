@@ -33,9 +33,7 @@ const MentorDashboard = () => {
           return;
         }
 
-        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-
-        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+        const response = await fetch('/api/auth-me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

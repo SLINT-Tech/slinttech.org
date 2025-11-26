@@ -5,7 +5,6 @@ import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/.netlify/functions';
 
 // Declare PaystackPop for TypeScript
 declare global {
@@ -85,7 +84,7 @@ const PaymentWallPage = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/payment-initialize`, {
+      const response = await fetch('/api/payment-initialize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +129,7 @@ const PaymentWallPage = () => {
             console.log('Payment successful, verifying...');
             setPaymentStatus('verifying');
 
-            fetch(`${API_BASE_URL}/payment-verify`, {
+            fetch('/api/payment-verify', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

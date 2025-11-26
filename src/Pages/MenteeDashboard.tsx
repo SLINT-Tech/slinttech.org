@@ -28,9 +28,7 @@ const MenteeDashboard = () => {
           return;
         }
 
-        const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
-
-        const response = await fetch(`${API_BASE_URL}/auth-me`, {
+        const response = await fetch('/api/auth-me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -79,7 +77,7 @@ const MenteeDashboard = () => {
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        const dashboardResponse = await fetch(`${API_BASE_URL}/mentee-get-dashboard`, {
+        const dashboardResponse = await fetch('/api/mentee-get-dashboard', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
