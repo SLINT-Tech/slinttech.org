@@ -103,6 +103,12 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/mentor-detail" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorDetailPage />
+            </ProtectedRoute>
+          } />
+
           <Route path="/admin/dashboard" element={
             <ProtectedRoute requiredRole="Admin" requireApproval={false} requirePayment={false}>
               <AdminDashboard />
