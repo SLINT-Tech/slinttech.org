@@ -69,7 +69,6 @@ export default async (req: Request, context: Context) => {
         createdAt: mentorMenteeRelationships.createdAt,
         menteeFullName: userProfiles.fullName,
         menteeEmail: userProfiles.email,
-        menteePhone: userProfiles.phoneNumber,
         menteeCareerPath: userProfiles.careerPath
       })
       .from(mentorMenteeRelationships)
@@ -82,7 +81,6 @@ export default async (req: Request, context: Context) => {
       menteeId: m.menteeId,
       fullName: m.menteeFullName,
       email: m.menteeEmail,
-      phone: m.menteePhone,
       careerPath: m.menteeCareerPath,
       status: m.status,
       assignedDate: m.assignedDate,

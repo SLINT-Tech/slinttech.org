@@ -8,7 +8,6 @@ interface Mentee {
   menteeId: string;
   fullName: string;
   email: string;
-  phone: string | null;
   careerPath: string | null;
   status: string;
   assignedDate: string;
