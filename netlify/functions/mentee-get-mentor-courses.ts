@@ -96,66 +96,73 @@ export default async (req: Request, context: Context) => {
 
     const relationship = relationshipResult[0];
 
-    const enrolledCoursesResult = await db
-      .select({
-        courseId: courses.id,
-        courseName: courses.name,
-        courseDescription: courses.description,
-        courseDuration: courses.duration,
-        enrollmentStatus: courseEnrollments.status,
-        progressPercentage: courseEnrollments.progressPercentage,
-        enrolledAt: courseEnrollments.enrolledAt,
-        completedAt: courseEnrollments.completedAt
-      })
-      .from(courseEnrollments)
-      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
-      .where(and(
-        eq(courseEnrollments.menteeId, menteeId),
-        eq(courses.mentorId, mentorId)
-      ));
+    const enrolledCoursesResult = await db.execute<{
+      course_id: string;
+      course_name: string;
+      course_description: string;
+      course_duration: string;
+      enrollment_status: string;
+      progress_percentage: number;
+      enrolled_at: Date;
+      completed_at: Date | null;
+    }>(sql`
+      SELECT
+        c.id as course_id,
+        c.name as course_name,
+        c.description as course_description,
+        c.duration as course_duration,
+        ce.status as enrollment_status,
+        ce.progress_percentage,
+        ce.enrolled_at,
+        ce.completed_at
+      FROM courses c
+      INNER JOIN course_enrollments ce ON ce.course_id = c.id
+      WHERE c.mentor_id = ${mentorId}
+        AND ce.mentee_id = ${menteeId}
+    `);
 
     const coursesWithDetails = await Promise.all(
       enrolledCoursesResult.map(async (enrollment) => {
-        const lessonsResult = await db
-          .select({
-            id: lessons.id,
-            completed: lessonProgress.completed
-          })
-          .from(lessons)
-          .leftJoin(lessonProgress, and(
-            eq(lessons.id, lessonProgress.lessonId),
-            eq(lessonProgress.menteeId, menteeId)
-          ))
-          .where(eq(lessons.courseId, enrollment.courseId));
+        const lessonsResult = await db.execute<{
+          lesson_id: string;
+          completed: boolean | null;
+        }>(sql`
+          SELECT
+            l.id as lesson_id,
+            lp.completed
+          FROM lessons l
+          LEFT JOIN lesson_progress lp ON l.id = lp.lesson_id AND lp.mentee_id = ${menteeId}
+          WHERE l.course_id = ${enrollment.course_id}
+        `);
 
-        const tasksResult = await db
-          .select({
-            id: tasks.id,
-            submissionStatus: taskSubmissions.status
-          })
-          .from(tasks)
-          .leftJoin(taskSubmissions, and(
-            eq(tasks.id, taskSubmissions.taskId),
-            eq(taskSubmissions.menteeId, menteeId)
-          ))
-          .where(eq(tasks.courseId, enrollment.courseId));
+        const tasksResult = await db.execute<{
+          task_id: string;
+          submission_status: string | null;
+        }>(sql`
+          SELECT
+            t.id as task_id,
+            ts.status as submission_status
+          FROM tasks t
+          LEFT JOIN task_submissions ts ON t.id = ts.task_id AND ts.mentee_id = ${menteeId}
+          WHERE t.course_id = ${enrollment.course_id}
+        `);
 
         const totalLessons = lessonsResult.length;
         const completedLessons = lessonsResult.filter(l => l.completed).length;
         const totalTasks = tasksResult.length;
-        const approvedTasks = tasksResult.filter(t => t.submissionStatus === 'approved').length;
-        const pendingTasks = tasksResult.filter(t => !t.submissionStatus).length;
-        const submittedTasks = tasksResult.filter(t => t.submissionStatus === 'submitted').length;
+        const approvedTasks = tasksResult.filter(t => t.submission_status === 'approved').length;
+        const pendingTasks = tasksResult.filter(t => !t.submission_status).length;
+        const submittedTasks = tasksResult.filter(t => t.submission_status === 'submitted').length;
 
         return {
-          courseId: enrollment.courseId,
-          courseName: enrollment.courseName,
-          courseDescription: enrollment.courseDescription,
-          duration: enrollment.courseDuration,
-          enrollmentStatus: enrollment.enrollmentStatus,
-          progressPercentage: enrollment.progressPercentage || 0,
-          enrolledAt: enrollment.enrolledAt,
-          completedAt: enrollment.completedAt,
+          courseId: enrollment.course_id,
+          courseName: enrollment.course_name,
+          courseDescription: enrollment.course_description,
+          duration: enrollment.course_duration,
+          enrollmentStatus: enrollment.enrollment_status,
+          progressPercentage: enrollment.progress_percentage || 0,
+          enrolledAt: enrollment.enrolled_at,
+          completedAt: enrollment.completed_at,
           stats: {
             totalLessons,
             completedLessons,

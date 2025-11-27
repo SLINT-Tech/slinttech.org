@@ -57,33 +57,43 @@ export default async (req: Request, context: Context) => {
 
     const menteeId = decoded.userId;
 
-    const enrolledCoursesResult = await db
-      .select({
-        id: mentorMenteeRelationships.id,
-        mentorId: mentorMenteeRelationships.mentorId,
-        mentorName: userProfiles.fullName,
-        mentorEmail: userProfiles.email,
-        mentorSpecialization: userProfiles.specialization,
-        courseId: courses.id,
-        courseName: courses.name,
-        duration: courses.duration,
-        status: mentorMenteeRelationships.status,
-        progressPercentage: courseEnrollments.progressPercentage,
-        assignedDate: mentorMenteeRelationships.assignedDate,
-        notes: mentorMenteeRelationships.notes
-      })
-      .from(mentorMenteeRelationships)
-      .leftJoin(userProfiles, eq(mentorMenteeRelationships.mentorId, userProfiles.id))
-      .leftJoin(courses, eq(courses.mentorId, mentorMenteeRelationships.mentorId))
-      .leftJoin(courseEnrollments, and(
-        eq(courseEnrollments.courseId, courses.id),
-        eq(courseEnrollments.menteeId, menteeId)
-      ))
-      .where(eq(mentorMenteeRelationships.menteeId, menteeId));
+    const enrolledCoursesResult = await db.execute<{
+      relationship_id: string;
+      mentor_id: string;
+      mentor_name: string;
+      mentor_email: string;
+      mentor_specialization: string | null;
+      course_id: string | null;
+      course_name: string | null;
+      duration: string | null;
+      status: string;
+      progress_percentage: number | null;
+      assigned_date: Date;
+      notes: string | null;
+    }>(sql`
+      SELECT
+        mmr.id as relationship_id,
+        mmr.mentor_id,
+        u.full_name as mentor_name,
+        u.email as mentor_email,
+        u.specialization as mentor_specialization,
+        c.id as course_id,
+        c.name as course_name,
+        c.duration,
+        mmr.status,
+        ce.progress_percentage,
+        mmr.assigned_date,
+        mmr.notes
+      FROM mentor_mentee_relationships mmr
+      LEFT JOIN user_profiles u ON mmr.mentor_id = u.id
+      LEFT JOIN courses c ON c.mentor_id = mmr.mentor_id
+      LEFT JOIN course_enrollments ce ON ce.course_id = c.id AND ce.mentee_id = ${menteeId}
+      WHERE mmr.mentee_id = ${menteeId}
+    `);
 
     const enrolledCourseIds = enrolledCoursesResult
-      .filter(r => r.courseId)
-      .map(r => r.courseId);
+      .filter(r => r.course_id)
+      .map(r => r.course_id);
 
     let lessonsData = {
       completed: 0,
@@ -98,42 +108,44 @@ export default async (req: Request, context: Context) => {
     };
 
     if (enrolledCourseIds.length > 0) {
-      const lessonsProgressResult = await db
-        .select({
-          totalLessons: sql<number>`count(distinct ${lessons.id})`,
-          completedLessons: sql<number>`count(distinct case when ${lessonProgress.completed} = true then ${lessons.id} end)`
-        })
-        .from(lessons)
-        .leftJoin(lessonProgress, and(
-          eq(lessons.id, lessonProgress.lessonId),
-          eq(lessonProgress.menteeId, menteeId)
-        ))
-        .where(sql`${lessons.courseId} = ANY(${enrolledCourseIds})`);
+      const lessonsProgressResult = await db.execute<{
+        total_lessons: string;
+        completed_lessons: string;
+      }>(sql`
+        SELECT
+          COUNT(DISTINCT l.id) as total_lessons,
+          COUNT(DISTINCT CASE WHEN lp.completed = true THEN l.id END) as completed_lessons
+        FROM lessons l
+        LEFT JOIN lesson_progress lp ON l.id = lp.lesson_id AND lp.mentee_id = ${menteeId}
+        WHERE l.course_id = ANY(${sql.raw(`ARRAY[${enrolledCourseIds.map(id => `'${id}'`).join(',')}]::uuid[]`)})
+      `);
 
-      const tasksProgressResult = await db
-        .select({
-          totalTasks: sql<number>`count(distinct ${tasks.id})`,
-          approvedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'approved' then ${tasks.id} end)`,
-          pendingTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'pending' or ${taskSubmissions.status} = 'submitted' then ${tasks.id} end)`,
-          rejectedTasks: sql<number>`count(distinct case when ${taskSubmissions.status} = 'rejected' then ${tasks.id} end)`
-        })
-        .from(tasks)
-        .leftJoin(taskSubmissions, and(
-          eq(tasks.id, taskSubmissions.taskId),
-          eq(taskSubmissions.menteeId, menteeId)
-        ))
-        .where(sql`${tasks.courseId} = ANY(${enrolledCourseIds})`);
+      const tasksProgressResult = await db.execute<{
+        total_tasks: string;
+        approved_tasks: string;
+        pending_tasks: string;
+        rejected_tasks: string;
+      }>(sql`
+        SELECT
+          COUNT(DISTINCT t.id) as total_tasks,
+          COUNT(DISTINCT CASE WHEN ts.status = 'approved' THEN t.id END) as approved_tasks,
+          COUNT(DISTINCT CASE WHEN ts.status IN ('pending', 'submitted') THEN t.id END) as pending_tasks,
+          COUNT(DISTINCT CASE WHEN ts.status = 'rejected' THEN t.id END) as rejected_tasks
+        FROM tasks t
+        LEFT JOIN task_submissions ts ON t.id = ts.task_id AND ts.mentee_id = ${menteeId}
+        WHERE t.course_id = ANY(${sql.raw(`ARRAY[${enrolledCourseIds.map(id => `'${id}'`).join(',')}]::uuid[]`)})
+      `);
 
       lessonsData = {
-        completed: Number(lessonsProgressResult[0]?.completedLessons || 0),
-        total: Number(lessonsProgressResult[0]?.totalLessons || 0)
+        completed: Number(lessonsProgressResult[0]?.completed_lessons || 0),
+        total: Number(lessonsProgressResult[0]?.total_lessons || 0)
       };
 
       tasksData = {
-        approved: Number(tasksProgressResult[0]?.approvedTasks || 0),
-        pending: Number(tasksProgressResult[0]?.pendingTasks || 0),
-        rejected: Number(tasksProgressResult[0]?.rejectedTasks || 0),
-        total: Number(tasksProgressResult[0]?.totalTasks || 0)
+        approved: Number(tasksProgressResult[0]?.approved_tasks || 0),
+        pending: Number(tasksProgressResult[0]?.pending_tasks || 0),
+        rejected: Number(tasksProgressResult[0]?.rejected_tasks || 0),
+        total: Number(tasksProgressResult[0]?.total_tasks || 0)
       };
     }
 
@@ -158,28 +170,28 @@ export default async (req: Request, context: Context) => {
 
     const mentorMap = new Map();
     enrolledCoursesResult.forEach(assignment => {
-      if (!mentorMap.has(assignment.mentorId)) {
-        mentorMap.set(assignment.mentorId, {
-          id: assignment.id,
-          mentor: `${assignment.mentorName} - ${assignment.mentorSpecialization || 'General Mentorship'}`,
-          mentorName: assignment.mentorName,
-          mentorEmail: assignment.mentorEmail,
-          mentorSpecialization: assignment.mentorSpecialization,
-          courseName: assignment.courseName || 'No courses yet',
+      if (!mentorMap.has(assignment.mentor_id)) {
+        mentorMap.set(assignment.mentor_id, {
+          id: assignment.relationship_id,
+          mentor: `${assignment.mentor_name} - ${assignment.mentor_specialization || 'General Mentorship'}`,
+          mentorName: assignment.mentor_name,
+          mentorEmail: assignment.mentor_email,
+          mentorSpecialization: assignment.mentor_specialization,
+          courseName: assignment.course_name || 'No courses yet',
           duration: assignment.duration || 'N/A',
           status: assignment.status,
-          progressPercentage: assignment.progressPercentage || 0,
-          assignedDate: assignment.assignedDate,
+          progressPercentage: assignment.progress_percentage || 0,
+          assignedDate: assignment.assigned_date,
           notes: assignment.notes,
           courses: []
         });
       }
 
-      if (assignment.courseId && assignment.courseName) {
-        const mentor = mentorMap.get(assignment.mentorId);
+      if (assignment.course_id && assignment.course_name) {
+        const mentor = mentorMap.get(assignment.mentor_id);
         mentor.courses.push({
-          id: assignment.courseId,
-          name: assignment.courseName,
+          id: assignment.course_id,
+          name: assignment.course_name,
           duration: assignment.duration
         });
       }
