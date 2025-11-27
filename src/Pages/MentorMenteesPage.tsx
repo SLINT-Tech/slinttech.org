@@ -2,6 +2,7 @@ import { ArrowLeft, BookOpen, CheckCircle, Eye, Target, User, Users, X, Menu, Ch
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Navigation from '../Components/Navigation';
 
 interface Mentee {
   id: string;
@@ -38,7 +39,6 @@ const MentorMenteesPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigate = useNavigate();
   const itemsPerPage = 10;
@@ -122,23 +122,14 @@ const MentorMenteesPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
-              </Link>
-              <div className="hidden md:flex items-center gap-4">
-                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
-              </div>
-              <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <Menu className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        </header>
+        <Navigation
+          role="Mentor"
+          userName="Loading..."
+          onLogout={() => {
+            signOut();
+            navigate('/mentor/login');
+          }}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="h-10 bg-gray-200 rounded w-32 mb-6 animate-pulse"></div>
@@ -257,79 +248,14 @@ const MentorMenteesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-600">
-                Welcome, {currentUser?.fullName?.split(' ')[0] || 'Mentor'}
-              </span>
-              <Link to="/mentor/dashboard" className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
-                Dashboard
-              </Link>
-              <Link to="/mentor/courses" className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
-                Courses
-              </Link>
-              <Link to="/mentor/profile" className="text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
-                Profile
-              </Link>
-              <button
-                onClick={() => {
-                  signOut();
-                  navigate('/mentor/login');
-                }}
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-              >
-                Logout
-              </button>
-            </div>
-
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {isMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
-              <div className="flex flex-col space-y-4">
-                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {currentUser?.fullName?.split(' ')[0] || 'Mentor'}
-                </div>
-                <Link to="/mentor/dashboard" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Dashboard
-                </Link>
-                <Link to="/mentor/courses" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Courses
-                </Link>
-                <Link to="/mentor/mentees" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Mentees
-                </Link>
-                <Link to="/mentor/profile" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    signOut();
-                    navigate('/mentor/login');
-                  }}
-                  className="w-full text-left px-4 py-2 text-[#008080] hover:text-teal-700 transition-colors border-t border-gray-200 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <Navigation
+        role="Mentor"
+        userName={currentUser?.fullName || 'Mentor'}
+        onLogout={() => {
+          signOut();
+          navigate('/mentor/login');
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link

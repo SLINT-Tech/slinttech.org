@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, Clock, Eye, Plus, Target, Users, BookOpen, ArrowRight, Edit, Trash2, Send, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Eye, Plus, Target, Users, BookOpen, ArrowRight, Edit, Trash2, Send, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
@@ -156,26 +156,14 @@ const MentorDashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
-              </Link>
-
-              <div className="hidden md:flex items-center gap-4">
-                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
-              </div>
-
-              <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <Menu className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        </header>
+        <Navigation
+          role="Mentor"
+          userName="Loading..."
+          onLogout={() => {
+            signOut();
+            navigate('/mentor/login');
+          }}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">

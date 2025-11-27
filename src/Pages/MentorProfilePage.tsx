@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
+import Navigation from '../Components/Navigation';
 
 const MentorProfilePage = () => {
   const { signOut } = useAuth();
@@ -282,26 +283,14 @@ const MentorProfilePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
-        {/* Header */}
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <span className="text-gray-600">Profile Settings</span>
-                <Link 
-                  to="/mentor/login" 
-                  className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-                >
-                  Logout
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        <Navigation
+          role="Mentor"
+          userName={currentUser.fullName || 'Mentor'}
+          onLogout={() => {
+            signOut();
+            navigate('/mentor/login');
+          }}
+        />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button Skeleton */}
@@ -424,27 +413,14 @@ const MentorProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SLINT Tech Mentor</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600">Profile Settings</span>
-              <Link 
-                to="/mentor/login" 
-               onClick={signOut}
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-              >
-                Logout
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation
+        role="Mentor"
+        userName={profileData?.fullName || currentUser.fullName || 'Mentor'}
+        onLogout={() => {
+          signOut();
+          navigate('/mentor/login');
+        }}
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
