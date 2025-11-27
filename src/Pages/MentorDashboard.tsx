@@ -154,11 +154,12 @@ const MentorDashboard = () => {
   };
 
   if (loading) {
+    const storedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     return (
       <div className="min-h-screen bg-[#F8F8F8]">
         <Navigation
           role="Mentor"
-          userName="Loading..."
+          userName={storedUser.fullName || 'Mentor'}
           onLogout={() => {
             signOut();
             navigate('/mentor/login');

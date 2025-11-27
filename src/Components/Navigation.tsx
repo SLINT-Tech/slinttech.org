@@ -107,19 +107,25 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-6">
               {links.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-1 py-2 font-medium transition-all duration-200 relative group ${
                     isActive(link)
-                      ? 'bg-[#008080] text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-[#008080]'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   {link.icon}
                   <span className="text-sm">{link.label}</span>
+                  {isActive(link) && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#008080]"></span>
+                  )}
+                  {!isActive(link) && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
+                  )}
                 </Link>
               ))}
             </nav>
@@ -155,10 +161,10 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 border-l-4 ${
                   isActive(link)
-                    ? 'bg-[#008080] text-white'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'border-[#008080] bg-[#008080]/5 text-[#008080]'
+                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300'
                 }`}
               >
                 {link.icon}

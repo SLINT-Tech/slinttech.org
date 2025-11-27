@@ -190,7 +190,7 @@ const MentorMenteeDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate('/mentor/mentees')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6"
+          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Mentees
