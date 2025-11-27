@@ -1,8 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { mentorMenteeRelationships, userProfiles, courseEnrollments } from '../../src/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -64,74 +63,72 @@ export default async (req: Request, context: Context) => {
 
     const url = new URL(req.url);
     const courseId = url.searchParams.get('courseId');
-
     const mentorId = decoded.userId;
 
-    const relationships = await db
-      .select()
-      .from(mentorMenteeRelationships)
-      .where(
-        and(
-          eq(mentorMenteeRelationships.mentorId, mentorId),
-          eq(mentorMenteeRelationships.status, 'active')
-        )
-      );
-
-    if (relationships.length === 0) {
-      return new Response(JSON.stringify({
-        success: true,
-        data: []
-      }), {
-        status: 200,
-        headers: corsHeaders
-      });
-    }
-
-    const menteeIds = relationships.map(rel => rel.menteeId);
-
-    const menteeProfiles = await db
-      .select()
-      .from(userProfiles)
-      .where(inArray(userProfiles.id, menteeIds));
-
     if (courseId) {
-      const enrolledMentees = await db
-        .select()
-        .from(courseEnrollments)
-        .where(eq(courseEnrollments.courseId, courseId));
+      const result = await db.execute(sql`
+        SELECT
+          up.id,
+          up.full_name,
+          up.email,
+          up.profile_picture,
+          mmr.status,
+          CASE
+            WHEN ce.mentee_id IS NOT NULL THEN true
+            ELSE false
+          END as is_enrolled
+        FROM mentor_mentee_relationships mmr
+        INNER JOIN user_profiles up ON mmr.mentee_id = up.id
+        LEFT JOIN course_enrollments ce ON ce.mentee_id = up.id AND ce.course_id = ${courseId}
+        WHERE mmr.mentor_id = ${mentorId}
+          AND mmr.status = 'active'
+        ORDER BY up.full_name ASC
+      `);
 
-      const enrolledIds = enrolledMentees.map(e => e.menteeId);
-
-      const allMenteesWithStatus = menteeProfiles.map(profile => ({
-        id: profile.id,
-        fullName: profile.fullName,
-        email: profile.email,
-        profilePicture: profile.profilePicture,
-        status: 'active',
-        isEnrolled: enrolledIds.includes(profile.id)
+      const mentees = result.rows.map((row: any) => ({
+        id: row.id,
+        fullName: row.full_name,
+        email: row.email,
+        profilePicture: row.profile_picture,
+        status: row.status,
+        isEnrolled: row.is_enrolled
       }));
 
       return new Response(JSON.stringify({
         success: true,
-        data: allMenteesWithStatus
+        data: mentees
       }), {
         status: 200,
         headers: corsHeaders
       });
     }
 
-    const allMentees = menteeProfiles.map(profile => ({
-      id: profile.id,
-      fullName: profile.fullName,
-      email: profile.email,
-      profilePicture: profile.profilePicture,
-      status: 'active',
+    const result = await db.execute(sql`
+      SELECT
+        up.id,
+        up.full_name,
+        up.email,
+        up.profile_picture,
+        mmr.status
+      FROM mentor_mentee_relationships mmr
+      INNER JOIN user_profiles up ON mmr.mentee_id = up.id
+      WHERE mmr.mentor_id = ${mentorId}
+        AND mmr.status = 'active'
+      ORDER BY up.full_name ASC
+    `);
+
+    const mentees = result.rows.map((row: any) => ({
+      id: row.id,
+      fullName: row.full_name,
+      email: row.email,
+      profilePicture: row.profile_picture,
+      status: row.status,
       isEnrolled: false
     }));
 
     return new Response(JSON.stringify({
       success: true,
-      data: allMentees
+      data: mentees
     }), {
       status: 200,
       headers: corsHeaders

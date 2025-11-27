@@ -28,6 +28,21 @@
 
 
     }
+
+    /* Custom teal checkbox styling */
+    input[type="checkbox"]:checked {
+        background-color: #008080;
+        border-color: #008080;
+    }
+
+    input[type="checkbox"]:focus {
+        --tw-ring-color: rgb(0 128 128 / 0.5);
+    }
+
+    input[type="checkbox"]:disabled:checked {
+        background-color: #9ca3af;
+        border-color: #9ca3af;
+    }
 }
 
 /* Toast animation */

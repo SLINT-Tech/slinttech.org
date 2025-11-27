@@ -862,8 +862,8 @@ const MentorCourseDetailPage = () => {
               </div>
             </div>
 
-            <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              <p className="text-gray-600">
+            <div className="p-6 flex-shrink-0">
+              <p className="text-gray-600 mb-4">
                 Select mentees from your assigned list to enroll in "<span className="font-semibold">{course?.name}</span>"
               </p>
 
@@ -879,8 +879,10 @@ const MentorCourseDetailPage = () => {
                   disabled={fetchingMentees}
                 />
               </div>
+            </div>
 
-              {/* Mentees List */}
+            {/* Mentees List - Scrollable Area */}
+            <div className="px-6 pb-4 overflow-y-auto flex-1 min-h-0">
               {fetchingMentees ? (
                 <div className="text-center py-12">
                   <Loader2 className="w-12 h-12 text-[#008080] mx-auto mb-4 animate-spin" />
@@ -888,7 +890,7 @@ const MentorCourseDetailPage = () => {
                   <p className="text-sm text-gray-500 mt-1">Please wait while we fetch your assigned mentees</p>
                 </div>
               ) : availableMentees.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2">
                   {availableMentees
                     .filter(mentee =>
                       mentee.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -913,13 +915,18 @@ const MentorCourseDetailPage = () => {
                           }
                         }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
-                          disabled={mentee.isEnrolled}
-                          onChange={() => {}}
-                          className="mr-3 w-5 h-5 text-[#008080] border-gray-300 rounded focus:ring-[#008080] disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
+                        <div className="mr-3 flex-shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
+                            disabled={mentee.isEnrolled}
+                            onChange={() => {}}
+                            className="w-5 h-5 rounded border-gray-300 text-[#008080] focus:ring-[#008080] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer accent-[#008080]"
+                            style={{
+                              accentColor: '#008080'
+                            }}
+                          />
+                        </div>
                         <div className="flex items-center flex-1">
                           <div className={`w-10 h-10 ${mentee.isEnrolled ? 'bg-gray-400' : 'bg-[#008080]'} rounded-full flex items-center justify-center mr-3`}>
                             <User className="w-5 h-5 text-white" />
