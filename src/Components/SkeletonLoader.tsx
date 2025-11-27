@@ -168,7 +168,7 @@ export const MenteeDetailSkeletonLoader = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
             <div className="h-5 w-40 bg-gray-200 rounded mb-3"></div>
             <div className="space-y-2">
@@ -183,12 +183,6 @@ export const MenteeDetailSkeletonLoader = () => {
               <div className="h-4 bg-gray-200 rounded w-full"></div>
               <div className="h-4 bg-gray-200 rounded w-5/6"></div>
               <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-            </div>
-          </div>
-          <div>
-            <div className="h-5 w-40 bg-gray-200 rounded mb-3"></div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="h-10 bg-gray-200 rounded"></div>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, Download, FileText, MessageSquare, Search, Send, User } from 'lucide-react';
+import { ArrowLeft, BookOpen, MessageSquare, Search, Send, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
@@ -93,40 +93,6 @@ const MentorMenteeDetailPage = () => {
     console.log('Sending message to', menteeData?.fullName, ':', message);
     setMessage('');
     setToast({ message: 'Message sent successfully!', type: 'success' });
-  };
-
-  const downloadContract = async () => {
-    if (!menteeData?.contractFileUrl) {
-      setToast({ message: 'No contract file available', type: 'error' });
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/download-contract?userId=${menteeData.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${menteeData.fullName.replace(/\s+/g, '_')}_contract.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        setToast({ message: 'Contract downloaded successfully', type: 'success' });
-      } else {
-        setToast({ message: 'Failed to download contract', type: 'error' });
-      }
-    } catch (error) {
-      console.error('Download contract error:', error);
-      setToast({ message: 'Failed to download contract', type: 'error' });
-    }
   };
 
   const getStatusColor = (status: string) => {
@@ -244,7 +210,7 @@ const MentorMenteeDetailPage = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-gray-900 mb-3">Personal Information</h3>
               <div className="space-y-2 text-sm text-gray-600">
@@ -262,25 +228,6 @@ const MentorMenteeDetailPage = () => {
                 <p><span className="font-medium">Joined:</span> {new Date(menteeData.joinedDate).toLocaleDateString()}</p>
                 <p><span className="font-medium">Last Active:</span> {new Date(menteeData.lastActive).toLocaleDateString()}</p>
               </div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Contract Document</h3>
-              {menteeData.contractFileUrl ? (
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <FileText className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-900">Contract.pdf</span>
-                  </div>
-                  <button
-                    onClick={downloadContract}
-                    className="text-[#008080] hover:text-teal-700"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No contract uploaded</p>
-              )}
             </div>
           </div>
         </div>
