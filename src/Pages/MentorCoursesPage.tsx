@@ -1,61 +1,29 @@
-import { ArrowLeft, BookOpen, Eye, Plus, User, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Eye, Loader2, Plus, User, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 
-// Mock data - this would come from your backend/database
-const mockMentorData = {
-  fullName: 'Dr. Sarah Johnson',
-  email: 'sarah.johnson@slinttech.org',
-  specialization: 'Full Stack Development',
-  courses: [
-    {
-      id: 1,
-      name: 'React Fundamentals',
-      duration: '8 weeks',
-      description: 'Learn the basics of React development',
-      enrolledMentees: 2,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'Advanced JavaScript',
-      duration: '6 weeks',
-      description: 'Master advanced JavaScript concepts',
-      enrolledMentees: 1,
-      createdAt: '2024-01-20'
-    },
-    {
-      id: 3,
-      name: 'Node.js Backend Development',
-      duration: '10 weeks',
-      description: 'Build scalable backend applications with Node.js',
-      enrolledMentees: 3,
-      createdAt: '2024-01-12'
-    },
-    {
-      id: 4,
-      name: 'Database Design & SQL',
-      duration: '4 weeks',
-      description: 'Learn database design principles and SQL',
-      enrolledMentees: 2,
-      createdAt: '2024-01-25'
-    },
-    {
-      id: 5,
-      name: 'API Development with Express',
-      duration: '6 weeks',
-      description: 'Create RESTful APIs using Express.js',
-      enrolledMentees: 1,
-      createdAt: '2024-01-18'
-    }
-  ]
-};
+interface Course {
+  id: string;
+  name: string;
+  duration: string;
+  description: string;
+  status: string;
+  enrolledMentees: number;
+  createdAt: string;
+}
+
+interface Stats {
+  totalCourses: number;
+  activeCourses: number;
+  totalEnrollments: number;
+}
 
 const MentorCoursesPage = () => {
   const { user } = useAuth();
-  const [mentorData, setMentorData] = useState(mockMentorData);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalCourses: 0, activeCourses: 0, totalEnrollments: 0 });
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -64,8 +32,46 @@ const MentorCoursesPage = () => {
     description: ''
   });
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    setPageLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/.netlify/functions/mentor-get-courses', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setCourses(data.data.courses);
+        setStats(data.data.stats);
+      } else {
+        setToast({ message: data.error || 'Failed to fetch courses', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Fetch courses error:', error);
+      setToast({ message: 'Failed to fetch courses', type: 'error' });
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
   const handleCreateCourse = async () => {
     if (!newCourse.name.trim()) {
@@ -114,6 +120,7 @@ const MentorCoursesPage = () => {
         setToast({ message: 'Course created successfully!', type: 'success' });
         setNewCourse({ name: '', durationNumber: '', durationUnit: 'weeks', description: '' });
         setShowCreateCourseModal(false);
+        fetchCourses();
       } else {
         setToast({ message: data.error || 'Failed to create course', type: 'error' });
       }
@@ -136,9 +143,9 @@ const MentorCoursesPage = () => {
               <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">Welcome, {mentorData.fullName}</span>
-              <Link 
-                to="/mentor/login" 
+              <span className="text-gray-600">Welcome, {user?.fullName || 'Mentor'}</span>
+              <Link
+                to="/mentor/login"
                 className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
               >
                 Logout
@@ -148,8 +155,105 @@ const MentorCoursesPage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {pageLoading ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-10 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mr-3"></div>
+                <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+            </div>
+            <div className="h-4 bg-gray-200 rounded w-96 animate-pulse"></div>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="ml-4 flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-7 bg-gray-200 rounded w-12 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                    <tr key={i}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse mr-3"></div>
+                          <div className="space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-56 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-4 animate-pulse"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="h-10 w-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                  ))}
+                </div>
+                <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
           onClick={() => navigate('/mentor/dashboard')}
@@ -186,7 +290,7 @@ const MentorCoursesPage = () => {
               <BookOpen className="w-8 h-8 text-[#008080]" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Courses</p>
-                <p className="text-2xl font-bold text-gray-900">{mentorData.courses.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
               </div>
             </div>
           </div>
@@ -195,9 +299,7 @@ const MentorCoursesPage = () => {
               <User className="w-8 h-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Enrollments</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {mentorData.courses.reduce((acc, course) => acc + course.enrolledMentees, 0)}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalEnrollments}</p>
               </div>
             </div>
           </div>
@@ -206,76 +308,138 @@ const MentorCoursesPage = () => {
               <BookOpen className="w-8 h-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Courses</p>
-                <p className="text-2xl font-bold text-gray-900">{mentorData.courses.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.activeCourses}</p>
               </div>
             </div>
           </div>
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center">
-              <BookOpen className="w-8 h-8 text-purple-600" />
+              <BookOpen className="w-8 h-8 text-orange-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Avg. Enrollment</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(mentorData.courses.reduce((acc, course) => acc + course.enrolledMentees, 0) / mentorData.courses.length)}
+                  {stats.totalCourses > 0 ? Math.round(stats.totalEnrollments / stats.totalCourses) : 0}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Courses Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {mentorData.courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
-                          <BookOpen className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{course.name}</div>
-                          <div className="text-sm text-gray-500">{course.description}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {course.duration}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {course.enrolledMentees} mentees
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(course.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => navigate(`/mentor/course/${course.id}`)}
-                        className="text-[#008080] hover:text-teal-700 cursor-pointer"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {courses.length > 0 ? (
+          <>
+            {/* Courses Table */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {courses
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((course) => (
+                        <tr key={course.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                                <BookOpen className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">{course.name}</div>
+                                <div className="text-sm text-gray-500">{course.description}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {course.duration}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {course.enrolledMentees} {course.enrolledMentees === 1 ? 'mentee' : 'mentees'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(course.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => navigate(`/mentor/course/${course.id}`)}
+                              className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-        {/* Empty State */}
-        {mentorData.courses.length === 0 && (
+            {/* Pagination */}
+            {courses.length > itemsPerPage && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                    <span className="font-medium">
+                      {Math.min(currentPage * itemsPerPage, courses.length)}
+                    </span>{' '}
+                    of <span className="font-medium">{courses.length}</span> courses
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.ceil(courses.length / itemsPerPage) }, (_, i) => i + 1)
+                        .filter(page => {
+                          const totalPages = Math.ceil(courses.length / itemsPerPage);
+                          return (
+                            page === 1 ||
+                            page === totalPages ||
+                            (page >= currentPage - 1 && page <= currentPage + 1)
+                          );
+                        })
+                        .map((page, index, array) => (
+                          <div key={page} className="flex items-center gap-1">
+                            {index > 0 && array[index - 1] !== page - 1 && (
+                              <span className="px-2 text-gray-500">...</span>
+                            )}
+                            <button
+                              onClick={() => setCurrentPage(page)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                                currentPage === page
+                                  ? 'bg-[#008080] text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(courses.length / itemsPerPage), prev + 1))}
+                      disabled={currentPage === Math.ceil(courses.length / itemsPerPage)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No courses created yet</h3>
@@ -291,6 +455,7 @@ const MentorCoursesPage = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Create Course Modal */}
       {showCreateCourseModal && (
@@ -364,8 +529,9 @@ const MentorCoursesPage = () => {
               <button
                 onClick={handleCreateCourse}
                 disabled={loading}
-                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loading ? 'Creating...' : 'Create Course'}
               </button>
             </div>
