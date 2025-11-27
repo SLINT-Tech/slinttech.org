@@ -57,7 +57,7 @@ export default async (req: Request, context: Context) => {
 
     const menteeId = decoded.userId;
 
-    const enrolledCoursesResult = await db.execute<{
+    const enrolledCoursesResultRaw = await db.execute<{
       relationship_id: string;
       mentor_id: string;
       mentor_name: string;
@@ -91,6 +91,8 @@ export default async (req: Request, context: Context) => {
       WHERE mmr.mentee_id = ${menteeId}
     `);
 
+    const enrolledCoursesResult = enrolledCoursesResultRaw.rows || enrolledCoursesResultRaw;
+
     const enrolledCourseIds = enrolledCoursesResult
       .filter(r => r.course_id)
       .map(r => r.course_id);
@@ -108,7 +110,7 @@ export default async (req: Request, context: Context) => {
     };
 
     if (enrolledCourseIds.length > 0) {
-      const lessonsProgressResult = await db.execute<{
+      const lessonsProgressResultRaw = await db.execute<{
         total_lessons: string;
         completed_lessons: string;
       }>(sql`
@@ -120,7 +122,7 @@ export default async (req: Request, context: Context) => {
         WHERE l.course_id = ANY(${sql.raw(`ARRAY[${enrolledCourseIds.map(id => `'${id}'`).join(',')}]::uuid[]`)})
       `);
 
-      const tasksProgressResult = await db.execute<{
+      const tasksProgressResultRaw = await db.execute<{
         total_tasks: string;
         approved_tasks: string;
         pending_tasks: string;
@@ -135,6 +137,9 @@ export default async (req: Request, context: Context) => {
         LEFT JOIN task_submissions ts ON t.id = ts.task_id AND ts.mentee_id = ${menteeId}
         WHERE t.course_id = ANY(${sql.raw(`ARRAY[${enrolledCourseIds.map(id => `'${id}'`).join(',')}]::uuid[]`)})
       `);
+
+      const lessonsProgressResult = lessonsProgressResultRaw.rows || lessonsProgressResultRaw;
+      const tasksProgressResult = tasksProgressResultRaw.rows || tasksProgressResultRaw;
 
       lessonsData = {
         completed: Number(lessonsProgressResult[0]?.completed_lessons || 0),

@@ -96,7 +96,7 @@ export default async (req: Request, context: Context) => {
 
     const relationship = relationshipResult[0];
 
-    const enrolledCoursesResult = await db.execute<{
+    const enrolledCoursesResultRaw = await db.execute<{
       course_id: string;
       course_name: string;
       course_description: string;
@@ -121,9 +121,11 @@ export default async (req: Request, context: Context) => {
         AND ce.mentee_id = ${menteeId}
     `);
 
+    const enrolledCoursesResult = enrolledCoursesResultRaw.rows || enrolledCoursesResultRaw;
+
     const coursesWithDetails = await Promise.all(
       enrolledCoursesResult.map(async (enrollment) => {
-        const lessonsResult = await db.execute<{
+        const lessonsResultRaw = await db.execute<{
           lesson_id: string;
           completed: boolean | null;
         }>(sql`
@@ -135,7 +137,7 @@ export default async (req: Request, context: Context) => {
           WHERE l.course_id = ${enrollment.course_id}
         `);
 
-        const tasksResult = await db.execute<{
+        const tasksResultRaw = await db.execute<{
           task_id: string;
           submission_status: string | null;
         }>(sql`
@@ -146,6 +148,9 @@ export default async (req: Request, context: Context) => {
           LEFT JOIN task_submissions ts ON t.id = ts.task_id AND ts.mentee_id = ${menteeId}
           WHERE t.course_id = ${enrollment.course_id}
         `);
+
+        const lessonsResult = lessonsResultRaw.rows || lessonsResultRaw;
+        const tasksResult = tasksResultRaw.rows || tasksResultRaw;
 
         const totalLessons = lessonsResult.length;
         const completedLessons = lessonsResult.filter(l => l.completed).length;
