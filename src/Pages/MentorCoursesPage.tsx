@@ -132,6 +132,43 @@ const MentorCoursesPage = () => {
     }
   };
 
+  const handleStatusChange = async (courseId: string, newStatus: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setToast({ message: 'Please log in again', type: 'error' });
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/api/mentor-update-course-status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId,
+          status: newStatus
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setCourses(prev => prev.map(course =>
+          course.id === courseId ? { ...course, status: newStatus } : course
+        ));
+        setToast({ message: 'Course status updated successfully!', type: 'success' });
+      } else {
+        setToast({ message: data.error || 'Failed to update course status', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Update status error:', error);
+      setToast({ message: 'Failed to update course status', type: 'error' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
       {/* Header */}
@@ -199,6 +236,9 @@ const MentorCoursesPage = () => {
                       <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
                     </th>
                     <th className="px-6 py-3 text-left">
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </th>
+                    <th className="px-6 py-3 text-left">
                       <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
                     </th>
                     <th className="px-6 py-3 text-left">
@@ -223,6 +263,9 @@ const MentorCoursesPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 bg-gray-200 rounded-full w-20 animate-pulse"></div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
@@ -336,6 +379,7 @@ const MentorCoursesPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -361,6 +405,23 @@ const MentorCoursesPage = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {course.enrolledMentees} {course.enrolledMentees === 1 ? 'mentee' : 'mentees'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <select
+                              value={course.status}
+                              onChange={(e) => handleStatusChange(course.id, e.target.value)}
+                              className={`text-xs font-semibold rounded-full px-3 py-1 border cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#008080]/20 ${
+                                course.status === 'active'
+                                  ? 'bg-green-100 text-green-800 border-green-200'
+                                  : course.status === 'archived'
+                                  ? 'bg-gray-100 text-gray-800 border-gray-200'
+                                  : 'bg-orange-100 text-orange-800 border-orange-200'
+                              }`}
+                            >
+                              <option value="active">Active</option>
+                              <option value="archived">Archived</option>
+                              <option value="ended">Ended</option>
+                            </select>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(course.createdAt).toLocaleDateString()}
