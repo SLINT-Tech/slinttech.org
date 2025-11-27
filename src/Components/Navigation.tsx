@@ -48,28 +48,28 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
 
   const menteeLinks: NavLink[] = [
     {
-      path: '/mentee/dashboard',
+      path: '/dashboard',
       label: 'Dashboard',
       icon: <Home className="w-4 h-4" />,
-      activePaths: ['/mentee/dashboard']
+      activePaths: ['/dashboard']
     },
     {
-      path: '/mentee/mentors',
+      path: '/mentors',
       label: 'Mentors',
       icon: <Users className="w-4 h-4" />,
-      activePaths: ['/mentee/mentors', '/mentee/mentor']
+      activePaths: ['/mentors', '/mentor']
     },
     {
-      path: '/mentee/tasks',
+      path: '/tasks',
       label: 'Tasks',
       icon: <BookOpen className="w-4 h-4" />,
-      activePaths: ['/mentee/tasks', '/mentee/task']
+      activePaths: ['/tasks', '/task', '/lessons', '/lesson']
     },
     {
-      path: '/mentee/profile',
+      path: '/profile',
       label: 'Profile',
       icon: <User className="w-4 h-4" />,
-      activePaths: ['/mentee/profile']
+      activePaths: ['/profile']
     }
   ];
 
@@ -112,7 +112,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center gap-2 px-1 py-2 font-medium transition-all duration-200 relative group ${
+                  className={`flex items-center gap-2 px-3 py-2 font-medium transition-all duration-200 ${
                     isActive(link)
                       ? 'text-[#008080]'
                       : 'text-gray-600 hover:text-gray-900'
@@ -120,12 +120,6 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 >
                   {link.icon}
                   <span className="text-sm">{link.label}</span>
-                  {isActive(link) && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#008080]"></span>
-                  )}
-                  {!isActive(link) && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
-                  )}
                 </Link>
               ))}
             </nav>
