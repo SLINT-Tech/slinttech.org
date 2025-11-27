@@ -71,7 +71,6 @@ export default async (req: Request, context: Context) => {
           up.id,
           up.full_name,
           up.email,
-          up.profile_picture,
           mmr.status,
           CASE
             WHEN ce.mentee_id IS NOT NULL THEN true
@@ -89,7 +88,7 @@ export default async (req: Request, context: Context) => {
         id: row.id,
         fullName: row.full_name,
         email: row.email,
-        profilePicture: row.profile_picture,
+        profilePicture: null,
         status: row.status,
         isEnrolled: row.is_enrolled
       }));
@@ -108,7 +107,6 @@ export default async (req: Request, context: Context) => {
         up.id,
         up.full_name,
         up.email,
-        up.profile_picture,
         mmr.status
       FROM mentor_mentee_relationships mmr
       INNER JOIN user_profiles up ON mmr.mentee_id = up.id
@@ -121,7 +119,7 @@ export default async (req: Request, context: Context) => {
       id: row.id,
       fullName: row.full_name,
       email: row.email,
-      profilePicture: row.profile_picture,
+      profilePicture: null,
       status: row.status,
       isEnrolled: false
     }));
