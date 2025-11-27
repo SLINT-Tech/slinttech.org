@@ -62,6 +62,7 @@ const MentorCourseDetailPage = () => {
   const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetchingMentees, setFetchingMentees] = useState(false);
 
   const [newLesson, setNewLesson] = useState({
     title: '',
@@ -156,9 +157,13 @@ const MentorCourseDetailPage = () => {
   };
 
   const fetchAvailableMentees = async () => {
+    setFetchingMentees(true);
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        setFetchingMentees(false);
+        return;
+      }
 
       const response = await fetch(`/api/mentor-get-assigned-mentees?courseId=${courseId}`, {
         headers: {
@@ -170,9 +175,14 @@ const MentorCourseDetailPage = () => {
 
       if (response.ok && data.success) {
         setAvailableMentees(data.data);
+      } else {
+        setToast({ message: data.error || 'Failed to fetch mentees', type: 'error' });
       }
     } catch (error) {
       console.error('Fetch mentees error:', error);
+      setToast({ message: 'Failed to fetch mentees', type: 'error' });
+    } finally {
+      setFetchingMentees(false);
     }
   };
 
@@ -866,11 +876,18 @@ const MentorCourseDetailPage = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  disabled={fetchingMentees}
                 />
               </div>
 
               {/* Mentees List */}
-              {availableMentees.length > 0 ? (
+              {fetchingMentees ? (
+                <div className="text-center py-12">
+                  <Loader2 className="w-12 h-12 text-[#008080] mx-auto mb-4 animate-spin" />
+                  <p className="text-gray-600 font-medium">Loading mentees...</p>
+                  <p className="text-sm text-gray-500 mt-1">Please wait while we fetch your assigned mentees</p>
+                </div>
+              ) : availableMentees.length > 0 ? (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {availableMentees
                     .filter(mentee =>

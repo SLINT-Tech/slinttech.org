@@ -2,7 +2,7 @@ import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { mentorMenteeRelationships, userProfiles, courseEnrollments } from '../../src/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -68,15 +68,8 @@ export default async (req: Request, context: Context) => {
     const mentorId = decoded.userId;
 
     const relationships = await db
-      .select({
-        menteeId: mentorMenteeRelationships.menteeId,
-        status: mentorMenteeRelationships.status,
-        fullName: userProfiles.fullName,
-        email: userProfiles.email,
-        profilePicture: userProfiles.profilePicture
-      })
+      .select()
       .from(mentorMenteeRelationships)
-      .innerJoin(userProfiles, eq(mentorMenteeRelationships.menteeId, userProfiles.id))
       .where(
         and(
           eq(mentorMenteeRelationships.mentorId, mentorId),
@@ -84,21 +77,38 @@ export default async (req: Request, context: Context) => {
         )
       );
 
+    if (relationships.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        data: []
+      }), {
+        status: 200,
+        headers: corsHeaders
+      });
+    }
+
+    const menteeIds = relationships.map(rel => rel.menteeId);
+
+    const menteeProfiles = await db
+      .select()
+      .from(userProfiles)
+      .where(inArray(userProfiles.id, menteeIds));
+
     if (courseId) {
       const enrolledMentees = await db
-        .select({ menteeId: courseEnrollments.menteeId })
+        .select()
         .from(courseEnrollments)
         .where(eq(courseEnrollments.courseId, courseId));
 
       const enrolledIds = enrolledMentees.map(e => e.menteeId);
 
-      const allMenteesWithStatus = relationships.map(mentee => ({
-        id: mentee.menteeId,
-        fullName: mentee.fullName,
-        email: mentee.email,
-        profilePicture: mentee.profilePicture,
-        status: mentee.status,
-        isEnrolled: enrolledIds.includes(mentee.menteeId)
+      const allMenteesWithStatus = menteeProfiles.map(profile => ({
+        id: profile.id,
+        fullName: profile.fullName,
+        email: profile.email,
+        profilePicture: profile.profilePicture,
+        status: 'active',
+        isEnrolled: enrolledIds.includes(profile.id)
       }));
 
       return new Response(JSON.stringify({
@@ -110,12 +120,12 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const allMentees = relationships.map(mentee => ({
-      id: mentee.menteeId,
-      fullName: mentee.fullName,
-      email: mentee.email,
-      profilePicture: mentee.profilePicture,
-      status: mentee.status,
+    const allMentees = menteeProfiles.map(profile => ({
+      id: profile.id,
+      fullName: profile.fullName,
+      email: profile.email,
+      profilePicture: profile.profilePicture,
+      status: 'active',
       isEnrolled: false
     }));
 
