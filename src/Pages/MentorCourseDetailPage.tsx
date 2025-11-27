@@ -41,6 +41,7 @@ interface Mentee {
   email: string;
   profilePicture?: string;
   status: string;
+  isEnrolled: boolean;
 }
 
 const MentorCourseDetailPage = () => {
@@ -267,8 +268,13 @@ const MentorCourseDetailPage = () => {
   };
 
   const handleEnrollMentees = async () => {
-    if (selectedMentees.length === 0) {
-      setToast({ message: 'Please select at least one mentee', type: 'error' });
+    const unenrolledSelected = selectedMentees.filter(id => {
+      const mentee = availableMentees.find(m => m.id === id);
+      return mentee && !mentee.isEnrolled;
+    });
+
+    if (unenrolledSelected.length === 0) {
+      setToast({ message: 'Please select at least one mentee who is not already enrolled', type: 'error' });
       return;
     }
 
@@ -288,7 +294,7 @@ const MentorCourseDetailPage = () => {
         },
         body: JSON.stringify({
           courseId,
-          menteeIds: selectedMentees
+          menteeIds: unenrolledSelected
         })
       });
 
@@ -302,6 +308,7 @@ const MentorCourseDetailPage = () => {
         setSelectedMentees([]);
         setShowEnrollMenteesModal(false);
         fetchCourseDetails();
+        fetchAvailableMentees();
       } else {
         setToast({ message: data.error || 'Failed to enroll mentees', type: 'error' });
       }
@@ -873,12 +880,15 @@ const MentorCourseDetailPage = () => {
                     .map((mentee) => (
                       <div
                         key={mentee.id}
-                        className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                          selectedMentees.includes(mentee.id)
-                            ? 'border-[#008080] bg-[#008080]/5'
-                            : 'border-gray-200 hover:border-[#008080]/50 hover:bg-gray-50'
+                        className={`flex items-center p-4 border rounded-lg transition-all ${
+                          mentee.isEnrolled
+                            ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                            : selectedMentees.includes(mentee.id)
+                            ? 'border-[#008080] bg-[#008080]/5 cursor-pointer'
+                            : 'border-gray-200 hover:border-[#008080]/50 hover:bg-gray-50 cursor-pointer'
                         }`}
                         onClick={() => {
+                          if (mentee.isEnrolled) return;
                           if (selectedMentees.includes(mentee.id)) {
                             setSelectedMentees(selectedMentees.filter(id => id !== mentee.id));
                           } else {
@@ -888,16 +898,24 @@ const MentorCourseDetailPage = () => {
                       >
                         <input
                           type="checkbox"
-                          checked={selectedMentees.includes(mentee.id)}
+                          checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
+                          disabled={mentee.isEnrolled}
                           onChange={() => {}}
-                          className="mr-3 w-5 h-5 text-[#008080] border-gray-300 rounded focus:ring-[#008080]"
+                          className="mr-3 w-5 h-5 text-[#008080] border-gray-300 rounded focus:ring-[#008080] disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                         <div className="flex items-center flex-1">
-                          <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                          <div className={`w-10 h-10 ${mentee.isEnrolled ? 'bg-gray-400' : 'bg-[#008080]'} rounded-full flex items-center justify-center mr-3`}>
                             <User className="w-5 h-5 text-white" />
                           </div>
-                          <div>
-                            <div className="font-medium text-gray-900">{mentee.fullName}</div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="font-medium text-gray-900">{mentee.fullName}</div>
+                              {mentee.isEnrolled && (
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                                  Enrolled
+                                </span>
+                              )}
+                            </div>
                             <div className="text-sm text-gray-500">{mentee.email}</div>
                           </div>
                         </div>
@@ -912,19 +930,23 @@ const MentorCourseDetailPage = () => {
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Available Mentees</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Mentees Assigned</h3>
                   <p className="text-gray-500">
-                    All your assigned mentees are already enrolled in this course,
-                    or you don't have any mentees assigned yet.
+                    You don't have any mentees assigned yet. Contact your administrator to assign mentees to you.
                   </p>
                 </div>
               )}
             </div>
 
             <div className="border-t border-gray-200 p-6 flex justify-between items-center flex-shrink-0">
-              <p className="text-sm text-gray-600">
-                {selectedMentees.length} mentee{selectedMentees.length !== 1 ? 's' : ''} selected
-              </p>
+              <div className="text-sm text-gray-600">
+                <p className="font-medium">
+                  {selectedMentees.length} mentee{selectedMentees.length !== 1 ? 's' : ''} selected
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {availableMentees.filter(m => m.isEnrolled).length} enrolled • {availableMentees.filter(m => !m.isEnrolled).length} available
+                </p>
+              </div>
               <div className="flex space-x-3">
                 <button
                   onClick={() => {

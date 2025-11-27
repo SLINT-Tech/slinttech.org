@@ -2,7 +2,7 @@ import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { mentorMenteeRelationships, userProfiles, courseEnrollments } from '../../src/db/schema';
-import { eq, and, notInArray } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -92,19 +92,18 @@ export default async (req: Request, context: Context) => {
 
       const enrolledIds = enrolledMentees.map(e => e.menteeId);
 
-      const availableMentees = relationships
-        .filter(rel => !enrolledIds.includes(rel.menteeId))
-        .map(mentee => ({
-          id: mentee.menteeId,
-          fullName: mentee.fullName,
-          email: mentee.email,
-          profilePicture: mentee.profilePicture,
-          status: mentee.status
-        }));
+      const allMenteesWithStatus = relationships.map(mentee => ({
+        id: mentee.menteeId,
+        fullName: mentee.fullName,
+        email: mentee.email,
+        profilePicture: mentee.profilePicture,
+        status: mentee.status,
+        isEnrolled: enrolledIds.includes(mentee.menteeId)
+      }));
 
       return new Response(JSON.stringify({
         success: true,
-        data: availableMentees
+        data: allMenteesWithStatus
       }), {
         status: 200,
         headers: corsHeaders
@@ -116,7 +115,8 @@ export default async (req: Request, context: Context) => {
       fullName: mentee.fullName,
       email: mentee.email,
       profilePicture: mentee.profilePicture,
-      status: mentee.status
+      status: mentee.status,
+      isEnrolled: false
     }));
 
     return new Response(JSON.stringify({
