@@ -1,6 +1,8 @@
 import { ArrowLeft, BookOpen, Eye, Plus, User, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import Toast from '../Components/Toast';
 
 // Mock data - this would come from your backend/database
 const mockMentorData = {
@@ -52,28 +54,75 @@ const mockMentorData = {
 };
 
 const MentorCoursesPage = () => {
+  const { user } = useAuth();
   const [mentorData, setMentorData] = useState(mockMentorData);
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: '',
-    duration: '',
+    durationNumber: '',
+    durationUnit: 'weeks',
     description: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const navigate = useNavigate();
 
-  const handleCreateCourse = () => {
-    const course = {
-      id: mentorData.courses.length + 1,
-      ...newCourse,
-      enrolledMentees: 0,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setMentorData(prev => ({
-      ...prev,
-      courses: [...prev.courses, course]
-    }));
-    setNewCourse({ name: '', duration: '', description: '' });
-    setShowCreateCourseModal(false);
+  const handleCreateCourse = async () => {
+    if (!newCourse.name.trim()) {
+      setToast({ message: 'Please enter a course name', type: 'error' });
+      return;
+    }
+
+    if (!newCourse.durationNumber || parseInt(newCourse.durationNumber) <= 0) {
+      setToast({ message: 'Please enter a valid duration', type: 'error' });
+      return;
+    }
+
+    if (!newCourse.description.trim()) {
+      setToast({ message: 'Please enter a course description', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setToast({ message: 'Please log in again', type: 'error' });
+        navigate('/mentor/login');
+        return;
+      }
+
+      const duration = `${newCourse.durationNumber} ${newCourse.durationUnit}`;
+
+      const response = await fetch('/.netlify/functions/mentor-create-course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: newCourse.name.trim(),
+          duration,
+          description: newCourse.description.trim()
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Course created successfully!', type: 'success' });
+        setNewCourse({ name: '', durationNumber: '', durationUnit: 'weeks', description: '' });
+        setShowCreateCourseModal(false);
+      } else {
+        setToast({ message: data.error || 'Failed to create course', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Create course error:', error);
+      setToast({ message: 'Failed to create course. Please try again.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -272,13 +321,26 @@ const MentorCoursesPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-                <input
-                  type="text"
-                  value={newCourse.duration}
-                  onChange={(e) => setNewCourse({...newCourse, duration: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                  placeholder="e.g., 8 weeks"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    value={newCourse.durationNumber}
+                    onChange={(e) => setNewCourse({...newCourse, durationNumber: e.target.value})}
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    placeholder="e.g., 8"
+                  />
+                  <select
+                    value={newCourse.durationUnit}
+                    onChange={(e) => setNewCourse({...newCourse, durationUnit: e.target.value})}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none bg-white"
+                  >
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -301,13 +363,22 @@ const MentorCoursesPage = () => {
               </button>
               <button
                 onClick={handleCreateCourse}
-                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                disabled={loading}
+                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Course
+                {loading ? 'Creating...' : 'Create Course'}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );
