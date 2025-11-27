@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, Eye, Loader2, Plus, Target, Trash2, User, Users, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Eye, Loader2, Plus, Search, Target, Trash2, User, UserPlus, Users, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -35,6 +35,14 @@ interface Task {
   createdAt: string;
 }
 
+interface Mentee {
+  id: string;
+  fullName: string;
+  email: string;
+  profilePicture?: string;
+  status: string;
+}
+
 const MentorCourseDetailPage = () => {
   const { courseId } = useParams();
   const { user } = useAuth();
@@ -44,6 +52,29 @@ const MentorCourseDetailPage = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [courseStatus, setCourseStatus] = useState('active');
+
+  const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [showEnrollMenteesModal, setShowEnrollMenteesModal] = useState(false);
+
+  const [availableMentees, setAvailableMentees] = useState<Mentee[]>([]);
+  const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [newLesson, setNewLesson] = useState({
+    title: '',
+    description: '',
+    link: ''
+  });
+
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    requirements: [''],
+    deadline: '',
+    frequency: 'weekly'
+  });
 
   useEffect(() => {
     if (courseId) {
@@ -120,6 +151,188 @@ const MentorCourseDetailPage = () => {
     } catch (error) {
       console.error('Update status error:', error);
       setToast({ message: 'Failed to update course status', type: 'error' });
+    }
+  };
+
+  const fetchAvailableMentees = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`/api/mentor-get-assigned-mentees?courseId=${courseId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setAvailableMentees(data.data);
+      }
+    } catch (error) {
+      console.error('Fetch mentees error:', error);
+    }
+  };
+
+  const handleCreateLesson = async () => {
+    if (!newLesson.title.trim() || !newLesson.link.trim()) {
+      setToast({ message: 'Please fill in all required fields', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/api/mentor-create-lesson', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId,
+          ...newLesson
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Lesson created successfully!', type: 'success' });
+        setNewLesson({ title: '', description: '', link: '' });
+        setShowCreateLessonModal(false);
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to create lesson', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Create lesson error:', error);
+      setToast({ message: 'Failed to create lesson', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateTask = async () => {
+    if (!newTask.title.trim() || !newTask.description.trim() || !newTask.deadline) {
+      setToast({ message: 'Please fill in all required fields', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const filteredRequirements = newTask.requirements.filter(req => req.trim() !== '');
+
+      const response = await fetch('/api/mentor-create-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId,
+          ...newTask,
+          requirements: filteredRequirements
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Task created successfully!', type: 'success' });
+        setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
+        setShowCreateTaskModal(false);
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to create task', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Create task error:', error);
+      setToast({ message: 'Failed to create task', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnrollMentees = async () => {
+    if (selectedMentees.length === 0) {
+      setToast({ message: 'Please select at least one mentee', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/api/mentor-enroll-mentees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          courseId,
+          menteeIds: selectedMentees
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({
+          message: `${data.data.enrolledCount} mentee(s) enrolled successfully!`,
+          type: 'success'
+        });
+        setSelectedMentees([]);
+        setShowEnrollMenteesModal(false);
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to enroll mentees', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Enroll mentees error:', error);
+      setToast({ message: 'Failed to enroll mentees', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addRequirement = () => {
+    setNewTask(prev => ({
+      ...prev,
+      requirements: [...prev.requirements, '']
+    }));
+  };
+
+  const updateRequirement = (index: number, value: string) => {
+    setNewTask(prev => ({
+      ...prev,
+      requirements: prev.requirements.map((req, i) => i === index ? value : req)
+    }));
+  };
+
+  const removeRequirement = (index: number) => {
+    if (newTask.requirements.length > 1) {
+      setNewTask(prev => ({
+        ...prev,
+        requirements: prev.requirements.filter((_, i) => i !== index)
+      }));
     }
   };
 
@@ -285,14 +498,28 @@ const MentorCourseDetailPage = () => {
               <h3 className="font-semibold text-gray-900 mb-2">Quick Actions</h3>
               <div className="flex flex-col gap-2">
                 <button
-                  className="text-[#008080] hover:text-teal-700 text-sm font-medium text-left cursor-pointer"
+                  onClick={() => {
+                    setShowEnrollMenteesModal(true);
+                    fetchAvailableMentees();
+                  }}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium text-left cursor-pointer flex items-center gap-1"
                 >
-                  + Add Lesson
+                  <UserPlus className="w-4 h-4" />
+                  Enroll Mentees
                 </button>
                 <button
-                  className="text-yellow-600 hover:text-yellow-700 text-sm font-medium text-left cursor-pointer"
+                  onClick={() => setShowCreateLessonModal(true)}
+                  className="text-[#008080] hover:text-teal-700 text-sm font-medium text-left cursor-pointer flex items-center gap-1"
                 >
-                  + Create Task
+                  <Plus className="w-4 h-4" />
+                  Add Lesson
+                </button>
+                <button
+                  onClick={() => setShowCreateTaskModal(true)}
+                  className="text-yellow-600 hover:text-yellow-700 text-sm font-medium text-left cursor-pointer flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Task
                 </button>
               </div>
             </div>
@@ -393,6 +620,334 @@ const MentorCourseDetailPage = () => {
           type={toast.type}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {/* Create Lesson Modal */}
+      {showCreateLessonModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Create New Lesson</h2>
+                <button
+                  onClick={() => {
+                    setShowCreateLessonModal(false);
+                    setNewLesson({ title: '', description: '', link: '' });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lesson Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newLesson.title}
+                  onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., Introduction to React Components"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={newLesson.description}
+                  onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  rows={3}
+                  placeholder="Brief description of the lesson..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lesson URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  value={newLesson.link}
+                  onChange={(e) => setNewLesson({ ...newLesson, link: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="https://example.com/lesson-url"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setShowCreateLessonModal(false);
+                  setNewLesson({ title: '', description: '', link: '' });
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateLesson}
+                disabled={loading}
+                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Creating...' : 'Create Lesson'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Task Modal */}
+      {showCreateTaskModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Create New Task</h2>
+                <button
+                  onClick={() => {
+                    setShowCreateTaskModal(false);
+                    setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Task Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., Build a Todo App with React"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  rows={4}
+                  placeholder="Detailed description of the task..."
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="block text-sm font-medium text-gray-700">Requirements</label>
+                  <button
+                    onClick={addRequirement}
+                    className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Requirement
+                  </button>
+                </div>
+                {newTask.requirements.map((requirement, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={requirement}
+                      onChange={(e) => updateRequirement(index, e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      placeholder="Enter requirement..."
+                    />
+                    {newTask.requirements.length > 1 && (
+                      <button
+                        onClick={() => removeRequirement(index)}
+                        className="text-red-600 hover:text-red-700 cursor-pointer"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Due Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={newTask.deadline}
+                    onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                  <select
+                    value={newTask.frequency}
+                    onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none bg-white"
+                  >
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setShowCreateTaskModal(false);
+                  setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTask}
+                disabled={loading}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Creating...' : 'Create Task'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enroll Mentees Modal */}
+      {showEnrollMenteesModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Enroll Mentees to Course</h2>
+                <button
+                  onClick={() => {
+                    setShowEnrollMenteesModal(false);
+                    setSelectedMentees([]);
+                    setSearchTerm('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <p className="text-gray-600">
+                Select mentees from your assigned list to enroll in "<span className="font-semibold">{course?.name}</span>"
+              </p>
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search mentees by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                />
+              </div>
+
+              {/* Mentees List */}
+              {availableMentees.length > 0 ? (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {availableMentees
+                    .filter(mentee =>
+                      mentee.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      mentee.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((mentee) => (
+                      <div
+                        key={mentee.id}
+                        className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedMentees.includes(mentee.id)
+                            ? 'border-[#008080] bg-[#008080]/5'
+                            : 'border-gray-200 hover:border-[#008080]/50 hover:bg-gray-50'
+                        }`}
+                        onClick={() => {
+                          if (selectedMentees.includes(mentee.id)) {
+                            setSelectedMentees(selectedMentees.filter(id => id !== mentee.id));
+                          } else {
+                            setSelectedMentees([...selectedMentees, mentee.id]);
+                          }
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedMentees.includes(mentee.id)}
+                          onChange={() => {}}
+                          className="mr-3 w-5 h-5 text-[#008080] border-gray-300 rounded focus:ring-[#008080]"
+                        />
+                        <div className="flex items-center flex-1">
+                          <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{mentee.fullName}</div>
+                            <div className="text-sm text-gray-500">{mentee.email}</div>
+                          </div>
+                        </div>
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                          mentee.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {mentee.status}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Available Mentees</h3>
+                  <p className="text-gray-500">
+                    All your assigned mentees are already enrolled in this course,
+                    or you don't have any mentees assigned yet.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-gray-200 p-6 flex justify-between items-center flex-shrink-0">
+              <p className="text-sm text-gray-600">
+                {selectedMentees.length} mentee{selectedMentees.length !== 1 ? 's' : ''} selected
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowEnrollMenteesModal(false);
+                    setSelectedMentees([]);
+                    setSearchTerm('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEnrollMentees}
+                  disabled={selectedMentees.length === 0 || loading}
+                  className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {loading ? 'Enrolling...' : `Enroll ${selectedMentees.length} Mentee${selectedMentees.length !== 1 ? 's' : ''}`}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
