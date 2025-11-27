@@ -344,10 +344,10 @@ const MentorMenteesPage = () => {
               }}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
+              <option value="all">All Mentorships</option>
+              <option value="active">Active Mentorship</option>
               <option value="inactive">Inactive</option>
-              <option value="completed">Completed</option>
+              <option value="completed">Completed Mentorship</option>
               <option value="paused">Paused</option>
             </select>
           </div>
@@ -362,7 +362,7 @@ const MentorMenteesPage = () => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentee</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Career Path</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentorship Status</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Date</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
