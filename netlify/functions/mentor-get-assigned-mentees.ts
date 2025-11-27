@@ -71,6 +71,8 @@ export default async (req: Request, context: Context) => {
           up.id,
           up.full_name,
           up.email,
+          up.career_path,
+          up.membership_category,
           mmr.status,
           CASE
             WHEN ce.mentee_id IS NOT NULL THEN true
@@ -88,6 +90,8 @@ export default async (req: Request, context: Context) => {
         id: row.id,
         fullName: row.full_name,
         email: row.email,
+        careerPath: row.career_path,
+        membershipCategory: row.membership_category,
         profilePicture: null,
         status: row.status,
         isEnrolled: row.is_enrolled

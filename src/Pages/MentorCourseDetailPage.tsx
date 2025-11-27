@@ -39,6 +39,8 @@ interface Mentee {
   id: string;
   fullName: string;
   email: string;
+  careerPath?: string;
+  membershipCategory?: string;
   profilePicture?: string;
   status: string;
   isEnrolled: boolean;
@@ -927,12 +929,12 @@ const MentorCourseDetailPage = () => {
                             }}
                           />
                         </div>
-                        <div className="flex items-center flex-1">
-                          <div className={`w-10 h-10 ${mentee.isEnrolled ? 'bg-gray-400' : 'bg-[#008080]'} rounded-full flex items-center justify-center mr-3`}>
+                        <div className="flex items-start flex-1">
+                          <div className={`w-10 h-10 ${mentee.isEnrolled ? 'bg-gray-400' : 'bg-[#008080]'} rounded-full flex items-center justify-center mr-3 flex-shrink-0`}>
                             <User className="w-5 h-5 text-white" />
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
                               <div className="font-medium text-gray-900">{mentee.fullName}</div>
                               {mentee.isEnrolled && (
                                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
@@ -940,10 +942,23 @@ const MentorCourseDetailPage = () => {
                                 </span>
                               )}
                             </div>
-                            <div className="text-sm text-gray-500">{mentee.email}</div>
+                            <div className="text-sm text-gray-500 mb-1">{mentee.email}</div>
+                            {mentee.careerPath && (
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                <Target className="w-3.5 h-3.5 text-[#008080]" />
+                                <span className="text-xs font-medium text-[#008080] bg-[#008080]/10 px-2 py-0.5 rounded">
+                                  {mentee.careerPath}
+                                </span>
+                              </div>
+                            )}
+                            {mentee.membershipCategory && !mentee.careerPath && (
+                              <div className="text-xs text-gray-400 mt-1">
+                                {mentee.membershipCategory}
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${
                           mentee.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                         }`}>
                           {mentee.status}
