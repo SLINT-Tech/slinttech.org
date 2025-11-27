@@ -51,7 +51,7 @@ const MentorCoursesPage = () => {
         return;
       }
 
-      const response = await fetch('/.netlify/functions/mentor-get-courses', {
+      const response = await fetch('/api/mentor-get-courses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -101,7 +101,7 @@ const MentorCoursesPage = () => {
 
       const duration = `${newCourse.durationNumber} ${newCourse.durationUnit}`;
 
-      const response = await fetch('/.netlify/functions/mentor-create-course', {
+      const response = await fetch('/api/mentor-create-course', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
