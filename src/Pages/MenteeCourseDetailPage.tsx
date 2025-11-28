@@ -2,7 +2,7 @@ import { ArrowLeft, BookOpen, Target, CheckCircle, Clock, Award, TrendingUp, Ext
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { PageLoader } from '../Components/SkeletonLoader';
+import { CourseDetailSkeletonLoader } from '../Components/SkeletonLoader';
 
 interface Lesson {
   id: string;
@@ -146,14 +146,6 @@ const MenteeCourseDetailPage = () => {
     );
   };
 
-  if (loading) {
-    return <PageLoader message="Loading course details..." />;
-  }
-
-  if (!course) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
       <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
@@ -176,6 +168,10 @@ const MenteeCourseDetailPage = () => {
           </div>
         </div>
       </header>
+
+      {loading ? (
+        <CourseDetailSkeletonLoader />
+      ) : !course ? null : (
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
@@ -368,6 +364,7 @@ const MenteeCourseDetailPage = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
