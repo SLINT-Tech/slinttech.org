@@ -218,7 +218,7 @@ const MentorsPage = () => {
                           <span>{course.duration}</span>
                         </div>
                         <Link
-                          to={`/mentor-detail?mentorId=${course.mentorId}`}
+                          to={`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`}
                           className="text-sm text-[#008080] hover:text-teal-700 font-medium transition-colors"
                         >
                           View Details →
