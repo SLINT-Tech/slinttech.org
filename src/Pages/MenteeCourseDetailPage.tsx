@@ -30,9 +30,8 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  deadline: string;
+  deadline: string | null;
   status: string;
-  orderIndex: number;
   createdAt: string;
   submission: TaskSubmission | null;
 }
@@ -124,7 +123,7 @@ const MenteeCourseDetailPage = () => {
     const submission = task.submission;
 
     if (!submission) {
-      const isOverdue = new Date(task.deadline) < new Date();
+      const isOverdue = task.deadline && new Date(task.deadline) < new Date();
       return (
         <span className={`px-3 py-1 text-xs font-medium rounded-full ${
           isOverdue ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
@@ -339,10 +338,17 @@ const MenteeCourseDetailPage = () => {
                       {getTaskStatusBadge(task)}
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-gray-500">
-                        <Clock className="w-3 h-3" />
-                        <span>Due {formatDate(task.deadline)}</span>
-                      </div>
+                      {task.deadline ? (
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <Clock className="w-3 h-3" />
+                          <span>Due {formatDate(task.deadline)}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <AlertCircle className="w-3 h-3" />
+                          <span>No deadline</span>
+                        </div>
+                      )}
                       <Link
                         to={`/task/${task.id}`}
                         className="text-[#008080] hover:text-teal-700 font-medium"

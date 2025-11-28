@@ -130,7 +130,6 @@ export default async (req: Request, context: Context) => {
         description: tasks.description,
         deadline: tasks.deadline,
         status: tasks.status,
-        orderIndex: tasks.orderIndex,
         createdAt: tasks.createdAt,
         submissionId: taskSubmissions.id,
         submissionLink: taskSubmissions.submissionLink,
@@ -146,7 +145,7 @@ export default async (req: Request, context: Context) => {
         eq(taskSubmissions.menteeId, menteeId)
       ))
       .where(eq(tasks.courseId, courseId))
-      .orderBy(tasks.orderIndex);
+      .orderBy(tasks.createdAt);
 
     const lessonsData = lessonsResult.map(lesson => ({
       id: lesson.id,
@@ -166,7 +165,6 @@ export default async (req: Request, context: Context) => {
       description: task.description,
       deadline: task.deadline,
       status: task.status,
-      orderIndex: task.orderIndex,
       createdAt: task.createdAt,
       submission: task.submissionId ? {
         id: task.submissionId,
