@@ -612,7 +612,7 @@ const AdminDashboard = () => {
       setShowUserModal(false);
       fetchUsers();
       fetchStats();
-      fetchMentors();
+      fetchAvailableMentors();
     } catch (error: any) {
       console.error('Error updating user:', error);
       setToast({
