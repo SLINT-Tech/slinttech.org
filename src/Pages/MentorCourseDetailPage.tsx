@@ -371,7 +371,10 @@ const MentorCourseDetailPage = () => {
   };
 
   const handleEditTask = (task: Task) => {
-    setEditingTask(task);
+    setEditingTask({
+      ...task,
+      requirements: Array.isArray(task.requirements) ? task.requirements : []
+    });
     setShowEditTaskModal(true);
   };
 
@@ -805,7 +808,7 @@ const MentorCourseDetailPage = () => {
                             {task.status}
                           </span>
                         </div>
-                        {task.requirements && task.requirements.length > 0 && (
+                        {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs font-medium text-gray-700">Requirements:</p>
                             <ul className="text-xs text-gray-600 list-disc list-inside">

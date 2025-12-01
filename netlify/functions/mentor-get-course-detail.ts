@@ -119,7 +119,7 @@ export default async (req: Request, context: Context) => {
         deadline: task.deadline,
         status: task.status,
         frequency: task.frequency,
-        requirements: task.requirements,
+        requirements: Array.isArray(task.requirements) ? task.requirements : [],
         createdAt: task.createdAt
       }))
     };
