@@ -61,8 +61,12 @@ const MentorCourseDetailPage = () => {
   const [showEnrollMenteesModal, setShowEnrollMenteesModal] = useState(false);
   const [showEditLessonModal, setShowEditLessonModal] = useState(false);
   const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
+  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [lessonToDelete, setLessonToDelete] = useState<string | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   const [availableMentees, setAvailableMentees] = useState<Mentee[]>([]);
   const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
@@ -334,10 +338,13 @@ const MentorCourseDetailPage = () => {
     }
   };
 
-  const handleDeleteLesson = async (lessonId: string) => {
-    if (!confirm('Are you sure you want to delete this lesson?')) {
-      return;
-    }
+  const handleDeleteLesson = (lessonId: string) => {
+    setLessonToDelete(lessonId);
+    setShowDeleteLessonModal(true);
+  };
+
+  const confirmDeleteLesson = async () => {
+    if (!lessonToDelete) return;
 
     setLoading(true);
     try {
@@ -347,7 +354,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-lesson?lessonId=${lessonId}`, {
+      const response = await fetch(`/api/mentor-delete-lesson?lessonId=${lessonToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -358,6 +365,8 @@ const MentorCourseDetailPage = () => {
 
       if (response.ok && data.success) {
         setToast({ message: 'Lesson deleted successfully!', type: 'success' });
+        setShowDeleteLessonModal(false);
+        setLessonToDelete(null);
         fetchCourseDetails();
       } else {
         setToast({ message: data.error || 'Failed to delete lesson', type: 'error' });
@@ -371,15 +380,18 @@ const MentorCourseDetailPage = () => {
   };
 
   const handleEditTask = (task: Task) => {
+    const requirements = Array.isArray(task.requirements) && task.requirements.length > 0
+      ? task.requirements
+      : [''];
     setEditingTask({
       ...task,
-      requirements: Array.isArray(task.requirements) ? task.requirements : []
+      requirements
     });
     setShowEditTaskModal(true);
   };
 
   const handleUpdateTask = async () => {
-    if (!editingTask || !editingTask.title.trim() || !editingTask.description.trim() || !editingTask.deadline) {
+    if (!editingTask || !editingTask.title.trim() || !editingTask.description.trim() || !editingTask.deadline || !editingTask.frequency) {
       setToast({ message: 'Please fill in all required fields', type: 'error' });
       return;
     }
@@ -406,7 +418,7 @@ const MentorCourseDetailPage = () => {
           description: editingTask.description,
           requirements: filteredRequirements,
           deadline: editingTask.deadline,
-          frequency: editingTask.frequency
+          frequency: editingTask.frequency || 'weekly'
         })
       });
 
@@ -428,10 +440,13 @@ const MentorCourseDetailPage = () => {
     }
   };
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
+  const handleDeleteTask = (taskId: string) => {
+    setTaskToDelete(taskId);
+    setShowDeleteTaskModal(true);
+  };
+
+  const confirmDeleteTask = async () => {
+    if (!taskToDelete) return;
 
     setLoading(true);
     try {
@@ -441,7 +456,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-task?taskId=${taskId}`, {
+      const response = await fetch(`/api/mentor-delete-task?taskId=${taskToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -452,6 +467,8 @@ const MentorCourseDetailPage = () => {
 
       if (response.ok && data.success) {
         setToast({ message: 'Task deleted successfully!', type: 'success' });
+        setShowDeleteTaskModal(false);
+        setTaskToDelete(null);
         fetchCourseDetails();
       } else {
         setToast({ message: data.error || 'Failed to delete task', type: 'error' });
@@ -760,14 +777,14 @@ const MentorCourseDetailPage = () => {
                       <div className="flex items-center gap-2 ml-4">
                         <button
                           onClick={() => handleEditLesson(lesson)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                           title="Edit lesson"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteLesson(lesson.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete lesson"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -822,14 +839,14 @@ const MentorCourseDetailPage = () => {
                       <div className="flex items-center gap-2 ml-4">
                         <button
                           onClick={() => handleEditTask(task)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                           title="Edit task"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteTask(task.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete task"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -1186,7 +1203,7 @@ const MentorCourseDetailPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                {editingTask.requirements.map((req, index) => (
+                {editingTask.requirements && editingTask.requirements.map((req, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <input
                       type="text"
@@ -1431,6 +1448,74 @@ const MentorCourseDetailPage = () => {
                   {loading ? 'Enrolling...' : `Enroll ${selectedMentees.length} Mentee${selectedMentees.length !== 1 ? 's' : ''}`}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Lesson Modal */}
+      {showDeleteLessonModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Lesson</h2>
+              <p className="text-gray-600">
+                Are you sure you want to delete this lesson? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteLessonModal(false);
+                  setLessonToDelete(null);
+                }}
+                disabled={loading}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteLesson}
+                disabled={loading}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Task Modal */}
+      {showDeleteTaskModal && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Task</h2>
+              <p className="text-gray-600">
+                Are you sure you want to delete this task? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteTaskModal(false);
+                  setTaskToDelete(null);
+                }}
+                disabled={loading}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTask}
+                disabled={loading}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Deleting...' : 'Delete'}
+              </button>
             </div>
           </div>
         </div>
