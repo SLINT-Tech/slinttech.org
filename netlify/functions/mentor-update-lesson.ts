@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { courses, lessons } from '../../src/db/schema';
+import { lessons } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -19,8 +19,8 @@ interface JWTPayload {
   role: string;
 }
 
-interface CreateLessonRequest {
-  courseId: string;
+interface UpdateLessonRequest {
+  lessonId: string;
   title: string;
   description: string;
   link: string;
@@ -34,7 +34,7 @@ export default async (req: Request, context: Context) => {
     });
   }
 
-  if (req.method !== 'POST') {
+  if (req.method !== 'PUT') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
       headers: corsHeaders
@@ -63,19 +63,19 @@ export default async (req: Request, context: Context) => {
     }
 
     if (decoded.role !== 'Mentor') {
-      return new Response(JSON.stringify({ error: 'Only mentors can create lessons' }), {
+      return new Response(JSON.stringify({ error: 'Only mentors can update lessons' }), {
         status: 403,
         headers: corsHeaders
       });
     }
 
-    const body: CreateLessonRequest = await req.json();
-    const { courseId, title, description, link } = body;
+    const body: UpdateLessonRequest = await req.json();
+    const { lessonId, title, description, link } = body;
 
-    if (!courseId || !title || !link) {
+    if (!lessonId || !title || !link) {
       return new Response(JSON.stringify({
         error: 'Missing required fields',
-        details: 'courseId, title, and link are required'
+        details: 'lessonId, title, and link are required'
       }), {
         status: 400,
         headers: corsHeaders
@@ -84,47 +84,40 @@ export default async (req: Request, context: Context) => {
 
     const mentorId = decoded.userId;
 
-    const course = await db
+    const existingLesson = await db
       .select()
-      .from(courses)
-      .where(and(eq(courses.id, courseId), eq(courses.mentorId, mentorId)))
+      .from(lessons)
+      .where(and(eq(lessons.id, lessonId), eq(lessons.mentorId, mentorId)))
       .limit(1);
 
-    if (course.length === 0) {
-      return new Response(JSON.stringify({ error: 'Course not found or you do not have permission' }), {
+    if (existingLesson.length === 0) {
+      return new Response(JSON.stringify({ error: 'Lesson not found or you do not have permission' }), {
         status: 404,
         headers: corsHeaders
       });
     }
 
-    const newLesson = await db
-      .insert(lessons)
-      .values({
-        courseId,
-        mentorId,
+    const updatedLesson = await db
+      .update(lessons)
+      .set({
         title: title.trim(),
         description: description?.trim() || '',
-        link: link.trim()
+        link: link.trim(),
+        updatedAt: new Date()
       })
+      .where(eq(lessons.id, lessonId))
       .returning();
 
     return new Response(JSON.stringify({
       success: true,
-      data: {
-        id: newLesson[0].id,
-        courseId: newLesson[0].courseId,
-        title: newLesson[0].title,
-        description: newLesson[0].description,
-        link: newLesson[0].link,
-        createdAt: newLesson[0].createdAt
-      }
+      data: updatedLesson[0]
     }), {
-      status: 201,
+      status: 200,
       headers: corsHeaders
     });
 
   } catch (error: any) {
-    console.error('Create lesson error:', error);
+    console.error('Update lesson error:', error);
     return new Response(JSON.stringify({
       error: 'Internal server error',
       details: error.message

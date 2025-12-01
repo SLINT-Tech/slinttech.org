@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, Eye, Loader2, Plus, Search, Target, Trash2, User, UserPlus, Users, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Edit, Eye, Loader2, Plus, Search, Target, Trash2, User, UserPlus, Users, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -59,6 +59,10 @@ const MentorCourseDetailPage = () => {
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [showEnrollMenteesModal, setShowEnrollMenteesModal] = useState(false);
+  const [showEditLessonModal, setShowEditLessonModal] = useState(false);
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const [availableMentees, setAvailableMentees] = useState<Mentee[]>([]);
   const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
@@ -274,6 +278,184 @@ const MentorCourseDetailPage = () => {
     } catch (error) {
       console.error('Create task error:', error);
       setToast({ message: 'Failed to create task', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditLesson = (lesson: Lesson) => {
+    setEditingLesson(lesson);
+    setShowEditLessonModal(true);
+  };
+
+  const handleUpdateLesson = async () => {
+    if (!editingLesson || !editingLesson.title.trim() || !editingLesson.link.trim()) {
+      setToast({ message: 'Please fill in all required fields', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/api/mentor-update-lesson', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          lessonId: editingLesson.id,
+          title: editingLesson.title,
+          description: editingLesson.description,
+          link: editingLesson.link
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Lesson updated successfully!', type: 'success' });
+        setShowEditLessonModal(false);
+        setEditingLesson(null);
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to update lesson', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error updating lesson:', error);
+      setToast({ message: 'Failed to update lesson', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm('Are you sure you want to delete this lesson?')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch(`/api/mentor-delete-lesson?lessonId=${lessonId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Lesson deleted successfully!', type: 'success' });
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to delete lesson', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error deleting lesson:', error);
+      setToast({ message: 'Failed to delete lesson', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowEditTaskModal(true);
+  };
+
+  const handleUpdateTask = async () => {
+    if (!editingTask || !editingTask.title.trim() || !editingTask.description.trim() || !editingTask.deadline) {
+      setToast({ message: 'Please fill in all required fields', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const filteredRequirements = editingTask.requirements.filter(req => req.trim() !== '');
+
+      const response = await fetch('/api/mentor-update-task', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          taskId: editingTask.id,
+          title: editingTask.title,
+          description: editingTask.description,
+          requirements: filteredRequirements,
+          deadline: editingTask.deadline,
+          frequency: editingTask.frequency
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Task updated successfully!', type: 'success' });
+        setShowEditTaskModal(false);
+        setEditingTask(null);
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to update task', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      setToast({ message: 'Failed to update task', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch(`/api/mentor-delete-task?taskId=${taskId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setToast({ message: 'Task deleted successfully!', type: 'success' });
+        fetchCourseDetails();
+      } else {
+        setToast({ message: data.error || 'Failed to delete task', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      setToast({ message: 'Failed to delete task', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -572,6 +754,22 @@ const MentorCourseDetailPage = () => {
                           Created: {new Date(lesson.createdAt).toLocaleDateString()}
                         </p>
                       </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <button
+                          onClick={() => handleEditLesson(lesson)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit lesson"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLesson(lesson.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete lesson"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -617,6 +815,22 @@ const MentorCourseDetailPage = () => {
                             </ul>
                           </div>
                         )}
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <button
+                          onClick={() => handleEditTask(task)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit task"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete task"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -714,6 +928,85 @@ const MentorCourseDetailPage = () => {
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loading ? 'Creating...' : 'Create Lesson'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Lesson Modal */}
+      {showEditLessonModal && editingLesson && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Edit Lesson</h2>
+                <button
+                  onClick={() => {
+                    setShowEditLessonModal(false);
+                    setEditingLesson(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lesson Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editingLesson.title}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., Introduction to React Components"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={editingLesson.description}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  rows={3}
+                  placeholder="Brief description of the lesson..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lesson URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  value={editingLesson.link}
+                  onChange={(e) => setEditingLesson({ ...editingLesson, link: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="https://example.com/lesson-url"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setShowEditLessonModal(false);
+                  setEditingLesson(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateLesson}
+                disabled={loading}
+                className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Updating...' : 'Update Lesson'}
               </button>
             </div>
           </div>
@@ -838,6 +1131,135 @@ const MentorCourseDetailPage = () => {
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loading ? 'Creating...' : 'Create Task'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Task Modal */}
+      {showEditTaskModal && editingTask && (
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Edit Task</h2>
+                <button
+                  onClick={() => {
+                    setShowEditTaskModal(false);
+                    setEditingTask(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Task Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editingTask.title}
+                  onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  placeholder="e.g., Build a Todo App with React"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={editingTask.description}
+                  onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  rows={3}
+                  placeholder="Detailed description of what the mentee needs to accomplish..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                {editingTask.requirements.map((req, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={req}
+                      onChange={(e) => {
+                        const updated = [...editingTask.requirements];
+                        updated[index] = e.target.value;
+                        setEditingTask({ ...editingTask, requirements: updated });
+                      }}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      placeholder="Enter requirement"
+                    />
+                    {editingTask.requirements.length > 1 && (
+                      <button
+                        onClick={() => {
+                          const updated = editingTask.requirements.filter((_, i) => i !== index);
+                          setEditingTask({ ...editingTask, requirements: updated });
+                        }}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() => setEditingTask({ ...editingTask, requirements: [...editingTask.requirements, ''] })}
+                  className="text-sm text-[#008080] hover:text-teal-700 font-medium flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Requirement
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Deadline <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={editingTask.deadline ? new Date(editingTask.deadline).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEditingTask({ ...editingTask, deadline: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                  <select
+                    value={editingTask.frequency}
+                    onChange={(e) => setEditingTask({ ...editingTask, frequency: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none bg-white"
+                  >
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 p-6 flex justify-end space-x-3 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setShowEditTaskModal(false);
+                  setEditingTask(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTask}
+                disabled={loading}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Updating...' : 'Update Task'}
               </button>
             </div>
           </div>

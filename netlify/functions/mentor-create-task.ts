@@ -105,6 +105,7 @@ export default async (req: Request, context: Context) => {
       .insert(tasks)
       .values({
         courseId,
+        mentorId,
         title: title.trim(),
         description: description.trim(),
         requirements: filteredRequirements,
