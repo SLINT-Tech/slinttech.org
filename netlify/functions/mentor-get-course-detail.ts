@@ -141,7 +141,6 @@ export default async (req: Request, context: Context) => {
           description: task.description,
           deadline: task.deadline,
           status: task.status,
-          frequency: task.frequency,
           requirements,
           createdAt: task.createdAt
         };

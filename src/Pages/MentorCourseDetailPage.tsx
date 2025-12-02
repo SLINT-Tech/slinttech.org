@@ -811,34 +811,34 @@ const MentorCourseDetailPage = () => {
             {course.tasks.length > 0 ? (
               <div className="space-y-3">
                 {course.tasks.map((task) => (
-                  <div key={task.id} className="p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{task.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
-                          <span>Frequency: {task.frequency}</span>
-                          <span className={`px-2 py-0.5 rounded-full ${
+                  <div key={task.id} className="p-4 border border-yellow-200 bg-yellow-50 rounded-lg hover:border-yellow-300 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h4 className="font-semibold text-gray-900 text-base">{task.title}</h4>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
                             task.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                           }`}>
                             {task.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{task.description}</p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <span className="font-medium">Due:</span>
+                            {new Date(task.deadline).toLocaleDateString()}
                           </span>
                           {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
                             <span className="text-[#008080] font-medium">
                               {task.requirements.length} requirement{task.requirements.length !== 1 ? 's' : ''}
                             </span>
                           )}
+                          <span className="text-gray-400">
+                            Created {new Date(task.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Link
-                          to={`/task/${task.id}`}
-                          className="p-2 text-[#008080] hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
-                          title="View task details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Link>
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                           onClick={() => handleEditTask(task)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
