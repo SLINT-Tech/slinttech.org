@@ -112,16 +112,40 @@ export default async (req: Request, context: Context) => {
         link: lesson.link,
         createdAt: lesson.createdAt
       })),
-      tasks: courseTasks.map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        deadline: task.deadline,
-        status: task.status,
-        frequency: task.frequency,
-        requirements: task.requirements || [],
-        createdAt: task.createdAt
-      }))
+      tasks: courseTasks.map(task => {
+        let requirements = [];
+        if (task.requirements) {
+          if (Array.isArray(task.requirements)) {
+            if (task.requirements.length === 1 && typeof task.requirements[0] === 'string' && task.requirements[0].startsWith('{')) {
+              try {
+                const parsed = task.requirements[0].replace(/^\{/, '[').replace(/\}$/, ']').replace(/\\"/g, '"');
+                requirements = JSON.parse(parsed);
+              } catch (e) {
+                requirements = task.requirements;
+              }
+            } else {
+              requirements = task.requirements;
+            }
+          } else if (typeof task.requirements === 'string') {
+            try {
+              const parsed = task.requirements.replace(/^\{/, '[').replace(/\}$/, ']').replace(/\\"/g, '"');
+              requirements = JSON.parse(parsed);
+            } catch (e) {
+              requirements = [];
+            }
+          }
+        }
+        return {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          deadline: task.deadline,
+          status: task.status,
+          frequency: task.frequency,
+          requirements,
+          createdAt: task.createdAt
+        };
+      })
     };
 
     return new Response(JSON.stringify({

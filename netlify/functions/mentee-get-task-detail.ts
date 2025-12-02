@@ -106,11 +106,34 @@ export default async (req: Request, context: Context) => {
 
     const task = taskResult[0];
 
+    let requirements = [];
+    if (task.requirements) {
+      if (Array.isArray(task.requirements)) {
+        if (task.requirements.length === 1 && typeof task.requirements[0] === 'string' && task.requirements[0].startsWith('{')) {
+          try {
+            const parsed = task.requirements[0].replace(/^\{/, '[').replace(/\}$/, ']').replace(/\\"/g, '"');
+            requirements = JSON.parse(parsed);
+          } catch (e) {
+            requirements = task.requirements;
+          }
+        } else {
+          requirements = task.requirements;
+        }
+      } else if (typeof task.requirements === 'string') {
+        try {
+          const parsed = task.requirements.replace(/^\{/, '[').replace(/\}$/, ']').replace(/\\"/g, '"');
+          requirements = JSON.parse(parsed);
+        } catch (e) {
+          requirements = [];
+        }
+      }
+    }
+
     const taskData = {
       id: task.taskId,
       title: task.title,
       description: task.description,
-      requirements: task.requirements ? task.requirements.split('\n').filter((r: string) => r.trim()) : [],
+      requirements,
       deadline: task.deadline,
       status: task.taskStatus,
       createdAt: task.createdAt,
