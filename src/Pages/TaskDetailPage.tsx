@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, Send, Target } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, Send, Target, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';

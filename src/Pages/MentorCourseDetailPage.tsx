@@ -824,19 +824,21 @@ const MentorCourseDetailPage = () => {
                           }`}>
                             {task.status}
                           </span>
+                          {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
+                            <span className="text-[#008080] font-medium">
+                              {task.requirements.length} requirement{task.requirements.length !== 1 ? 's' : ''}
+                            </span>
+                          )}
                         </div>
-                        {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs font-medium text-gray-700">Requirements:</p>
-                            <ul className="text-xs text-gray-600 list-disc list-inside">
-                              {task.requirements.map((req, idx) => (
-                                <li key={idx}>{req}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
                       </div>
                       <div className="flex items-center gap-2 ml-4">
+                        <Link
+                          to={`/task/${task.id}`}
+                          className="p-2 text-[#008080] hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+                          title="View task details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
                         <button
                           onClick={() => handleEditTask(task)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
