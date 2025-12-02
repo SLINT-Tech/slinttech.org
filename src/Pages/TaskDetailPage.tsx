@@ -1,7 +1,9 @@
-import { AlertCircle, ArrowLeft, Clock, Send, Target, User, Menu, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, Send, Target } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Navigation from '../Components/Navigation';
+import Toast from '../Components/Toast';
 
 interface Task {
   id: string;
@@ -42,12 +44,9 @@ const TaskDetailPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    setCurrentUser(user);
     fetchTaskDetail();
   }, [taskId]);
 
@@ -118,11 +117,11 @@ const TaskDetailPage = () => {
         throw new Error('Failed to submit task');
       }
 
-      alert('Task submitted successfully!');
-      navigate('/tasks');
+      setToast({ message: 'Task submitted successfully!', type: 'success' });
+      fetchTaskDetail();
     } catch (error) {
       console.error('Error submitting task:', error);
-      alert('Failed to submit task. Please try again.');
+      setToast({ message: 'Failed to submit task. Please try again.', type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -173,10 +172,21 @@ const TaskDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading task details...</p>
+      <div className="min-h-screen bg-[#F8F8F8]">
+        <Navigation />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-6 w-40 bg-gray-200 rounded"></div>
+            <div className="bg-white rounded-xl p-6 space-y-4">
+              <div className="h-8 w-3/4 bg-gray-200 rounded"></div>
+              <div className="h-4 w-full bg-gray-200 rounded"></div>
+              <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+            </div>
+            <div className="bg-white rounded-xl p-6 space-y-3">
+              <div className="h-6 w-32 bg-gray-200 rounded"></div>
+              <div className="h-32 bg-gray-200 rounded"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -200,72 +210,9 @@ const TaskDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
-            </Link>
+      <Navigation />
 
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-600">Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}</span>
-              <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 font-medium">
-                Dashboard
-              </Link>
-              <Link to="/mentors" className="text-gray-500 hover:text-gray-700 font-medium">
-                My Mentors
-              </Link>
-              <Link to="/profile" className="text-gray-500 hover:text-gray-700 font-medium">
-                Profile
-              </Link>
-              <button
-                onClick={() => signOut('/login')}
-                className="text-[#008080] hover:text-teal-700 font-medium"
-              >
-                Logout
-              </button>
-            </div>
-
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {isMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
-              <div className="flex flex-col space-y-4">
-                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}
-                </div>
-                <Link to="/dashboard" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Dashboard
-                </Link>
-                <Link to="/mentors" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  My Mentors
-                </Link>
-                <Link to="/profile" className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    signOut('/login');
-                  }}
-                  className="px-4 py-2 text-[#008080] hover:text-teal-700 text-left"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/tasks"
           className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
@@ -314,17 +261,22 @@ const TaskDetailPage = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Task Description</h2>
               <p className="text-gray-600 leading-relaxed mb-6">{task.description}</p>
 
-              {task.requirements && task.requirements.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Requirements:</h3>
-                  <ul className="space-y-2">
+              {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-[#008080]" />
+                    Requirements
+                  </h3>
+                  <div className="grid gap-3">
                     {task.requirements.map((requirement, index) => (
-                      <li key={index} className="flex items-start gap-2 text-gray-600">
-                        <div className="w-1.5 h-1.5 bg-[#008080] rounded-full mt-2 flex-shrink-0"></div>
-                        <span>{requirement}</span>
-                      </li>
+                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="w-6 h-6 bg-[#008080] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                          {index + 1}
+                        </div>
+                        <span className="text-gray-700 flex-1">{requirement}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
@@ -434,6 +386,14 @@ const TaskDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

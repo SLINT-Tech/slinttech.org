@@ -1202,7 +1202,16 @@ const MentorCourseDetailPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="block text-sm font-medium text-gray-700">Requirements</label>
+                  <button
+                    onClick={() => setEditingTask({ ...editingTask, requirements: [...editingTask.requirements, ''] })}
+                    className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Requirement
+                  </button>
+                </div>
                 {editingTask.requirements && editingTask.requirements.map((req, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <input
@@ -1214,7 +1223,7 @@ const MentorCourseDetailPage = () => {
                         setEditingTask({ ...editingTask, requirements: updated });
                       }}
                       className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                      placeholder="Enter requirement"
+                      placeholder="Enter requirement..."
                     />
                     {editingTask.requirements.length > 1 && (
                       <button
@@ -1222,20 +1231,13 @@ const MentorCourseDetailPage = () => {
                           const updated = editingTask.requirements.filter((_, i) => i !== index);
                           setEditingTask({ ...editingTask, requirements: updated });
                         }}
-                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        className="text-red-600 hover:text-red-700 cursor-pointer"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                       </button>
                     )}
                   </div>
                 ))}
-                <button
-                  onClick={() => setEditingTask({ ...editingTask, requirements: [...editingTask.requirements, ''] })}
-                  className="text-sm text-[#008080] hover:text-teal-700 font-medium flex items-center gap-1"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Requirement
-                </button>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
