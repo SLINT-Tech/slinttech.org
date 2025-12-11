@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, CheckCircle, ExternalLink, User, Search, ChevronLeft, ChevronRight, Eye, Clock } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, ExternalLink, User, Search, ChevronLeft, ChevronRight, Eye, Clock, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
