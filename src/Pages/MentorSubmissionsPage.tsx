@@ -44,6 +44,7 @@ const MentorSubmissionsPage = () => {
   const [loading, setLoading] = useState(true);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
+  const [feedbackError, setFeedbackError] = useState('');
   const navigate = useNavigate();
 
   const itemsPerPage = 10;
@@ -87,6 +88,7 @@ const MentorSubmissionsPage = () => {
   const handleViewSubmission = (submission: Submission) => {
     setSelectedSubmission(submission);
     setFeedback(submission.mentorFeedback || '');
+    setFeedbackError('');
     setShowReviewModal(true);
   };
 
@@ -94,9 +96,11 @@ const MentorSubmissionsPage = () => {
     if (!selectedSubmission) return;
 
     if (action === 'rejected' && !feedback.trim()) {
-      alert('Please provide feedback for rejected submissions.');
+      setFeedbackError('Please provide feedback for rejected submissions.');
       return;
     }
+
+    setFeedbackError('');
 
     try {
       setReviewLoading(true);
@@ -124,6 +128,7 @@ const MentorSubmissionsPage = () => {
       await fetchSubmissions();
       setShowReviewModal(false);
       setFeedback('');
+      setFeedbackError('');
       setSelectedSubmission(null);
     } catch (error: any) {
       console.error('Error reviewing submission:', error);
@@ -180,7 +185,15 @@ const MentorSubmissionsPage = () => {
   const parseRequirements = (requirements: string | null): string[] => {
     if (!requirements) return [];
     try {
-      return JSON.parse(requirements);
+      const parsed = JSON.parse(requirements);
+      if (Array.isArray(parsed)) {
+        return parsed.map(item => {
+          if (typeof item === 'string') return item;
+          if (typeof item === 'object') return JSON.stringify(item);
+          return String(item);
+        });
+      }
+      return [String(parsed)];
     } catch {
       return requirements.split('\n').filter(r => r.trim());
     }
@@ -514,6 +527,7 @@ const MentorSubmissionsPage = () => {
                   onClick={() => {
                     setShowReviewModal(false);
                     setFeedback('');
+                    setFeedbackError('');
                   }}
                   disabled={reviewLoading}
                   className="text-gray-400 hover:text-gray-600 cursor-pointer disabled:opacity-50"
@@ -606,12 +620,22 @@ const MentorSubmissionsPage = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Mentor Feedback</h3>
                 <textarea
                   value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
+                  onChange={(e) => {
+                    setFeedback(e.target.value);
+                    if (feedbackError) setFeedbackError('');
+                  }}
                   disabled={reviewLoading}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                    feedbackError
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : 'border-gray-300 focus:border-[#008080] focus:ring-[#008080]/20'
+                  }`}
                   rows={6}
                   placeholder="Provide detailed feedback on the submission..."
                 />
+                {feedbackError && (
+                  <p className="text-red-600 text-sm mt-2">{feedbackError}</p>
+                )}
               </div>
             </div>
 
@@ -620,6 +644,7 @@ const MentorSubmissionsPage = () => {
                 onClick={() => {
                   setShowReviewModal(false);
                   setFeedback('');
+                  setFeedbackError('');
                 }}
                 disabled={reviewLoading}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
