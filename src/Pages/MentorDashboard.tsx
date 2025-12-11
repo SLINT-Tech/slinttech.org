@@ -412,9 +412,9 @@ const MentorDashboard = () => {
               <div className="flex items-center">
                 <Target className="w-8 h-8 text-yellow-600 mr-4" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">View Pending Reviews</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Task Submissions</h3>
                   <p className="text-gray-600">
-                    {isPending ? 'Available after approval' : 'Review task submissions'}
+                    {isPending ? 'Available after approval' : 'Review and grade mentee work'}
                   </p>
                 </div>
               </div>
