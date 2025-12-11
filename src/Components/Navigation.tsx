@@ -1,5 +1,5 @@
-import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface NavLink {
@@ -17,7 +17,20 @@ interface NavigationProps {
 
 const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const mentorLinks: NavLink[] = [
     {
@@ -37,12 +50,6 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
       label: 'Mentees',
       icon: <Users className="w-4 h-4" />,
       activePaths: ['/mentor/mentees', '/mentor/mentee']
-    },
-    {
-      path: '/mentor/profile',
-      label: 'Profile',
-      icon: <User className="w-4 h-4" />,
-      activePaths: ['/mentor/profile']
     }
   ];
 
@@ -64,12 +71,6 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
       label: 'Tasks',
       icon: <BookOpen className="w-4 h-4" />,
       activePaths: ['/tasks', '/task', '/lessons', '/lesson']
-    },
-    {
-      path: '/profile',
-      label: 'Profile',
-      icon: <User className="w-4 h-4" />,
-      activePaths: ['/profile']
     }
   ];
 
@@ -126,16 +127,43 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
-              <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">{userName}</span>
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <User className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">{userName}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <Link
+                    to={role === 'Mentor' ? '/mentor/profile' : role === 'Mentee' ? '/profile' : '/admin/dashboard'}
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-gray-500" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{userName}</span>
+                      <span className="text-xs text-gray-500">View Profile</span>
+                    </div>
+                  </Link>
+                  <div className="border-t border-gray-200 my-1"></div>
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                  >
+                    <X className="w-4 h-4 text-red-500" />
+                    <span className="text-sm">Logout</span>
+                  </button>
+                </div>
+              )}
             </div>
-            <button
-              onClick={onLogout}
-              className="text-sm font-medium text-gray-600 hover:text-[#008080] transition-colors cursor-pointer"
-            >
-              Logout
-            </button>
           </div>
 
           <button

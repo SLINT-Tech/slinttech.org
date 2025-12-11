@@ -84,8 +84,7 @@ const MentorCourseDetailPage = () => {
     title: '',
     description: '',
     requirements: [''],
-    deadline: '',
-    frequency: 'weekly'
+    deadline: ''
   });
 
   useEffect(() => {
@@ -273,7 +272,7 @@ const MentorCourseDetailPage = () => {
 
       if (response.ok && data.success) {
         setToast({ message: 'Task created successfully!', type: 'success' });
-        setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
+        setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
         setShowCreateTaskModal(false);
         fetchCourseDetails();
       } else {
@@ -1045,7 +1044,7 @@ const MentorCourseDetailPage = () => {
                 <button
                   onClick={() => {
                     setShowCreateTaskModal(false);
-                    setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
+                    setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
                   }}
                   className="text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
@@ -1110,29 +1109,16 @@ const MentorCourseDetailPage = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Due Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={newTask.deadline}
-                    onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
-                  <select
-                    value={newTask.frequency}
-                    onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none bg-white"
-                  >
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Due Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={newTask.deadline}
+                  onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                />
               </div>
             </div>
 
@@ -1241,29 +1227,16 @@ const MentorCourseDetailPage = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deadline <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={editingTask.deadline ? new Date(editingTask.deadline).toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEditingTask({ ...editingTask, deadline: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
-                  <select
-                    value={editingTask.frequency}
-                    onChange={(e) => setEditingTask({ ...editingTask, frequency: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none bg-white"
-                  >
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Deadline <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={editingTask.deadline ? new Date(editingTask.deadline).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setEditingTask({ ...editingTask, deadline: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                />
               </div>
             </div>
 
