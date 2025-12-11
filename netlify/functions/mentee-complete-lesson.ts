@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { lessonProgress, lessons } from '../../src/db/schema';
+import { lessonProgress, lessons, courses, courseEnrollments } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -66,14 +66,24 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const lessonExists = await db
-      .select({ id: lessons.id })
+    const lessonCheck = await db
+      .select({
+        lessonId: lessons.id,
+        courseId: lessons.courseId
+      })
       .from(lessons)
+      .innerJoin(courses, eq(lessons.courseId, courses.id))
+      .innerJoin(courseEnrollments, and(
+        eq(courseEnrollments.courseId, courses.id),
+        eq(courseEnrollments.menteeId, menteeId)
+      ))
       .where(eq(lessons.id, lessonId))
       .limit(1);
 
-    if (!lessonExists.length) {
-      return new Response(JSON.stringify({ error: 'Lesson not found' }), {
+    if (!lessonCheck.length) {
+      return new Response(JSON.stringify({
+        error: 'Lesson not found or you are not enrolled in this course'
+      }), {
         status: 404,
         headers: corsHeaders
       });

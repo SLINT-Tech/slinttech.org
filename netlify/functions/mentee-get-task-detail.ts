@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { tasks, taskSubmissions, courses, userProfiles } from '../../src/db/schema';
+import { tasks, taskSubmissions, courses, userProfiles, courseEnrollments } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -89,6 +89,10 @@ export default async (req: Request, context: Context) => {
       })
       .from(tasks)
       .innerJoin(courses, eq(tasks.courseId, courses.id))
+      .innerJoin(courseEnrollments, and(
+        eq(courseEnrollments.courseId, courses.id),
+        eq(courseEnrollments.menteeId, menteeId)
+      ))
       .innerJoin(userProfiles, eq(tasks.mentorId, userProfiles.id))
       .leftJoin(taskSubmissions, and(
         eq(taskSubmissions.taskId, tasks.id),
@@ -98,7 +102,9 @@ export default async (req: Request, context: Context) => {
       .limit(1);
 
     if (!taskResult.length) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), {
+      return new Response(JSON.stringify({
+        error: 'Task not found or you are not enrolled in this course'
+      }), {
         status: 404,
         headers: corsHeaders
       });

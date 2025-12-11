@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { lessons, lessonProgress, courses, userProfiles } from '../../src/db/schema';
+import { lessons, lessonProgress, courses, userProfiles, courseEnrollments } from '../../src/db/schema';
 import { eq, and, or, like, desc } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -75,6 +75,10 @@ export default async (req: Request, context: Context) => {
       })
       .from(lessons)
       .innerJoin(courses, eq(lessons.courseId, courses.id))
+      .innerJoin(courseEnrollments, and(
+        eq(courseEnrollments.courseId, courses.id),
+        eq(courseEnrollments.menteeId, menteeId)
+      ))
       .innerJoin(userProfiles, eq(lessons.mentorId, userProfiles.id))
       .leftJoin(lessonProgress, and(
         eq(lessonProgress.lessonId, lessons.id),
