@@ -115,7 +115,7 @@ export default async (req: Request, context: Context) => {
         membershipPaid: userProfiles.membershipPaid,
         paymentReference: userProfiles.paymentReference,
         paymentDate: userProfiles.paymentDate,
-        discordLink: userProfiles.discordLink,
+        communityLink: userProfiles.communityLink,
         createdAt: userProfiles.createdAt,
         updatedAt: userProfiles.updatedAt,
       })

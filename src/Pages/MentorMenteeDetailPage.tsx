@@ -29,7 +29,7 @@ interface MenteeData {
   status: string;
   progress: number;
   contractFileUrl: string | null;
-  discordLink: string | null;
+  communityLink: string | null;
   joinedDate: string;
   lastActive: string;
   notes: string | null;
@@ -216,8 +216,8 @@ const MentorMenteeDetailPage = () => {
               <div className="space-y-2 text-sm text-gray-600">
                 <p><span className="font-medium">Email:</span> {menteeData.email}</p>
                 <p><span className="font-medium">Category:</span> {menteeData.membershipCategory}</p>
-                {menteeData.discordLink && (
-                  <p><span className="font-medium">Discord:</span> {menteeData.discordLink}</p>
+                {menteeData.communityLink && (
+                  <p><span className="font-medium">Slack:</span> {menteeData.communityLink}</p>
                 )}
               </div>
             </div>

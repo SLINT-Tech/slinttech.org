@@ -16,7 +16,7 @@ export const userProfiles = pgTable('user_profiles', {
   membershipPaid: boolean('membership_paid').default(false),
   paymentReference: text('payment_reference'),
   paymentDate: timestamp('payment_date', { withTimezone: true }),
-  discordLink: text('discord_link'),
+  communityLink: text('community_link'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({

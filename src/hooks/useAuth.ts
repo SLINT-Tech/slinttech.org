@@ -17,7 +17,7 @@ export interface UserProfile {
   membershipPaid: boolean;
   paymentReference?: string;
   paymentDate?: string;
-  discordLink?: string;
+  communityLink?: string;
   createdAt: string;
   updatedAt: string;
 }

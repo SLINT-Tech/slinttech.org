@@ -72,7 +72,7 @@ const MenteeDashboard = () => {
           membershipPaid: profile.membershipPaid || profile.membership_paid,
           paymentReference: profile.paymentReference || profile.payment_reference,
           paymentDate: profile.paymentDate || profile.payment_date,
-          discordLink: profile.discordLink || profile.discord_link
+          communityLink: profile.communityLink || profile.community_link
         };
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
@@ -96,7 +96,7 @@ const MenteeDashboard = () => {
             membershipCategory: profile.membershipCategory || profile.membership_category,
             careerPath: profile.careerPath || profile.career_path,
             status: profile.status,
-            discordLink: profile.discordLink || profile.discord_link,
+            communityLink: profile.communityLink || profile.community_link,
             membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
             membershipAmount: profile.membershipAmount || profile.membership_amount,
             membershipPaid: profile.membershipPaid || profile.membership_paid,
@@ -115,7 +115,7 @@ const MenteeDashboard = () => {
             membershipCategory: profile.membershipCategory || profile.membership_category,
             careerPath: profile.careerPath || profile.career_path,
             status: profile.status,
-            discordLink: profile.discordLink || profile.discord_link,
+            communityLink: profile.communityLink || profile.community_link,
             membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
             membershipAmount: profile.membershipAmount || profile.membership_amount,
             membershipPaid: profile.membershipPaid || profile.membership_paid,
@@ -266,7 +266,7 @@ const MenteeDashboard = () => {
                   <h3 className="text-lg font-semibold text-yellow-800 mb-2">Account Under Review</h3>
                   <p className="text-yellow-700 mb-3">
                     Your account is currently being reviewed by our admin team. You're viewing a preview of your dashboard.
-                    Once approved, you'll have full access to all features including lessons, tasks, and community Discord.
+                    Once approved, you'll have full access to all features including lessons, tasks, and community Slack.
                   </p>
                   <div className="text-sm text-yellow-600">
                     <p>✓ Application submitted successfully</p>
@@ -420,26 +420,26 @@ const MenteeDashboard = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Community Discord */}
+            {/* Community Slack */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center mb-4">
                 <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
-                <h2 className="text-xl font-semibold text-gray-900">Community Discord</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Community Slack</h2>
               </div>
               
-              {menteeData.discordLink && !isPending ? (
+              {menteeData.communityLink && !isPending ? (
                 <div>
                   <p className="text-gray-600 mb-4">
-                    Join our Discord community to connect with other members and mentors.
+                    Join our Slack workspace to connect with other members and mentors.
                   </p>
                   <a
-                    href={menteeData.discordLink}
+                    href={menteeData.communityLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-[#5865F2] text-white px-4 py-2 rounded-lg hover:bg-[#4752C4] transition-colors cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Join Discord Server
+                    Join Slack Workspace
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
@@ -447,12 +447,12 @@ const MenteeDashboard = () => {
                 <div className="text-center py-8">
                   <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                   <p className="text-gray-500">
-                    {isPending ? 'Discord access available after approval' : 'Discord invite not available yet'}
+                    {isPending ? 'Slack access available after approval' : 'Slack invite not available yet'}
                   </p>
                   <p className="text-sm text-gray-400">
                     {isPending 
                       ? 'Complete the approval process to join our community'
-                      : 'You\'ll receive a Discord invite once your membership is approved'
+                      : 'You\'ll receive a Slack invite once your membership is approved'
                     }
                   </p>
                 </div>

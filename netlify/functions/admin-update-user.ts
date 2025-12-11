@@ -22,7 +22,7 @@ interface UpdateUserRequest {
   careerPath?: string;
   role?: string;
   status?: string;
-  discordLink?: string;
+  communityLink?: string;
   membershipEnabled?: boolean;
   membershipAmount?: number;
 }
@@ -87,7 +87,7 @@ export default async (req: Request, context: Context) => {
       careerPath,
       role,
       status,
-      discordLink,
+      communityLink,
       membershipEnabled,
       membershipAmount
     } = body;
@@ -143,7 +143,7 @@ export default async (req: Request, context: Context) => {
       updateData.specialization = role === 'Mentor' && careerPath ? careerPath : null;
     }
     if (status !== undefined) updateData.status = status;
-    if (discordLink !== undefined) updateData.discordLink = discordLink;
+    if (communityLink !== undefined) updateData.communityLink = communityLink;
     if (membershipEnabled !== undefined) updateData.membershipEnabled = membershipEnabled;
     if (membershipAmount !== undefined) updateData.membershipAmount = membershipAmount.toString();
 
@@ -166,7 +166,7 @@ export default async (req: Request, context: Context) => {
         membershipCategory: userProfiles.membershipCategory,
         careerPath: userProfiles.careerPath,
         status: userProfiles.status,
-        discordLink: userProfiles.discordLink,
+        communityLink: userProfiles.communityLink,
         membershipEnabled: userProfiles.membershipEnabled,
         membershipAmount: userProfiles.membershipAmount,
         membershipPaid: userProfiles.membershipPaid

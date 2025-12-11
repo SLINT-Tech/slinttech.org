@@ -304,7 +304,7 @@ const PaymentWallPage = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Community Discord mentor access</span>
+                    <span className="text-gray-700">Community Slack mentor access</span>
                   </div>
                 </>
               ) : (
@@ -319,7 +319,7 @@ const PaymentWallPage = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Community Discord access</span>
+                    <span className="text-gray-700">Community Slack access</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />

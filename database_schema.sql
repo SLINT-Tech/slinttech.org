@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   membership_paid boolean DEFAULT false,
   payment_reference text,
   payment_date timestamptz,
-  discord_link text,
+  community_link text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
