@@ -80,7 +80,7 @@ export default async (req: Request, context: Context) => {
     }
 
     const existing = await db
-      .select({ id: taskSubmissions.id })
+      .select({ id: taskSubmissions.id, status: taskSubmissions.status })
       .from(taskSubmissions)
       .where(and(
         eq(taskSubmissions.taskId, taskId),
@@ -89,12 +89,16 @@ export default async (req: Request, context: Context) => {
       .limit(1);
 
     if (existing.length > 0) {
+      // If resubmitting after rejection, set status to 'pending' for re-review
+      // Otherwise, keep it as 'submitted'
+      const newStatus = existing[0].status === 'rejected' ? 'pending' : 'submitted';
+
       await db
         .update(taskSubmissions)
         .set({
           submissionLink,
           submissionNotes: submissionNotes || null,
-          status: 'submitted',
+          status: newStatus,
           submittedAt: new Date(),
           updatedAt: new Date()
         })
@@ -103,6 +107,7 @@ export default async (req: Request, context: Context) => {
           eq(taskSubmissions.menteeId, menteeId)
         ));
     } else {
+      // First time submission is always 'submitted'
       await db.insert(taskSubmissions).values({
         taskId,
         menteeId,
