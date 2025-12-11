@@ -1,9 +1,10 @@
-import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, XCircle, Menu, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Clock, ExternalLink, Target, User, AlertCircle, Calendar, TrendingUp, Award, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { MentorDetailSkeletonLoader } from '../Components/SkeletonLoader';
+import Navigation from '../Components/Navigation';
 
 interface Lesson {
   id: string;
@@ -72,7 +73,6 @@ const MentorDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -188,82 +188,14 @@ const MentorDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-600">Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}</span>
-              <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 font-medium">
-                Dashboard
-              </Link>
-              <Link to="/mentors" className="text-gray-500 hover:text-gray-700 font-medium">
-                My Mentors
-              </Link>
-              <Link to="/profile" className="text-gray-500 hover:text-gray-700 font-medium">
-                Profile
-              </Link>
-              <button
-                onClick={() => signOut('/login')}
-                className="text-[#008080] hover:text-teal-700 font-medium"
-              >
-                Logout
-              </button>
-            </div>
-
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {isMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
-              <div className="flex flex-col space-y-4">
-                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Welcome, {currentUser?.fullName?.split(' ')[0] || 'User'}
-                </div>
-                <Link
-                  to="/dashboard"
-                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/mentors"
-                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  My Mentors
-                </Link>
-                <Link
-                  to="/profile"
-                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    signOut('/login');
-                  }}
-                  className="px-4 py-2 text-[#008080] hover:text-teal-700 text-left"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <Navigation
+        role="Mentee"
+        userName={currentUser?.fullName || 'User'}
+        onLogout={() => {
+          signOut();
+          navigate('/login');
+        }}
+      />
 
       {loading ? (
         <MentorDetailSkeletonLoader />

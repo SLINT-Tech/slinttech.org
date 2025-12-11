@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
+import Navigation from '../Components/Navigation';
 
 interface CourseStats {
   totalLessons: number;
@@ -41,8 +42,14 @@ const MenteeMentorCoursesPage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const coursesPerPage = 10;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(user);
+  }, []);
 
   useEffect(() => {
     if (mentorId) {
@@ -105,26 +112,14 @@ const MenteeMentorCoursesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SlintTech</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600">Mentor Courses</span>
-              <Link
-                to="/login"
-                onClick={signOut}
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-              >
-                Logout
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation
+        role="Mentee"
+        userName={currentUser?.fullName || 'User'}
+        onLogout={() => {
+          signOut();
+          navigate('/login');
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link

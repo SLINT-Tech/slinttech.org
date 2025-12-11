@@ -1,12 +1,12 @@
 import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Download, CreditCard as Edit, Eye, FileText, Mail, MessageSquare, Plus, Search, Trash2, User, Users, X, XCircle } from 'lucide-react';
-import { Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { UserProfile } from '../hooks/useAuth';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
+import Navigation from '../Components/Navigation';
 
 interface UserProfile {
   id: string;
@@ -46,6 +46,7 @@ const courseOptions = [
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
@@ -57,7 +58,6 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
   const [filterMembershipCategory, setFilterMembershipCategory] = useState('all');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -805,63 +805,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
-      {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Admin</span>
-            </Link>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-600">Admin Portal</span>
-              <button
-                onClick={() => signOut('/admin/login')}
-                className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
-              >
-                Logout
-              </button>
-            </div>
-            
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-          
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 py-4 absolute top-16 left-0 right-0 shadow-lg">
-              <div className="flex flex-col space-y-4">
-                <div className="px-4 py-2 text-gray-600 border-b border-gray-200">
-                  Admin Portal
-                </div>
-                <Link 
-                  to="/admin/dashboard" 
-                  className="px-4 py-2 text-gray-700 hover:text-[#008080] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  User Management
-                </Link>
-                <button
-                  onClick={() => {
-                    signOut('/admin/login');
-                    setIsMenuOpen(false);
-                  }}
-                  className="px-4 py-2 text-red-600 hover:text-red-700 transition-colors border-t border-gray-200 text-left"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <Navigation
+        role="Admin"
+        userName={currentUser?.fullName || 'Admin'}
+        onLogout={() => {
+          signOut();
+          navigate('/admin/login');
+        }}
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
