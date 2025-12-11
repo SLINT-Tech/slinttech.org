@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { userProfiles, mentorMenteeRelationships, courses, taskSubmissions } from '../../src/db/schema';
+import { userProfiles, mentorMenteeRelationships, courses, tasks, taskSubmissions } from '../../src/db/schema';
 import { eq, and, count, desc } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -87,10 +87,10 @@ export default async (req: Request, context: Context) => {
     const pendingSubmissionsResult = await db
       .select({ count: count() })
       .from(taskSubmissions)
-      .innerJoin(courses, eq(courses.id, taskSubmissions.taskId))
+      .innerJoin(tasks, eq(tasks.id, taskSubmissions.taskId))
       .where(and(
-        eq(courses.mentorId, mentorId),
-        eq(taskSubmissions.status, 'submitted')
+        eq(tasks.mentorId, mentorId),
+        eq(taskSubmissions.status, 'pending')
       ));
 
     const pendingSubmissions = pendingSubmissionsResult[0]?.count || 0;
