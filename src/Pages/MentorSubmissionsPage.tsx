@@ -43,6 +43,7 @@ const MentorSubmissionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
   const navigate = useNavigate();
 
   const itemsPerPage = 10;
@@ -99,6 +100,7 @@ const MentorSubmissionsPage = () => {
 
     try {
       setReviewLoading(true);
+      setReviewAction(action);
       const token = localStorage.getItem('token');
 
       const response = await fetch('/api/mentor-review-submission', {
@@ -128,6 +130,7 @@ const MentorSubmissionsPage = () => {
       alert(error.message || 'Failed to review submission');
     } finally {
       setReviewLoading(false);
+      setReviewAction(null);
     }
   };
 
@@ -627,7 +630,7 @@ const MentorSubmissionsPage = () => {
                 disabled={reviewLoading}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {reviewLoading && reviewAction === 'rejected' ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 Reject Submission
               </button>
               <button
@@ -635,7 +638,7 @@ const MentorSubmissionsPage = () => {
                 disabled={reviewLoading}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {reviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {reviewLoading && reviewAction === 'approved' ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 Approve Submission
               </button>
             </div>
