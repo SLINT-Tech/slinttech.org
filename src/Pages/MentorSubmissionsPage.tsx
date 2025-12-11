@@ -185,15 +185,12 @@ const MentorSubmissionsPage = () => {
   const parseRequirements = (requirements: string | null): string[] => {
     if (!requirements) return [];
     try {
-      const parsed = JSON.parse(requirements);
-      if (Array.isArray(parsed)) {
-        return parsed.map(item => {
-          if (typeof item === 'string') return item;
-          if (typeof item === 'object') return JSON.stringify(item);
-          return String(item);
-        });
+      const parsed = requirements.replace(/^\{/, '[').replace(/\}$/, ']').replace(/\\"/g, '"');
+      const result = JSON.parse(parsed);
+      if (Array.isArray(result)) {
+        return result.map(item => String(item));
       }
-      return [String(parsed)];
+      return [String(result)];
     } catch {
       return requirements.split('\n').filter(r => r.trim());
     }
