@@ -547,17 +547,22 @@ const MentorSubmissionsPage = () => {
                 </div>
               </div>
 
-              {selectedSubmission.taskRequirements && (
+              {selectedSubmission.taskRequirements && parseRequirements(selectedSubmission.taskRequirements).length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Requirements</h3>
-                  <ul className="space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-[#008080]" />
+                    Requirements
+                  </h3>
+                  <div className="grid gap-3">
                     {parseRequirements(selectedSubmission.taskRequirements).map((requirement, index) => (
-                      <li key={index} className="flex items-start gap-2 text-gray-600">
-                        <div className="w-1.5 h-1.5 bg-[#008080] rounded-full mt-2 flex-shrink-0"></div>
-                        <span>{requirement}</span>
-                      </li>
+                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="w-6 h-6 bg-[#008080] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                          {index + 1}
+                        </div>
+                        <span className="text-gray-700 flex-1">{requirement}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
 
