@@ -414,7 +414,7 @@ const MentorDashboard = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">Task Submissions</h3>
                   <p className="text-gray-600">
-                    {isPending ? 'Available after approval' : 'Review and grade mentee work'}
+                    {isPending ? 'Available after approval' : 'Review mentee tasks'}
                   </p>
                 </div>
               </div>
