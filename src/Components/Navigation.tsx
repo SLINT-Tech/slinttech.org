@@ -74,20 +74,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
     }
   ];
 
-  const adminLinks: NavLink[] = [
-    {
-      path: '/admin/dashboard',
-      label: 'Dashboard',
-      icon: <LayoutDashboard className="w-4 h-4" />,
-      activePaths: ['/admin/dashboard']
-    },
-    {
-      path: '/admin/dashboard',
-      label: 'Users',
-      icon: <Users className="w-4 h-4" />,
-      activePaths: ['/admin/dashboard']
-    }
-  ];
+  const adminLinks: NavLink[] = [];
 
   const links = role === 'Mentor' ? mentorLinks : role === 'Mentee' ? menteeLinks : adminLinks;
 
@@ -139,15 +126,19 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <Link
-                    to={role === 'Mentor' ? '/mentor/profile' : role === 'Mentee' ? '/profile' : '/admin/dashboard'}
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium">View Profile</span>
-                  </Link>
-                  <div className="border-t border-gray-200 my-1"></div>
+                  {role !== 'Admin' && (
+                    <>
+                      <Link
+                        to={role === 'Mentor' ? '/mentor/profile' : '/profile'}
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-medium">View Profile</span>
+                      </Link>
+                      <div className="border-t border-gray-200 my-1"></div>
+                    </>
+                  )}
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
