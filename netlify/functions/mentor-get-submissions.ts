@@ -84,7 +84,7 @@ export default async (req: Request, context: Context) => {
       .where(eq(tasks.mentorId, mentorId))
       .orderBy(desc(taskSubmissions.submittedAt));
 
-    const pendingCount = submissions.filter(s => s.status === 'pending').length;
+    const pendingCount = submissions.filter(s => s.status === 'pending' || s.status === 'submitted').length;
     const approvedCount = submissions.filter(s => s.status === 'approved').length;
     const rejectedCount = submissions.filter(s => s.status === 'rejected').length;
 

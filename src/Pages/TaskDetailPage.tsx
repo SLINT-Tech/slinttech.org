@@ -256,7 +256,7 @@ const TaskDetailPage = () => {
     );
   }
 
-  const canSubmit = !task.submission || task.submission.status === 'pending' || task.submission.status === 'rejected';
+  const canSubmit = !task.submission || task.submission.status === 'rejected';
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -350,7 +350,7 @@ const TaskDetailPage = () => {
           </div>
 
           <div className="space-y-6">
-            {task.submission && task.submission.status !== 'pending' && (
+            {task.submission && (task.submission.status === 'submitted' || task.submission.status === 'pending' || task.submission.status === 'approved') && (
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Submission</h2>
                 <div className="space-y-3">

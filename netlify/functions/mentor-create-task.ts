@@ -108,7 +108,7 @@ export default async (req: Request, context: Context) => {
         mentorId,
         title: title.trim(),
         description: description.trim(),
-        requirements: filteredRequirements,
+        requirements: JSON.stringify(filteredRequirements),
         deadline: new Date(deadline),
         frequency,
         status: 'active'

@@ -369,7 +369,8 @@ const MentorSubmissionsPage = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
             >
               <option value="all">All Submissions</option>
-              <option value="pending">Pending Review</option>
+              <option value="submitted">New Submissions</option>
+              <option value="pending">Resubmissions (After Rejection)</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
             </select>

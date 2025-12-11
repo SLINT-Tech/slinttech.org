@@ -106,7 +106,7 @@ export default async (req: Request, context: Context) => {
       .set({
         title: title.trim(),
         description: description.trim(),
-        requirements: filteredRequirements,
+        requirements: JSON.stringify(filteredRequirements),
         deadline: new Date(deadline),
         frequency,
         updatedAt: new Date()
