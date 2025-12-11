@@ -1,4 +1,4 @@
-import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown } from 'lucide-react';
+import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -138,17 +138,14 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <Link
                     to={role === 'Mentor' ? '/mentor/profile' : role === 'Mentee' ? '/profile' : '/admin/dashboard'}
                     onClick={() => setShowUserMenu(false)}
                     className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <User className="w-4 h-4 text-gray-500" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{userName}</span>
-                      <span className="text-xs text-gray-500">View Profile</span>
-                    </div>
+                    <span className="text-sm font-medium">View Profile</span>
                   </Link>
                   <div className="border-t border-gray-200 my-1"></div>
                   <button
@@ -158,8 +155,8 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer text-left"
                   >
-                    <X className="w-4 h-4 text-red-500" />
-                    <span className="text-sm">Logout</span>
+                    <LogOut className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium">Logout</span>
                   </button>
                 </div>
               )}
