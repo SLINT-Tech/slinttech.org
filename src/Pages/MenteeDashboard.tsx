@@ -185,7 +185,6 @@ const MenteeDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors flex items-center gap-2">
               <span>Welcome Back,</span>
               <span className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse inline-block transition-colors"></span>
-              <span>!</span>
             </h1>
             <p className="text-gray-600 dark:text-gray-400 transition-colors">
               Track your progress, complete lessons, and submit tasks

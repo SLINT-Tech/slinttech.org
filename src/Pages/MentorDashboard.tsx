@@ -168,8 +168,13 @@ const MentorDashboard = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-2 animate-pulse transition-colors"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-80 animate-pulse transition-colors"></div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors flex items-center gap-2">
+              <span>Welcome Back,</span>
+              <span className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse inline-block transition-colors"></span>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 transition-colors">
+              Manage your mentees, create courses, and track progress
+            </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -187,26 +192,49 @@ const MentorDashboard = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-36 animate-pulse transition-colors"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse transition-colors"></div>
-                    </div>
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Courses</h3>
+                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Manage all your courses</p>
                   </div>
-                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
                 </div>
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
               </div>
-            ))}
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-4 transition-colors" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Mentees</h3>
+                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Manage your mentees</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Target className="w-8 h-8 text-yellow-600 dark:text-yellow-400 mr-4 transition-colors" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Task Submissions</h3>
+                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Review mentee tasks</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+              </div>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center justify-between mb-6">
-              <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse transition-colors"></div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Recent Courses</h2>
             </div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
