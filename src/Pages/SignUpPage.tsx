@@ -9,8 +9,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
+    }
+    return false;
   });
 
   const [formData, setFormData] = useState({
@@ -33,11 +35,17 @@ const SignUpPage = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-  }, [darkMode]);
+  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+    if (!darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -311,9 +319,9 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10 backdrop-blur-2xl">
+      <header className="bg-white/95 dark:bg-gray-900/95 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-xl transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
@@ -322,20 +330,20 @@ const SignUpPage = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? (
-                  <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                  <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 ) : (
-                  <Moon className="w-5 h-5 text-gray-600" />
+                  <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 )}
               </button>
               <Link
                 to="/"
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </Link>
             </div>
           </div>
@@ -344,7 +352,7 @@ const SignUpPage = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 p-6 sm:p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/50 p-6 sm:p-8 transition-colors">
           {/* Header */}
           <div className="text-center mb-8">
             <img
@@ -366,7 +374,7 @@ const SignUpPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Personal Information */}
               <div className="space-y-5">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-600">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-700">
                   Personal Information
                 </h2>
 
@@ -380,7 +388,7 @@ const SignUpPage = () => {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Enter your full name"
                     required
                   />
@@ -396,7 +404,7 @@ const SignUpPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Enter your email address"
                     required
                   />
@@ -412,7 +420,7 @@ const SignUpPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Create a password (min 6 characters)"
                     required
                     minLength={6}
@@ -429,7 +437,7 @@ const SignUpPage = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Confirm your password"
                     required
                     minLength={6}
@@ -439,7 +447,7 @@ const SignUpPage = () => {
 
               {/* Right Column - Membership Information */}
               <div className="space-y-5">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-600">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-700">
                   Membership Details
                 </h2>
 
@@ -452,7 +460,7 @@ const SignUpPage = () => {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
                     required
                   >
                     <option value="Mentee">Mentee (I want to learn)</option>
@@ -469,7 +477,7 @@ const SignUpPage = () => {
                     name="membershipCategory"
                     value={formData.membershipCategory}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
                     required
                   >
                     <option value="">Select your category</option>
@@ -488,7 +496,7 @@ const SignUpPage = () => {
                     name="careerPath"
                     value={formData.careerPath}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
                     required
                   >
                     <option value="">
@@ -514,7 +522,7 @@ const SignUpPage = () => {
             </div>
 
             {/* Contract Section - Full Width */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200 dark:border-gray-600">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200 dark:border-gray-700">
               <div className="flex items-start gap-3">
                 <FileText className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
                 <div>
@@ -525,7 +533,7 @@ const SignUpPage = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Download Contract */}
-                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-[#008080]/30 dark:hover:border-teal-400/30 transition-colors">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-[#008080]/30 dark:hover:border-teal-400/30 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
                       <Download className="w-5 h-5 text-[#008080] dark:text-teal-400" />
@@ -548,7 +556,7 @@ const SignUpPage = () => {
                 </div>
 
                 {/* Upload Signed Contract */}
-                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
                       <Upload className="w-5 h-5 text-[#008080] dark:text-teal-400" />
@@ -623,7 +631,7 @@ const SignUpPage = () => {
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+          <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Already have an account?{' '}
               <Link to="/login" className="text-[#008080] dark:text-teal-400 font-semibold hover:underline transition-colors">

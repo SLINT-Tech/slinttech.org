@@ -93,7 +93,7 @@ const AdminLoginPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
+      <header className="bg-white/95 dark:bg-gray-900/95 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-xl transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
