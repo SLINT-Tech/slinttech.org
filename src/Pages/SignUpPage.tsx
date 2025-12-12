@@ -1,5 +1,5 @@
-import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, CheckCircle, Download, FileText, Moon, Sun, Upload, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { uploadContractToCloudinary } from '../lib/cloudinary';
@@ -8,6 +8,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -21,6 +26,19 @@ const SignUpPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -293,27 +311,40 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+      <header className="bg-white/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
             </Link>
-            <Link 
-              to="/" 
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {darkMode ? (
+                  <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-gray-600" />
+                )}
+              </button>
+              <Link
+                to="/"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 p-6 sm:p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <img
@@ -321,10 +352,10 @@ const SignUpPage = () => {
               alt="Education"
               className="w-14 h-14 mx-auto mb-3"
             />
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-              Join Our <span className="text-[#008080]">Community</span>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Join Our <span className="text-[#008080] dark:text-teal-400">Community</span>
             </h1>
-            <p className="text-gray-600 text-sm lg:text-base max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-300 text-sm lg:text-base max-w-2xl mx-auto">
               Start your journey with SlintTech and connect with mentors who will guide your growth.
             </p>
           </div>
@@ -335,13 +366,13 @@ const SignUpPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Personal Information */}
               <div className="space-y-5">
-                <h2 className="text-base font-semibold text-gray-900 pb-2 border-b border-gray-200">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-600">
                   Personal Information
                 </h2>
 
                 {/* Full Name */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     Full Name *
                   </label>
                   <input
@@ -349,7 +380,7 @@ const SignUpPage = () => {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Enter your full name"
                     required
                   />
@@ -357,7 +388,7 @@ const SignUpPage = () => {
 
                 {/* Email Address */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     Email Address *
                   </label>
                   <input
@@ -365,7 +396,7 @@ const SignUpPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Enter your email address"
                     required
                   />
@@ -373,7 +404,7 @@ const SignUpPage = () => {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     Password *
                   </label>
                   <input
@@ -381,7 +412,7 @@ const SignUpPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Create a password (min 6 characters)"
                     required
                     minLength={6}
@@ -390,7 +421,7 @@ const SignUpPage = () => {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     Confirm Password *
                   </label>
                   <input
@@ -398,7 +429,7 @@ const SignUpPage = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Confirm your password"
                     required
                     minLength={6}
@@ -408,20 +439,20 @@ const SignUpPage = () => {
 
               {/* Right Column - Membership Information */}
               <div className="space-y-5">
-                <h2 className="text-base font-semibold text-gray-900 pb-2 border-b border-gray-200">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white pb-2 border-b border-gray-200 dark:border-gray-600">
                   Membership Details
                 </h2>
 
                 {/* Role Selection */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     I want to join as *
                   </label>
                   <select
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="Mentee">Mentee (I want to learn)</option>
@@ -431,14 +462,14 @@ const SignUpPage = () => {
 
                 {/* Membership Category */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     Membership Category *
                   </label>
                   <select
                     name="membershipCategory"
                     value={formData.membershipCategory}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="">Select your category</option>
@@ -450,14 +481,14 @@ const SignUpPage = () => {
 
                 {/* Career Path / Specialization */}
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
                     {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
                   </label>
                   <select
                     name="careerPath"
                     value={formData.careerPath}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="">
@@ -474,34 +505,34 @@ const SignUpPage = () => {
                 </div>
 
                 {/* Info Card */}
-                <div className="bg-[#008080]/5 rounded-lg p-4 border border-[#008080]/20">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-semibold text-[#008080]">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
+                <div className="bg-[#008080]/5 dark:bg-teal-500/10 rounded-lg p-4 border border-[#008080]/20 dark:border-teal-500/30">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <span className="font-semibold text-[#008080] dark:text-teal-400">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Contract Section - Full Width */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200 dark:border-gray-600">
               <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-[#008080] flex-shrink-0 mt-0.5" />
+                <FileText className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-1">Membership Contract</h3>
-                  <p className="text-sm text-gray-600">Please download, sign, and upload the membership agreement to complete your registration</p>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Membership Contract</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Please download, sign, and upload the membership agreement to complete your registration</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Download Contract */}
-                <div className="p-4 bg-white rounded-lg border border-gray-200 hover:border-[#008080]/30 transition-colors">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-[#008080]/30 dark:hover:border-teal-400/30 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="p-2 bg-[#008080]/10 rounded-lg">
-                      <Download className="w-5 h-5 text-[#008080]" />
+                    <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
+                      <Download className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">Step 1: Download Contract</p>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 1: Download Contract</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                         Download and carefully read the membership agreement. Print and sign the document.
                       </p>
                     </div>
@@ -509,7 +540,7 @@ const SignUpPage = () => {
                   <button
                     type="button"
                     onClick={downloadContract}
-                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-all hover:shadow-md cursor-pointer text-sm font-medium"
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-md cursor-pointer text-sm font-medium"
                   >
                     <Download className="w-4 h-4" />
                     Download Agreement
@@ -517,14 +548,14 @@ const SignUpPage = () => {
                 </div>
 
                 {/* Upload Signed Contract */}
-                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="p-2 bg-[#008080]/10 rounded-lg">
-                      <Upload className="w-5 h-5 text-[#008080]" />
+                    <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
+                      <Upload className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">Step 2: Upload Signed Contract *</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 2: Upload Signed Contract *</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Scan or photograph your signed contract and upload it here as a PDF file.
                       </p>
                     </div>
@@ -532,8 +563,8 @@ const SignUpPage = () => {
                   <div className={`
                     border-2 border-dashed rounded-lg p-5 text-center transition-all
                     ${formData.contractFile
-                      ? 'border-green-300 bg-green-50'
-                      : 'border-gray-300 hover:border-[#008080] hover:bg-gray-50'
+                      ? 'border-green-300 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-[#008080] dark:hover:border-teal-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                     }
                   `}>
                     <input
@@ -546,21 +577,21 @@ const SignUpPage = () => {
                     <label htmlFor="contract-upload" className="cursor-pointer">
                       {formData.contractFile ? (
                         <div className="flex flex-col items-center">
-                          <CheckCircle className="w-8 h-8 text-green-600 mb-2" />
-                          <div className="flex items-center gap-2 text-sm text-green-700 font-semibold mb-1">
+                          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
+                          <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 font-semibold mb-1">
                             <FileText className="w-4 h-4" />
                             <span>{formData.contractFile.name}</span>
                           </div>
-                          <p className="text-xs text-green-600 font-medium">
+                          <p className="text-xs text-green-600 dark:text-green-400 font-medium">
                             {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB • Uploaded successfully
                           </p>
-                          <p className="text-xs text-gray-500 mt-2">Click to replace file</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Click to replace file</p>
                         </div>
                       ) : (
                         <div>
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm font-medium text-gray-700 mb-1">Click to upload signed contract</p>
-                          <p className="text-xs text-gray-500">PDF files only • Max 10MB</p>
+                          <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Click to upload signed contract</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
                         </div>
                       )}
                     </label>
@@ -574,7 +605,7 @@ const SignUpPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-teal-700 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] dark:bg-teal-600 text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -592,10 +623,10 @@ const SignUpPage = () => {
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600">
+          <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Already have an account?{' '}
-              <Link to="/login" className="text-[#008080] font-semibold hover:underline transition-colors">
+              <Link to="/login" className="text-[#008080] dark:text-teal-400 font-semibold hover:underline transition-colors">
                 Sign in here
               </Link>
             </p>
