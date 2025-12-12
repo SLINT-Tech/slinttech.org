@@ -186,7 +186,13 @@ const MentorCoursesPage = () => {
 
       {pageLoading ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-48 mb-6 animate-pulse transition-colors"></div>
+          <button
+            onClick={() => navigate('/mentor/dashboard')}
+            className="flex items-center gap-2 text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
 
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">

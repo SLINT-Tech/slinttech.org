@@ -133,7 +133,13 @@ const MentorMenteesPage = () => {
         />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-6 animate-pulse transition-colors"></div>
+          <Link
+            to="/mentor/dashboard"
+            className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Link>
 
           <div className="mb-8">
             <div className="flex items-center mb-4">
