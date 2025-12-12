@@ -1,4 +1,4 @@
-import { ArrowLeft, Eye, User, Users, BookOpen, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Eye, User, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -16,29 +16,9 @@ interface AssignedMentor {
   enrolledCoursesCount: number;
 }
 
-interface ActiveCourse {
-  courseId: string;
-  courseName: string;
-  courseDescription: string;
-  duration: string;
-  mentorId: string;
-  mentorName: string;
-  mentorEmail: string;
-  mentorSpecialization: string | null;
-  enrollmentStatus: string;
-  progressPercentage: number;
-  enrolledAt: string;
-  completedAt: string | null;
-  lessonsCount: number;
-  tasksCount: number;
-  completedLessons: number;
-  approvedTasks: number;
-}
-
 const MentorsPage = () => {
   const { signOut } = useAuth();
   const [assignedMentors, setAssignedMentors] = useState<AssignedMentor[]>([]);
-  const [activeCourses, setActiveCourses] = useState<ActiveCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,7 +53,6 @@ const MentorsPage = () => {
 
       const result = await response.json();
       setAssignedMentors(result.data.assignedMentors || []);
-      setActiveCourses(result.data.activeCourses || []);
     } catch (error) {
       console.error('Error fetching mentors:', error);
     } finally {
@@ -134,7 +113,7 @@ const MentorsPage = () => {
             Welcome back, {currentUser?.fullName || 'Mentee'}!
           </h2>
           <p className="text-gray-600">
-            View your assigned mentors and track your course progress
+            Connect with your assigned mentors and explore their courses
           </p>
         </div>
 
@@ -142,82 +121,6 @@ const MentorsPage = () => {
           <TableSkeletonLoader />
         ) : (
           <div className="space-y-8">
-            {/* Active Courses Section */}
-            {activeCourses.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <BookOpen className="w-5 h-5 text-[#008080]" />
-                  <h3 className="text-xl font-bold text-gray-900">Active Courses</h3>
-                  <span className="bg-[#008080] text-white px-2 py-1 rounded-full text-xs font-medium">
-                    {activeCourses.length}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activeCourses.map((course) => (
-                    <div
-                      key={course.courseId}
-                      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">
-                            {course.courseName}
-                          </h4>
-                          <p className="text-sm text-gray-600 mb-2">
-                            by {course.mentorName}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Progress</span>
-                          <span className="font-medium text-[#008080]">
-                            {course.progressPercentage}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-[#008080] h-2 rounded-full transition-all"
-                            style={{ width: `${course.progressPercentage}%` }}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-2">
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-600">Lessons</p>
-                            <p className="text-sm font-semibold text-gray-900">
-                              {course.completedLessons}/{course.lessonsCount}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-2">
-                            <p className="text-xs text-gray-600">Tasks</p>
-                            <p className="text-sm font-semibold text-gray-900">
-                              {course.approvedTasks}/{course.tasksCount}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Clock className="w-3 h-3" />
-                          <span>{course.duration}</span>
-                        </div>
-                        <Link
-                          to={`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`}
-                          className="text-sm text-[#008080] hover:text-teal-700 font-medium transition-colors"
-                        >
-                          View Details →
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Assigned Mentors Section */}
             {assignedMentors.length > 0 && (
               <div>
@@ -369,7 +272,7 @@ const MentorsPage = () => {
             )}
 
             {/* Empty State */}
-            {assignedMentors.length === 0 && activeCourses.length === 0 && (
+            {assignedMentors.length === 0 && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                 <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">

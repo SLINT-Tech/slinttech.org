@@ -67,10 +67,10 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
       activePaths: ['/mentors', '/mentor']
     },
     {
-      path: '/tasks',
-      label: 'Tasks',
+      path: '/courses',
+      label: 'Courses',
       icon: <BookOpen className="w-4 h-4" />,
-      activePaths: ['/tasks', '/task', '/lessons', '/lesson']
+      activePaths: ['/courses', '/mentor-course-detail']
     }
   ];
 

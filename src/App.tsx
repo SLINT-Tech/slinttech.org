@@ -32,6 +32,7 @@ import PaymentWallPage from './Pages/PaymentWallPage';
 import MentorProfilePage from './Pages/MentorProfilePage';
 import MenteeMentorCoursesPage from './Pages/MenteeMentorCoursesPage';
 import MenteeCourseDetailPage from './Pages/MenteeCourseDetailPage';
+import MenteeCoursesPage from './Pages/MenteeCoursesPage';
 import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
@@ -78,6 +79,12 @@ function App() {
           <Route path="/mentors" element={
             <ProtectedRoute requiredRole="Mentee">
               <MentorsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeCoursesPage />
             </ProtectedRoute>
           } />
 
