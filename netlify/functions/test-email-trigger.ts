@@ -18,12 +18,11 @@ const handler: Handler = async (event, context) => {
   try {
     console.log('Test email trigger invoked');
 
-    const baseUrl = process.env.URL || 'https://slinttech.netlify.app';
-    const backgroundFunctionUrl = `${baseUrl}/.netlify/functions/test-email-background`;
+    const backgroundFunctionUrl = '/.netlify/functions/test-email-background';
 
     console.log('Invoking background function at:', backgroundFunctionUrl);
 
-    fetch(backgroundFunctionUrl, {
+    const response = await fetch(backgroundFunctionUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -31,9 +30,16 @@ const handler: Handler = async (event, context) => {
       body: JSON.stringify({
         timestamp: new Date().toISOString()
       })
-    }).catch(error => {
-      console.error('Background function invocation error:', error);
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Background function invocation failed:', errorText);
+      throw new Error(`Background function failed: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('Background function response:', result);
 
     return {
       statusCode: 200,
@@ -43,7 +49,8 @@ const handler: Handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        message: 'Test email background function triggered',
+        message: 'Test email background function triggered and completed',
+        backgroundResponse: result,
         timestamp: new Date().toISOString()
       })
     };

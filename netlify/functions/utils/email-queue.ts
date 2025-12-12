@@ -6,7 +6,7 @@ interface EmailRequest {
   data: any;
 }
 
-export const queueEmail = async (emailRequest: EmailRequest): Promise<void> => {
+export const queueEmail = async (emailRequest: EmailRequest): Promise<boolean> => {
   try {
     const response = await fetch('/.netlify/functions/send-email-background', {
       method: 'POST',
@@ -17,9 +17,16 @@ export const queueEmail = async (emailRequest: EmailRequest): Promise<void> => {
     });
 
     if (!response.ok) {
-      console.error('Failed to queue email:', await response.text());
+      const errorText = await response.text();
+      console.error('Failed to queue email:', errorText);
+      return false;
     }
+
+    const result = await response.json();
+    console.log('Email queued successfully:', result);
+    return true;
   } catch (error) {
     console.error('Error queuing email:', error);
+    return false;
   }
 };
