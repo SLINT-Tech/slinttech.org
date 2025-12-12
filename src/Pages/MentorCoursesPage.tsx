@@ -22,7 +22,7 @@ interface Stats {
 }
 
 const MentorCoursesPage = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [stats, setStats] = useState<Stats>({ totalCourses: 0, activeCourses: 0, totalEnrollments: 0 });
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
@@ -201,7 +201,7 @@ const MentorCoursesPage = () => {
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse transition-colors"></div>
                   <div className="ml-4 flex-1 space-y-2">
@@ -213,7 +213,7 @@ const MentorCoursesPage = () => {
             ))}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden mb-8 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden mb-8 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800 transition-colors">
@@ -238,9 +238,9 @@ const MentorCoursesPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                    <tr key={i}>
+                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3 transition-colors"></div>
@@ -272,7 +272,7 @@ const MentorCoursesPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center justify-between">
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse transition-colors"></div>
               <div className="flex items-center gap-2">

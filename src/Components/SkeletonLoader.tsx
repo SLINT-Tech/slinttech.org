@@ -348,3 +348,97 @@ export const CourseCardSkeletonLoader = () => {
     </div>
   );
 };
+
+export const MentorCoursesTableSkeletonLoader = () => {
+  return (
+    <div className="animate-pulse">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-gray-900/30 p-6 md:p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-2xl transition-colors"></div>
+          <div className="flex-1 space-y-3">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 transition-colors"></div>
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-36 transition-colors"></div>
+            <div className="flex flex-wrap gap-3">
+              <div className="h-8 w-40 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors"></div>
+              <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded transition-colors"></div>
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32 transition-colors"></div>
+        <div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors"></div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900 transition-colors">
+              <tr>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 transition-colors"></div>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 transition-colors"></div>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 transition-colors"></div>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-14 transition-colors"></div>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 transition-colors"></div>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 transition-colors"></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
+              {[...Array(5)].map((_, index) => (
+                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40 transition-colors"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-56 transition-colors"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-10 transition-colors"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-10 transition-colors"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-10 transition-colors"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 transition-colors"></div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 transition-colors"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};

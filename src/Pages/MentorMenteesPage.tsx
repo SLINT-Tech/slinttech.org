@@ -133,93 +133,93 @@ const MentorMenteesPage = () => {
         />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 rounded w-32 mb-6 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-6 animate-pulse transition-colors"></div>
 
           <div className="mb-8">
             <div className="flex items-center mb-4">
-              <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mr-3"></div>
-              <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+              <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mr-3 transition-colors"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse transition-colors"></div>
             </div>
-            <div className="h-4 bg-gray-200 rounded w-96 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96 animate-pulse transition-colors"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse transition-colors"></div>
                   <div className="ml-4 flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                    <div className="h-7 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse transition-colors"></div>
+                    <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-12 animate-pulse transition-colors"></div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
-                <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse transition-colors"></div>
               </div>
-              <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse transition-colors"></div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden mb-8 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-800 transition-colors">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse transition-colors"></div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse transition-colors"></div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse transition-colors"></div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse transition-colors"></div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse transition-colors"></div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse transition-colors"></div>
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                    <tr key={i} className="hover:bg-gray-50">
+                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse mr-3"></div>
+                          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3 transition-colors"></div>
                           <div className="space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                            <div className="h-3 bg-gray-200 rounded w-40 animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse transition-colors"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse transition-colors"></div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse transition-colors"></div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-6 bg-gray-200 rounded-full w-20 animate-pulse"></div>
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20 animate-pulse transition-colors"></div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-16 h-2 bg-gray-200 rounded-full animate-pulse mr-3"></div>
-                          <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                          <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3 transition-colors"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8 animate-pulse transition-colors"></div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse transition-colors"></div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-4 bg-gray-200 rounded w-4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4 animate-pulse transition-colors"></div>
                       </td>
                     </tr>
                   ))}
@@ -228,17 +228,17 @@ const MentorMenteesPage = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse transition-colors"></div>
               <div className="flex items-center gap-2">
-                <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse transition-colors"></div>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="h-10 w-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                    <div key={i} className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse transition-colors"></div>
                   ))}
                 </div>
-                <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse transition-colors"></div>
               </div>
             </div>
           </div>

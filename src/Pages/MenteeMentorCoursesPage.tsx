@@ -2,7 +2,7 @@ import { ArrowLeft, BookOpen, CheckCircle, Clock, Target, User, ChevronLeft, Che
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { TableSkeletonLoader } from '../Components/SkeletonLoader';
+import { MentorCoursesTableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
 
 interface CourseStats {
@@ -131,7 +131,7 @@ const MenteeMentorCoursesPage = () => {
         </Link>
 
         {loading ? (
-          <TableSkeletonLoader />
+          <MentorCoursesTableSkeletonLoader />
         ) : (
           <>
             {mentor && (
