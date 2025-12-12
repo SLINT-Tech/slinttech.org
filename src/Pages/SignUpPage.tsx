@@ -312,30 +312,30 @@ const SignUpPage = () => {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 lg:p-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
           {/* Header */}
-          <div className="text-center mb-8 lg:mb-10">
+          <div className="text-center mb-8">
             <img
               src="/assets/education.svg"
               alt="Education"
-              className="w-16 h-16 mx-auto mb-4"
+              className="w-14 h-14 mx-auto mb-3"
             />
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
               Join Our <span className="text-[#008080]">Community</span>
             </h1>
-            <p className="text-gray-600 text-base lg:text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 text-sm lg:text-base max-w-2xl mx-auto">
               Start your journey with SlintTech and connect with mentors who will guide your growth.
             </p>
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Two Column Grid on Desktop */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Personal Information */}
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">
+              <div className="space-y-5">
+                <h2 className="text-base font-semibold text-gray-900 pb-2 border-b border-gray-200">
                   Personal Information
                 </h2>
 
@@ -407,8 +407,8 @@ const SignUpPage = () => {
               </div>
 
               {/* Right Column - Membership Information */}
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">
+              <div className="space-y-5">
+                <h2 className="text-base font-semibold text-gray-900 pb-2 border-b border-gray-200">
                   Membership Details
                 </h2>
 
@@ -483,24 +483,24 @@ const SignUpPage = () => {
             </div>
 
             {/* Contract Section - Full Width */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 lg:p-8 space-y-6 border border-gray-200">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200">
               <div className="flex items-start gap-3">
-                <FileText className="w-6 h-6 text-[#008080] flex-shrink-0 mt-0.5" />
+                <FileText className="w-5 h-5 text-[#008080] flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-1">Membership Contract</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1">Membership Contract</h3>
                   <p className="text-sm text-gray-600">Please download, sign, and upload the membership agreement to complete your registration</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Download Contract */}
-                <div className="p-5 bg-white rounded-lg border border-gray-200 hover:border-[#008080]/30 transition-colors">
-                  <div className="flex items-start gap-3 mb-4">
+                <div className="p-4 bg-white rounded-lg border border-gray-200 hover:border-[#008080]/30 transition-colors">
+                  <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 rounded-lg">
                       <Download className="w-5 h-5 text-[#008080]" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 mb-1">Step 1: Download Contract</p>
+                      <p className="text-sm font-semibold text-gray-900 mb-1">Step 1: Download Contract</p>
                       <p className="text-sm text-gray-600 leading-relaxed">
                         Download and carefully read the membership agreement. Print and sign the document.
                       </p>
@@ -509,7 +509,7 @@ const SignUpPage = () => {
                   <button
                     type="button"
                     onClick={downloadContract}
-                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-3 rounded-lg hover:bg-teal-700 transition-all hover:shadow-md cursor-pointer font-medium"
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-all hover:shadow-md cursor-pointer text-sm font-medium"
                   >
                     <Download className="w-4 h-4" />
                     Download Agreement
@@ -517,20 +517,20 @@ const SignUpPage = () => {
                 </div>
 
                 {/* Upload Signed Contract */}
-                <div className="p-5 bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-start gap-3 mb-4">
+                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 rounded-lg">
                       <Upload className="w-5 h-5 text-[#008080]" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 mb-1">Step 2: Upload Signed Contract *</p>
+                      <p className="text-sm font-semibold text-gray-900 mb-1">Step 2: Upload Signed Contract *</p>
                       <p className="text-sm text-gray-600">
                         Scan or photograph your signed contract and upload it here as a PDF file.
                       </p>
                     </div>
                   </div>
                   <div className={`
-                    border-2 border-dashed rounded-lg p-6 text-center transition-all
+                    border-2 border-dashed rounded-lg p-5 text-center transition-all
                     ${formData.contractFile
                       ? 'border-green-300 bg-green-50'
                       : 'border-gray-300 hover:border-[#008080] hover:bg-gray-50'
@@ -546,21 +546,21 @@ const SignUpPage = () => {
                     <label htmlFor="contract-upload" className="cursor-pointer">
                       {formData.contractFile ? (
                         <div className="flex flex-col items-center">
-                          <CheckCircle className="w-10 h-10 text-green-600 mb-3" />
-                          <div className="flex items-center gap-2 text-green-700 font-semibold mb-1">
+                          <CheckCircle className="w-8 h-8 text-green-600 mb-2" />
+                          <div className="flex items-center gap-2 text-sm text-green-700 font-semibold mb-1">
                             <FileText className="w-4 h-4" />
                             <span>{formData.contractFile.name}</span>
                           </div>
-                          <p className="text-sm text-green-600 font-medium">
+                          <p className="text-xs text-green-600 font-medium">
                             {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB • Uploaded successfully
                           </p>
                           <p className="text-xs text-gray-500 mt-2">Click to replace file</p>
                         </div>
                       ) : (
                         <div>
-                          <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                          <p className="font-medium text-gray-700 mb-1">Click to upload signed contract</p>
-                          <p className="text-sm text-gray-500">PDF files only • Max 10MB</p>
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-gray-700 mb-1">Click to upload signed contract</p>
+                          <p className="text-xs text-gray-500">PDF files only • Max 10MB</p>
                         </div>
                       )}
                     </label>
@@ -570,11 +570,11 @@ const SignUpPage = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-2">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] text-white font-semibold py-3 px-8 rounded-lg hover:bg-teal-700 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-teal-700 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -592,8 +592,8 @@ const SignUpPage = () => {
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-8 pt-6 border-t border-gray-200">
-            <p className="text-gray-600">
+          <div className="text-center mt-6 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <Link to="/login" className="text-[#008080] font-semibold hover:underline transition-colors">
                 Sign in here
