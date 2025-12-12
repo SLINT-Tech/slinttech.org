@@ -224,11 +224,13 @@ export default async (req: Request, context: Context) => {
       }
     });
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@slinttech.com';
-    queueEmail({
-      type: 'admin-new-user-notification',
-      to: { email: adminEmail, name: 'Admin' },
-      data: {
+    try {
+      const adminUsers = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.role, 'Admin'));
+
+      const adminNotificationData = {
         userName: newUser.fullName,
         userEmail: newUser.email,
         userRole: newUser.role,
@@ -243,8 +245,18 @@ export default async (req: Request, context: Context) => {
           minute: '2-digit'
         }),
         adminDashboardLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/admin`
+      };
+
+      for (const admin of adminUsers) {
+        queueEmail({
+          type: 'admin-new-user-notification',
+          to: { email: admin.email, name: admin.fullName },
+          data: adminNotificationData
+        });
       }
-    });
+    } catch (adminEmailError) {
+      console.error('Failed to send admin notifications:', adminEmailError);
+    }
 
     return new Response(JSON.stringify({
       success: true,
