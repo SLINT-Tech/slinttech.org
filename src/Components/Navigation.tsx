@@ -64,13 +64,13 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
       path: '/mentors',
       label: 'Mentors',
       icon: <Users className="w-4 h-4" />,
-      activePaths: ['/mentors', '/mentor']
+      activePaths: ['/mentors', '/mentor', '/mentor-detail', '/mentor-courses']
     },
     {
       path: '/courses',
       label: 'Courses',
       icon: <BookOpen className="w-4 h-4" />,
-      activePaths: ['/courses', '/mentor-course-detail']
+      activePaths: ['/courses', '/mentor-course-detail', '/course']
     }
   ];
 
@@ -80,7 +80,24 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
 
   const isActive = (link: NavLink) => {
     if (!link.activePaths) return location.pathname === link.path;
-    return link.activePaths.some(path => location.pathname.startsWith(path));
+
+    return link.activePaths.some(path => {
+      // For exact match
+      if (location.pathname === path) return true;
+
+      // For paths that should match with ID patterns (e.g., /mentor/:id)
+      // Match /mentor/xyz but NOT /mentor-detail or /mentor-courses
+      if (path === '/mentor' || path === '/mentors') {
+        // Check if current path is /mentor/[id] (has a slash after mentor)
+        if (location.pathname.match(/^\/mentor\/[^/]+$/)) return path === '/mentor';
+        // Check if current path starts with /mentors
+        if (location.pathname.startsWith('/mentors')) return path === '/mentors';
+        return false;
+      }
+
+      // For other paths, use startsWith
+      return location.pathname.startsWith(path);
+    });
   };
 
   return (
