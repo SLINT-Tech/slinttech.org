@@ -436,7 +436,7 @@ const MenteeDashboard = () => {
                     href={menteeData.communityLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#5865F2] text-white px-4 py-2 rounded-lg hover:bg-[#4752C4] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 bg-[#4A154B] text-white px-4 py-2 rounded-lg hover:bg-[#3A0F3B] transition-colors cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
                     Join Slack Workspace
