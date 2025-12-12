@@ -1,4 +1,5 @@
 import type { Handler } from '@netlify/functions';
+import { queueEmail } from './utils/email-queue';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,29 +19,21 @@ const handler: Handler = async (event, context) => {
   try {
     console.log('Test email trigger invoked');
 
-    const siteUrl = process.env.URL || 'https://slinttech.netlify.app';
-    const backgroundFunctionUrl = `${siteUrl}/.netlify/functions/test-email-background`;
+    const testEmail = process.env.TEST_EMAIL || 'test@example.com';
 
-    console.log('Invoking background function at:', backgroundFunctionUrl);
-
-    const response = await fetch(backgroundFunctionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    const emailSent = await queueEmail({
+      type: 'account-awaiting-approval',
+      to: {
+        email: testEmail,
+        name: 'Test User'
       },
-      body: JSON.stringify({
-        timestamp: new Date().toISOString()
-      })
+      data: {
+        userName: 'Test User',
+        userEmail: testEmail,
+        userRole: 'mentee',
+        membershipCategory: 'professional'
+      }
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Background function invocation failed:', errorText);
-      throw new Error(`Background function failed: ${errorText}`);
-    }
-
-    const result = await response.json();
-    console.log('Background function response:', result);
 
     return {
       statusCode: 200,
@@ -49,9 +42,9 @@ const handler: Handler = async (event, context) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        success: true,
-        message: 'Test email background function triggered and completed',
-        backgroundResponse: result,
+        success: emailSent,
+        message: emailSent ? 'Test email sent successfully' : 'Failed to send test email',
+        testEmail,
         timestamp: new Date().toISOString()
       })
     };
@@ -65,7 +58,7 @@ const handler: Handler = async (event, context) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        error: 'Failed to trigger test email',
+        error: 'Failed to send test email',
         details: error.message
       })
     };
