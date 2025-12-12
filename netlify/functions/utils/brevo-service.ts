@@ -24,8 +24,8 @@ interface BrevoResponse {
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 const DEFAULT_SENDER = {
-  email: 'noreply@slinttech.com',
-  name: 'SlintTech'
+  email: process.env.BREVO_SENDER_EMAIL || 'noreply@slinttech.org',
+  name: process.env.BREVO_SENDER_NAME || 'SlintTech'
 };
 
 export class BrevoService {
