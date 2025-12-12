@@ -312,213 +312,259 @@ const SignUpPage = () => {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl shadow-sm p-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 lg:p-10">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 lg:mb-10">
             <img
               src="/assets/education.svg"
               alt="Education"
               className="w-16 h-16 mx-auto mb-4"
             />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
               Join Our <span className="text-[#008080]">Community</span>
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-base lg:text-lg max-w-2xl mx-auto">
               Start your journey with SlintTech and connect with mentors who will guide your growth.
             </p>
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Two Column Grid on Desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              {/* Left Column - Personal Information */}
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">
+                  Personal Information
+                </h2>
 
-            {/* Email Address */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                placeholder="Enter your email address"
-                required
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Password *
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                placeholder="Create a password (min 6 characters)"
-                required
-                minLength={6}
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Confirm Password *
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                placeholder="Confirm your password"
-                required
-                minLength={6}
-              />
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                I want to join as *
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                required
-              >
-                <option value="Mentee">Mentee (I want to learn)</option>
-                <option value="Mentor">Mentor (I want to teach)</option>
-              </select>
-            </div>
-
-            {/* Membership Category */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Membership Category *
-              </label>
-              <select
-                name="membershipCategory"
-                value={formData.membershipCategory}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                required
-              >
-                <option value="">Select your category</option>
-                <option value="Student">Student</option>
-                <option value="Professional">Professional</option>
-                <option value="Volunteer">Volunteer</option>
-              </select>
-            </div>
-
-            {/* Career Path / Specialization */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
-              </label>
-              <select
-                name="careerPath"
-                value={formData.careerPath}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
-                required
-              >
-                <option value="">
-                  {formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
-                </option>
-                <option value="Full Stack Development">Full Stack Development</option>
-                <option value="Frontend Development">Frontend Development</option>
-                <option value="Backend Development">Backend Development</option>
-                <option value="Mobile Development">Mobile Development</option>
-                <option value="Machine Learning/AI">Machine Learning/AI</option>
-                <option value="Data Science">Data Science</option>
-                <option value="UI/UX Design">UI/UX Design</option>
-              </select>
-            </div>
-
-            {/* Contract Section */}
-            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Membership Contract</h3>
-              
-              {/* Download Contract */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white rounded-lg border border-gray-200 gap-4">
-                <div className="p-2 flex-1">
-                  <p className="font-medium text-gray-900">Download Contract Form</p>
-                  <p className="text-xs text-gray-500">Please read and sign the membership agreement</p>
-                  <p className="text-xs text-gray-500">Once you sign the membership agreement, kindly upload the document below.</p>
+                {/* Full Name */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    placeholder="Enter your full name"
+                    required
+                  />
                 </div>
-                <button
-                  type="button"
-                  onClick={downloadContract}
-                  className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors w-full sm:w-auto justify-center cursor-pointer"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </button>
+
+                {/* Email Address */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    placeholder="Enter your email address"
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    placeholder="Create a password (min 6 characters)"
+                    required
+                    minLength={6}
+                  />
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    Confirm Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors"
+                    placeholder="Confirm your password"
+                    required
+                    minLength={6}
+                  />
+                </div>
               </div>
 
-              {/* Upload Signed Contract */}
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Upload Signed Contract *
-                </label>
-                <div className={`
-                  border-2 border-dashed rounded-lg p-6 text-center transition-colors
-                  ${formData.contractFile 
-                    ? 'border-green-300 bg-green-50' 
-                    : 'border-gray-300 hover:border-[#008080]'
-                  }
-                `}>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="contract-upload"
-                  />
-                  <label htmlFor="contract-upload" className="cursor-pointer">
-                    {formData.contractFile ? (
-                      <div className="flex flex-col items-center">
-                        <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                        <div className="flex items-center gap-2 text-green-700 font-medium">
-                          <FileText className="w-4 h-4" />
-                          <span>{formData.contractFile.name}</span>
-                        </div>
-                        <p className="text-sm text-green-600 mt-1">
-                          File uploaded successfully • {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Click to replace file</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-600">Click to upload signed contract</p>
-                        <p className="text-sm text-gray-500 mt-1">PDF files only • Max 1MB</p>
-                      </div>
-                    )}
+              {/* Right Column - Membership Information */}
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">
+                  Membership Details
+                </h2>
+
+                {/* Role Selection */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    I want to join as *
                   </label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    required
+                  >
+                    <option value="Mentee">Mentee (I want to learn)</option>
+                    <option value="Mentor">Mentor (I want to teach)</option>
+                  </select>
+                </div>
+
+                {/* Membership Category */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    Membership Category *
+                  </label>
+                  <select
+                    name="membershipCategory"
+                    value={formData.membershipCategory}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    required
+                  >
+                    <option value="">Select your category</option>
+                    <option value="Student">Student</option>
+                    <option value="Professional">Professional</option>
+                    <option value="Volunteer">Volunteer</option>
+                  </select>
+                </div>
+
+                {/* Career Path / Specialization */}
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm">
+                    {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
+                  </label>
+                  <select
+                    name="careerPath"
+                    value={formData.careerPath}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none transition-colors bg-white"
+                    required
+                  >
+                    <option value="">
+                      {formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
+                    </option>
+                    <option value="Full Stack Development">Full Stack Development</option>
+                    <option value="Frontend Development">Frontend Development</option>
+                    <option value="Backend Development">Backend Development</option>
+                    <option value="Mobile Development">Mobile Development</option>
+                    <option value="Machine Learning/AI">Machine Learning/AI</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                  </select>
+                </div>
+
+                {/* Info Card */}
+                <div className="bg-[#008080]/5 rounded-lg p-4 border border-[#008080]/20">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-semibold text-[#008080]">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contract Section - Full Width */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 lg:p-8 space-y-6 border border-gray-200">
+              <div className="flex items-start gap-3">
+                <FileText className="w-6 h-6 text-[#008080] flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-1">Membership Contract</h3>
+                  <p className="text-sm text-gray-600">Please download, sign, and upload the membership agreement to complete your registration</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Download Contract */}
+                <div className="p-5 bg-white rounded-lg border border-gray-200 hover:border-[#008080]/30 transition-colors">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="p-2 bg-[#008080]/10 rounded-lg">
+                      <Download className="w-5 h-5 text-[#008080]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 mb-1">Step 1: Download Contract</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        Download and carefully read the membership agreement. Print and sign the document.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={downloadContract}
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-3 rounded-lg hover:bg-teal-700 transition-all hover:shadow-md cursor-pointer font-medium"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Agreement
+                  </button>
+                </div>
+
+                {/* Upload Signed Contract */}
+                <div className="p-5 bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="p-2 bg-[#008080]/10 rounded-lg">
+                      <Upload className="w-5 h-5 text-[#008080]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 mb-1">Step 2: Upload Signed Contract *</p>
+                      <p className="text-sm text-gray-600">
+                        Scan or photograph your signed contract and upload it here as a PDF file.
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`
+                    border-2 border-dashed rounded-lg p-6 text-center transition-all
+                    ${formData.contractFile
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300 hover:border-[#008080] hover:bg-gray-50'
+                    }
+                  `}>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="contract-upload"
+                    />
+                    <label htmlFor="contract-upload" className="cursor-pointer">
+                      {formData.contractFile ? (
+                        <div className="flex flex-col items-center">
+                          <CheckCircle className="w-10 h-10 text-green-600 mb-3" />
+                          <div className="flex items-center gap-2 text-green-700 font-semibold mb-1">
+                            <FileText className="w-4 h-4" />
+                            <span>{formData.contractFile.name}</span>
+                          </div>
+                          <p className="text-sm text-green-600 font-medium">
+                            {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB • Uploaded successfully
+                          </p>
+                          <p className="text-xs text-gray-500 mt-2">Click to replace file</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                          <p className="font-medium text-gray-700 mb-1">Click to upload signed contract</p>
+                          <p className="text-sm text-gray-500">PDF files only • Max 10MB</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -527,7 +573,7 @@ const SignUpPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-base lg:text-lg"
             >
               {isSubmitting ? (
                 <>
@@ -544,10 +590,10 @@ const SignUpPage = () => {
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
+          <div className="text-center mt-8 pt-6 border-t border-gray-200">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link to="/login" className="text-[#008080] font-medium hover:underline">
+              <Link to="/login" className="text-[#008080] font-semibold hover:underline transition-colors">
                 Sign in here
               </Link>
             </p>
