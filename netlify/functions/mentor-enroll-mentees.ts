@@ -1,8 +1,10 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { courses, courseEnrollments, mentorMenteeRelationships } from '../../src/db/schema';
+import { courses, courseEnrollments, mentorMenteeRelationships, userProfiles } from '../../src/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
+import { createBrevoService } from './utils/brevo-service';
+import { renderCourseEnrollment } from './utils/email-templates';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -154,6 +156,46 @@ export default async (req: Request, context: Context) => {
       })
       .where(eq(courses.id, courseId))
       .returning();
+
+    const [mentor] = await db
+      .select({ fullName: userProfiles.fullName })
+      .from(userProfiles)
+      .where(eq(userProfiles.id, mentorId))
+      .limit(1);
+
+    const mentees = await db
+      .select({
+        id: userProfiles.id,
+        email: userProfiles.email,
+        fullName: userProfiles.fullName
+      })
+      .from(userProfiles)
+      .where(inArray(userProfiles.id, newMenteeIds));
+
+    const brevoService = createBrevoService();
+    const courseLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
+
+    for (const mentee of mentees) {
+      try {
+        const emailHtml = renderCourseEnrollment({
+          menteeName: mentee.fullName,
+          courseTitle: course[0].title,
+          courseDescription: course[0].description || 'No description available',
+          courseDuration: course[0].duration || 'Self-paced',
+          courseLevel: course[0].level || 'Intermediate',
+          mentorName: mentor.fullName,
+          courseLink
+        });
+
+        await brevoService.sendEmailSafe({
+          to: [{ email: mentee.email, name: mentee.fullName }],
+          subject: `You've Been Enrolled in ${course[0].title}`,
+          htmlContent: emailHtml
+        });
+      } catch (emailError) {
+        console.error(`Failed to send enrollment email to ${mentee.email}:`, emailError);
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,

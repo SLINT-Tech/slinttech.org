@@ -1,8 +1,10 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { taskSubmissions, tasks, courses, courseEnrollments } from '../../src/db/schema';
+import { taskSubmissions, tasks, courses, courseEnrollments, userProfiles } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { createBrevoService } from './utils/brevo-service';
+import { renderTaskSubmissionMentor, formatDate } from './utils/email-templates';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -126,6 +128,62 @@ export default async (req: Request, context: Context) => {
         status: 'submitted',
         submittedAt: new Date()
       });
+    }
+
+    const taskDetails = await db
+      .select({
+        taskTitle: tasks.title,
+        courseId: courses.id,
+        courseName: courses.title,
+        mentorId: courses.mentorId
+      })
+      .from(tasks)
+      .innerJoin(courses, eq(tasks.courseId, courses.id))
+      .where(eq(tasks.id, taskId))
+      .limit(1);
+
+    if (taskDetails.length > 0) {
+      const [mentor] = await db
+        .select({
+          email: userProfiles.email,
+          fullName: userProfiles.fullName
+        })
+        .from(userProfiles)
+        .where(eq(userProfiles.id, taskDetails[0].mentorId))
+        .limit(1);
+
+      const [mentee] = await db
+        .select({
+          fullName: userProfiles.fullName
+        })
+        .from(userProfiles)
+        .where(eq(userProfiles.id, menteeId))
+        .limit(1);
+
+      if (mentor && mentee) {
+        try {
+          const brevoService = createBrevoService();
+          const reviewLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentor/submissions`;
+
+          const emailHtml = renderTaskSubmissionMentor({
+            mentorName: mentor.fullName,
+            menteeName: mentee.fullName,
+            taskTitle: taskDetails[0].taskTitle,
+            courseName: taskDetails[0].courseName,
+            submissionDate: formatDate(new Date()),
+            submissionContent: submissionNotes || undefined,
+            reviewLink
+          });
+
+          await brevoService.sendEmailSafe({
+            to: [{ email: mentor.email, name: mentor.fullName }],
+            subject: `New Task Submission from ${mentee.fullName}`,
+            htmlContent: emailHtml
+          });
+        } catch (emailError) {
+          console.error('Failed to send submission notification email:', emailError);
+        }
+      }
     }
 
     return new Response(JSON.stringify({

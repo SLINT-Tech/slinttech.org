@@ -1,8 +1,10 @@
 import type { Context } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
-import { taskSubmissions, tasks } from '../../src/db/schema';
+import { taskSubmissions, tasks, courses, userProfiles } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { createBrevoService } from './utils/brevo-service';
+import { renderTaskReviewMentee, getTaskReviewEmailData, formatDate } from './utils/email-templates';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -121,6 +123,67 @@ export default async (req: Request, context: Context) => {
       })
       .where(eq(taskSubmissions.id, submissionId))
       .returning();
+
+    const reviewDetails = await db
+      .select({
+        menteeId: taskSubmissions.menteeId,
+        taskId: tasks.id,
+        taskTitle: tasks.title,
+        courseId: courses.id,
+        courseName: courses.title,
+        mentorId: courses.mentorId
+      })
+      .from(taskSubmissions)
+      .innerJoin(tasks, eq(tasks.id, taskSubmissions.taskId))
+      .innerJoin(courses, eq(courses.id, tasks.courseId))
+      .where(eq(taskSubmissions.id, submissionId))
+      .limit(1);
+
+    if (reviewDetails.length > 0) {
+      const [mentee] = await db
+        .select({
+          email: userProfiles.email,
+          fullName: userProfiles.fullName
+        })
+        .from(userProfiles)
+        .where(eq(userProfiles.id, reviewDetails[0].menteeId))
+        .limit(1);
+
+      const [mentor] = await db
+        .select({
+          fullName: userProfiles.fullName
+        })
+        .from(userProfiles)
+        .where(eq(userProfiles.id, reviewDetails[0].mentorId))
+        .limit(1);
+
+      if (mentee && mentor) {
+        try {
+          const brevoService = createBrevoService();
+          const statusEmailData = getTaskReviewEmailData(status);
+          const taskLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/tasks/${reviewDetails[0].taskId}`;
+
+          const emailHtml = renderTaskReviewMentee({
+            menteeName: mentee.fullName,
+            taskTitle: reviewDetails[0].taskTitle,
+            courseName: reviewDetails[0].courseName,
+            mentorName: mentor.fullName,
+            reviewDate: formatDate(new Date()),
+            feedback: feedback || undefined,
+            taskLink,
+            ...statusEmailData
+          });
+
+          await brevoService.sendEmailSafe({
+            to: [{ email: mentee.email, name: mentee.fullName }],
+            subject: `Task Review: ${reviewDetails[0].taskTitle} - ${statusEmailData.reviewStatus}`,
+            htmlContent: emailHtml
+          });
+        } catch (emailError) {
+          console.error('Failed to send review notification email:', emailError);
+        }
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,

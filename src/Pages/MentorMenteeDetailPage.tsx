@@ -84,15 +84,43 @@ const MentorMenteeDetailPage = () => {
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!message.trim()) {
       setToast({ message: 'Please enter a message', type: 'error' });
       return;
     }
 
-    console.log('Sending message to', menteeData?.fullName, ':', message);
-    setMessage('');
-    setToast({ message: 'Message sent successfully!', type: 'success' });
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/mentor/login');
+        return;
+      }
+
+      const response = await fetch('/api/mentor-send-message', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          menteeId: menteeId,
+          message: message.trim()
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setMessage('');
+        setToast({ message: 'Message sent successfully!', type: 'success' });
+      } else {
+        setToast({ message: data.error || 'Failed to send message', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Send message error:', error);
+      setToast({ message: 'Failed to send message', type: 'error' });
+    }
   };
 
   const getStatusColor = (status: string) => {

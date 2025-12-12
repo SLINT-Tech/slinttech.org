@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "@sendinblue/client": "^3.3.1",
     "@types/react-router-dom": "^5.3.3",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
