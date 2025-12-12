@@ -8,7 +8,10 @@ interface EmailRequest {
 
 export const queueEmail = async (emailRequest: EmailRequest): Promise<boolean> => {
   try {
-    const response = await fetch('/.netlify/functions/send-email-background', {
+    const siteUrl = process.env.URL || 'https://slinttech.netlify.app';
+    const backgroundFunctionUrl = `${siteUrl}/.netlify/functions/send-email-background`;
+
+    const response = await fetch(backgroundFunctionUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

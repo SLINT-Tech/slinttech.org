@@ -18,7 +18,8 @@ const handler: Handler = async (event, context) => {
   try {
     console.log('Test email trigger invoked');
 
-    const backgroundFunctionUrl = '/.netlify/functions/test-email-background';
+    const siteUrl = process.env.URL || 'https://slinttech.netlify.app';
+    const backgroundFunctionUrl = `${siteUrl}/.netlify/functions/test-email-background`;
 
     console.log('Invoking background function at:', backgroundFunctionUrl);
 
