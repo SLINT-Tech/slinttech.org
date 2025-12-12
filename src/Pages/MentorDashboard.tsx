@@ -192,42 +192,42 @@ const MentorDashboard = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Courses</h3>
-                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Manage all your courses</p>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors mr-4"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-36 animate-pulse transition-colors"></div>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Users className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Mentees</h3>
-                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Manage your mentees</p>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors mr-4"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors opacity-60">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Target className="w-8 h-8 text-yellow-600 dark:text-yellow-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Task Submissions</h3>
-                    <p className="text-gray-600 dark:text-gray-300 transition-colors">Review mentee tasks</p>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors mr-4"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
               </div>
             </div>
           </div>

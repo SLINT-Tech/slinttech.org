@@ -191,12 +191,17 @@ const MentorCoursesPage = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mr-3 transition-colors"></div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse transition-colors"></div>
+                <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-3 transition-colors" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">All Courses</h1>
               </div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse transition-colors"></div>
+              <button className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors flex items-center gap-2 opacity-50 cursor-not-allowed">
+                <Plus className="w-4 h-4" />
+                Create New Course
+              </button>
             </div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96 animate-pulse transition-colors"></div>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors">
+              Manage all your courses, view enrolled mentees, and track progress
+            </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
