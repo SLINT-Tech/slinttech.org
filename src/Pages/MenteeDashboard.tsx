@@ -182,8 +182,14 @@ const MenteeDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Section Skeleton */}
           <div className="mb-8">
-            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-2 animate-pulse"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-80 animate-pulse"></div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors flex items-center gap-2">
+              <span>Welcome Back,</span>
+              <span className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse inline-block transition-colors"></span>
+              <span>!</span>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors">
+              Track your progress, complete lessons, and submit tasks
+            </p>
           </div>
 
           {/* Overview Panel Skeleton */}
