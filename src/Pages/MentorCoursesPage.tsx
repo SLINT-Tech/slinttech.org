@@ -186,7 +186,7 @@ const MentorCoursesPage = () => {
 
       {pageLoading ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 rounded w-48 mb-6 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-48 mb-6 animate-pulse transition-colors"></div>
 
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
