@@ -8,6 +8,7 @@ import {
   renderTaskSubmissionMentor,
   renderTaskReviewMentee,
   renderDirectMessage,
+  renderAdminNewUserNotification,
   getStatusEmailData,
   getTaskReviewEmailData,
   formatDate
@@ -15,7 +16,8 @@ import {
 
 interface EmailRequest {
   type: 'account-awaiting-approval' | 'application-status-update' | 'payment-success' |
-        'course-enrollment' | 'task-submission-mentor' | 'task-review-mentee' | 'direct-message';
+        'course-enrollment' | 'task-submission-mentor' | 'task-review-mentee' | 'direct-message' |
+        'admin-new-user-notification';
   to: { email: string; name: string };
   data: any;
 }
@@ -78,6 +80,11 @@ export default async (req: Request, context: Context) => {
       case 'direct-message':
         emailHtml = renderDirectMessage(data);
         subject = `New Message from ${data.mentorName}`;
+        break;
+
+      case 'admin-new-user-notification':
+        emailHtml = renderAdminNewUserNotification(data);
+        subject = `New ${data.userRole} Registration - ${data.userName}`;
         break;
 
       default:

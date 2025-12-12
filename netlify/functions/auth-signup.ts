@@ -224,6 +224,28 @@ export default async (req: Request, context: Context) => {
       }
     });
 
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@slinttech.com';
+    queueEmail({
+      type: 'admin-new-user-notification',
+      to: { email: adminEmail, name: 'Admin' },
+      data: {
+        userName: newUser.fullName,
+        userEmail: newUser.email,
+        userRole: newUser.role,
+        membershipCategory: newUser.membershipCategory,
+        careerPath: newUser.careerPath || undefined,
+        specialization: newUser.specialization || undefined,
+        registrationDate: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        adminDashboardLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/admin`
+      }
+    });
+
     return new Response(JSON.stringify({
       success: true,
       message: 'Account created successfully',

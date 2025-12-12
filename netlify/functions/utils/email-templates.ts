@@ -139,6 +139,22 @@ export const renderDirectMessage = (data: DirectMessageData): string => {
   return renderTemplate(template, data);
 };
 
+interface AdminNewUserNotificationData {
+  userName: string;
+  userEmail: string;
+  userRole: string;
+  membershipCategory: string;
+  careerPath?: string;
+  specialization?: string;
+  registrationDate: string;
+  adminDashboardLink: string;
+}
+
+export const renderAdminNewUserNotification = (data: AdminNewUserNotificationData): string => {
+  const template = loadTemplate('admin-new-user-notification');
+  return renderTemplate(template, data);
+};
+
 export const getStatusEmailData = (status: string) => {
   switch (status) {
     case 'approved':

@@ -1,6 +1,7 @@
 interface EmailRequest {
   type: 'account-awaiting-approval' | 'application-status-update' | 'payment-success' |
-        'course-enrollment' | 'task-submission-mentor' | 'task-review-mentee' | 'direct-message';
+        'course-enrollment' | 'task-submission-mentor' | 'task-review-mentee' | 'direct-message' |
+        'admin-new-user-notification';
   to: { email: string; name: string };
   data: any;
 }
