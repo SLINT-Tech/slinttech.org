@@ -134,7 +134,7 @@ const MentorMenteeDetailPage = () => {
             </div>
           </div>
         </header>
-        <MenteeDetailSkeletonLoader />
+        <MenteeDetailSkeletonLoader backLink={{ to: '/mentor/mentees', label: 'Back to Mentees' }} />
       </div>
     );
   }

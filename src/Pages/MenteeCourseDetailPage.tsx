@@ -165,7 +165,7 @@ const MenteeCourseDetailPage = () => {
       />
 
       {loading ? (
-        <CourseDetailSkeletonLoader />
+        <CourseDetailSkeletonLoader backLink={{ to: `/mentor-courses?mentorId=${mentorId}`, label: 'Back to Courses' }} />
       ) : !course ? null : (
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

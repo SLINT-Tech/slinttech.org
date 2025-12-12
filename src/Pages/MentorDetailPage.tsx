@@ -198,7 +198,7 @@ const MentorDetailPage = () => {
       />
 
       {loading ? (
-        <MentorDetailSkeletonLoader />
+        <MentorDetailSkeletonLoader backLink={{ to: '/mentors', label: 'Back to Mentors' }} />
       ) : !mentorData ? (
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 max-w-md mx-4">

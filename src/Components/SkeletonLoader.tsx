@@ -67,10 +67,21 @@ export const PageLoader = ({ message = 'Loading...' }: { message?: string }) => 
   );
 };
 
-export const MentorDetailSkeletonLoader = () => {
+export const MentorDetailSkeletonLoader = ({ backLink }: { backLink?: { to: string; label: string } }) => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-      <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-6 transition-colors"></div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {backLink && (
+        <a
+          href={backLink.to}
+          className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {backLink.label}
+        </a>
+      )}
+      <div className="animate-pulse">
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -149,14 +160,26 @@ export const MentorDetailSkeletonLoader = () => {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 };
 
-export const MenteeDetailSkeletonLoader = () => {
+export const MenteeDetailSkeletonLoader = ({ backLink }: { backLink?: { to: string; label: string } }) => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-      <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-6 transition-colors"></div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {backLink && (
+        <a
+          href={backLink.to}
+          className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {backLink.label}
+        </a>
+      )}
+      <div className="animate-pulse">
 
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8 transition-colors">
         <div className="flex items-center mb-6">
@@ -220,14 +243,26 @@ export const MenteeDetailSkeletonLoader = () => {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 };
 
-export const CourseDetailSkeletonLoader = () => {
+export const CourseDetailSkeletonLoader = ({ backLink }: { backLink?: { to: string; label: string } }) => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-      <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded-lg mb-6 transition-colors"></div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {backLink && (
+        <a
+          href={backLink.to}
+          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {backLink.label}
+        </a>
+      )}
+      <div className="animate-pulse">
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 md:p-8 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
         <div className="mb-4">
@@ -307,6 +342,7 @@ export const CourseDetailSkeletonLoader = () => {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
