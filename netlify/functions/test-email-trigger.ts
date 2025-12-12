@@ -21,7 +21,7 @@ const handler: Handler = async (event, context) => {
 
     const testEmail = process.env.TEST_EMAIL || 'test@example.com';
 
-    const emailSent = await queueEmail({
+    const emailQueued = await queueEmail({
       type: 'account-awaiting-approval',
       to: {
         email: testEmail,
@@ -42,8 +42,8 @@ const handler: Handler = async (event, context) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        success: emailSent,
-        message: emailSent ? 'Test email sent successfully' : 'Failed to send test email',
+        success: emailQueued,
+        message: emailQueued ? 'Test email queued successfully' : 'Failed to queue test email',
         testEmail,
         timestamp: new Date().toISOString()
       })
@@ -58,7 +58,7 @@ const handler: Handler = async (event, context) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        error: 'Failed to send test email',
+        error: 'Failed to queue test email',
         details: error.message
       })
     };
