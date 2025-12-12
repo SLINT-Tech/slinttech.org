@@ -98,35 +98,35 @@ const MentorMenteeDetailPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'inactive':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
       case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8]">
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
+        <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block">SlintTech Mentor</span>
               </Link>
               <div className="flex items-center gap-4">
-                <span className="text-gray-600">{user?.fullName}</span>
+                <span className="text-gray-600 dark:text-gray-400">{user?.fullName}</span>
                 <button
                   onClick={logout}
-                  className="text-[#008080] hover:text-teal-700 font-medium"
+                  className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
                 >
                   Logout
                 </button>
@@ -141,11 +141,11 @@ const MentorMenteeDetailPage = () => {
 
   if (!menteeData) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Mentee Not Found</h1>
-          <p className="text-gray-600 mb-4">The mentee you're looking for doesn't exist.</p>
-          <Link to="/mentor/mentees" className="text-[#008080] hover:text-teal-700">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Mentee Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">The mentee you're looking for doesn't exist.</p>
+          <Link to="/mentor/mentees" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">
             Back to Mentees
           </Link>
         </div>
@@ -158,7 +158,7 @@ const MentorMenteeDetailPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
       {toast && (
         <Toast
           message={toast.message}
@@ -167,18 +167,18 @@ const MentorMenteeDetailPage = () => {
         />
       )}
 
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech Mentor</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block">SlintTech Mentor</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">{user?.fullName}</span>
+              <span className="text-gray-600 dark:text-gray-400">{user?.fullName}</span>
               <button
                 onClick={logout}
-                className="text-[#008080] hover:text-teal-700 font-medium"
+                className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
               >
                 Logout
               </button>
@@ -190,20 +190,20 @@ const MentorMenteeDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate('/mentor/mentees')}
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 cursor-pointer"
+          className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Mentees
         </button>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-gray-200 dark:border-gray-800">
           <div className="flex items-center mb-6">
-            <div className="w-16 h-16 bg-[#008080] rounded-full flex items-center justify-center mr-4">
+            <div className="w-16 h-16 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-4">
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{menteeData.fullName}</h1>
-              <p className="text-gray-600">{menteeData.careerPath || 'No career path set'}</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{menteeData.fullName}</h1>
+              <p className="text-gray-600 dark:text-gray-400">{menteeData.careerPath || 'No career path set'}</p>
               <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(menteeData.status)} mt-2`}>
                 {menteeData.status.charAt(0).toUpperCase() + menteeData.status.slice(1)}
               </span>
@@ -212,41 +212,41 @@ const MentorMenteeDetailPage = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Personal Information</h3>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p><span className="font-medium">Email:</span> {menteeData.email}</p>
-                <p><span className="font-medium">Category:</span> {menteeData.membershipCategory}</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Personal Information</h3>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <p><span className="font-medium dark:text-gray-300">Email:</span> {menteeData.email}</p>
+                <p><span className="font-medium dark:text-gray-300">Category:</span> {menteeData.membershipCategory}</p>
                 {menteeData.communityLink && (
-                  <p><span className="font-medium">Slack:</span> {menteeData.communityLink}</p>
+                  <p><span className="font-medium dark:text-gray-300">Slack:</span> {menteeData.communityLink}</p>
                 )}
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Progress Overview</h3>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p><span className="font-medium">Overall Progress:</span> {menteeData.progress}%</p>
-                <p><span className="font-medium">Joined:</span> {new Date(menteeData.joinedDate).toLocaleDateString()}</p>
-                <p><span className="font-medium">Last Active:</span> {new Date(menteeData.lastActive).toLocaleDateString()}</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Progress Overview</h3>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <p><span className="font-medium dark:text-gray-300">Overall Progress:</span> {menteeData.progress}%</p>
+                <p><span className="font-medium dark:text-gray-300">Joined:</span> {new Date(menteeData.joinedDate).toLocaleDateString()}</p>
+                <p><span className="font-medium dark:text-gray-300">Last Active:</span> {new Date(menteeData.lastActive).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Enrolled Courses ({menteeData.courses.length})</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Enrolled Courses ({menteeData.courses.length})</h2>
             </div>
 
             <div className="mb-4">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search courses..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:border-[#008080] dark:focus:border-teal-600 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-600/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -254,33 +254,33 @@ const MentorMenteeDetailPage = () => {
             {filteredCourses.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Course</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Progress</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                     {filteredCourses.map((course) => (
-                      <tr key={course.id} className="hover:bg-gray-50">
+                      <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{course.name}</div>
-                            <div className="text-sm text-gray-500">{course.duration}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">{course.name}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{course.duration}</div>
                           </div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-16 bg-gray-200 rounded-full h-2 mr-3">
+                            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3">
                               <div
-                                className="bg-[#008080] h-2 rounded-full transition-all duration-300"
+                                className="bg-[#008080] dark:bg-teal-600 h-2 rounded-full transition-all duration-300"
                                 style={{ width: `${course.progress}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-medium text-gray-900">{course.progress}%</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">{course.progress}%</span>
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Lessons: {course.completedLessons}/{course.totalLessons} | Tasks: {course.approvedTasks}/{course.totalTasks}
                           </div>
                         </td>
@@ -296,47 +296,47 @@ const MentorMenteeDetailPage = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">
+                <BookOpen className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500 dark:text-gray-400">
                   {searchTerm ? 'No courses found matching your search.' : 'No courses enrolled yet'}
                 </p>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center mb-6">
-              <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Send Message</h2>
+              <MessageSquare className="w-6 h-6 text-[#008080] dark:text-teal-400 mr-2" />
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Send Message</h2>
             </div>
 
             <div className="space-y-4">
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-600 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-600/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 rows={6}
                 placeholder="Type your message here..."
               />
               <button
                 onClick={sendMessage}
-                className="flex items-center gap-2 bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+                className="flex items-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors"
               >
                 <Send className="w-4 h-4" />
                 Send Message
               </button>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-4">Quick Stats</h3>
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Stats</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-[#008080]">{menteeData.courses.length}</div>
-                  <div className="text-sm text-gray-600">Courses</div>
+                <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="text-2xl font-bold text-[#008080] dark:text-teal-400">{menteeData.courses.length}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Courses</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-500">{menteeData.progress}%</div>
-                  <div className="text-sm text-gray-600">Progress</div>
+                <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">{menteeData.progress}%</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Progress</div>
                 </div>
               </div>
             </div>

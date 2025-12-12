@@ -1,6 +1,6 @@
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
  import { Link } from 'react-router-dom';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,7 +9,20 @@ export default function Header() {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
+        }
+        return false;
+    });
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, []);
 
     const toggleDarkMode = () => {
         setIsDarkMode(!isDarkMode);
@@ -23,7 +36,7 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+        <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
@@ -35,15 +48,15 @@ export default function Header() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-8">
-                        <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors">Home</a>
-                        <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors">Explore</a>
-                        <Link to="/signup" className="text-gray-700 hover:text-[#008080] transition-colors">Join Community</Link>
-                        <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors">Contact</a>
+                        <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Home</a>
+                        <a href="#explore" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Explore</a>
+                        <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Join Community</Link>
+                        <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Contact</a>
                     </nav>
 
                     {/* Desktop CTA */}
                     <div className="hidden md:flex items-center gap-6 space-x-4">
-                        {/* <button
+                        <button
                             onClick={toggleDarkMode}
                             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             aria-label="Toggle dark mode"
@@ -53,7 +66,7 @@ export default function Header() {
                             ) : (
                                 <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                             )}
-                        </button> */}
+                        </button>
                         {/* <button className="text-[#008080] font-medium hover:text-[#008080] transition-colors">Login</button>
                         <button className="bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center">
                             Get Started
@@ -64,23 +77,23 @@ export default function Header() {
                     {/* Mobile menu button */}
                     <button
                         onClick={toggleMenu}
-                        className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
-                        {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        {isMenuOpen ? <X className="w-6 h-6 text-gray-700 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />}
                     </button>
                 </div>
 
                 {/* Mobile Navigation */}
                 {isMenuOpen && (
-                    <div className="md:hidden bg-transparent border-t border-gray-200 py-4">
+                    <div className="md:hidden bg-transparent dark:bg-transparent border-t border-gray-200 dark:border-gray-800 py-4">
                         <div className="flex flex-col space-y-4">
-                            <a href="#home" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
-                            <a href="#explore" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
-                            <Link to="/signup" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
-                            <a href="#contact" className="text-gray-700 hover:text-[#008080] transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
-                            <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                                <Link to="/login" className="text-gray-700 hover:text-[#008080] transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
-                                <Link to="/signup" className="bg-[#008080] text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
+                            <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
+                            <a href="#explore" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
+                            <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
+                            <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
+                            <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800">
+                                <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                                <Link to="/signup" className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
                                     Get Started
                                     <ArrowRight className="ml-2 w-4 h-4" />
                                 </Link>

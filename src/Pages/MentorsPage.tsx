@@ -87,7 +87,7 @@ const MentorsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
       <Navigation
         role="Mentee"
         userName={currentUser?.fullName || 'User'}
@@ -101,7 +101,7 @@ const MentorsPage = () => {
         {/* Back Button */}
         <Link
           to="/dashboard"
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -109,10 +109,10 @@ const MentorsPage = () => {
 
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome back, {currentUser?.fullName || 'Mentee'}!
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Connect with your assigned mentors and explore their courses
           </p>
         </div>
@@ -125,55 +125,55 @@ const MentorsPage = () => {
             {assignedMentors.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-[#008080]" />
-                  <h3 className="text-xl font-bold text-gray-900">Assigned Mentors</h3>
-                  <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                  <User className="w-5 h-5 text-[#008080] dark:text-teal-400" />
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Assigned Mentors</h3>
+                  <span className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-medium">
                     {assignedMentors.length}
                   </span>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-800 overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Mentor
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Specialization
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Total Courses
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Assigned Date
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                         {paginatedMentors.map((mentor) => (
-                          <tr key={mentor.id} className="hover:bg-gray-50">
+                          <tr key={mentor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 bg-[#008080] rounded-full flex items-center justify-center">
+                                <div className="flex-shrink-0 h-10 w-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center">
                                   <User className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-sm font-medium text-gray-900 dark:text-white">
                                     {mentor.fullName}
                                   </div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">
                                     {mentor.email}
                                   </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-gray-900 dark:text-gray-300">
                                 {mentor.specialization || 'General Mentorship'}
                               </div>
                             </td>
@@ -181,8 +181,8 @@ const MentorsPage = () => {
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                                   mentor.enrolledCoursesCount > 0
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-600'
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                 }`}>
                                   {mentor.enrolledCoursesCount > 0
                                     ? `${mentor.enrolledCoursesCount} Course${mentor.enrolledCoursesCount > 1 ? 's' : ''}`
@@ -191,13 +191,13 @@ const MentorsPage = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                               {formatDate(mentor.assignedDate)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <Link
                                 to={`/mentor-courses?mentorId=${mentor.id}`}
-                                className="flex items-center gap-1 text-[#008080] hover:text-teal-700 font-medium transition-colors"
+                                className="flex items-center gap-1 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
                                 View Courses
@@ -212,16 +212,16 @@ const MentorsPage = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="bg-white rounded-xl shadow-sm p-6 mt-4 border border-gray-200">
+                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mt-4 border border-gray-200 dark:border-gray-800">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="text-sm text-gray-600">
-                        Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, totalMentors)}</span> of <span className="font-semibold text-gray-900">{totalMentors}</span> mentors
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Showing <span className="font-semibold text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white">{Math.min(endIndex, totalMentors)}</span> of <span className="font-semibold text-gray-900 dark:text-white">{totalMentors}</span> mentors
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handlePageChange(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                          className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                         >
                           <ChevronLeft className="w-4 h-4" />
                           <span className="hidden sm:inline">Previous</span>
@@ -246,8 +246,8 @@ const MentorsPage = () => {
                                 onClick={() => handlePageChange(pageNum)}
                                 className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                                   currentPage === pageNum
-                                    ? 'bg-[#008080] text-white shadow-md'
-                                    : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                    ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
+                                    : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                                 }`}
                               >
                                 {pageNum}
@@ -259,7 +259,7 @@ const MentorsPage = () => {
                         <button
                           onClick={() => handlePageChange(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                          className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                         >
                           <span className="hidden sm:inline">Next</span>
                           <ChevronRight className="w-4 h-4" />
@@ -273,17 +273,17 @@ const MentorsPage = () => {
 
             {/* Empty State */}
             {assignedMentors.length === 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-800 p-12 text-center">
+                <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   No Mentors Assigned Yet
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Your admin will assign mentors to guide you through your learning journey.
                 </p>
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Dashboard

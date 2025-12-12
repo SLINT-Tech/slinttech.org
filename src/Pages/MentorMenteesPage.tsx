@@ -107,22 +107,22 @@ const MentorMenteesPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'inactive':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
       case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'paused':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
     }
   };
 
   if (loading) {
     const storedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     return (
-      <div className="min-h-screen bg-[#F8F8F8]">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
         <Navigation
           role="Mentor"
           userName={storedUser.fullName || 'Mentor'}
@@ -248,7 +248,7 @@ const MentorMenteesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
       <Navigation
         role="Mentor"
         userName={currentUser?.fullName || 'Mentor'}
@@ -261,7 +261,7 @@ const MentorMenteesPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/mentor/dashboard"
-          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
+          className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -269,58 +269,58 @@ const MentorMenteesPage = () => {
 
         <div className="mb-8">
           <div className="flex items-center mb-4">
-            <Users className="w-8 h-8 text-[#008080] mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">My Mentees</h1>
+            <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-3" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Mentees</h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Manage your mentees and track their progress
           </p>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center">
-              <Users className="w-8 h-8 text-[#008080]" />
+              <Users className="w-8 h-8 text-[#008080] dark:text-teal-400" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Mentees</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalMentees}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Mentees</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalMentees}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Mentees</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.activeMentees}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Mentees</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeMentees}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center">
-              <BookOpen className="w-8 h-8 text-blue-600" />
+              <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.completedMentees}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.completedMentees}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center">
-              <Target className="w-8 h-8 text-yellow-600" />
+              <Target className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg Progress</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.avgProgress}%</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Progress</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.avgProgress}%</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-gray-200 dark:border-gray-800">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search mentees..."
@@ -329,7 +329,7 @@ const MentorMenteesPage = () => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:border-[#008080] dark:focus:border-teal-600 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-600/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -340,7 +340,7 @@ const MentorMenteesPage = () => {
                 setFilterStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:border-[#008080] dark:focus:border-teal-600 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-600/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             >
               <option value="all">All Mentorships</option>
               <option value="active">Active Mentorship</option>
@@ -353,34 +353,34 @@ const MentorMenteesPage = () => {
 
         {paginatedMentees.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden mb-8 border border-gray-200 dark:border-gray-800">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentee</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Career Path</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentorship Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mentee</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Career Path</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mentorship Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Progress</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Assigned Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                     {paginatedMentees.map((mentee) => (
-                      <tr key={mentee.id} className="hover:bg-gray-50">
+                      <tr key={mentee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                            <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3">
                               <User className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">{mentee.fullName}</div>
-                              <div className="text-sm text-gray-500">{mentee.email}</div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white">{mentee.fullName}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{mentee.email}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                           {mentee.careerPath || 'Not specified'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -390,22 +390,22 @@ const MentorMenteesPage = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-16 bg-gray-200 rounded-full h-2 mr-3">
+                            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3">
                               <div
-                                className="bg-[#008080] h-2 rounded-full transition-all duration-300"
+                                className="bg-[#008080] dark:bg-teal-600 h-2 rounded-full transition-all duration-300"
                                 style={{ width: `${mentee.progressPercentage}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-medium text-gray-900">{mentee.progressPercentage}%</span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">{mentee.progressPercentage}%</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {new Date(mentee.assignedDate).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => navigate(`/mentor/mentee/${mentee.menteeId}`)}
-                            className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -418,16 +418,16 @@ const MentorMenteesPage = () => {
             </div>
 
             {totalPages > 1 && (
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">
-                    Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredMentees.length)}</span> of <span className="font-semibold text-gray-900">{filteredMentees.length}</span> mentees
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Showing <span className="font-semibold text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white">{Math.min(endIndex, filteredMentees.length)}</span> of <span className="font-semibold text-gray-900 dark:text-white">{filteredMentees.length}</span> mentees
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span className="hidden sm:inline">Previous</span>
@@ -452,8 +452,8 @@ const MentorMenteesPage = () => {
                             onClick={() => handlePageChange(pageNum)}
                             className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                               currentPage === pageNum
-                                ? 'bg-[#008080] text-white shadow-md'
-                                : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
+                                : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {pageNum}
@@ -465,7 +465,7 @@ const MentorMenteesPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                     >
                       <span className="hidden sm:inline">Next</span>
                       <ChevronRight className="w-4 h-4" />
@@ -476,10 +476,10 @@ const MentorMenteesPage = () => {
             )}
           </>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-200">
-            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No mentees found</h3>
-            <p className="text-gray-500">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-12 text-center border border-gray-200 dark:border-gray-800">
+            <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No mentees found</h3>
+            <p className="text-gray-500 dark:text-gray-400">
               {filteredMentees.length === 0 && (searchTerm || filterStatus !== 'all')
                 ? 'Try adjusting your search or filters.'
                 : 'You don\'t have any mentees assigned yet. Check back later!'

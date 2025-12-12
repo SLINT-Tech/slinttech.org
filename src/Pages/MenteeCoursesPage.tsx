@@ -86,7 +86,7 @@ const MenteeCoursesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentee"
         userName={currentUser?.fullName || 'User'}
@@ -99,17 +99,17 @@ const MenteeCoursesPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/dashboard"
-          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 mb-6 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
             My Courses
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400 transition-colors">
             Track your learning progress across all enrolled courses
           </p>
         </div>
@@ -124,9 +124,9 @@ const MenteeCoursesPage = () => {
           <>
             <div className="mb-6">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#008080]" />
-                <h3 className="text-xl font-bold text-gray-900">Active Courses</h3>
-                <span className="bg-[#008080] text-white px-2 py-1 rounded-full text-xs font-medium">
+                <BookOpen className="w-5 h-5 text-[#008080] dark:text-teal-400 transition-colors" />
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white transition-colors">Active Courses</h3>
+                <span className="bg-[#008080] dark:bg-teal-600 text-white px-2 py-1 rounded-full text-xs font-medium transition-colors">
                   {activeCourses.length}
                 </span>
               </div>
@@ -136,14 +136,14 @@ const MenteeCoursesPage = () => {
               {paginatedCourses.map((course) => (
                 <div
                   key={course.courseId}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-gray-900/50 transition-all"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 mb-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1 transition-colors">
                         {course.courseName}
                       </h4>
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors">
                         by {course.mentorName}
                       </p>
                     </div>
@@ -151,42 +151,42 @@ const MenteeCoursesPage = () => {
 
                   <div className="space-y-3 mb-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="font-medium text-[#008080]">
+                      <span className="text-gray-600 dark:text-gray-400 transition-colors">Progress</span>
+                      <span className="font-medium text-[#008080] dark:text-teal-400 transition-colors">
                         {course.progressPercentage}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 transition-colors">
                       <div
-                        className="bg-[#008080] h-2 rounded-full transition-all"
+                        className="bg-[#008080] dark:bg-teal-600 h-2 rounded-full transition-all"
                         style={{ width: `${course.progressPercentage}%` }}
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 pt-2">
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600">Lessons</p>
-                        <p className="text-sm font-semibold text-gray-900">
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 transition-colors">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 transition-colors">Lessons</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors">
                           {course.completedLessons}/{course.lessonsCount}
                         </p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600">Tasks</p>
-                        <p className="text-sm font-semibold text-gray-900">
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 transition-colors">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 transition-colors">Tasks</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors">
                           {course.approvedTasks}/{course.tasksCount}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors">
+                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 transition-colors">
                       <Clock className="w-3 h-3" />
                       <span>{course.duration}</span>
                     </div>
                     <Link
                       to={`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`}
-                      className="text-sm text-[#008080] hover:text-teal-700 font-medium transition-colors"
+                      className="text-sm text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium transition-colors"
                     >
                       View Details →
                     </Link>
@@ -196,16 +196,16 @@ const MenteeCoursesPage = () => {
             </div>
 
             {totalPages > 1 && (
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-700 transition-colors">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">
-                    Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, totalCourses)}</span> of <span className="font-semibold text-gray-900">{totalCourses}</span> courses
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                    Showing <span className="font-semibold text-gray-900 dark:text-white transition-colors">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white transition-colors">{Math.min(endIndex, totalCourses)}</span> of <span className="font-semibold text-gray-900 dark:text-white transition-colors">{totalCourses}</span> courses
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span className="hidden sm:inline">Previous</span>
@@ -230,8 +230,8 @@ const MenteeCoursesPage = () => {
                             onClick={() => handlePageChange(pageNum)}
                             className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                               currentPage === pageNum
-                                ? 'bg-[#008080] text-white shadow-md'
-                                : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/50'
+                                : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {pageNum}
@@ -243,7 +243,7 @@ const MenteeCoursesPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                     >
                       <span className="hidden sm:inline">Next</span>
                       <ChevronRight className="w-4 h-4" />
@@ -254,17 +254,17 @@ const MenteeCoursesPage = () => {
             )}
           </>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-700 p-12 text-center transition-colors">
+            <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4 transition-colors" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
               No Courses Yet
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
               You haven't enrolled in any courses yet. Check out your assigned mentors to get started.
             </p>
             <Link
               to="/mentors"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors"
             >
               View Mentors
             </Link>

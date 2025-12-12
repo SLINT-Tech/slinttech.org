@@ -1,6 +1,6 @@
 const HeroSection = () => {
     return (
-        <section id="home" className="pt-10 pb-5">
+        <section id="home" className="pt-10 pb-5 dark:bg-gray-950 transition-colors">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
 
@@ -10,23 +10,23 @@ const HeroSection = () => {
                         className="w-16 h-16 mx-auto mb-4"
                     />
 
-                    {/* <div className="rounded-full bg-white/50 px-2 py-1 inline-flex items-center justify-center w-fit  mb-10 mx-auto">
+                    {/* <div className="rounded-full bg-white/50 dark:bg-gray-800/50 px-2 py-1 inline-flex items-center justify-center w-fit  mb-10 mx-auto">
                         <img
                             src="/assets/logos.svg"
                             alt="Trusted"
                             className="h-14"
                         />
 
-                        <div>Trusted by 100+ Businesses and Stores</div>
+                        <div className="dark:text-gray-300">Trusted by 100+ Businesses and Stores</div>
 
                     </div> */}
 
                     <div className="grid grid-cols-[1fr_4fr_1fr]">
                         <img src="/assets/presentation.svg" alt="Hero Image" className="h-12 ml-auto " />
 
-                        <h1 className="text-4xl font-extrabold sm:text-5xl lg:text-6xl text-gray-900 mb-6">
-                            Grow Without <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Limits.</span><br />
-                            <span className="text-[#008080] bg-[#0080800D] rounded-lg px-2">Upskill</span> Beyond Borders.
+                        <h1 className="text-4xl font-extrabold sm:text-5xl lg:text-6xl text-gray-900 dark:text-white mb-6">
+                            Grow Without <span className="text-[#008080] dark:text-teal-400 bg-[#0080800D] dark:bg-teal-900/20 rounded-lg px-2">Limits.</span><br />
+                            <span className="text-[#008080] dark:text-teal-400 bg-[#0080800D] dark:bg-teal-900/20 rounded-lg px-2">Upskill</span> Beyond Borders.
                         </h1>
 
                         <div></div>
@@ -35,7 +35,7 @@ const HeroSection = () => {
                     <div className="grid grid-cols-[1fr_4fr_1fr]">
 
                         <div></div>
-                        <p className="text-md sm:text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+                        <p className="text-md sm:text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
                             Training, mentorship, and support you need. We're invested in your future!
                         </p>
                         <img src="/assets/books.svg" alt="Hero Image" className="h-12 " />

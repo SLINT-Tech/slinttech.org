@@ -791,11 +791,11 @@ const AdminDashboard = () => {
   // Don't render anything if not admin
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
-          <Link to="/login" className="text-[#008080] hover:text-teal-700 font-medium">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">Access Denied</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors">You don't have permission to access this page.</p>
+          <Link to="/login" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
             Back to Login
           </Link>
         </div>
@@ -804,7 +804,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Admin"
         userName={currentUser?.fullName || 'Admin'}
@@ -819,12 +819,12 @@ const AdminDashboard = () => {
         {/* Dashboard Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">User Management</h1>
-            <p className="text-gray-600">Manage users, roles, and membership approvals</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">User Management</h1>
+            <p className="text-gray-600 dark:text-gray-300 transition-colors">Manage users, roles, and membership approvals</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2 cursor-pointer"
+            className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create User
@@ -836,39 +836,39 @@ const AdminDashboard = () => {
           <StatsSkeletonLoader />
         ) : (
           <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
               <div className="flex items-center">
-                <Users className="w-8 h-8 text-[#008080]" />
+                <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 transition-colors" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Total Users</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.total}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
               <div className="flex items-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 transition-colors" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Approved</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Approved</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.approved}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
               <div className="flex items-center">
-                <Calendar className="w-8 h-8 text-yellow-600" />
+                <Calendar className="w-8 h-8 text-yellow-600 dark:text-yellow-400 transition-colors" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Pending</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.pending}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
               <div className="flex items-center">
-                <XCircle className="w-8 h-8 text-red-600" />
+                <XCircle className="w-8 h-8 text-red-600 dark:text-red-400 transition-colors" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Rejected</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Rejected</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.rejected}</p>
                 </div>
               </div>
             </div>
@@ -876,24 +876,24 @@ const AdminDashboard = () => {
         )}
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 transition-colors">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors" />
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 />
               </div>
             </div>
             <select
               value={filterStatus}
               onChange={(e) => handleFilterChange('status', e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -904,7 +904,7 @@ const AdminDashboard = () => {
             <select
               value={filterRole}
               onChange={(e) => handleFilterChange('role', e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
             >
               <option value="all">All Roles</option>
               <option value="Admin">Admin</option>
@@ -915,7 +915,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden mb-8 transition-colors">
           {isLoadingUsers ? (
             <div className="p-8">
               <TableSkeletonLoader />
@@ -923,62 +923,62 @@ const AdminDashboard = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-800 transition-colors">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Career Path</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Career Path</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Payment</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center">
+                          <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center transition-colors">
                             <User className="w-5 h-5 text-white" />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">{user.fullName}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors">{user.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)} transition-colors`}>
                           {user.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                         {user.membershipCategory}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)} transition-colors`}>
                           {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                         {user.careerPath}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {user.membershipEnabled ? (
                           user.membershipPaid ? (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800 transition-colors">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Paid
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 transition-colors">
                               <XCircle className="w-3 h-3 mr-1" />
                               Unpaid
                             </span>
                           )
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 transition-colors">
                             N/A
                           </span>
                         )}
@@ -987,7 +987,7 @@ const AdminDashboard = () => {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleViewUser(user)}
-                            className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
                             title="View user details"
                           >
                             <Eye className="w-4 h-4" />
@@ -997,9 +997,9 @@ const AdminDashboard = () => {
                             disabled={user.id === currentUser.id}
                             className={`${
                               user.id === currentUser.id
-                                ? 'text-gray-300 cursor-not-allowed'
-                                : 'text-red-600 hover:text-red-700 cursor-pointer'
-                            }`}
+                                ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
+                                : 'text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer'
+                            } transition-colors`}
                             title={user.id === currentUser.id ? 'Cannot delete yourself' : 'Delete user'}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1016,16 +1016,16 @@ const AdminDashboard = () => {
 
         {/* Pagination */}
         {!isLoadingUsers && totalPages > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6 mt-8">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mt-8 transition-colors">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{((currentPage - 1) * usersPerPage) + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(currentPage * usersPerPage, totalUsers)}</span> of <span className="font-semibold text-gray-900">{totalUsers}</span> users
+              <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                Showing <span className="font-semibold text-gray-900 dark:text-white transition-colors">{((currentPage - 1) * usersPerPage) + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white transition-colors">{Math.min(currentPage * usersPerPage, totalUsers)}</span> of <span className="font-semibold text-gray-900 dark:text-white transition-colors">{totalUsers}</span> users
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Previous</span>
@@ -1050,8 +1050,8 @@ const AdminDashboard = () => {
                         onClick={() => handlePageChange(pageNum)}
                         className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                           currentPage === pageNum
-                            ? 'bg-[#008080] text-white shadow-md'
-                            : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                            ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md'
+                            : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                         }`}
                       >
                         {pageNum}
@@ -1063,7 +1063,7 @@ const AdminDashboard = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                 >
                   <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
@@ -1076,14 +1076,14 @@ const AdminDashboard = () => {
 
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn">
-         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-slideUp">
-           <div className="p-6 border-b border-gray-200 flex-shrink-0">
+        <div className="fixed inset-0 bg-gray-900/30 dark:bg-gray-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
+         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-900/50 animate-slideUp transition-colors">
+           <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">User Details & Management</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">User Details & Management</h2>
                 <button
                   onClick={() => setShowUserModal(false)}
-                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1094,32 +1094,32 @@ const AdminDashboard = () => {
               {/* User Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Personal Details</h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Full Name</label>
                       <input
                         type="text"
                         value={editingUser.fullName}
                         onChange={(e) => setEditingUser({...editingUser, fullName: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       />
                     </div>
                     <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Email</label>
                      <input
                        type="email"
                        value={editingUser.email}
                        onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                       className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Membership Category</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Membership Category</label>
                       <select
                         value={editingUser.membershipCategory}
                         onChange={(e) => setEditingUser({...editingUser, membershipCategory: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         <option value="Student">Student</option>
                         <option value="Professional">Professional</option>
@@ -1127,11 +1127,11 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Career Path</label>
                       <select
                         value={editingUser.careerPath}
                         onChange={(e) => setEditingUser({...editingUser, careerPath: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         {courseOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
@@ -1139,11 +1139,11 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Role</label>
                       <select
                         value={editingUser.role}
                         onChange={(e) => handleRoleChange(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         <option value="Admin">Admin</option>
                         <option value="Mentor">Mentor</option>
@@ -1151,19 +1151,19 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Password</label>
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={editingUser.password}
                           onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
-                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                          className="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                           placeholder="Leave empty to keep current password"
                         />
                         <button
                           type="button"
                           onClick={() => setEditingUser({...editingUser, password: generatePassword()})}
-                          className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                          className="px-3 py-2 bg-gray-500 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-600 dark:hover:bg-gray-600 transition-colors cursor-pointer"
                         >
                           Generate
                         </button>
@@ -1172,12 +1172,12 @@ const AdminDashboard = () => {
                   </div>
 
                 </div>
-                
+
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Status</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Account Status</h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Status</label>
                       <select
                         value={editingUser.status}
                         onChange={(e) => {
@@ -1188,7 +1188,7 @@ const AdminDashboard = () => {
                             membershipEnabled: newStatus === 'approved' && (editingUser.role === 'Mentee' || editingUser.role === 'Mentor') ? true : editingUser.membershipEnabled
                           });
                         }}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
@@ -1197,12 +1197,12 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Slack Community Link</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Slack Community Link</label>
                       <input
                         type="url"
                         value={editingUser.communityLink}
                         onChange={(e) => setEditingUser({...editingUser, communityLink: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                         placeholder="https://slack.com/..."
                       />
                     </div>

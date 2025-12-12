@@ -130,15 +130,15 @@ const TaskDetailPage = () => {
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       case 'submitted':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -172,25 +172,25 @@ const TaskDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8]">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 rounded w-32 mb-6 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-32 mb-6 animate-pulse transition-colors"></div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
-                  <div className="h-7 bg-gray-200 rounded-full w-28 animate-pulse"></div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
+                  <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-64 animate-pulse transition-colors"></div>
+                  <div className="h-7 bg-gray-200 dark:bg-gray-800 rounded-full w-28 animate-pulse transition-colors"></div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-56 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-44 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-48 animate-pulse transition-colors"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-56 animate-pulse transition-colors"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse transition-colors"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-44 animate-pulse transition-colors"></div>
                 </div>
               </div>
             </div>
@@ -198,21 +198,21 @@ const TaskDetailPage = () => {
 
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div className="h-6 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-40 mb-4 animate-pulse transition-colors"></div>
                 <div className="space-y-2 mb-6">
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4 animate-pulse transition-colors"></div>
                 </div>
 
                 <div className="mt-6">
-                  <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-32 mb-4 animate-pulse transition-colors"></div>
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse flex-shrink-0"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
+                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse flex-shrink-0 transition-colors"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full animate-pulse transition-colors"></div>
                       </div>
                     ))}
                   </div>
@@ -221,18 +221,18 @@ const TaskDetailPage = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div className="h-6 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-40 mb-4 animate-pulse transition-colors"></div>
                 <div className="space-y-4">
                   <div>
-                    <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
-                    <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32 mb-2 animate-pulse transition-colors"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
                   </div>
                   <div>
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
-                    <div className="h-24 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-24 mb-2 animate-pulse transition-colors"></div>
+                    <div className="h-24 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
                   </div>
-                  <div className="h-12 bg-gray-200 rounded w-full animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
                 </div>
               </div>
             </div>
@@ -244,11 +244,11 @@ const TaskDetailPage = () => {
 
   if (!task) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Task Not Found</h1>
-          <p className="text-gray-600 mb-4">The task you're looking for doesn't exist.</p>
-          <Link to="/tasks" className="text-[#008080] hover:text-teal-700 cursor-pointer font-medium">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Task Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors">The task you're looking for doesn't exist.</p>
+          <Link to="/tasks" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer font-medium transition-colors">
             Back to Tasks
           </Link>
         </div>
@@ -259,30 +259,30 @@ const TaskDetailPage = () => {
   const canSubmit = !task.submission || task.submission.status === 'rejected';
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/tasks"
-          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
+          className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Tasks
         </Link>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <Target className="w-8 h-8 text-[#008080]" />
-                <h1 className="text-2xl font-bold text-gray-900">{task.title}</h1>
-                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getTaskStatusColor(getSubmissionStatus())}`}>
+                <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 transition-colors" />
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{task.title}</h1>
+                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border transition-colors ${getTaskStatusColor(getSubmissionStatus())}`}>
                   {getSubmissionStatusLabel()}
                 </span>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400 transition-colors">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   <span>Mentor: {task.mentor.name}</span>
@@ -291,7 +291,7 @@ const TaskDetailPage = () => {
                   <span>Course: {task.course.name}</span>
                 </div>
                 {task.deadline && (
-                  <div className={`flex items-center gap-2 ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : ''}`}>
+                  <div className={`flex items-center gap-2 ${isTaskOverdue(task.deadline) ? 'text-red-600 dark:text-red-400 font-medium' : ''} transition-colors`}>
                     <Clock className="w-4 h-4" />
                     <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
                     {isTaskOverdue(task.deadline) && <AlertCircle className="w-4 h-4" />}
@@ -307,23 +307,23 @@ const TaskDetailPage = () => {
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Task Description</h2>
-              <p className="text-gray-600 leading-relaxed mb-6">{task.description}</p>
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Task Description</h2>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 transition-colors">{task.description}</p>
 
               {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-[#008080]" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 transition-colors">
+                    <CheckCircle className="w-5 h-5 text-[#008080] dark:text-teal-400 transition-colors" />
                     Requirements
                   </h3>
                   <div className="grid gap-3">
                     {task.requirements.map((requirement, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="w-6 h-6 bg-[#008080] text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
+                        <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-medium transition-colors">
                           {index + 1}
                         </div>
-                        <span className="text-gray-700 flex-1">{requirement}</span>
+                        <span className="text-gray-700 dark:text-gray-300 flex-1 transition-colors">{requirement}</span>
                       </div>
                     ))}
                   </div>
@@ -332,16 +332,16 @@ const TaskDetailPage = () => {
             </div>
 
             {task.submission?.mentorFeedback && (
-              <div className={`rounded-xl shadow-sm p-6 border ${
-                task.submission.status === 'approved' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+              <div className={`rounded-xl shadow-sm p-6 border transition-colors ${
+                task.submission.status === 'approved' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
               }`}>
-                <h2 className={`text-xl font-semibold mb-4 ${
-                  task.submission.status === 'approved' ? 'text-green-900' : 'text-red-900'
+                <h2 className={`text-xl font-semibold mb-4 transition-colors ${
+                  task.submission.status === 'approved' ? 'text-green-900 dark:text-green-400' : 'text-red-900 dark:text-red-400'
                 }`}>
                   Mentor Feedback
                 </h2>
-                <p className={`leading-relaxed ${
-                  task.submission.status === 'approved' ? 'text-green-800' : 'text-red-800'
+                <p className={`leading-relaxed transition-colors ${
+                  task.submission.status === 'approved' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
                 }`}>
                   {task.submission.mentorFeedback}
                 </p>
@@ -351,17 +351,17 @@ const TaskDetailPage = () => {
 
           <div className="space-y-6">
             {task.submission && (task.submission.status === 'submitted' || task.submission.status === 'pending' || task.submission.status === 'approved') && (
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Submission</h2>
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Your Submission</h2>
                 <div className="space-y-3">
                   <div>
-                    <span className="font-medium text-gray-700">Submission Link:</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300 transition-colors">Submission Link:</span>
                     <div className="mt-1">
                       <a
                         href={task.submission.submissionLink || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#008080] hover:text-teal-700 underline break-all cursor-pointer"
+                        className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 underline break-all cursor-pointer transition-colors"
                       >
                         {task.submission.submissionLink}
                       </a>
@@ -369,14 +369,14 @@ const TaskDetailPage = () => {
                   </div>
                   {task.submission.submissionNotes && (
                     <div>
-                      <span className="font-medium text-gray-700">Notes:</span>
-                      <p className="text-gray-600 mt-1">{task.submission.submissionNotes}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300 transition-colors">Notes:</span>
+                      <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors">{task.submission.submissionNotes}</p>
                     </div>
                   )}
                   {task.submission.submittedAt && (
                     <div>
-                      <span className="font-medium text-gray-700">Submitted:</span>
-                      <p className="text-gray-600 mt-1">{new Date(task.submission.submittedAt).toLocaleString()}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300 transition-colors">Submitted:</span>
+                      <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors">{new Date(task.submission.submittedAt).toLocaleString()}</p>
                     </div>
                   )}
                 </div>
@@ -384,31 +384,31 @@ const TaskDetailPage = () => {
             )}
 
             {canSubmit && (
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
                   {task.submission?.status === 'rejected' ? 'Resubmit Your Work' : 'Submit Your Work'}
                 </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                       Submission Link (Netlify/GitHub/etc.) *
                     </label>
                     <input
                       type="url"
                       value={submissionData.link}
                       onChange={(e) => setSubmissionData(prev => ({ ...prev, link: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       placeholder="https://your-project-link.com"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                       Notes (Optional)
                     </label>
                     <textarea
                       value={submissionData.notes}
                       onChange={(e) => setSubmissionData(prev => ({ ...prev, notes: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                      className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       rows={4}
                       placeholder="Any additional notes about your submission..."
                     />
@@ -416,7 +416,7 @@ const TaskDetailPage = () => {
                   <button
                     onClick={handleSubmission}
                     disabled={!submissionData.link.trim() || isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>

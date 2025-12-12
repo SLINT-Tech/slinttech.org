@@ -62,13 +62,13 @@ const CoursesSection: React.FC = () => {
     };
 
     return (
-    <section id="explore" className="my-10 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
-        <div className="py-8 bg-white rounded-xl px-5">
+    <section id="explore" className="my-10 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 dark:bg-gray-950 transition-colors">
+        <div className="py-8 bg-white dark:bg-gray-900 rounded-xl px-5 transition-colors">
             <div className="text-left mb-12">
-                <h2 className="text-lg font-semibold text-gray-900mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Career Paths
                 </h2>
-                <p className="text-[#9C9C9C] leading-relaxed text-sm max-w-2xl">
+                <p className="text-[#9C9C9C] dark:text-gray-400 leading-relaxed text-sm max-w-2xl">
                     Choose your path and start your journey with expert mentorship and hands-on learning.
                     Join our community to unlock your potential in these high-demand fields.
                 </p>
@@ -78,7 +78,7 @@ const CoursesSection: React.FC = () => {
                 {careerPaths.map((path, idx) => (
                     <div
                         key={idx}
-                        className="bg-white rounded-xl hover:shadow-md transition-shadow border border-gray-200"
+                        className="bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700"
                     >
                         <div className="p-3 justify-between flex flex-col h-full">
                             <div>
@@ -87,10 +87,10 @@ const CoursesSection: React.FC = () => {
                                     alt={path.alt}
                                     className="w-full h-48 object-cover rounded-lg mb-4"
                                 />
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                     {path.title}
                                 </h3>
-                                <p className="text-[#9C9C9C] text-sm leading-relaxed mb-4">
+                                <p className="text-[#9C9C9C] dark:text-gray-400 text-sm leading-relaxed mb-4">
                                     {path.description}
                                 </p>
                             </div>
@@ -101,16 +101,16 @@ const CoursesSection: React.FC = () => {
 
             {/* Call to Action */}
             <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                     Ready to Start Your Journey?
                 </h3>
-                <p className="text-[#9C9C9C] mb-6 max-w-2xl mx-auto">
-                    Join our community of passionate learners and get matched with expert mentors 
+                <p className="text-[#9C9C9C] dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Join our community of passionate learners and get matched with expert mentors
                     who will guide you through your chosen career path.
                 </p>
-                <button 
+                <button
                     onClick={handleJoinCommunity}
-                    className="bg-[#008080] text-white px-8 py-4 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2 mx-auto cursor-pointer"
+                    className="bg-[#008080] dark:bg-teal-600 text-white px-8 py-4 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center gap-2 mx-auto cursor-pointer"
                 >
                     Join Our Community
                     <ArrowRight className="w-5 h-5" />

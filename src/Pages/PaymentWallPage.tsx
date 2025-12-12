@@ -197,13 +197,13 @@ const PaymentWallPage = () => {
 
   if (!profile || !membershipAmount || membershipAmount <= 0) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Membership</h1>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center max-w-md transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">Invalid Membership</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors">
             There seems to be an issue with your membership configuration. Please contact support.
           </p>
-          <Link to="/login" className="text-[#008080] hover:text-teal-700 font-medium">
+          <Link to="/login" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
             Back to Login
           </Link>
         </div>
@@ -212,18 +212,18 @@ const PaymentWallPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block transition-colors">SlintTech</span>
             </Link>
-            <Link 
-              to="/login" 
-              className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+            <Link
+              to="/login"
+              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
             >
               Logout
             </Link>
@@ -233,45 +233,45 @@ const PaymentWallPage = () => {
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl shadow-sm p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 transition-colors">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
+              <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400 transition-colors" />
             </div>
-            
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
               Account Approved!
             </h1>
-            
-            <p className="text-gray-600 mb-2">
-              Congratulations <span className="font-semibold text-[#008080]">{profile.fullName}</span>!
+
+            <p className="text-gray-600 dark:text-gray-300 mb-2 transition-colors">
+              Congratulations <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{profile.fullName}</span>!
               Your account has been approved.
             </p>
-            
-            <p className="text-gray-600">
+
+            <p className="text-gray-600 dark:text-gray-300 transition-colors">
               Complete your one-time membership payment to access your dashboard.
             </p>
           </div>
 
           {/* Payment Card */}
-          <div className="bg-gradient-to-br from-[#008080] to-teal-700 rounded-xl p-6 text-white mb-8">
+          <div className="bg-gradient-to-br from-[#008080] dark:from-teal-600 to-teal-700 dark:to-teal-800 rounded-xl p-6 text-white mb-8 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <CreditCard className="w-8 h-8 mr-3" />
                 <div>
                   <h3 className="text-xl font-bold">Membership Payment</h3>
-                  <p className="text-teal-100">One-time payment required</p>
+                  <p className="text-teal-100 dark:text-teal-200 transition-colors">One-time payment required</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold">₵{membershipAmount}</div>
-                <div className="text-teal-100 text-sm">GHS</div>
+                <div className="text-teal-100 dark:text-teal-200 text-sm transition-colors">GHS</div>
               </div>
             </div>
-            
-            <div className="border-t border-teal-400 pt-4">
-              <div className="flex items-center text-teal-100 text-sm">
+
+            <div className="border-t border-teal-400 dark:border-teal-500 pt-4 transition-colors">
+              <div className="flex items-center text-teal-100 dark:text-teal-200 text-sm transition-colors">
                 <Shield className="w-4 h-4 mr-2" />
                 Secure payment powered by Paystack
               </div>
@@ -280,54 +280,54 @@ const PaymentWallPage = () => {
 
           {/* What You Get */}
           <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
               {isMentor ? 'What you get as a mentor:' : 'What you get with membership:'}
             </h3>
             <div className="space-y-3">
               {isMentor ? (
                 <>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Access to mentor dashboard and tools</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Access to mentor dashboard and tools</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Create and manage courses</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Create and manage courses</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Mentee management and progress tracking</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Mentee management and progress tracking</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Task assignment and review system</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Task assignment and review system</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Community Slack mentor access</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Community Slack mentor access</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Access to all courses and learning materials</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Access to all courses and learning materials</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Personal mentorship and guidance</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Personal mentorship and guidance</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Community Slack access</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Community Slack access</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Project assignments and feedback</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Project assignments and feedback</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">Certificate upon completion</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Certificate upon completion</span>
                   </div>
                 </>
               )}
@@ -338,7 +338,7 @@ const PaymentWallPage = () => {
           <button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full bg-[#008080] text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full bg-[#008080] dark:bg-teal-600 text-white font-semibold py-4 px-6 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isProcessing ? (
               <>
@@ -353,10 +353,10 @@ const PaymentWallPage = () => {
           </button>
 
           {/* Security Note */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors">
             <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-gray-600">
+              <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5 transition-colors" />
+              <div className="text-sm text-gray-600 dark:text-gray-300 transition-colors">
                 <p className="font-medium mb-1">Secure Payment</p>
                 <p>Your payment is processed securely through Paystack. We don't store your card details.</p>
               </div>
@@ -366,10 +366,10 @@ const PaymentWallPage = () => {
       </div>
 
       {paymentStatus === 'verifying' && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-8 text-center">
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center transition-colors">
             <svg
-              className="animate-spin h-16 w-16 text-[#008080] mx-auto mb-6"
+              className="animate-spin h-16 w-16 text-[#008080] dark:text-teal-400 mx-auto mb-6 transition-colors"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -388,31 +388,31 @@ const PaymentWallPage = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Payment</h2>
-            <p className="text-gray-600">Please wait while we confirm your payment...</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Verifying Payment</h2>
+            <p className="text-gray-600 dark:text-gray-300 transition-colors">Please wait while we confirm your payment...</p>
           </div>
         </div>
       )}
 
       {paymentStatus === 'success' && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-8 text-center animate-in fade-in duration-300">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center animate-in fade-in duration-300 transition-colors">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500 transition-colors">
+              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400 transition-colors" />
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Payment Successful!</h2>
-            <p className="text-gray-600 mb-2">
-              Welcome to SlintTech, <span className="font-semibold text-[#008080]">{profile?.fullName}</span>!
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 transition-colors">Payment Successful!</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-2 transition-colors">
+              Welcome to SlintTech, <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{profile?.fullName}</span>!
             </p>
-            <p className="text-gray-500 text-sm mb-6">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 transition-colors">
               Your membership is now active. Redirecting to your dashboard...
             </p>
 
-            <div className="flex items-center justify-center gap-2 text-[#008080]">
-              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            <div className="flex items-center justify-center gap-2 text-[#008080] dark:text-teal-400 transition-colors">
+              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '300ms' }}></div>
             </div>
           </div>
         </div>

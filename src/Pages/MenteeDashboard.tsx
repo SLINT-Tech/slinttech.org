@@ -139,15 +139,15 @@ const MenteeDashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800 transition-colors';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800 transition-colors';
       case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800 transition-colors';
       case 'suspended':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700 transition-colors';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700 transition-colors';
     }
   };
 
@@ -167,7 +167,7 @@ const MenteeDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentee"
         userName={menteeData?.fullName || currentUser.fullName || 'User'}
@@ -182,22 +182,22 @@ const MenteeDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Section Skeleton */}
           <div className="mb-8">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-80 animate-pulse"></div>
           </div>
 
           {/* Overview Panel Skeleton */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="h-6 bg-gray-200 rounded w-24 mb-6 animate-pulse"></div>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-transparent dark:border-gray-800">
+            <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-24 mb-6 animate-pulse"></div>
             <div className="grid md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse"></div>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-12 animate-pulse"></div>
                   </div>
-                  <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-24 animate-pulse"></div>
                 </div>
               ))}
             </div>
@@ -206,18 +206,18 @@ const MenteeDashboard = () => {
           {/* Quick Access Cards Skeleton */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
                     <div className="flex-1 space-y-2">
-                      <div className="h-5 bg-gray-200 rounded w-32 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                      <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse"></div>
                     </div>
                   </div>
-                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
                 </div>
-                <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-28 animate-pulse"></div>
               </div>
             ))}
           </div>
@@ -225,15 +225,15 @@ const MenteeDashboard = () => {
           {/* Bottom Section Skeleton */}
           <div className="grid lg:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-6 bg-gray-200 rounded w-40 animate-pulse"></div>
+                  <div className="w-6 h-6 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse"></div>
                 </div>
                 <div className="space-y-4">
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                  <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-48 animate-pulse"></div>
                 </div>
               </div>
             ))}
@@ -244,10 +244,10 @@ const MenteeDashboard = () => {
       {/* Error State */}
       {!loading && !menteeData && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h1>
-            <p className="text-gray-600 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/login" className="text-[#008080] hover:text-teal-700 cursor-pointer">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center border border-transparent dark:border-gray-800">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Failed to Load Dashboard</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Please try refreshing the page or contact support.</p>
+            <Link to="/login" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors">
               Back to Login
             </Link>
           </div>
@@ -259,16 +259,16 @@ const MenteeDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Pending Status Banner */}
           {isPending && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8 transition-colors">
               <div className="flex items-start">
-                <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-3 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Account Under Review</h3>
-                  <p className="text-yellow-700 mb-3">
+                  <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2">Account Under Review</h3>
+                  <p className="text-yellow-700 dark:text-yellow-300 mb-3">
                     Your account is currently being reviewed by our admin team. You're viewing a preview of your dashboard.
                     Once approved, you'll have full access to all features including lessons, tasks, and community Slack.
                   </p>
-                  <div className="text-sm text-yellow-600">
+                  <div className="text-sm text-yellow-600 dark:text-yellow-400">
                     <p>✓ Application submitted successfully</p>
                     <p>⏳ Admin review in progress</p>
                     <p>📧 You'll receive an email notification once approved</p>
@@ -280,58 +280,58 @@ const MenteeDashboard = () => {
 
           {/* Welcome Section */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
               Welcome Back, {menteeData.fullName?.split(' ')[0]}!
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400 transition-colors">
               Track your progress, complete lessons, and submit tasks
             </p>
           </div>
 
           {/* Overview Panel */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Overview</h2>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-transparent dark:border-gray-800 transition-colors">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors">Overview</h2>
             
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               {/* Progress Stats */}
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Lessons Progress</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 transition-colors">Lessons Progress</h3>
                 <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
-                    <div 
-                      className="bg-[#008080] h-2 rounded-full transition-all duration-300"
+                  <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3 transition-colors">
+                    <div
+                      className="bg-[#008080] dark:bg-teal-500 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${lessonsData.total > 0 ? (lessonsData.completed / lessonsData.total) * 100 : 0}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                     {lessonsData.completed}/{lessonsData.total}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">Lessons completed</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Lessons completed</p>
               </div>
-              
+
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Tasks Progress</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 transition-colors">Tasks Progress</h3>
                 <div className="flex items-center mb-2">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
-                    <div 
-                      className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
+                  <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3 transition-colors">
+                    <div
+                      className="bg-yellow-500 dark:bg-yellow-400 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${tasksData.total > 0 ? (tasksData.approved / tasksData.total) * 100 : 0}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                     {tasksData.approved}/{tasksData.total}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">Tasks approved</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Tasks approved</p>
               </div>
-              
+
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 transition-colors">Status</h3>
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(menteeData.status)}`}>
                   {getStatusText(menteeData.status)}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{menteeData.careerPath}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">{menteeData.careerPath}</p>
               </div>
             </div>
             
@@ -340,80 +340,80 @@ const MenteeDashboard = () => {
 
           {/* Quick Access Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Link 
-              to="/mentors" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
+            <Link
+              to="/mentors"
+              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
+                isPending
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
               }`}
               onClick={isPending ? (e) => e.preventDefault() : undefined}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Users className="w-8 h-8 text-[#008080] mr-4" />
+                  <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">My Mentors</h3>
-                    <p className="text-gray-600">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">My Mentors</h3>
+                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
                       {isPending ? 'Available after approval' : 'View your assigned mentors'}
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
                 {isPending ? 'Pending approval' : `${menteeData.mentorAssignments.length} mentors assigned`}
               </div>
             </Link>
 
-            <Link 
-              to="/lessons" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
+            <Link
+              to="/lessons"
+              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
+                isPending
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
               }`}
               onClick={isPending ? (e) => e.preventDefault() : undefined}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
+                  <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">All Lessons</h3>
-                    <p className="text-gray-600">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Lessons</h3>
+                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
                       {isPending ? 'Available after approval' : 'View and complete your lessons'}
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
                 {isPending ? 'Pending approval' : `${lessonsData.completed} of ${lessonsData.total} lessons completed`}
               </div>
             </Link>
 
-            <Link 
-              to="/tasks" 
-              className={`bg-white rounded-xl shadow-sm p-6 transition-shadow ${
-                isPending 
-                  ? 'opacity-60 cursor-not-allowed' 
-                  : 'hover:shadow-md cursor-pointer'
+            <Link
+              to="/tasks"
+              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
+                isPending
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
               }`}
               onClick={isPending ? (e) => e.preventDefault() : undefined}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Target className="w-8 h-8 text-[#008080] mr-4" />
+                  <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">All Tasks</h3>
-                    <p className="text-gray-600">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Tasks</h3>
+                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
                       {isPending ? 'Available after approval' : 'Submit and track your assignments'}
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
+                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
                 {isPending ? 'Pending approval' : `${tasksData.approved} of ${tasksData.total} tasks approved`}
               </div>
             </Link>
@@ -421,22 +421,22 @@ const MenteeDashboard = () => {
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Community Slack */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-colors">
               <div className="flex items-center mb-4">
-                <MessageSquare className="w-6 h-6 text-[#008080] mr-2" />
-                <h2 className="text-xl font-semibold text-gray-900">Community Slack</h2>
+                <MessageSquare className="w-6 h-6 text-[#008080] dark:text-teal-400 mr-2 transition-colors" />
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Community Slack</h2>
               </div>
-              
+
               {menteeData.communityLink && !isPending ? (
                 <div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors">
                     Join our Slack workspace to connect with other members and mentors.
                   </p>
                   <a
                     href={menteeData.communityLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#4A154B] text-white px-4 py-2 rounded-lg hover:bg-[#3A0F3B] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 bg-[#4A154B] dark:bg-[#4A154B] text-white px-4 py-2 rounded-lg hover:bg-[#3A0F3B] dark:hover:bg-[#3A0F3B] transition-colors cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4" />
                     Join Slack Workspace
@@ -445,12 +445,12 @@ const MenteeDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">
+                  <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3 transition-colors" />
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors">
                     {isPending ? 'Slack access available after approval' : 'Slack invite not available yet'}
                   </p>
-                  <p className="text-sm text-gray-400">
-                    {isPending 
+                  <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">
+                    {isPending
                       ? 'Complete the approval process to join our community'
                       : 'You\'ll receive a Slack invite once your membership is approved'
                     }
@@ -460,23 +460,25 @@ const MenteeDashboard = () => {
             </div>
 
             {/* Recent Announcements */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-colors">
               <div className="flex items-center mb-4">
-                <Users className="w-6 h-6 text-[#008080] mr-2" />
-                <h2 className="text-xl font-semibold text-gray-900">Recent Announcements</h2>
+                <Users className="w-6 h-6 text-[#008080] dark:text-teal-400 mr-2 transition-colors" />
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Recent Announcements</h2>
               </div>
-              
+
               {menteeData.announcements?.length > 0 ? (
                 <div className="space-y-4">
                   {menteeData.announcements.slice(0, 3).map((announcement) => (
-                    <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg ${
-                      announcement.type === 'warning' ? 'border-yellow-500 bg-yellow-50' : 'border-[#008080] bg-gray-50'
+                    <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg transition-colors ${
+                      announcement.type === 'warning'
+                        ? 'border-yellow-500 dark:border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
+                        : 'border-[#008080] dark:border-teal-400 bg-gray-50 dark:bg-gray-800'
                     }`}>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{announcement.title}</h3>
-                          <p className="text-gray-600 mb-2">{announcement.message}</p>
-                          <p className="text-xs text-gray-500">{announcement.date}</p>
+                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 transition-colors">{announcement.title}</h3>
+                          <p className="text-gray-600 dark:text-gray-400 mb-2 transition-colors">{announcement.message}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500 transition-colors">{announcement.date}</p>
                         </div>
                       </div>
                     </div>
@@ -484,9 +486,9 @@ const MenteeDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No announcements yet</p>
-                  <p className="text-sm text-gray-400">
+                  <Users className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3 transition-colors" />
+                  <p className="text-gray-500 dark:text-gray-400 transition-colors">No announcements yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">
                     Check back later for updates and announcements
                   </p>
                 </div>

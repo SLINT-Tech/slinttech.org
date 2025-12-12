@@ -120,15 +120,15 @@ const TasksPage = () => {
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       case 'submitted':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -161,7 +161,7 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentee"
         userName={currentUser?.fullName || 'User'}
@@ -171,7 +171,7 @@ const TasksPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/dashboard"
-          className="inline-flex items-center gap-2 text-[#008080] hover:text-teal-700 mb-6 transition-colors font-medium"
+          className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -179,37 +179,37 @@ const TasksPage = () => {
 
         <div className="mb-8">
           <div className="flex items-center mb-4">
-            <Target className="w-8 h-8 text-[#008080] mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Tasks & Assignments</h1>
+            <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-3 transition-colors" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">Tasks & Assignments</h1>
           </div>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-gray-300 mb-4 transition-colors">
             Submit your assignments and track your progress
           </p>
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 transition-colors">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Tasks Approved</span>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">Tasks Approved</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                 {approvedTasks}/{totalTasks} approved
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-3 transition-colors">
               <div
-                className="bg-yellow-500 h-3 rounded-full transition-all duration-300"
+                className="bg-yellow-500 dark:bg-yellow-600 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${totalTasks > 0 ? (approvedTasks / totalTasks) * 100 : 0}%` }}
               ></div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 transition-colors">
               {totalTasks > 0 ? Math.round((approvedTasks / totalTasks) * 100) : 0}% approved
             </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8 transition-colors">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors" />
                 <input
                   type="text"
                   placeholder="Search tasks..."
@@ -218,7 +218,7 @@ const TasksPage = () => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -230,7 +230,7 @@ const TasksPage = () => {
                   setFilterMentor(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
               >
                 <option value="all">All Mentors</option>
                 {uniqueMentors.map(mentor => (
@@ -245,7 +245,7 @@ const TasksPage = () => {
                     setFilterStatus(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 >
                   <option value="all">All Status</option>
                   <option value="not_submitted">Not Submitted</option>
@@ -266,8 +266,8 @@ const TasksPage = () => {
             }}
             className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
               !showCompleted
-                ? 'bg-[#008080] text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-[#008080] dark:bg-teal-600 text-white hover:bg-teal-700 dark:hover:bg-teal-500'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             Active Tasks ({activeTasks.length})
@@ -279,8 +279,8 @@ const TasksPage = () => {
             }}
             className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
               showCompleted
-                ? 'bg-[#008080] text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-[#008080] dark:bg-teal-600 text-white hover:bg-teal-700 dark:hover:bg-teal-500'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             Completed Tasks ({completedTasks.length})
@@ -291,44 +291,44 @@ const TasksPage = () => {
           <TableSkeletonLoader />
         ) : paginatedTasks.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800 transition-colors">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mentor</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Task</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Mentor</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Deadline</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                     {paginatedTasks.map((task) => (
-                      <tr key={task.id} className="hover:bg-gray-50">
+                      <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">{task.title}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-2">
+                            <div className="w-8 h-8 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-2 transition-colors">
                               <User className="w-4 h-4 text-white" />
                             </div>
-                            <div className="text-sm text-gray-900">{task.mentor.name}</div>
+                            <div className="text-sm text-gray-900 dark:text-white transition-colors">{task.mentor.name}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                           {task.course.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getTaskStatusColor(getTaskStatus(task))}`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border transition-colors ${getTaskStatusColor(getTaskStatus(task))}`}>
                             {getTaskStatusLabel(task)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {task.deadline ? (
-                            <div className={`text-sm ${isTaskOverdue(task.deadline) ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                            <div className={`text-sm ${isTaskOverdue(task.deadline) ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-900 dark:text-gray-300'} transition-colors`}>
                               {new Date(task.deadline).toLocaleDateString()}
                               {isTaskOverdue(task.deadline) && (
                                 <div className="flex items-center gap-1 mt-1">
@@ -338,13 +338,13 @@ const TasksPage = () => {
                               )}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">No deadline</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400 transition-colors">No deadline</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => navigate(`/task/${task.id}`)}
-                            className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -357,16 +357,16 @@ const TasksPage = () => {
             </div>
 
             {totalPages > 1 && (
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-sm text-gray-600">
-                    Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredTasks.length)}</span> of <span className="font-semibold text-gray-900">{filteredTasks.length}</span> tasks
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                    Showing <span className="font-semibold text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white">{Math.min(endIndex, filteredTasks.length)}</span> of <span className="font-semibold text-gray-900 dark:text-white">{filteredTasks.length}</span> tasks
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span className="hidden sm:inline">Previous</span>
@@ -391,8 +391,8 @@ const TasksPage = () => {
                             onClick={() => handlePageChange(pageNum)}
                             className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                               currentPage === pageNum
-                                ? 'bg-[#008080] text-white shadow-md'
-                                : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md hover:bg-teal-700 dark:hover:bg-teal-500'
+                                : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {pageNum}
@@ -404,7 +404,7 @@ const TasksPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                     >
                       <span className="hidden sm:inline">Next</span>
                       <ChevronRight className="w-4 h-4" />
@@ -415,12 +415,12 @@ const TasksPage = () => {
             )}
           </>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-200">
-            <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-12 text-center border border-gray-200 dark:border-gray-700 transition-colors">
+            <Target className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4 transition-colors" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
               {showCompleted ? 'No completed tasks yet' : 'No active tasks found'}
             </h3>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400 transition-colors">
               {showCompleted
                 ? 'Complete some tasks to see them here!'
                 : filteredTasks.length === 0 && (searchTerm || filterMentor !== 'all' || filterStatus !== 'all')

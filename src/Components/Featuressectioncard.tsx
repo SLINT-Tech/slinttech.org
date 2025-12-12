@@ -13,19 +13,19 @@ const FeaturesSectionCard: React.FC<FeaturesSectionCardProps> = ({
     title,
     description,
 }) => (
-    <div className="space-y-6 bg-white p-5 rounded-xl shadow-xs">
+    <div className="space-y-6 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-xs transition-colors">
         <img
             src={image}
             alt={title}
             className="w-full h-48 object-cover rounded-lg"
         />
         <div className="flex items-center space-x-3">
-            {/* <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            {/* <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                 {icon}
             </div> */}
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
         </div>
-        <p className="text-[#9C9C9C] leading-relaxed text-sm">{description}</p>
+        <p className="text-[#9C9C9C] dark:text-gray-400 leading-relaxed text-sm">{description}</p>
     </div>
 );
 

@@ -93,18 +93,18 @@ const PendingApprovalPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 border-b border-gray-100 sticky top-0 z-10 backdrop-blur-2xl">
+      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 hidden md:block">SlintTech</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block transition-colors">SlintTech</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
             >
               Logout
             </button>
@@ -114,35 +114,35 @@ const PendingApprovalPage = () => {
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
           {/* Icon */}
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Clock className="w-10 h-10 text-yellow-600" />
+          <div className="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
+            <Clock className="w-10 h-10 text-yellow-600 dark:text-yellow-400 transition-colors" />
           </div>
 
           {/* Header */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
             Account Pending Approval
           </h1>
-          
-          <p className="text-gray-600 mb-8 text-lg">
-            Hello <span className="font-semibold text-[#008080]">{currentUser.fullName}</span>! 
+
+          <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg transition-colors">
+            Hello <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{currentUser.fullName}</span>!
             Your account is currently under review by our admin team.
           </p>
 
           {/* Status Card */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mb-8 transition-colors">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                <Clock className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center mr-4 transition-colors">
+                <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors" />
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-yellow-800">Status: Pending Review</h3>
-                <p className="text-yellow-700 text-sm">We're reviewing your membership application</p>
+                <h3 className="font-semibold text-yellow-800 dark:text-yellow-400 transition-colors">Status: Pending Review</h3>
+                <p className="text-yellow-700 dark:text-yellow-400 text-sm transition-colors">We're reviewing your membership application</p>
               </div>
             </div>
-            
-            <div className="text-left space-y-2 text-sm text-yellow-700">
+
+            <div className="text-left space-y-2 text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
               <p>✓ Application submitted successfully</p>
               <p>⏳ Admin review in progress</p>
               <p>📧 You'll receive an email notification once approved</p>
@@ -151,26 +151,26 @@ const PendingApprovalPage = () => {
 
           {/* What's Next */}
           <div className="text-left mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">What happens next?</h3>
-            <div className="space-y-3 text-gray-600">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 transition-colors">What happens next?</h3>
+            <div className="space-y-3 text-gray-600 dark:text-gray-300 transition-colors">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#008080] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
                   <span className="text-white text-xs font-bold">1</span>
                 </div>
                 <p>Our admin team will review your application and contract</p>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#008080] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
                   <span className="text-white text-xs font-bold">2</span>
                 </div>
                 <p>You'll receive an email notification with the approval status</p>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[#008080] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
                   <span className="text-white text-xs font-bold">3</span>
                 </div>
                 <p>
-                  {isMentor 
+                  {isMentor
                     ? 'Once approved, you can access your mentor dashboard and start teaching'
                     : 'Once approved, you can access your dashboard and start learning'
                   }
@@ -180,15 +180,15 @@ const PendingApprovalPage = () => {
           </div>
 
           {/* Contact Support */}
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 transition-colors">
             <div className="flex items-center justify-center mb-3">
-              <MessageSquare className="w-5 h-5 text-[#008080] mr-2" />
-              <h4 className="font-semibold text-gray-900">Need Help?</h4>
+              <MessageSquare className="w-5 h-5 text-[#008080] dark:text-teal-400 mr-2 transition-colors" />
+              <h4 className="font-semibold text-gray-900 dark:text-white transition-colors">Need Help?</h4>
             </div>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 transition-colors">
               If you have any questions about your application status, feel free to contact our support team.
             </p>
-            <div className="flex items-center justify-center gap-2 text-[#008080]">
+            <div className="flex items-center justify-center gap-2 text-[#008080] dark:text-teal-400 transition-colors">
               <Mail className="w-4 h-4" />
               <a href="mailto:contact@slinttech.org" className="font-medium hover:underline">
                 contact@slinttech.org

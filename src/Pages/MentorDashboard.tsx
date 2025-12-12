@@ -156,7 +156,7 @@ const MentorDashboard = () => {
   if (loading) {
     const storedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     return (
-      <div className="min-h-screen bg-[#F8F8F8]">
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Navigation
           role="Mentor"
           userName={storedUser.fullName || 'Mentor'}
@@ -168,18 +168,18 @@ const MentorDashboard = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
-            <div className="h-4 bg-gray-200 rounded w-80 animate-pulse"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-2 animate-pulse transition-colors"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-80 animate-pulse transition-colors"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
                   <div className="ml-4 flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                    <div className="h-7 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-24 animate-pulse transition-colors"></div>
+                    <div className="h-7 bg-gray-200 dark:bg-gray-800 rounded w-12 animate-pulse transition-colors"></div>
                   </div>
                 </div>
               </div>
@@ -188,35 +188,35 @@ const MentorDashboard = () => {
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
                     <div className="flex-1 space-y-2">
-                      <div className="h-5 bg-gray-200 rounded w-36 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                      <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-36 animate-pulse transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse transition-colors"></div>
                     </div>
                   </div>
-                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse transition-colors"></div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center justify-between mb-6">
-              <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse transition-colors"></div>
             </div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="border border-gray-200 rounded-lg p-4">
+                <div key={i} className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 transition-colors">
                   <div className="space-y-3">
-                    <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-48 animate-pulse transition-colors"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse transition-colors"></div>
                     <div className="flex items-center gap-4">
-                      <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-24 animate-pulse transition-colors"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32 animate-pulse transition-colors"></div>
                     </div>
                   </div>
                 </div>
@@ -230,20 +230,20 @@ const MentorDashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md border border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Failed to Load Dashboard</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center max-w-md border border-gray-200 dark:border-gray-800 transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">Failed to Load Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors">{error}</p>
           <div className="space-y-3">
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              className="w-full bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer"
             >
               Try Again
             </button>
             <Link
               to="/mentor/login"
-              className="block text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+              className="block text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
             >
               Back to Login
             </Link>
@@ -255,13 +255,13 @@ const MentorDashboard = () => {
 
   if (!mentorProfile) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center max-w-md border border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Profile Not Found</h1>
-          <p className="text-gray-600 mb-6">Unable to load your mentor profile.</p>
+      <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center max-w-md border border-gray-200 dark:border-gray-800 transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">Profile Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors">Unable to load your mentor profile.</p>
           <Link
             to="/mentor/login"
-            className="text-[#008080] hover:text-teal-700 font-medium cursor-pointer"
+            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
           >
             Back to Login
           </Link>
@@ -273,7 +273,7 @@ const MentorDashboard = () => {
   const isPending = mentorProfile.status === 'pending';
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]">
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentor"
         userName={mentorProfile.fullName || 'Mentor'}
@@ -285,16 +285,16 @@ const MentorDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isPending && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 mb-8 transition-colors">
             <div className="flex items-start">
-              <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-3 flex-shrink-0 mt-0.5 transition-colors" />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Mentor Account Under Review</h3>
-                <p className="text-yellow-700 mb-3">
+                <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2 transition-colors">Mentor Account Under Review</h3>
+                <p className="text-yellow-700 dark:text-yellow-400 mb-3 transition-colors">
                   Your mentor account is currently being reviewed by our admin team. You're viewing a preview of your mentor dashboard.
                   Once approved, you'll have full access to create courses, manage mentees, and all mentor features.
                 </p>
-                <div className="text-sm text-yellow-600">
+                <div className="text-sm text-yellow-600 dark:text-yellow-400 transition-colors">
                   <p>✓ Mentor application submitted successfully</p>
                   <p>⏳ Admin review in progress</p>
                   <p>📧 You'll receive an email notification once approved</p>
@@ -305,48 +305,48 @@ const MentorDashboard = () => {
         )}
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
             Welcome Back, {mentorProfile.fullName ? mentorProfile.fullName.split(' ')[0] : 'Mentor'}!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300 transition-colors">
             Manage your mentees, create courses, and track progress
           </p>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center">
-              <Users className="w-8 h-8 text-[#008080]" />
+              <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 transition-colors" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Mentees</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalMentees}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Total Mentees</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.totalMentees}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 transition-colors" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Mentees</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.activeMentees}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Active Mentees</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.activeMentees}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center">
-              <BookOpen className="w-8 h-8 text-blue-600" />
+              <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400 transition-colors" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Courses Created</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Courses Created</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.totalCourses}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex items-center">
-              <Clock className="w-8 h-8 text-yellow-600" />
+              <Clock className="w-8 h-8 text-yellow-600 dark:text-yellow-400 transition-colors" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Reviews</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingSubmissions}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors">Pending Reviews</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{stats.pendingSubmissions}</p>
               </div>
             </div>
           </div>
@@ -355,82 +355,82 @@ const MentorDashboard = () => {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Link
             to="/mentor/courses"
-            className={`bg-white rounded-xl shadow-sm p-6 transition-all border border-gray-200 text-left ${
+            className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-all border border-gray-200 dark:border-gray-800 text-left ${
               isPending
                 ? 'opacity-60 cursor-not-allowed'
-                : 'hover:shadow-md cursor-pointer'
+                : 'hover:shadow-md dark:hover:bg-gray-800 cursor-pointer'
             }`}
             onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <BookOpen className="w-8 h-8 text-[#008080] mr-4" />
+                <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">View All Courses</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Courses</h3>
+                  <p className="text-gray-600 dark:text-gray-300 transition-colors">
                     {isPending ? 'Available after approval' : 'Manage all your courses'}
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400" />
+              <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
             </div>
           </Link>
 
           <Link
             to="/mentor/mentees"
-            className={`bg-white rounded-xl shadow-sm p-6 transition-all border border-gray-200 text-left ${
+            className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-all border border-gray-200 dark:border-gray-800 text-left ${
               isPending
                 ? 'opacity-60 cursor-not-allowed'
-                : 'hover:shadow-md cursor-pointer'
+                : 'hover:shadow-md dark:hover:bg-gray-800 cursor-pointer'
             }`}
             onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Users className="w-8 h-8 text-blue-600 mr-4" />
+                <Users className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-4 transition-colors" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">View All Mentees</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">View All Mentees</h3>
+                  <p className="text-gray-600 dark:text-gray-300 transition-colors">
                     {isPending ? 'Available after approval' : 'Manage your mentees'}
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400" />
+              <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
             </div>
           </Link>
 
           <Link
             to="/mentor/submissions"
-            className={`bg-white rounded-xl shadow-sm p-6 transition-all border border-gray-200 text-left ${
+            className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-all border border-gray-200 dark:border-gray-800 text-left ${
               isPending
                 ? 'opacity-60 cursor-not-allowed'
-                : 'hover:shadow-md cursor-pointer'
+                : 'hover:shadow-md dark:hover:bg-gray-800 cursor-pointer'
             }`}
             onClick={isPending ? (e) => e.preventDefault() : undefined}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Target className="w-8 h-8 text-yellow-600 mr-4" />
+                <Target className="w-8 h-8 text-yellow-600 dark:text-yellow-400 mr-4 transition-colors" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Task Submissions</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Task Submissions</h3>
+                  <p className="text-gray-600 dark:text-gray-300 transition-colors">
                     {isPending ? 'Available after approval' : 'Review mentee tasks'}
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-400" />
+              <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
             </div>
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 overflow-hidden border border-gray-200 dark:border-gray-800 transition-colors">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-800 transition-colors">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">Recent Courses</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Recent Courses</h2>
               {!isPending && (
                 <Link
                   to="/mentor/courses"
-                  className="text-[#008080] hover:text-teal-700 text-sm font-medium cursor-pointer"
+                  className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 text-sm font-medium cursor-pointer transition-colors"
                 >
                   View All Courses
                 </Link>
@@ -442,48 +442,48 @@ const MentorDashboard = () => {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800 transition-colors">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled Mentees</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Duration</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Enrolled Mentees</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Created</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                     {paginatedCourses.map((course) => (
-                      <tr key={course.id} className="hover:bg-gray-50">
+                      <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                            <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3 transition-colors">
                               <BookOpen className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">{course.name}</div>
-                              <div className="text-sm text-gray-500">{course.description}</div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">{course.name}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors">{course.description}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                           {course.duration}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                           {course.enrolledMentees} mentees
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors">
                           {new Date(course.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           {!isPending ? (
                             <button
                               onClick={() => navigate(`/mentor/course/${course.id}`)}
-                              className="text-[#008080] hover:text-teal-700 cursor-pointer"
+                              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                           ) : (
-                            <span className="text-gray-400">
+                            <span className="text-gray-400 dark:text-gray-600 transition-colors">
                               <Eye className="w-4 h-4" />
                             </span>
                           )}
@@ -495,16 +495,16 @@ const MentorDashboard = () => {
               </div>
 
               {totalPages > 1 && (
-                <div className="p-6 border-t border-gray-200">
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 transition-colors">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="text-sm text-gray-600">
-                      Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(endIndex, courses.length)}</span> of <span className="font-semibold text-gray-900">{courses.length}</span> courses
+                    <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                      Showing <span className="font-semibold text-gray-900 dark:text-white transition-colors">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white transition-colors">{Math.min(endIndex, courses.length)}</span> of <span className="font-semibold text-gray-900 dark:text-white transition-colors">{courses.length}</span> courses
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                        className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         <span className="hidden sm:inline">Previous</span>
@@ -529,8 +529,8 @@ const MentorDashboard = () => {
                               onClick={() => handlePageChange(pageNum)}
                               className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
                                 currentPage === pageNum
-                                  ? 'bg-[#008080] text-white shadow-md'
-                                  : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                  ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md'
+                                  : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                               }`}
                             >
                               {pageNum}
@@ -542,7 +542,7 @@ const MentorDashboard = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                        className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
                       >
                         <span className="hidden sm:inline">Next</span>
                         <ChevronRight className="w-4 h-4" />
@@ -554,9 +554,9 @@ const MentorDashboard = () => {
             </>
           ) : (
             <div className="p-12 text-center">
-              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No courses created yet</h3>
-              <p className="text-gray-500 mb-6">
+              <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4 transition-colors" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">No courses created yet</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6 transition-colors">
                 {isPending
                   ? 'You can create courses once your account is approved.'
                   : 'Create your first course to start teaching and managing mentees.'
@@ -565,7 +565,7 @@ const MentorDashboard = () => {
               {!isPending && (
                 <Link
                   to="/mentor/courses"
-                  className="inline-block bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                  className="inline-block bg-[#008080] dark:bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer"
                 >
                   Go to Courses
                 </Link>
