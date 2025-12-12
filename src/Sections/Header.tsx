@@ -36,7 +36,7 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
+        <header className="bg-white/95 dark:bg-gray-900/95 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-xl transition-colors">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
@@ -58,7 +58,7 @@ export default function Header() {
                     <div className="hidden md:flex items-center gap-6 space-x-4">
                         <button
                             onClick={toggleDarkMode}
-                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                             aria-label="Toggle dark mode"
                         >
                             {isDarkMode ? (
@@ -85,13 +85,13 @@ export default function Header() {
 
                 {/* Mobile Navigation */}
                 {isMenuOpen && (
-                    <div className="md:hidden bg-transparent dark:bg-transparent border-t border-gray-200 dark:border-gray-800 py-4">
+                    <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-4 transition-colors">
                         <div className="flex flex-col space-y-4">
                             <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
                             <a href="#explore" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
                             <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
                             <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
-                            <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800 transition-colors">
                                 <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
                                 <Link to="/signup" className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
                                     Get Started

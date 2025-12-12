@@ -38,7 +38,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen font-bricolage bg-[#F8F8F8]">
+      <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUpPage />} />

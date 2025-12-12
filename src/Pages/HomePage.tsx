@@ -10,7 +10,7 @@ import NewsletterSection from '../Sections/NewsletterSection';
 
 const HomePage = () => {
   return (
-    <>
+    <div className="bg-white dark:bg-gray-950 transition-colors">
       {/* Header */}
       <Header />
 
@@ -37,7 +37,7 @@ const HomePage = () => {
 
       {/* Footer */}
       <Footer />
-    </>
+    </div>
   );
 };
 
