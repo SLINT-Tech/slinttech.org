@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderPaymentSuccess, formatDate } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
@@ -170,24 +169,23 @@ export default async (req: Request, context: Context) => {
 
     console.log('Payment verified and membership updated for user:', userId);
 
-    try {
-      const brevoService = createBrevoService();
-      const emailHtml = renderPaymentSuccess({
+    queueEmail({
+      type: 'payment-success',
+      to: { email: user.email, name: user.fullName },
+      data: {
         userName: user.fullName,
         paymentReference: reference,
         amount: `GHS ${(paystackData.data.amount / 100).toFixed(2)}`,
-        paymentDate: formatDate(new Date(paystackData.data.paid_at)),
+        paymentDate: new Date(paystackData.data.paid_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
         dashboardLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/${user.role.toLowerCase()}/dashboard`
-      });
-
-      await brevoService.sendEmailSafe({
-        to: [{ email: user.email, name: user.fullName }],
-        subject: 'Payment Successful - SlintTech Membership Activated',
-        htmlContent: emailHtml
-      });
-    } catch (emailError) {
-      console.error('Failed to send payment success email:', emailError);
-    }
+      }
+    });
 
     return new Response(JSON.stringify({
       message: 'Payment verified successfully',

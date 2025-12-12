@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { taskSubmissions, tasks, courses, courseEnrollments, userProfiles } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderTaskSubmissionMentor, formatDate } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -161,28 +160,27 @@ export default async (req: Request, context: Context) => {
         .limit(1);
 
       if (mentor && mentee) {
-        try {
-          const brevoService = createBrevoService();
-          const reviewLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentor/submissions`;
+        const reviewLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentor/submissions`;
 
-          const emailHtml = renderTaskSubmissionMentor({
+        queueEmail({
+          type: 'task-submission-mentor',
+          to: { email: mentor.email, name: mentor.fullName },
+          data: {
             mentorName: mentor.fullName,
             menteeName: mentee.fullName,
             taskTitle: taskDetails[0].taskTitle,
             courseName: taskDetails[0].courseName,
-            submissionDate: formatDate(new Date()),
+            submissionDate: new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
             submissionContent: submissionNotes || undefined,
             reviewLink
-          });
-
-          await brevoService.sendEmailSafe({
-            to: [{ email: mentor.email, name: mentor.fullName }],
-            subject: `New Task Submission from ${mentee.fullName}`,
-            htmlContent: emailHtml
-          });
-        } catch (emailError) {
-          console.error('Failed to send submission notification email:', emailError);
-        }
+          }
+        });
       }
     }
 

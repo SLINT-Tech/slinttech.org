@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { courses, courseEnrollments, mentorMenteeRelationships, userProfiles } from '../../src/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderCourseEnrollment } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -172,12 +171,13 @@ export default async (req: Request, context: Context) => {
       .from(userProfiles)
       .where(inArray(userProfiles.id, newMenteeIds));
 
-    const brevoService = createBrevoService();
     const courseLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
 
     for (const mentee of mentees) {
-      try {
-        const emailHtml = renderCourseEnrollment({
+      queueEmail({
+        type: 'course-enrollment',
+        to: { email: mentee.email, name: mentee.fullName },
+        data: {
           menteeName: mentee.fullName,
           courseTitle: course[0].title,
           courseDescription: course[0].description || 'No description available',
@@ -185,16 +185,8 @@ export default async (req: Request, context: Context) => {
           courseLevel: course[0].level || 'Intermediate',
           mentorName: mentor.fullName,
           courseLink
-        });
-
-        await brevoService.sendEmailSafe({
-          to: [{ email: mentee.email, name: mentee.fullName }],
-          subject: `You've Been Enrolled in ${course[0].title}`,
-          htmlContent: emailHtml
-        });
-      } catch (emailError) {
-        console.error(`Failed to send enrollment email to ${mentee.email}:`, emailError);
-      }
+        }
+      });
     }
 
     return new Response(JSON.stringify({

@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { userProfiles, mentorMenteeRelationships } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderDirectMessage, formatDate } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -141,21 +140,24 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const brevoService = createBrevoService();
     const dashboardLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/dashboard`;
 
-    const emailHtml = renderDirectMessage({
-      menteeName: mentee.fullName,
-      mentorName: mentor.fullName,
-      messageDate: formatDate(new Date()),
-      messageContent: message.trim(),
-      dashboardLink
-    });
-
-    await brevoService.sendEmail({
-      to: [{ email: mentee.email, name: mentee.fullName }],
-      subject: `New Message from ${mentor.fullName}`,
-      htmlContent: emailHtml
+    queueEmail({
+      type: 'direct-message',
+      to: { email: mentee.email, name: mentee.fullName },
+      data: {
+        menteeName: mentee.fullName,
+        mentorName: mentor.fullName,
+        messageDate: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        messageContent: message.trim(),
+        dashboardLink
+      }
     });
 
     return new Response(JSON.stringify({

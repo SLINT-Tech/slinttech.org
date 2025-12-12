@@ -3,8 +3,7 @@ import { db } from '../../src/db';
 import { userProfiles } from '../../src/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderAccountAwaitingApproval } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -214,23 +213,16 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    try {
-      const brevoService = createBrevoService();
-      const emailHtml = renderAccountAwaitingApproval({
+    queueEmail({
+      type: 'account-awaiting-approval',
+      to: { email: newUser.email, name: newUser.fullName },
+      data: {
         userName: newUser.fullName,
         userEmail: newUser.email,
         userRole: newUser.role,
         membershipCategory: newUser.membershipCategory
-      });
-
-      await brevoService.sendEmailSafe({
-        to: [{ email: newUser.email, name: newUser.fullName }],
-        subject: 'Welcome to SlintTech - Account Awaiting Approval',
-        htmlContent: emailHtml
-      });
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
-    }
+      }
+    });
 
     return new Response(JSON.stringify({
       success: true,

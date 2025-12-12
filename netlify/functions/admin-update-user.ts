@@ -4,8 +4,7 @@ import { userProfiles } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { createBrevoService } from './utils/brevo-service';
-import { renderApplicationStatusUpdate, getStatusEmailData } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -175,22 +174,14 @@ export default async (req: Request, context: Context) => {
       });
 
     if (status !== undefined && status !== existingUser.status) {
-      try {
-        const brevoService = createBrevoService();
-        const statusData = getStatusEmailData(status);
-        const emailHtml = renderApplicationStatusUpdate({
+      queueEmail({
+        type: 'application-status-update',
+        to: { email: updatedUser.email, name: updatedUser.fullName },
+        data: {
           userName: updatedUser.fullName,
-          ...statusData
-        });
-
-        await brevoService.sendEmailSafe({
-          to: [{ email: updatedUser.email, name: updatedUser.fullName }],
-          subject: `SlintTech Application Status: ${statusData.statusText}`,
-          htmlContent: emailHtml
-        });
-      } catch (emailError) {
-        console.error('Failed to send status update email:', emailError);
-      }
+          status: status
+        }
+      });
     }
 
     return new Response(JSON.stringify({

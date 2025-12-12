@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../src/db';
 import { taskSubmissions, tasks, courses, userProfiles } from '../../src/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { createBrevoService } from './utils/brevo-service';
-import { renderTaskReviewMentee, getTaskReviewEmailData, formatDate } from './utils/email-templates';
+import { queueEmail } from './utils/email-queue';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -158,30 +157,28 @@ export default async (req: Request, context: Context) => {
         .limit(1);
 
       if (mentee && mentor) {
-        try {
-          const brevoService = createBrevoService();
-          const statusEmailData = getTaskReviewEmailData(status);
-          const taskLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/tasks/${reviewDetails[0].taskId}`;
+        const taskLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/tasks/${reviewDetails[0].taskId}`;
 
-          const emailHtml = renderTaskReviewMentee({
+        queueEmail({
+          type: 'task-review-mentee',
+          to: { email: mentee.email, name: mentee.fullName },
+          data: {
             menteeName: mentee.fullName,
             taskTitle: reviewDetails[0].taskTitle,
             courseName: reviewDetails[0].courseName,
             mentorName: mentor.fullName,
-            reviewDate: formatDate(new Date()),
+            reviewDate: new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
             feedback: feedback || undefined,
             taskLink,
-            ...statusEmailData
-          });
-
-          await brevoService.sendEmailSafe({
-            to: [{ email: mentee.email, name: mentee.fullName }],
-            subject: `Task Review: ${reviewDetails[0].taskTitle} - ${statusEmailData.reviewStatus}`,
-            htmlContent: emailHtml
-          });
-        } catch (emailError) {
-          console.error('Failed to send review notification email:', emailError);
-        }
+            status: status
+          }
+        });
       }
     }
 
