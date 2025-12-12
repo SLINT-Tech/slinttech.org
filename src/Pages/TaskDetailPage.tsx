@@ -175,7 +175,13 @@ const TaskDetailPage = () => {
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-32 mb-6 animate-pulse transition-colors"></div>
+          <Link
+            to="/tasks"
+            className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Tasks
+          </Link>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:border-gray-700 transition-colors">
             <div className="flex items-start justify-between mb-4">

@@ -293,11 +293,13 @@ const MentorProfilePage = () => {
         />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button Skeleton */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
-          </div>
+          <button
+            onClick={() => navigate('/mentor/dashboard')}
+            className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
 
           {/* Profile Header Skeleton */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 transition-colors">

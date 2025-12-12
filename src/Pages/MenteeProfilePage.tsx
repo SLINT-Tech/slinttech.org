@@ -378,6 +378,13 @@ const MenteeProfilePage = () => {
       {/* Loading State */}
       {loading && (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
             <div className="w-8 h-8 border-2 border-[#008080] dark:border-teal-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-gray-300">Loading your profile...</p>
