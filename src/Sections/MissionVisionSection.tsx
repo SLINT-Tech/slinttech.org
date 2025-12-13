@@ -40,20 +40,16 @@ const MissionVisionSection: React.FC = () => {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div
-          className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 shadow-xl hover:shadow-2xl ${
+          className={`relative overflow-hidden rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md ${
             isDark
-              ? "bg-slate-900/50 border border-slate-700"
+              ? "bg-slate-900 border border-slate-800"
               : "bg-white border border-slate-200"
           }`}
         >
-          <div className="relative p-8 z-10">
-            <div className="mb-6 inline-flex items-center justify-center">
-              <div className="relative">
-                <div
-                  className={`relative p-4 rounded-2xl bg-gradient-to-r from-[#008080] to-[#00a3a3] shadow-lg`}
-                >
-                  <Eye className="w-8 h-8 text-white" />
-                </div>
+          <div className="p-8">
+            <div className="mb-6 inline-flex">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-[#008080] to-[#00a3a3]">
+                <Eye className="w-6 h-6 text-white" />
               </div>
             </div>
 
@@ -107,20 +103,16 @@ const MissionVisionSection: React.FC = () => {
         </div>
 
         <div
-          className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 shadow-xl hover:shadow-2xl ${
+          className={`relative overflow-hidden rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md ${
             isDark
-              ? "bg-slate-900/50 border border-slate-700"
+              ? "bg-slate-900 border border-slate-800"
               : "bg-white border border-slate-200"
           }`}
         >
-          <div className="relative p-8 z-10">
-            <div className="mb-6 inline-flex items-center justify-center">
-              <div className="relative">
-                <div
-                  className={`relative p-4 rounded-2xl bg-gradient-to-r from-[#00a3a3] to-[#008080] shadow-lg`}
-                >
-                  <Target className="w-8 h-8 text-white" />
-                </div>
+          <div className="p-8">
+            <div className="mb-6 inline-flex">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-[#00a3a3] to-[#008080]">
+                <Target className="w-6 h-6 text-white" />
               </div>
             </div>
 
