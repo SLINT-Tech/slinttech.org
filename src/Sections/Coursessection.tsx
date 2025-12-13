@@ -430,7 +430,7 @@ const CoursesSection: React.FC = () => {
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-md hover:shadow-lg"
+                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-sm hover:shadow-md"
               }`}
             >
               Load More ({filteredPaths.length - 6} more)
@@ -450,7 +450,7 @@ const CoursesSection: React.FC = () => {
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-md hover:shadow-lg"
+                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-sm hover:shadow-md"
               }`}
             >
               Show Less
