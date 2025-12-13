@@ -92,6 +92,22 @@ export default function Header() {
                             <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
                             <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800 transition-colors">
+                                <button
+                                    onClick={toggleDarkMode}
+                                    className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left"
+                                >
+                                    {isDarkMode ? (
+                                        <>
+                                            <Sun className="w-5 h-5" />
+                                            Light Mode
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Moon className="w-5 h-5" />
+                                            Dark Mode
+                                        </>
+                                    )}
+                                </button>
                                 <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
                                 <Link to="/signup" className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
                                     Get Started

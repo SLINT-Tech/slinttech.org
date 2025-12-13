@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Moon, Sun, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
@@ -13,7 +13,24 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
   const navigate = useNavigate();
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    if (!darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -161,12 +178,25 @@ const LoginPage = () => {
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
             </Link>
-            <Link
-              to="/"
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                aria-label="Toggle dark mode"
+              >
+                {darkMode ? (
+                  <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
+              <Link
+                to="/"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              </Link>
+            </div>
           </div>
         </div>
       </header>
