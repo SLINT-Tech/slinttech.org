@@ -127,7 +127,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 transition-colors">
+    <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/20 dark:border-gray-800/50 sticky top-0 z-50 transition-colors shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-8">
@@ -180,7 +180,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 rounded-lg shadow-lg border border-white/20 dark:border-gray-700/50 py-2 z-50">
                   {role !== 'Admin' && (
                     <>
                       <Link
@@ -219,7 +219,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="md:hidden border-t border-white/20 dark:border-gray-800/50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150">
           <nav className="px-4 py-3 space-y-1">
             {links.map((link) => (
               <Link
