@@ -317,10 +317,10 @@ const CoursesSection: React.FC = () => {
           {displayedPaths.map((path) => (
             <div
               key={path.id}
-              className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 cursor-pointer h-full min-h-[520px] hover:shadow-2xl hover:scale-[1.02] ${
+              className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 cursor-pointer h-full min-h-[520px] shadow-sm hover:shadow-md hover:scale-[1.02] ${
                 isDark
-                  ? "bg-teal-900/30 border border-teal-400/30 shadow-xl shadow-teal-500/15"
-                  : "bg-white/50 border border-slate-200/60 shadow-xl shadow-slate-300/50"
+                  ? "bg-teal-900/30 border border-teal-400/30"
+                  : "bg-white/50 border border-slate-200/60"
               }`}
             >
               <div
