@@ -169,7 +169,7 @@ const MentorLoginPage = () => {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-8 transition-colors">
+        <div className="bg-white dark:bg-gray-900 rounded-xl p-8 transition-colors">
           <div className="text-center mb-8">
             <img
               src="/assets/education.svg"

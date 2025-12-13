@@ -172,7 +172,7 @@ const LoginPage = () => {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 rounded-xl shadow-lg border border-white/20 dark:border-gray-800/50 p-8 transition-colors">
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/20 dark:border-gray-800/50 p-8 transition-colors">
           <div className="text-center mb-8">
             <img
               src="/assets/education.svg"
