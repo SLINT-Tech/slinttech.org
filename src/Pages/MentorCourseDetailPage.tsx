@@ -92,7 +92,11 @@ const MentorCourseDetailPage = () => {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     setCurrentUser(user);
-  }, []);
+    if (user.status === 'pending') {
+      navigate('/mentor/dashboard');
+      return;
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (courseId) {

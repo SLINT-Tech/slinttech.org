@@ -203,8 +203,8 @@ const LoginPage = () => {
         <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/20 dark:border-gray-800/50 p-8 transition-colors">
           <div className="text-center mb-8">
             <img
-              src="/assets/education.svg"
-              alt="Education"
+              src="/assets/logo.svg"
+              alt="SlintTech"
               className="w-16 h-16 mx-auto mb-4"
             />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

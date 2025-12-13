@@ -47,8 +47,13 @@ const TaskDetailPage = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (user.status === 'pending') {
+      navigate('/dashboard');
+      return;
+    }
     fetchTaskDetail();
-  }, [taskId]);
+  }, [taskId, navigate]);
 
   const fetchTaskDetail = async () => {
     try {

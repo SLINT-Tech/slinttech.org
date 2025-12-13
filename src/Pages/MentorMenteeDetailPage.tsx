@@ -48,8 +48,13 @@ const MentorMenteeDetailPage = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (user.status === 'pending') {
+      navigate('/mentor/dashboard');
+      return;
+    }
     fetchMenteeDetail();
-  }, [menteeId]);
+  }, [menteeId, navigate]);
 
   const fetchMenteeDetail = async () => {
     setLoading(true);

@@ -44,8 +44,12 @@ const LessonsPage = () => {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     setCurrentUser(user);
+    if (user.status === 'pending') {
+      navigate('/dashboard');
+      return;
+    }
     fetchLessons();
-  }, []);
+  }, [navigate]);
 
   const fetchLessons = async () => {
     try {

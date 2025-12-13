@@ -28,7 +28,11 @@ const MentorsPage = () => {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     setCurrentUser(user);
-  }, []);
+    if (user.status === 'pending') {
+      navigate('/dashboard');
+      return;
+    }
+  }, [navigate]);
 
   const fetchMentors = async () => {
     try {
