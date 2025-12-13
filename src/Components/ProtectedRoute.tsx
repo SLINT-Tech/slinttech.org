@@ -49,11 +49,7 @@ const ProtectedRoute = ({
     return <Navigate to={loginPath} replace />;
   }
 
-  if (requireApproval && currentUser.status === 'pending') {
-    return <Navigate to="/pending-approval" replace />;
-  }
-
-  if (requireApproval && currentUser.status !== 'approved') {
+  if (requireApproval && currentUser.status !== 'approved' && currentUser.status !== 'pending') {
     return <Navigate to="/pending-approval" replace />;
   }
 

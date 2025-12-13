@@ -1,10 +1,11 @@
-import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, ExternalLink, FileText, MessageSquare, User, Users, BookOpen, Target, ArrowRight, Lock } from 'lucide-react';
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import PendingBanner from '../Components/PendingBanner';
 
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
@@ -42,12 +43,6 @@ const MenteeDashboard = () => {
 
         const data = await response.json();
         const profile = data.profile;
-
-        // Check if user should be redirected elsewhere
-        if (profile.status === 'pending') {
-          navigate('/pending-approval');
-          return;
-        }
 
         // Check payment requirement - handle both camelCase and snake_case
         const membershipEnabled = profile.membershipEnabled || profile.membership_enabled;
@@ -168,6 +163,7 @@ const MenteeDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+      {isPending && <PendingBanner role="Mentee" />}
       <Navigation
         role="Mentee"
         userName={menteeData?.fullName || currentUser.fullName || 'User'}
@@ -262,27 +258,6 @@ const MenteeDashboard = () => {
       {/* Main Content */}
       {!loading && menteeData && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Pending Status Banner */}
-          {isPending && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8 transition-colors">
-              <div className="flex items-start">
-                <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-3 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2">Account Under Review</h3>
-                  <p className="text-yellow-700 dark:text-yellow-300 mb-3">
-                    Your account is currently being reviewed by our admin team. You're viewing a preview of your dashboard.
-                    Once approved, you'll have full access to all features including lessons, tasks, and community Slack.
-                  </p>
-                  <div className="text-sm text-yellow-600 dark:text-yellow-400">
-                    <p>✓ Application submitted successfully</p>
-                    <p>⏳ Admin review in progress</p>
-                    <p>📧 You'll receive an email notification once approved</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
@@ -345,88 +320,147 @@ const MenteeDashboard = () => {
 
           {/* Quick Access Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Link
-              to="/mentors"
-              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
-                isPending
-                  ? 'opacity-60 cursor-not-allowed'
-                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">My Mentors</h3>
-                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                      {isPending ? 'Available after approval' : 'View your assigned mentors'}
-                    </p>
+            {isPending ? (
+              <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-all overflow-hidden">
+                <div className="absolute inset-0 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-1.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <Lock className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Locked</span>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">My Mentors</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">View your assigned mentors</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  0 mentors assigned
+                </div>
               </div>
-              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
-                {isPending ? 'Pending approval' : `${menteeData.mentorAssignments.length} mentors assigned`}
-              </div>
-            </Link>
+            ) : (
+              <Link
+                to="/mentors"
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all hover:shadow-md dark:hover:border-gray-700 cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Users className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">My Mentors</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">View your assigned mentors</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  {menteeData.mentorAssignments.length} mentors assigned
+                </div>
+              </Link>
+            )}
 
-            <Link
-              to="/lessons"
-              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
-                isPending
-                  ? 'opacity-60 cursor-not-allowed'
-                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Lessons</h3>
-                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                      {isPending ? 'Available after approval' : 'View and complete your lessons'}
-                    </p>
+            {isPending ? (
+              <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-all overflow-hidden">
+                <div className="absolute inset-0 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-1.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <Lock className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Locked</span>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Lessons</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">View and complete your lessons</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  0 of 0 lessons completed
+                </div>
               </div>
-              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
-                {isPending ? 'Pending approval' : `${lessonsData.completed} of ${lessonsData.total} lessons completed`}
-              </div>
-            </Link>
+            ) : (
+              <Link
+                to="/lessons"
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all hover:shadow-md dark:hover:border-gray-700 cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BookOpen className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Lessons</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">View and complete your lessons</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  {lessonsData.completed} of {lessonsData.total} lessons completed
+                </div>
+              </Link>
+            )}
 
-            <Link
-              to="/tasks"
-              className={`bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all ${
-                isPending
-                  ? 'opacity-60 cursor-not-allowed'
-                  : 'hover:shadow-md dark:hover:border-gray-700 cursor-pointer'
-              }`}
-              onClick={isPending ? (e) => e.preventDefault() : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Tasks</h3>
-                    <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                      {isPending ? 'Available after approval' : 'Submit and track your assignments'}
-                    </p>
+            {isPending ? (
+              <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-800 transition-all overflow-hidden">
+                <div className="absolute inset-0 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-1.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <Lock className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Locked</span>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Tasks</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">Submit and track your assignments</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  0 of 0 tasks approved
+                </div>
               </div>
-              <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
-                {isPending ? 'Pending approval' : `${tasksData.approved} of ${tasksData.total} tasks approved`}
-              </div>
-            </Link>
+            ) : (
+              <Link
+                to="/tasks"
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-all hover:shadow-md dark:hover:border-gray-700 cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Target className="w-8 h-8 text-[#008080] dark:text-teal-400 mr-4 transition-colors" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">All Tasks</h3>
+                      <p className="text-gray-600 dark:text-gray-400 transition-colors">Submit and track your assignments</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 transition-colors">
+                  {tasksData.approved} of {tasksData.total} tasks approved
+                </div>
+              </Link>
+            )}
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Community Slack */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-colors">
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-transparent dark:border-gray-800 transition-colors overflow-hidden">
+              {isPending && (
+                <div className="absolute inset-0 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-1.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <Lock className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Locked</span>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center mb-4">
                 <MessageSquare className="w-6 h-6 text-[#008080] dark:text-teal-400 mr-2 transition-colors" />
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Community Slack</h2>

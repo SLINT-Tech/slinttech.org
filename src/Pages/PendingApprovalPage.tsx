@@ -1,4 +1,4 @@
-import { Clock, Mail, MessageSquare } from 'lucide-react';
+import { Clock, Mail, MessageSquare, LayoutDashboard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 import { useEffect, useState } from 'react';
@@ -52,23 +52,25 @@ const PendingApprovalPage = () => {
         localStorage.setItem('currentUser', JSON.stringify(userData));
         setCurrentUser(userData);
 
-        if (userData.status === 'approved') {
-          if (userData.membershipEnabled && !userData.membershipPaid) {
-            navigate('/payment-wall', { replace: true });
-          } else if (userData.role === 'Mentor') {
-            navigate('/mentor/dashboard', { replace: true });
-          } else if (userData.role === 'Admin') {
-            navigate('/admin/dashboard', { replace: true });
+        if (userData.status !== 'pending') {
+          if (userData.status === 'approved') {
+            if (userData.membershipEnabled && !userData.membershipPaid) {
+              navigate('/payment-wall', { replace: true });
+            } else if (userData.role === 'Mentor') {
+              navigate('/mentor/dashboard', { replace: true });
+            } else if (userData.role === 'Admin') {
+              navigate('/admin/dashboard', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
           } else {
-            navigate('/dashboard', { replace: true });
-          }
-        } else if (userData.status !== 'pending') {
-          if (userData.role === 'Mentor') {
-            navigate('/mentor/login', { replace: true });
-          } else if (userData.role === 'Admin') {
-            navigate('/admin/login', { replace: true });
-          } else {
-            navigate('/login', { replace: true });
+            if (userData.role === 'Mentor') {
+              navigate('/mentor/login', { replace: true });
+            } else if (userData.role === 'Admin') {
+              navigate('/admin/login', { replace: true });
+            } else {
+              navigate('/login', { replace: true });
+            }
           }
         }
 
@@ -178,6 +180,15 @@ const PendingApprovalPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Preview Dashboard Button */}
+          <Link
+            to={isMentor ? '/mentor/dashboard' : '/dashboard'}
+            className="flex items-center justify-center gap-2 w-full bg-[#008080] dark:bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors font-medium mb-8"
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            Preview Your Dashboard
+          </Link>
 
           {/* Contact Support */}
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 transition-colors">
