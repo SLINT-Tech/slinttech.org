@@ -40,8 +40,13 @@ const MentorCoursesPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (user.status === 'pending') {
+      navigate('/mentor/dashboard');
+      return;
+    }
     fetchCourses();
-  }, []);
+  }, [navigate]);
 
   const fetchCourses = async () => {
     setPageLoading(true);

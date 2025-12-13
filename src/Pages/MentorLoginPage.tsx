@@ -170,8 +170,8 @@ const MentorLoginPage = () => {
         <div className="bg-white dark:bg-gray-900 rounded-xl p-8 transition-colors">
           <div className="text-center mb-8">
             <img
-              src="/assets/education.svg"
-              alt="Education"
+              src="/assets/logo.svg"
+              alt="SlintTech"
               className="w-16 h-16 mx-auto mb-4"
             />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
