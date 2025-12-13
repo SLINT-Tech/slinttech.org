@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Review Received</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Bricolage Grotesque', 'Arial', 'Helvetica', sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px 10px;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="background-color: #ffffff; padding: 30px 20px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+                            <img src="{{appUrl}}/images/apple-touch-icon.png" alt="SlintTech Logo" style="height: 60px; width: auto; display: block; margin: 0 auto;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 20px;">
+                            <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 700;">Your Task Has Been Reviewed</h2>
+                            <p style="margin: 0 0 15px 0; color: #666666; font-size: 16px; line-height: 1.6;">Hi {{menteeName}},</p>
+                            <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px; line-height: 1.6;">Your mentor has reviewed your task submission.</p>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: {{statusColor}}; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="margin: 0 0 5px 0; color: #ffffff; font-size: 14px;">Status</p>
+                                        <p style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">{{reviewStatus}}</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f8f8; border-radius: 6px; padding: 25px 20px; margin: 20px 0;">
+                                <tr>
+                                    <td>
+                                        <h3 style="margin: 0 0 10px 0; color: #008080; font-size: 18px; font-weight: 600;">Task Details</h3>
+                                        <p style="margin: 10px 0; color: #666666; font-size: 15px;">
+                                            <strong style="color: #333333; font-weight: 600;">Task:</strong> {{taskTitle}}
+                                        </p>
+                                        <p style="margin: 10px 0; color: #666666; font-size: 15px;">
+                                            <strong style="color: #333333; font-weight: 600;">Course:</strong> {{courseName}}
+                                        </p>
+                                        <p style="margin: 10px 0; color: #666666; font-size: 15px;">
+                                            <strong style="color: #333333; font-weight: 600;">Reviewed by:</strong> {{mentorName}}
+                                        </p>
+                                        <p style="margin: 10px 0; color: #666666; font-size: 15px;">
+                                            <strong style="color: #333333; font-weight: 600;">Reviewed on:</strong> {{reviewDate}}
+                                        </p>
+                                        {{#if score}}
+                                        <p style="margin: 10px 0; color: #666666; font-size: 15px;">
+                                            <strong style="color: #333333; font-weight: 600;">Score:</strong> <span style="color: #008080; font-size: 18px; font-weight: 700;">{{score}}</span>
+                                        </p>
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                            </table>
+                            {{#if feedback}}
+                            <div style="background-color: #ffffff; border: 1px solid #dddddd; border-radius: 6px; padding: 20px 15px; margin: 20px 0;">
+                                <h4 style="margin: 0 0 10px 0; color: #333333; font-size: 16px; font-weight: 600;">Mentor Feedback:</h4>
+                                <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6; word-wrap: break-word;">{{feedback}}</p>
+                            </div>
+                            {{/if}}
+                            <div style="background-color: {{messageBackgroundColor}}; border-left: 4px solid {{messageBorderColor}}; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                                <p style="margin: 0; color: {{messageTextColor}}; font-size: 15px; line-height: 1.6;">
+                                    {{nextStepsMessage}}
+                                </p>
+                            </div>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto; width: 100%;">
+                                    <tr>
+                                        <td align="center" style="background-color: #008080; border-radius: 6px;">
+                                            <a href="{{taskLink}}" style="display: inline-block; padding: 14px 30px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600;">View Full Review</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 20px; background-color: #f8f8f8; text-align: center;">
+                            <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">Thank you for choosing SlintTech</p>
+                            <p style="margin: 0; color: #999999; font-size: 12px;">&copy; 2024 SlintTech. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

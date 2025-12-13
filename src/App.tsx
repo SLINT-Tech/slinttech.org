@@ -1,30 +1,186 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ContactInfoSection from './Sections/contactinfosection';
+import CoursesSection from './Sections/Coursessection';
+import { FeaturesSection } from './Sections/Featuressection';
+import Footer from './Sections/Footer';
+import GetStartedSection from './Sections/Getstartedsection';
+import Header from './Sections/Header';
+import HeroSection from './Sections/Herosection';
+import NewsletterSection from './Sections/NewsletterSection';
+import SponsorsSection from './Sections/Sponsorssection';
+import SignUpPage from './Pages/SignUpPage';
+import LoginPage from './Pages/LoginPage';
+import HomePage from './Pages/HomePage';
+import MenteeDashboard from './Pages/MenteeDashboard';
+import AdminLoginPage from './Pages/AdminLoginPage';
+import AdminDashboard from './Pages/AdminDashboard';
+import MentorsPage from './Pages/MentorsPage';
+import LessonsPage from './Pages/LessonsPage';
+import TasksPage from './Pages/TasksPage';
+import TaskDetailPage from './Pages/TaskDetailPage';
+import MentorDetailPage from './Pages/MentorDetailPage';
+import MentorDashboard from './Pages/MentorDashboard';
+import MentorLoginPage from './Pages/MentorLoginPage';
+import MentorMenteesPage from './Pages/MentorMenteesPage';
+import MentorSubmissionsPage from './Pages/MentorSubmissionsPage';
+import MentorCourseDetailPage from './Pages/MentorCourseDetailPage';
+import MentorCoursesPage from './Pages/MentorCoursesPage';
+import MentorMenteeDetailPage from './Pages/MentorMenteeDetailPage';
+import MenteeProfilePage from './Pages/MenteeProfilePage';
+import PendingApprovalPage from './Pages/PendingApprovalPage';
+import PaymentWallPage from './Pages/PaymentWallPage';
+import MentorProfilePage from './Pages/MentorProfilePage';
+import MenteeMentorCoursesPage from './Pages/MenteeMentorCoursesPage';
+import MenteeCourseDetailPage from './Pages/MenteeCourseDetailPage';
+import MenteeCoursesPage from './Pages/MenteeCoursesPage';
+import ProtectedRoute from './Components/ProtectedRoute';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/mentor/login" element={<MentorLoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
 
-const queryClient = new QueryClient();
+          <Route path="/pending-approval" element={
+            <ProtectedRoute requireApproval={false} requirePayment={false}>
+              <PendingApprovalPage />
+            </ProtectedRoute>
+          } />
 
-const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+          <Route path="/payment-wall" element={
+            <ProtectedRoute requirePayment={false}>
+              <PaymentWallPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/payment" element={
+            <ProtectedRoute requirePayment={false}>
+              <PaymentWallPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/profile" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeProfilePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentors" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeCoursesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/lessons" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <LessonsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/tasks" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <TasksPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/task/:taskId" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <TaskDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/:mentorId" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor-detail" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MentorDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor-courses" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeMentorCoursesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor-course-detail" element={
+            <ProtectedRoute requiredRole="Mentee">
+              <MenteeCourseDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute requiredRole="Admin" requireApproval={false} requirePayment={false}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/dashboard" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/mentees" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorMenteesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/mentee/:menteeId" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorMenteeDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/submissions" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorSubmissionsPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/course/:courseId" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorCourseDetailPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/courses" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorCoursesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/mentor/profile" element={
+            <ProtectedRoute requiredRole="Mentor">
+              <MentorProfilePage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
 
 export default App;
