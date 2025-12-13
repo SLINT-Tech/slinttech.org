@@ -65,7 +65,7 @@ const Footer: React.FC = () => (
 
         </div>
         <div className="border-t border-gray-800 dark:border-gray-900 mt-8 py-8 bg-white dark:bg-gray-900 text-center text-black dark:text-gray-300 flex justify-center items-center transition-colors">
-            <p>&copy; Copyright <span className="font-bold">SlintTech.</span> All Rights Reserved </p>
+            <p>&copy; {new Date().getFullYear()} <span className="font-bold">SLINT Tech.</span> All Rights Reserved.</p>
         </div>
     </footer>
 );
