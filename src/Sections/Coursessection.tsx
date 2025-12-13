@@ -11,6 +11,8 @@ import {
   Pencil,
   Wand2,
   Database,
+  Clock,
+  BookOpen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -361,12 +363,18 @@ const CoursesSection: React.FC = () => {
                 </div>
 
                 <div
-                  className={`text-xs mb-4 space-y-1 ${
+                  className={`text-xs mb-4 space-y-2 ${
                     isDark ? "text-slate-400" : "text-slate-500"
                   }`}
                 >
-                  <p>⏱️ Duration: {path.duration}</p>
-                  <p>📚 Platform: {path.learningPlatform}</p>
+                  <p className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>Duration: {path.duration}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Platform: {path.learningPlatform}</span>
+                  </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
