@@ -10,6 +10,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <footer className="pt-16 pb-8 transition-colors duration-300 bg-slate-950 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,7 +81,8 @@ const Footer: React.FC = () => {
               <li>
                 <a
                   href="#home"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3]"
+                  onClick={(e) => handleSmoothScroll(e, 'home')}
+                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
                 >
                   Home
                 </a>
@@ -81,7 +90,8 @@ const Footer: React.FC = () => {
               <li>
                 <a
                   href="#explore"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3]"
+                  onClick={(e) => handleSmoothScroll(e, 'explore')}
+                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
                 >
                   Career Paths
                 </a>
@@ -97,7 +107,8 @@ const Footer: React.FC = () => {
               <li>
                 <a
                   href="#contact"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3]"
+                  onClick={(e) => handleSmoothScroll(e, 'contact')}
+                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
                 >
                   Contact
                 </a>

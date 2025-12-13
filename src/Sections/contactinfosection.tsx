@@ -2,7 +2,7 @@ import React from "react";
 
 const ContactInfoSection: React.FC = () => (
     <section
-        id="community"
+        id="contact"
         className="py-16 relative bg-cover bg-center transition-colors"
         style={{
             backgroundImage: "url('dist/assets/ContactInfo.png')",
