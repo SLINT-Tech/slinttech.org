@@ -244,7 +244,7 @@ export default async (req: Request, context: Context) => {
           hour: '2-digit',
           minute: '2-digit'
         }),
-        adminDashboardLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/admin`
+        adminDashboardLink: `${process.env.APP_URL || 'https://slinttech.netlify.app'}/admin/login`
       };
 
       for (const admin of adminUsers) {

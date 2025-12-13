@@ -51,6 +51,10 @@ export const formatDate = (date: Date): string => {
   });
 };
 
+const getAppUrl = (): string => {
+  return process.env.APP_URL || 'https://slinttech.netlify.app';
+};
+
 interface AccountAwaitingApprovalData {
   userName: string;
   userEmail: string;
@@ -60,7 +64,7 @@ interface AccountAwaitingApprovalData {
 
 export const renderAccountAwaitingApproval = (data: AccountAwaitingApprovalData): string => {
   const template = loadTemplate('account-awaiting-approval');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface ApplicationStatusData {
@@ -74,7 +78,7 @@ interface ApplicationStatusData {
 
 export const renderApplicationStatusUpdate = (data: ApplicationStatusData): string => {
   const template = loadTemplate('application-status-update');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface PaymentSuccessData {
@@ -87,7 +91,7 @@ interface PaymentSuccessData {
 
 export const renderPaymentSuccess = (data: PaymentSuccessData): string => {
   const template = loadTemplate('payment-success');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface CourseEnrollmentData {
@@ -102,7 +106,7 @@ interface CourseEnrollmentData {
 
 export const renderCourseEnrollment = (data: CourseEnrollmentData): string => {
   const template = loadTemplate('course-enrollment');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface TaskSubmissionMentorData {
@@ -117,7 +121,7 @@ interface TaskSubmissionMentorData {
 
 export const renderTaskSubmissionMentor = (data: TaskSubmissionMentorData): string => {
   const template = loadTemplate('task-submission-mentor');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface TaskReviewMenteeData {
@@ -139,7 +143,7 @@ interface TaskReviewMenteeData {
 
 export const renderTaskReviewMentee = (data: TaskReviewMenteeData): string => {
   const template = loadTemplate('task-review-mentee');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface DirectMessageData {
@@ -152,7 +156,7 @@ interface DirectMessageData {
 
 export const renderDirectMessage = (data: DirectMessageData): string => {
   const template = loadTemplate('direct-message');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 interface AdminNewUserNotificationData {
@@ -168,7 +172,7 @@ interface AdminNewUserNotificationData {
 
 export const renderAdminNewUserNotification = (data: AdminNewUserNotificationData): string => {
   const template = loadTemplate('admin-new-user-notification');
-  return renderTemplate(template, data);
+  return renderTemplate(template, { ...data, appUrl: getAppUrl() });
 };
 
 export const getStatusEmailData = (status: string) => {
@@ -181,7 +185,7 @@ export const getStatusEmailData = (status: string) => {
           Congratulations! Your application has been approved. You now have full access to the SlintTech platform.
         </p>`,
         showCommunityLinks: true,
-        loginLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/login`
+        loginLink: `${process.env.APP_URL || 'https://slinttech.netlify.app'}/login`
       };
     case 'rejected':
       return {

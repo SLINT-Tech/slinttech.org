@@ -171,7 +171,7 @@ export default async (req: Request, context: Context) => {
       .from(userProfiles)
       .where(inArray(userProfiles.id, newMenteeIds));
 
-    const courseLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
+    const courseLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
 
     for (const mentee of mentees) {
       await queueEmail({

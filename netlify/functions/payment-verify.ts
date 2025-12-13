@@ -183,7 +183,7 @@ export default async (req: Request, context: Context) => {
           hour: '2-digit',
           minute: '2-digit'
         }),
-        dashboardLink: `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/${user.role.toLowerCase()}/dashboard`
+        dashboardLink: `${process.env.APP_URL || 'https://slinttech.netlify.app'}/${user.role.toLowerCase()}/dashboard`
       }
     });
 

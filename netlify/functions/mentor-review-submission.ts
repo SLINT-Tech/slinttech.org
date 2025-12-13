@@ -157,7 +157,7 @@ export default async (req: Request, context: Context) => {
         .limit(1);
 
       if (mentee && mentor) {
-        const taskLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/tasks/${reviewDetails[0].taskId}`;
+        const taskLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/mentee/tasks/${reviewDetails[0].taskId}`;
 
         await queueEmail({
           type: 'task-review-mentee',

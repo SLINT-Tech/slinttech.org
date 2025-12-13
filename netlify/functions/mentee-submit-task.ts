@@ -160,7 +160,7 @@ export default async (req: Request, context: Context) => {
         .limit(1);
 
       if (mentor && mentee) {
-        const reviewLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentor/submissions`;
+        const reviewLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/mentor/submissions`;
 
         await queueEmail({
           type: 'task-submission-mentor',
