@@ -56,7 +56,7 @@ const PaymentWallPage = () => {
 
     const membershipPaid = (profile as any).membershipPaid || (profile as any).membership_paid;
     const membershipEnabled = (profile as any).membershipEnabled || (profile as any).membership_enabled;
-    const membershipAmount = (profile as any).membershipAmount || (profile as any).membership_amount;
+    const membershipAmountValue = (profile as any).membershipAmount || (profile as any).membership_amount;
 
     if (membershipPaid) {
       const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
@@ -70,9 +70,17 @@ const PaymentWallPage = () => {
       return;
     }
 
-    setMembershipAmount(parseFloat(membershipAmount || '30.00'));
+    setMembershipAmount(parseFloat(membershipAmountValue || '30.00'));
     setIsLoading(false);
   }, [profile, authLoading, token, navigate]);
+
+  if (!authLoading && profile) {
+    const membershipPaid = (profile as any).membershipPaid || (profile as any).membership_paid;
+    const membershipEnabled = (profile as any).membershipEnabled || (profile as any).membership_enabled;
+    if (membershipPaid || !membershipEnabled) {
+      return <PageLoader message="Redirecting to dashboard..." />;
+    }
+  }
 
   if (authLoading || isLoading || !profile) {
     return <PageLoader message="Loading payment information..." />;
