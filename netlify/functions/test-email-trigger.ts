@@ -1,5 +1,4 @@
 import type { Handler } from '@netlify/functions';
-import { queueEmail } from './utils/email-queue';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,40 +16,89 @@ const handler: Handler = async (event, context) => {
   }
 
   try {
-    console.log('Test email trigger invoked');
+    console.log('=== TEST EMAIL TRIGGER START ===');
 
-    const testEmail = process.env.TEST_EMAIL || 'test@example.com';
+    const testEmail = 'sadosap473@roastic.com';
 
-    const emailQueued = await queueEmail({
-      type: 'account-awaiting-approval',
-      to: {
-        email: testEmail,
-        name: 'Test User'
-      },
-      data: {
-        userName: 'Test User',
-        userEmail: testEmail,
-        userRole: 'mentee',
-        membershipCategory: 'professional'
-      }
+    const siteUrl = process.env.URL || process.env.DEPLOY_URL || process.env.SITE_URL || 'https://slinttech.netlify.app';
+    const backgroundFunctionUrl = `${siteUrl}/.netlify/functions/test-email-background`;
+
+    console.log('Environment URLs:', {
+      URL: process.env.URL,
+      DEPLOY_URL: process.env.DEPLOY_URL,
+      SITE_URL: process.env.SITE_URL,
+      finalUrl: backgroundFunctionUrl
     });
 
-    return {
-      statusCode: 200,
+    console.log('Calling test-email-background function at:', backgroundFunctionUrl);
+
+    const response = await fetch(backgroundFunctionUrl, {
+      method: 'POST',
       headers: {
-        ...corsHeaders,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        success: emailQueued,
-        message: emailQueued ? 'Test email queued successfully' : 'Failed to queue test email',
         testEmail,
         timestamp: new Date().toISOString()
       })
-    };
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log('Background function response:', responseData);
+      console.log('=== TEST EMAIL QUEUED SUCCESSFULLY ===');
+
+      return {
+        statusCode: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: true,
+          message: 'Test email queued successfully',
+          testEmail,
+          backgroundResponse: responseData,
+          timestamp: new Date().toISOString()
+        })
+      };
+    } else {
+      const errorText = await response.text();
+      console.error('Failed to call background function:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      console.log('=== TEST EMAIL QUEUE FAILED ===');
+
+      return {
+        statusCode: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Failed to queue test email',
+          testEmail,
+          error: errorText,
+          status: response.status,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
 
   } catch (error: any) {
-    console.error('Test email trigger error:', error);
+    console.error('=== TEST EMAIL TRIGGER ERROR ===');
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+
     return {
       statusCode: 500,
       headers: {
@@ -58,8 +106,10 @@ const handler: Handler = async (event, context) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        error: 'Failed to queue test email',
-        details: error.message
+        error: 'Failed to trigger test email',
+        details: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
       })
     };
   }
