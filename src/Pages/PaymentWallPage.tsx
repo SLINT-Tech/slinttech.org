@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle, CreditCard, Shield } from 'lucide-react';
+import { CheckCircle, CreditCard, Shield, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -376,26 +376,7 @@ const PaymentWallPage = () => {
       {paymentStatus === 'verifying' && (
         <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center transition-colors">
-            <svg
-              className="animate-spin h-16 w-16 text-[#008080] dark:text-teal-400 mx-auto mb-6 transition-colors"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <Loader2 className="w-16 h-16 text-[#008080] dark:text-teal-400 mx-auto mb-6 animate-spin" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Verifying Payment</h2>
             <p className="text-gray-600 dark:text-gray-300 transition-colors">Please wait while we confirm your payment...</p>
           </div>
@@ -403,24 +384,22 @@ const PaymentWallPage = () => {
       )}
 
       {paymentStatus === 'success' && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300 transition-colors">
-          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center animate-in fade-in duration-300 transition-colors">
-            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500 transition-colors">
-              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400 transition-colors" />
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center transition-colors">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
+              <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 transition-colors">Payment Successful!</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-2 transition-colors">
-              Welcome to SlintTech, <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{profile?.fullName}</span>!
+              Welcome to SlintTech, <span className="font-semibold text-[#008080] dark:text-teal-400">{profile?.fullName}</span>!
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 transition-colors">
               Your membership is now active. Redirecting to your dashboard...
             </p>
 
-            <div className="flex items-center justify-center gap-2 text-[#008080] dark:text-teal-400 transition-colors">
-              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-[#008080] dark:bg-teal-400 rounded-full animate-bounce transition-colors" style={{ animationDelay: '300ms' }}></div>
+            <div className="flex items-center justify-center gap-2 text-[#008080] dark:text-teal-400">
+              <Loader2 className="w-5 h-5 animate-spin" />
             </div>
           </div>
         </div>
