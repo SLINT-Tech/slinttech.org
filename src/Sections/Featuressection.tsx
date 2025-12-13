@@ -10,7 +10,7 @@ export function FeaturesSection() {
                     <FeaturesSectionCard image={"/assets/first.png"} icon={<BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />} title={"Learn Skills That Pay In The Real World"} description={"From tech and design to business and marketing — access the kind of knowledge employers and startups care about. Build skills today, start earning tomorrow."} />
                     <FeaturesSectionCard image={"/assets/second.png"} icon={<BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />} title={"Learn Anywhere, Anytime"} description={"Waiting for a lecture? Stuck in traffic? Use your phone, laptop, or tablet to sharpen new skills on your own schedule. Your future deserves every moment."} />
                     <FeaturesSectionCard image={"/assets/third.png"} icon={<BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />} title={"Boost Your CV & Portfolio"} description={"Show off your new skills with recognized certificates from global platforms. Perfect for job applications, freelance gigs, and growing your personal brand."} />
-                    <div className="space-y-6 bg-white dark:bg-gray-800 px-5 pt-5 rounded-xl shadow-xs transition-colors">
+                    <div className="space-y-6 bg-white dark:bg-gray-800 px-5 pt-5 rounded-xl transition-colors">
                         <div className="flex items-center space-x-3">
                             {/* <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />

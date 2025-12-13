@@ -10,7 +10,7 @@ import NewsletterSection from '../Sections/NewsletterSection';
 
 const HomePage = () => {
   return (
-    <div className="bg-white dark:bg-gray-950 transition-colors">
+    <div className="bg-[#f8f8f8] dark:bg-gray-950 transition-colors">
       {/* Header */}
       <Header />
 

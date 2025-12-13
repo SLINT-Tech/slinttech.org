@@ -301,7 +301,7 @@ const CoursesSection: React.FC = () => {
                 className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                   selectedCategory === category ||
                   (selectedCategory === null && category === "All")
-                    ? "bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white shadow-sm"
+                    ? "bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white"
                     : isDark
                     ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
@@ -317,7 +317,7 @@ const CoursesSection: React.FC = () => {
           {displayedPaths.map((path) => (
             <div
               key={path.id}
-              className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 cursor-pointer h-full min-h-[520px] shadow-sm hover:shadow-md hover:scale-[1.02] ${
+              className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 cursor-pointer h-full min-h-[520px] hover:scale-[1.02] ${
                 isDark
                   ? "bg-teal-900/30 border border-teal-400/30"
                   : "bg-white/50 border border-slate-200/60"
@@ -430,7 +430,7 @@ const CoursesSection: React.FC = () => {
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-sm hover:shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
               }`}
             >
               Load More ({filteredPaths.length - 6} more)
@@ -450,7 +450,7 @@ const CoursesSection: React.FC = () => {
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-sm hover:shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
               }`}
             >
               Show Less
@@ -482,7 +482,7 @@ const CoursesSection: React.FC = () => {
           </p>
           <button
             onClick={handleJoinCommunity}
-            className="bg-gradient-to-r from-[#008080] to-[#00a3a3] hover:from-[#006666] hover:to-[#008080] text-white px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-2 mx-auto cursor-pointer font-semibold shadow-lg shadow-[#008080]/20"
+            className="bg-gradient-to-r from-[#008080] to-[#00a3a3] hover:from-[#006666] hover:to-[#008080] text-white px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-2 mx-auto cursor-pointer font-semibold"
           >
             Join Our Community
             <ArrowRight className="w-5 h-5" />

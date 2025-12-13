@@ -40,7 +40,7 @@ const MissionVisionSection: React.FC = () => {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div
-          className={`relative overflow-hidden rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md ${
+          className={`relative overflow-hidden rounded-2xl transition-all duration-300 ${
             isDark
               ? "bg-slate-900 border border-slate-800"
               : "bg-white border border-slate-200"
@@ -103,7 +103,7 @@ const MissionVisionSection: React.FC = () => {
         </div>
 
         <div
-          className={`relative overflow-hidden rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md ${
+          className={`relative overflow-hidden rounded-2xl transition-all duration-300 ${
             isDark
               ? "bg-slate-900 border border-slate-800"
               : "bg-white border border-slate-200"
