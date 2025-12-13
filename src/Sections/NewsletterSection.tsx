@@ -9,7 +9,7 @@ const NewsletterSection: React.FC = () => {
         navigate('/signup');
     };
 
-    return (<section id="community" className="py-16 bg-[#008080] dark:bg-teal-700 transition-colors">
+    return (<section id="community" className="py-16 bg-gradient-to-r from-[#008080] to-[#00a3a3] transition-colors">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-10 md:flex-row flex-col">
         <div className="text-left">
             <div>
