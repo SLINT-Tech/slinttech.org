@@ -46,10 +46,20 @@ const handler: Handler = async (event, context) => {
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-    if (response.ok) {
-      const responseData = await response.json();
-      console.log('Background function response:', responseData);
+    const responseText = await response.text();
+    console.log('Response body:', responseText);
+
+    if (response.status === 202 || response.ok) {
       console.log('=== TEST EMAIL QUEUED SUCCESSFULLY ===');
+
+      let backgroundResponse = null;
+      if (responseText) {
+        try {
+          backgroundResponse = JSON.parse(responseText);
+        } catch (e) {
+          console.log('Response is not JSON (expected for background functions)');
+        }
+      }
 
       return {
         statusCode: 200,
@@ -59,18 +69,18 @@ const handler: Handler = async (event, context) => {
         },
         body: JSON.stringify({
           success: true,
-          message: 'Test email queued successfully',
+          message: 'Test email queued successfully (background function invoked)',
           testEmail,
-          backgroundResponse: responseData,
+          responseStatus: response.status,
+          backgroundResponse,
           timestamp: new Date().toISOString()
         })
       };
     } else {
-      const errorText = await response.text();
       console.error('Failed to call background function:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorText
+        error: responseText
       });
       console.log('=== TEST EMAIL QUEUE FAILED ===');
 
@@ -84,7 +94,7 @@ const handler: Handler = async (event, context) => {
           success: false,
           message: 'Failed to queue test email',
           testEmail,
-          error: errorText,
+          error: responseText,
           status: response.status,
           timestamp: new Date().toISOString()
         })
