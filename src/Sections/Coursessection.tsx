@@ -298,10 +298,10 @@ const CoursesSection: React.FC = () => {
                   setSelectedCategory(category === "All" ? null : category);
                   setShowAll(false);
                 }}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                   selectedCategory === category ||
                   (selectedCategory === null && category === "All")
-                    ? "bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white shadow-lg shadow-[#008080]/50"
+                    ? "bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white shadow-sm"
                     : isDark
                     ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
