@@ -410,12 +410,6 @@ const CoursesSection: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                <button
-                  className={`w-full py-2 rounded-lg font-semibold transition-all duration-300 bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white hover:shadow-lg mt-auto`}
-                >
-                  Learn More
-                </button>
               </div>
             </div>
           ))}
