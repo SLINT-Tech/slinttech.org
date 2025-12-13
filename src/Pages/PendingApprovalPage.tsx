@@ -1,4 +1,4 @@
-import { Clock, Mail, MessageSquare, ArrowLeft, LayoutDashboard } from 'lucide-react';
+import { Clock, Mail, MessageSquare, LayoutDashboard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 import { useEffect, useState } from 'react';
@@ -104,22 +104,12 @@ const PendingApprovalPage = () => {
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block transition-colors">SlintTech</span>
             </Link>
-            <div className="flex items-center gap-4">
-              <Link
-                to={isMentor ? '/mentor/dashboard' : '/dashboard'}
-                className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Back to Dashboard</span>
-                <span className="sm:hidden">Back</span>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium cursor-pointer transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>

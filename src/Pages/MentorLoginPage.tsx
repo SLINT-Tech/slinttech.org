@@ -23,11 +23,9 @@ const MentorLoginPage = () => {
       if (currentUser.role === 'Admin') {
         navigate('/admin/dashboard');
       } else if (currentUser.role === 'Mentor') {
-        if (currentUser.status === 'pending') {
-          navigate('/pending-approval');
-        } else if (currentUser.status === 'approved' && currentUser.membershipEnabled && !currentUser.membershipPaid) {
+        if (currentUser.status === 'approved' && currentUser.membershipEnabled && !currentUser.membershipPaid) {
           navigate('/payment-wall');
-        } else if (currentUser.status === 'approved') {
+        } else if (currentUser.status === 'approved' || currentUser.status === 'pending') {
           navigate('/mentor/dashboard');
         }
       } else {
@@ -82,7 +80,7 @@ const MentorLoginPage = () => {
           if (data.token) {
             localStorage.setItem('token', data.token);
           }
-          navigate('/pending-approval');
+          navigate('/mentor/dashboard');
           return;
         }
         throw new Error(data.error || 'Login failed');
@@ -110,7 +108,7 @@ const MentorLoginPage = () => {
       localStorage.setItem('token', data.token);
 
       if (profile.status === 'pending') {
-        navigate('/pending-approval');
+        navigate('/mentor/dashboard');
         return;
       }
 
