@@ -13,7 +13,7 @@ const FeaturesSectionCard: React.FC<FeaturesSectionCardProps> = ({
     title,
     description,
 }) => (
-    <div className="space-y-6 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-xs transition-colors">
+    <div className="space-y-6 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md border border-slate-100 dark:border-slate-700">
         <img
             src={image}
             alt={title}
