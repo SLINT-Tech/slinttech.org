@@ -425,7 +425,7 @@ const CoursesSection: React.FC = () => {
           <div className="text-center mb-12">
             <button
               onClick={() => setShowAll(true)}
-              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
+              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                   : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-md hover:shadow-lg"
@@ -445,7 +445,7 @@ const CoursesSection: React.FC = () => {
                   .getElementById("explore")
                   ?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
+              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
                 isDark
                   ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                   : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-md hover:shadow-lg"
