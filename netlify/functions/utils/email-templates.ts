@@ -1,13 +1,29 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 interface TemplateData {
   [key: string]: string | boolean | undefined;
 }
 
 const loadTemplate = (templateName: string): string => {
-  const templatePath = join(__dirname, '..', 'templates', `${templateName}.html`);
-  return readFileSync(templatePath, 'utf-8');
+  // Try multiple possible paths for template location
+  const possiblePaths = [
+    // Dev environment - relative to this file
+    join(__dirname, '..', 'templates', `${templateName}.html`),
+    // Netlify production - relative to function root
+    join(__dirname, '..', '..', 'functions', 'templates', `${templateName}.html`),
+    // Alternative path
+    join(process.cwd(), 'netlify', 'functions', 'templates', `${templateName}.html`)
+  ];
+
+  for (const templatePath of possiblePaths) {
+    if (existsSync(templatePath)) {
+      return readFileSync(templatePath, 'utf-8');
+    }
+  }
+
+  throw new Error(`Template not found: ${templateName}. Tried paths: ${possiblePaths.join(', ')}`);
 };
 
 const renderTemplate = (template: string, data: TemplateData): string => {
