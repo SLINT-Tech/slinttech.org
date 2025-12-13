@@ -462,7 +462,7 @@ const CoursesSection: React.FC = () => {
           className={`text-center p-8 rounded-2xl backdrop-blur-xl transition-colors duration-300 ${
             isDark
               ? "bg-slate-900 border border-slate-800"
-              : "bg-white/40 border border-white/60"
+              : "bg-white/50 border border-slate-200/60"
           }`}
         >
           <h3
