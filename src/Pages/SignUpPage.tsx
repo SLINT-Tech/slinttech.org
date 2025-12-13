@@ -356,8 +356,8 @@ const SignUpPage = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <img
-              src="/assets/education.svg"
-              alt="Education"
+              src="/assets/logo.svg"
+              alt="SLINT Tech"
               className="w-14 h-14 mx-auto mb-3"
             />
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">

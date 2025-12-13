@@ -1,5 +1,5 @@
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
- import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from "react";
 
 export default function Header() {
@@ -7,6 +7,15 @@ export default function Header() {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+        e.preventDefault();
+        const element = document.getElementById(targetId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        setIsMenuOpen(false);
     };
 
     const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -48,10 +57,10 @@ export default function Header() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-8">
-                        <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Home</a>
-                        <a href="#explore" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Explore</a>
+                        <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Home</a>
+                        <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Explore</a>
                         <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Join Community</Link>
-                        <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Contact</a>
+                        <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Contact</a>
                     </nav>
 
                     {/* Desktop CTA */}
@@ -100,10 +109,10 @@ export default function Header() {
                 {isMenuOpen && (
                     <div className="md:hidden bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-t border-white/20 dark:border-gray-800/50 py-4 transition-colors">
                         <div className="flex flex-col space-y-4">
-                            <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Home</a>
-                            <a href="#explore" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
+                            <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Home</a>
+                            <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Explore</a>
                             <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
-                            <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</a>
+                            <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Contact</a>
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800 transition-colors">
                                 <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
                                 <Link to="/signup" className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
