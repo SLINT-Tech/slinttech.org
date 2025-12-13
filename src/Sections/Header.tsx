@@ -74,13 +74,26 @@ export default function Header() {
                         </button> */}
                     </div>
 
-                    {/* Mobile menu button */}
-                    <button
-                        onClick={toggleMenu}
-                        className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        {isMenuOpen ? <X className="w-6 h-6 text-gray-700 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />}
-                    </button>
+                    {/* Mobile buttons */}
+                    <div className="md:hidden flex items-center gap-2">
+                        <button
+                            onClick={toggleDarkMode}
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                            aria-label="Toggle dark mode"
+                        >
+                            {isDarkMode ? (
+                                <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                            ) : (
+                                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                            )}
+                        </button>
+                        <button
+                            onClick={toggleMenu}
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            {isMenuOpen ? <X className="w-6 h-6 text-gray-700 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Navigation */}
