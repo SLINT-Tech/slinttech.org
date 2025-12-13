@@ -1,4 +1,4 @@
-import { Clock, Mail, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { Clock, Mail, MessageSquare, LayoutDashboard, Check, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 import { useEffect, useState } from 'react';
@@ -144,10 +144,19 @@ const PendingApprovalPage = () => {
               </div>
             </div>
 
-            <div className="text-left space-y-2 text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
-              <p>✓ Application submitted successfully</p>
-              <p>⏳ Admin review in progress</p>
-              <p>📧 You'll receive an email notification once approved</p>
+            <div className="text-left space-y-3 text-sm text-yellow-700 dark:text-yellow-400 transition-colors">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 flex-shrink-0" />
+                <span>Application submitted successfully</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+                <span>Admin review in progress</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 flex-shrink-0" />
+                <span>You'll receive an email notification once approved</span>
+              </div>
             </div>
           </div>
 
