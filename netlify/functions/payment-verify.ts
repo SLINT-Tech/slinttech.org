@@ -169,7 +169,7 @@ export default async (req: Request, context: Context) => {
 
     console.log('Payment verified and membership updated for user:', userId);
 
-    queueEmail({
+    await queueEmail({
       type: 'payment-success',
       to: { email: user.email, name: user.fullName },
       data: {

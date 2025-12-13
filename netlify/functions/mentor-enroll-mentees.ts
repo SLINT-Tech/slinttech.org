@@ -174,7 +174,7 @@ export default async (req: Request, context: Context) => {
     const courseLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
 
     for (const mentee of mentees) {
-      queueEmail({
+      await queueEmail({
         type: 'course-enrollment',
         to: { email: mentee.email, name: mentee.fullName },
         data: {

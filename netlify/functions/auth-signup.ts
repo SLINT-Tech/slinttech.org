@@ -213,7 +213,7 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    queueEmail({
+    await queueEmail({
       type: 'account-awaiting-approval',
       to: { email: newUser.email, name: newUser.fullName },
       data: {
@@ -248,7 +248,7 @@ export default async (req: Request, context: Context) => {
       };
 
       for (const admin of adminUsers) {
-        queueEmail({
+        await queueEmail({
           type: 'admin-new-user-notification',
           to: { email: admin.email, name: admin.fullName },
           data: adminNotificationData

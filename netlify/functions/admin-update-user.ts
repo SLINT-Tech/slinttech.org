@@ -174,7 +174,7 @@ export default async (req: Request, context: Context) => {
       });
 
     if (status !== undefined && status !== existingUser.status) {
-      queueEmail({
+      await queueEmail({
         type: 'application-status-update',
         to: { email: updatedUser.email, name: updatedUser.fullName },
         data: {

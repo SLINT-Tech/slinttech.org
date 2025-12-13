@@ -142,7 +142,7 @@ export default async (req: Request, context: Context) => {
 
     const dashboardLink = `${process.env.VITE_APP_URL || 'https://slinttech.netlify.app'}/mentee/dashboard`;
 
-    queueEmail({
+    await queueEmail({
       type: 'direct-message',
       to: { email: mentee.email, name: mentee.fullName },
       data: {
