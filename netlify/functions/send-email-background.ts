@@ -24,13 +24,24 @@ interface EmailRequest {
 
 export default async (req: Request, context: Context) => {
   try {
+    console.log('=== BACKGROUND EMAIL FUNCTION START ===');
+    console.log('Request method:', req.method);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
+
     const body: EmailRequest = await req.json();
+    console.log('Parsed email request:', {
+      type: body.type,
+      to: body.to?.email,
+      dataKeys: body.data ? Object.keys(body.data) : []
+    });
+
     const { type, to, data } = body;
 
     if (!type || !to || !data) {
       console.error('Missing required fields for email:', { type, to: to?.email });
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-        status: 400
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -94,6 +105,8 @@ export default async (req: Request, context: Context) => {
         });
     }
 
+    console.log('Sending email via Brevo:', { type, to: to.email, subject });
+
     await brevoService.sendEmail({
       to: [to],
       subject,
@@ -101,21 +114,32 @@ export default async (req: Request, context: Context) => {
     });
 
     console.log(`Email sent successfully: ${type} to ${to.email}`);
+    console.log('=== BACKGROUND EMAIL FUNCTION SUCCESS ===');
 
     return new Response(JSON.stringify({
       success: true,
-      message: 'Email sent successfully'
+      message: 'Email sent successfully',
+      type,
+      recipient: to.email
     }), {
-      status: 200
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error: any) {
-    console.error('Background email send error:', error);
+    console.error('=== BACKGROUND EMAIL FUNCTION ERROR ===');
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return new Response(JSON.stringify({
       error: 'Failed to send email',
-      details: error.message
+      details: error.message,
+      stack: error.stack
     }), {
-      status: 500
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
