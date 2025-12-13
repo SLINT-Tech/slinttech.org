@@ -267,13 +267,13 @@ const CoursesSection: React.FC = () => {
   return (
     <section
       id="explore"
-      className={`py-20 px-4 transition-colors duration-300 ${
+      className={`py-20 transition-colors duration-300 ${
         isDark
           ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
           : "bg-white"
       }`}
     >
-      <div className="max-w-7xl mx-auto w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-left mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
             Career Paths
