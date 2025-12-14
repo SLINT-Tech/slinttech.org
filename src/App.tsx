@@ -34,6 +34,7 @@ import MenteeMentorCoursesPage from './Pages/MenteeMentorCoursesPage';
 import MenteeCourseDetailPage from './Pages/MenteeCourseDetailPage';
 import MenteeCoursesPage from './Pages/MenteeCoursesPage';
 import ProtectedRoute from './Components/ProtectedRoute';
+import NotFoundPage from './Pages/NotFoundPage';
 
 function App() {
   return (
@@ -177,6 +178,8 @@ function App() {
               <MentorProfilePage />
             </ProtectedRoute>
           } />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </Router>

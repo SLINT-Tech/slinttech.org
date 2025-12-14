@@ -60,6 +60,7 @@ interface AccountAwaitingApprovalData {
   userEmail: string;
   userRole: string;
   membershipCategory: string;
+  loginLink: string;
 }
 
 export const renderAccountAwaitingApproval = (data: AccountAwaitingApprovalData): string => {
