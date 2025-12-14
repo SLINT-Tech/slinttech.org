@@ -116,7 +116,8 @@ export default async (req: Request, context: Context) => {
 
     const [mentor] = await db
       .select({
-        fullName: userProfiles.fullName
+        fullName: userProfiles.fullName,
+        email: userProfiles.email
       })
       .from(userProfiles)
       .where(eq(userProfiles.id, mentorId))
