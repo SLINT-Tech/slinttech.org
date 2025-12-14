@@ -117,9 +117,10 @@ const NonprofitVerificationSection: React.FC = () => {
   return (
     <section
       id="certifications"
-      className={`py-16 transition-colors duration-300 overflow-hidden ${
+      className={`py-16 transition-colors duration-300 ${
         isDark ? "bg-slate-950" : "bg-gradient-to-b from-slate-50 to-white"
       }`}
+      style={{ overflow: 'hidden', maxWidth: '100vw' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <div className="text-center">
@@ -146,29 +147,37 @@ const NonprofitVerificationSection: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-hidden overflow-y-hidden">
+      <div
+        className="w-full"
+        style={{
+          overflow: 'hidden',
+          maxWidth: '100vw'
+        }}
+      >
         <Marquee
           gradient={true}
           gradientColor={isDark ? "#020617" : "#f8fafc"}
           gradientWidth={80}
           speed={40}
           pauseOnHover={true}
-          className="py-2 [&>div]:items-stretch"
+          style={{ overflow: 'hidden' }}
         >
-          {verifications.map((verification) => (
-            <VerificationCard
-              key={verification.id}
-              verification={verification}
-              isDark={isDark}
-            />
-          ))}
-          {verifications.map((verification) => (
-            <VerificationCard
-              key={`${verification.id}-duplicate`}
-              verification={verification}
-              isDark={isDark}
-            />
-          ))}
+          <div className="flex items-stretch py-4">
+            {verifications.map((verification) => (
+              <VerificationCard
+                key={verification.id}
+                verification={verification}
+                isDark={isDark}
+              />
+            ))}
+            {verifications.map((verification) => (
+              <VerificationCard
+                key={`${verification.id}-duplicate`}
+                verification={verification}
+                isDark={isDark}
+              />
+            ))}
+          </div>
         </Marquee>
       </div>
     </section>

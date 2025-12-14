@@ -130,3 +130,17 @@
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
 }
+
+/* Hide scrollbar for marquee */
+.rfm-marquee-container {
+  overflow: hidden !important;
+}
+
+.rfm-marquee-container::-webkit-scrollbar {
+  display: none;
+}
+
+.rfm-marquee-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
