@@ -357,7 +357,7 @@ const MentorMenteeDetailPage = () => {
               />
               <button
                 onClick={sendMessage}
-                className="flex items-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors"
+                className="flex items-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 Send Message
