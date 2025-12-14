@@ -150,9 +150,9 @@ export const renderTaskReviewMentee = (data: TaskReviewMenteeData): string => {
 interface DirectMessageData {
   menteeName: string;
   mentorName: string;
+  mentorEmail: string;
   messageDate: string;
   messageContent: string;
-  dashboardLink: string;
 }
 
 export const renderDirectMessage = (data: DirectMessageData): string => {
