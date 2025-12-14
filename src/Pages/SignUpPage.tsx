@@ -327,7 +327,7 @@ const SignUpPage = () => {
             <Link to="/" className="flex items-center gap-2">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
               <span className="hidden md:inline text-[#008080] dark:text-teal-400 text-xl">
-                <span className="font-bold">SLINT</span><span className="ml-0.5">Tech</span>
+                <span className="font-bold">SLINT</span><span className="ml-[1px]">Tech</span>
               </span>
             </Link>
             <div className="flex items-center gap-2">
