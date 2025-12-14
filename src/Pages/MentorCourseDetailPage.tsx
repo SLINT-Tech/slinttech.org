@@ -1263,25 +1263,25 @@ const MentorCourseDetailPage = () => {
       {showEnrollMenteesModal && (
         <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col transition-colors">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Enroll Mentees to Course</h2>
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
+              <div className="flex justify-between items-center gap-2">
+                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white transition-colors">Enroll Mentees</h2>
                 <button
                   onClick={() => {
                     setShowEnrollMenteesModal(false);
                     setSelectedMentees([]);
                     setSearchTerm('');
                   }}
-                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors flex-shrink-0"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <div className="p-6 flex-shrink-0">
-              <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors">
-                Select mentees from your assigned list to enroll in "<span className="font-semibold text-gray-900 dark:text-white">{course?.name}</span>"
+            <div className="px-4 sm:px-6 pb-4 flex-shrink-0">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 transition-colors">
+                Select mentees to enroll in "<span className="font-semibold text-gray-900 dark:text-white">{course?.name}</span>"
               </p>
 
               {/* Search */}
@@ -1289,17 +1289,17 @@ const MentorCourseDetailPage = () => {
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search mentees by name or email..."
+                  placeholder="Search mentees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors text-sm sm:text-base"
                   disabled={fetchingMentees}
                 />
               </div>
             </div>
 
             {/* Mentees List - Scrollable Area */}
-            <div className="px-6 pb-4 overflow-y-auto flex-1 min-h-0">
+            <div className="px-4 sm:px-6 pb-4 overflow-y-auto flex-1 min-h-0">
               {fetchingMentees ? (
                 <div className="text-center py-12">
                   <Loader2 className="w-12 h-12 text-[#008080] dark:text-teal-400 mx-auto mb-4 animate-spin transition-colors" />
@@ -1316,7 +1316,7 @@ const MentorCourseDetailPage = () => {
                     .map((mentee) => (
                       <div
                         key={mentee.id}
-                        className={`flex items-center p-4 border rounded-lg transition-all ${
+                        className={`flex items-start p-3 sm:p-4 border rounded-lg transition-all ${
                           mentee.isEnrolled
                             ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed'
                             : selectedMentees.includes(mentee.id)
@@ -1332,48 +1332,51 @@ const MentorCourseDetailPage = () => {
                           }
                         }}
                       >
-                        <div className="mr-3 flex-shrink-0">
+                        <div className="mr-2 sm:mr-3 flex-shrink-0 pt-0.5">
                           <input
                             type="checkbox"
                             checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
                             disabled={mentee.isEnrolled}
                             onChange={() => {}}
-                            className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-[#008080] focus:ring-[#008080] dark:focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer accent-[#008080] dark:accent-teal-400 transition-colors"
+                            className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-[#008080] focus:ring-[#008080] dark:focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer accent-[#008080] dark:accent-teal-400 transition-colors"
                             style={{
                               accentColor: '#008080'
                             }}
                           />
                         </div>
-                        <div className="flex items-start flex-1">
-                          <div className={`w-10 h-10 ${mentee.isEnrolled ? 'bg-gray-400 dark:bg-gray-600' : 'bg-[#008080] dark:bg-teal-600'} rounded-full flex items-center justify-center mr-3 flex-shrink-0 transition-colors`}>
-                            <User className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="font-medium text-gray-900 dark:text-white transition-colors">{mentee.fullName}</div>
-                              {mentee.isEnrolled && (
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 transition-colors">
-                                  Enrolled
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">{mentee.email}</div>
-                            {mentee.careerPath && (
-                              <div className="flex items-center gap-1.5 mt-1.5">
-                                <Target className="w-3.5 h-3.5 text-[#008080] dark:text-teal-400 transition-colors" />
-                                <span className="text-xs font-medium text-[#008080] dark:text-teal-400 bg-[#008080]/10 dark:bg-teal-400/10 px-2 py-0.5 rounded transition-colors">
-                                  {mentee.careerPath}
-                                </span>
-                              </div>
-                            )}
-                            {mentee.membershipCategory && !mentee.careerPath && (
-                              <div className="text-xs text-gray-400 dark:text-gray-500 mt-1 transition-colors">
-                                {mentee.membershipCategory}
-                              </div>
-                            )}
-                          </div>
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 ${mentee.isEnrolled ? 'bg-gray-400 dark:bg-gray-600' : 'bg-[#008080] dark:bg-teal-600'} rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 transition-colors`}>
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 transition-colors ${
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                            <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white transition-colors truncate">{mentee.fullName}</div>
+                            {mentee.isEnrolled && (
+                              <span className="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 transition-colors">
+                                Enrolled
+                              </span>
+                            )}
+                            <span className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors sm:hidden ${
+                              mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
+                            }`}>
+                              {mentee.status}
+                            </span>
+                          </div>
+                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate transition-colors">{mentee.email}</div>
+                          {mentee.careerPath && (
+                            <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5">
+                              <Target className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#008080] dark:text-teal-400 transition-colors flex-shrink-0" />
+                              <span className="text-[10px] sm:text-xs font-medium text-[#008080] dark:text-teal-400 bg-[#008080]/10 dark:bg-teal-400/10 px-1.5 sm:px-2 py-0.5 rounded transition-colors truncate">
+                                {mentee.careerPath}
+                              </span>
+                            </div>
+                          )}
+                          {mentee.membershipCategory && !mentee.careerPath && (
+                            <div className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-1 truncate transition-colors">
+                              {mentee.membershipCategory}
+                            </div>
+                          )}
+                        </div>
+                        <span className={`hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2 transition-colors ${
                           mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
                         }`}>
                           {mentee.status}
@@ -1392,33 +1395,33 @@ const MentorCourseDetailPage = () => {
               )}
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center flex-shrink-0 transition-colors">
-              <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 flex-shrink-0 transition-colors">
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 transition-colors">
                 <p className="font-medium">
                   {selectedMentees.length} mentee{selectedMentees.length !== 1 ? 's' : ''} selected
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  {availableMentees.filter(m => m.isEnrolled).length} enrolled • {availableMentees.filter(m => !m.isEnrolled).length} available
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500 mt-0.5 sm:mt-1">
+                  {availableMentees.filter(m => m.isEnrolled).length} enrolled | {availableMentees.filter(m => !m.isEnrolled).length} available
                 </p>
               </div>
-              <div className="flex space-x-3">
+              <div className="flex space-x-2 sm:space-x-3">
                 <button
                   onClick={() => {
                     setShowEnrollMenteesModal(false);
                     setSelectedMentees([]);
                     setSearchTerm('');
                   }}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleEnrollMentees}
                   disabled={selectedMentees.length === 0 || loading}
-                  className="px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {loading ? 'Enrolling...' : `Enroll ${selectedMentees.length} Mentee${selectedMentees.length !== 1 ? 's' : ''}`}
+                  {loading ? 'Enrolling...' : `Enroll (${selectedMentees.length})`}
                 </button>
               </div>
             </div>
