@@ -25,7 +25,6 @@ interface UpdateTaskRequest {
   description: string;
   requirements: string[];
   deadline: string;
-  frequency: string;
 }
 
 export default async (req: Request, context: Context) => {
@@ -72,12 +71,12 @@ export default async (req: Request, context: Context) => {
     }
 
     const body: UpdateTaskRequest = await req.json();
-    const { taskId, title, description, requirements, deadline, frequency } = body;
+    const { taskId, title, description, requirements, deadline } = body;
 
-    if (!taskId || !title || !description || !deadline || !frequency) {
+    if (!taskId || !title || !description || !deadline) {
       return new Response(JSON.stringify({
         error: 'Missing required fields',
-        details: 'taskId, title, description, deadline, and frequency are required'
+        details: 'taskId, title, description, and deadline are required'
       }), {
         status: 400,
         headers: corsHeaders
@@ -108,7 +107,6 @@ export default async (req: Request, context: Context) => {
         description: description.trim(),
         requirements: JSON.stringify(filteredRequirements),
         deadline: new Date(deadline),
-        frequency,
         updatedAt: new Date()
       })
       .where(eq(tasks.id, taskId))
