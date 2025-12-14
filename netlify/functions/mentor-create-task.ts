@@ -25,7 +25,6 @@ interface CreateTaskRequest {
   description: string;
   requirements: string[];
   deadline: string;
-  frequency: string;
 }
 
 export default async (req: Request, context: Context) => {
@@ -72,12 +71,12 @@ export default async (req: Request, context: Context) => {
     }
 
     const body: CreateTaskRequest = await req.json();
-    const { courseId, title, description, requirements, deadline, frequency } = body;
+    const { courseId, title, description, requirements, deadline } = body;
 
-    if (!courseId || !title || !description || !deadline || !frequency) {
+    if (!courseId || !title || !description || !deadline) {
       return new Response(JSON.stringify({
         error: 'Missing required fields',
-        details: 'courseId, title, description, deadline, and frequency are required'
+        details: 'courseId, title, description, and deadline are required'
       }), {
         status: 400,
         headers: corsHeaders
@@ -110,7 +109,6 @@ export default async (req: Request, context: Context) => {
         description: description.trim(),
         requirements: JSON.stringify(filteredRequirements),
         deadline: new Date(deadline),
-        frequency,
         status: 'active'
       })
       .returning();
@@ -124,7 +122,6 @@ export default async (req: Request, context: Context) => {
         description: newTask[0].description,
         requirements: newTask[0].requirements,
         deadline: newTask[0].deadline,
-        frequency: newTask[0].frequency,
         status: newTask[0].status,
         createdAt: newTask[0].createdAt
       }

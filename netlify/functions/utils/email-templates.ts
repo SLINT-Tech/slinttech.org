@@ -60,6 +60,7 @@ interface AccountAwaitingApprovalData {
   userEmail: string;
   userRole: string;
   membershipCategory: string;
+  loginLink: string;
 }
 
 export const renderAccountAwaitingApproval = (data: AccountAwaitingApprovalData): string => {
@@ -149,9 +150,9 @@ export const renderTaskReviewMentee = (data: TaskReviewMenteeData): string => {
 interface DirectMessageData {
   menteeName: string;
   mentorName: string;
+  mentorEmail: string;
   messageDate: string;
   messageContent: string;
-  dashboardLink: string;
 }
 
 export const renderDirectMessage = (data: DirectMessageData): string => {

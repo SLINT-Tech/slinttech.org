@@ -213,6 +213,9 @@ export default async (req: Request, context: Context) => {
       });
     }
 
+    const appUrl = process.env.APP_URL || 'https://slinttech.netlify.app';
+    const loginLink = newUser.role === 'Mentor' ? `${appUrl}/mentor/login` : `${appUrl}/login`;
+
     await queueEmail({
       type: 'account-awaiting-approval',
       to: { email: newUser.email, name: newUser.fullName },
@@ -220,7 +223,8 @@ export default async (req: Request, context: Context) => {
         userName: newUser.fullName,
         userEmail: newUser.email,
         userRole: newUser.role,
-        membershipCategory: newUser.membershipCategory
+        membershipCategory: newUser.membershipCategory,
+        loginLink
       }
     });
 

@@ -171,7 +171,7 @@ export default async (req: Request, context: Context) => {
       .from(userProfiles)
       .where(inArray(userProfiles.id, newMenteeIds));
 
-    const courseLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/mentee/courses/${courseId}`;
+    const courseLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/dashboard`;
 
     for (const mentee of mentees) {
       await queueEmail({
@@ -179,10 +179,10 @@ export default async (req: Request, context: Context) => {
         to: { email: mentee.email, name: mentee.fullName },
         data: {
           menteeName: mentee.fullName,
-          courseTitle: course[0].title,
+          courseTitle: course[0].name,
           courseDescription: course[0].description || 'No description available',
           courseDuration: course[0].duration || 'Self-paced',
-          courseLevel: course[0].level || 'Intermediate',
+          courseLevel: 'Intermediate',
           mentorName: mentor.fullName,
           courseLink
         }

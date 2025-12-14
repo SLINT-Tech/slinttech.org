@@ -19,7 +19,7 @@ const verifications: Verification[] = [
     description:
       "We participate in the Google for Nonprofits program, which provides access to Google tools and resources designed for nonprofit organizations.",
     color: "from-blue-500 to-blue-600",
-    icon: <Award className="w-8 h-8 text-blue-500" />,
+    icon: <Award className="w-12 h-12 text-blue-500" />,
   },
   {
     id: "microsoft-nonprofit",
@@ -28,7 +28,7 @@ const verifications: Verification[] = [
     description:
       "We are enrolled in the Microsoft Nonprofits program, enabling access to discounted software and cloud services for our organization.",
     color: "from-slate-500 to-slate-600",
-    icon: <Verified className="w-8 h-8 text-slate-600 dark:text-slate-300" />,
+    icon: <Verified className="w-12 h-12 text-slate-600 dark:text-slate-300" />,
   },
   {
     id: "slack-nonprofit",
@@ -37,7 +37,7 @@ const verifications: Verification[] = [
     description:
       "We participate in Slack's nonprofit program, which provides collaboration tools to support our team communication.",
     color: "from-[#008080] to-[#00a3a3]",
-    icon: <CheckCircle2 className="w-8 h-8 text-[#008080]" />,
+    icon: <CheckCircle2 className="w-12 h-12 text-[#008080]" />,
   },
   {
     id: "techsoup",
@@ -46,7 +46,7 @@ const verifications: Verification[] = [
     description:
       "We are registered with TechSoup, a nonprofit that connects organizations like ours with discounted technology products and services.",
     color: "from-orange-500 to-orange-600",
-    icon: <Award className="w-8 h-8 text-orange-500" />,
+    icon: <Award className="w-12 h-12 text-orange-500" />,
   },
 ];
 
@@ -55,7 +55,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
   isDark,
 }) => (
   <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-40 ${
+    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-4 w-96 flex-shrink-0 h-60 ${
       isDark
         ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
         : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
@@ -64,19 +64,19 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
     <div
       className={`absolute inset-0 bg-gradient-to-br ${verification.color} opacity-5`}
     />
-    <div className="relative p-5 z-10">
-      <div className="flex items-center gap-3 mb-3">
+    <div className="relative p-7 z-10">
+      <div className="flex items-center gap-4 mb-4">
         <div className="flex-shrink-0">{verification.icon}</div>
         <div className="min-w-0 flex-1">
           <h3
-            className={`text-sm font-bold leading-tight ${
+            className={`text-lg font-bold leading-tight ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
             {verification.name}
           </h3>
           <p
-            className={`text-xs ${
+            className={`text-sm ${
               isDark ? "text-teal-400" : "text-[#008080]"
             }`}
           >
@@ -85,7 +85,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
         </div>
       </div>
       <p
-        className={`text-xs leading-relaxed ${
+        className={`text-sm leading-relaxed ${
           isDark ? "text-slate-400" : "text-slate-600"
         }`}
       >

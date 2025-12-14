@@ -137,9 +137,9 @@ const MenteeCourseDetailPage = () => {
       const isOverdue = task.deadline && new Date(task.deadline) < new Date();
       return (
         <span className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-          isOverdue ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+          isOverdue ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         }`}>
-          {isOverdue ? 'Overdue' : 'Pending'}
+          {isOverdue ? 'Overdue' : 'Not Submitted'}
         </span>
       );
     }
