@@ -55,7 +55,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
   isDark,
 }) => (
   <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-full ${
+    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-40 ${
       isDark
         ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
         : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
@@ -134,15 +134,15 @@ const NonprofitVerificationSection: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-            Trusted & Verified
+            Nonprofit Program Memberships
           </h2>
           <p
             className={`text-base max-w-xl mx-auto ${
               isDark ? "text-slate-400" : "text-slate-600"
             }`}
           >
-            A registered nonprofit organization with access to programs
-            that support our mission of transparency and quality education.
+            We are members of nonprofit support programs that provide tools
+            and resources to help us deliver quality education.
           </p>
         </div>
       </div>
