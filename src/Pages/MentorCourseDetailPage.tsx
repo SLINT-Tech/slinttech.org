@@ -86,7 +86,8 @@ const MentorCourseDetailPage = () => {
     title: '',
     description: '',
     requirements: [''],
-    deadline: ''
+    deadline: '',
+    frequency: 'weekly'
   });
 
   useEffect(() => {
@@ -283,7 +284,7 @@ const MentorCourseDetailPage = () => {
 
       if (response.ok && data.success) {
         setToast({ message: 'Task created successfully!', type: 'success' });
-        setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+        setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
         setShowCreateTaskModal(false);
         fetchCourseDetails();
       } else {
@@ -1042,7 +1043,7 @@ const MentorCourseDetailPage = () => {
                 <button
                   onClick={() => {
                     setShowCreateTaskModal(false);
-                    setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+                    setNewTask({ title: '', description: '', requirements: [''], deadline: '', frequency: 'weekly' });
                   }}
                   className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
@@ -1117,6 +1118,23 @@ const MentorCourseDetailPage = () => {
                   onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                  Frequency <span className="text-red-500 dark:text-red-400">*</span>
+                </label>
+                <select
+                  value={newTask.frequency}
+                  onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value })}
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="biweekly">Biweekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="once">One-time</option>
+                </select>
               </div>
             </div>
 
