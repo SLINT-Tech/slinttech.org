@@ -1,4 +1,4 @@
-import ContactInfoSection from '../Sections/contactinfosection';
+import ContactInfoSection from '../Sections/ContactInfosection';
 import CoursesSection from '../Sections/Coursessection';
 import { FeaturesSection } from '../Sections/Featuressection';
 import Footer from '../Sections/Footer';
