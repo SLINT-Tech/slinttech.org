@@ -107,12 +107,12 @@ const MissionVisionSection: React.FC = () => {
         >
           <div className="p-8">
             <div className="mb-6 inline-flex">
-              <div className="p-3 rounded-xl bg-gradient-to-r from-[#00a3a3] to-[#008080]">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-[#008080] to-[#00a3a3]">
                 <Target className="w-6 h-6 text-white" />
               </div>
             </div>
 
-            <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-[#00a3a3] to-[#008080] bg-clip-text text-transparent">
+            <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
               Our Mission
             </h3>
 
