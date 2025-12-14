@@ -27,7 +27,7 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
 
   return (
     <div className={`
-      fixed top-4 right-4 z-50 transition-all duration-300
+      fixed top-4 right-4 z-[99999] transition-all duration-300 isolate
       ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
     `}>
       <div className={`
