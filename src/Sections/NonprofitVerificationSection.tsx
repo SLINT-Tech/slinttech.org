@@ -55,7 +55,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
   isDark,
 }) => (
   <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-4 w-[30rem] flex-shrink-0 h-60 ${
+    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-4 w-96 flex-shrink-0 h-60 ${
       isDark
         ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
         : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
