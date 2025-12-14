@@ -77,7 +77,7 @@ const MissionVisionSection: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <Rocket className="w-5 h-5 text-[#00a3a3] flex-shrink-0 mt-0.5" />
+                <Rocket className="w-5 h-5 text-[#008080] flex-shrink-0 mt-0.5" />
                 <span
                   className={`text-sm ${
                     isDark ? "text-slate-400" : "text-slate-600"
@@ -128,7 +128,7 @@ const MissionVisionSection: React.FC = () => {
 
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <Users className="w-5 h-5 text-[#00a3a3] flex-shrink-0 mt-0.5" />
+                <Users className="w-5 h-5 text-[#008080] flex-shrink-0 mt-0.5" />
                 <span
                   className={`text-sm ${
                     isDark ? "text-slate-400" : "text-slate-600"
@@ -148,7 +148,7 @@ const MissionVisionSection: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <Rocket className="w-5 h-5 text-[#00a3a3] flex-shrink-0 mt-0.5" />
+                <Rocket className="w-5 h-5 text-[#008080] flex-shrink-0 mt-0.5" />
                 <span
                   className={`text-sm ${
                     isDark ? "text-slate-400" : "text-slate-600"
