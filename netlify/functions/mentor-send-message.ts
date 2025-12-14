@@ -140,14 +140,13 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const dashboardLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/dashboard`;
-
     await queueEmail({
       type: 'direct-message',
       to: { email: mentee.email, name: mentee.fullName },
       data: {
         menteeName: mentee.fullName,
         mentorName: mentor.fullName,
+        mentorEmail: mentor.email,
         messageDate: new Date().toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
@@ -155,8 +154,7 @@ export default async (req: Request, context: Context) => {
           hour: '2-digit',
           minute: '2-digit'
         }),
-        messageContent: message.trim(),
-        dashboardLink
+        messageContent: message.trim()
       }
     });
 
