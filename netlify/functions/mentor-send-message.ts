@@ -140,7 +140,7 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    const dashboardLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/mentee/dashboard`;
+    const dashboardLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/dashboard`;
 
     await queueEmail({
       type: 'direct-message',

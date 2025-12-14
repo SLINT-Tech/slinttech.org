@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, MessageSquare, Search, Send, User } from 'lucide-react';
+import { ArrowLeft, BookOpen, Loader2, MessageSquare, Search, Send, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
@@ -45,6 +45,7 @@ const MentorMenteeDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -95,6 +96,7 @@ const MentorMenteeDetailPage = () => {
       return;
     }
 
+    setSendingMessage(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -125,6 +127,8 @@ const MentorMenteeDetailPage = () => {
     } catch (error) {
       console.error('Send message error:', error);
       setToast({ message: 'Failed to send message', type: 'error' });
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -357,10 +361,20 @@ const MentorMenteeDetailPage = () => {
               />
               <button
                 onClick={sendMessage}
-                className="flex items-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer"
+                disabled={sendingMessage}
+                className="flex items-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send className="w-4 h-4" />
-                Send Message
+                {sendingMessage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </>
+                )}
               </button>
             </div>
 
