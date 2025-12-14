@@ -15,36 +15,36 @@ const verifications: Verification[] = [
   {
     id: "google-nonprofit",
     name: "Google for Nonprofits",
-    program: "Program Participant",
+    program: "Program Member",
     description:
-      "Access to Google products that help solve the challenges nonprofits face: finding new donors and volunteers, working more efficiently.",
+      "We participate in the Google for Nonprofits program, which provides access to Google tools and resources designed for nonprofit organizations.",
     color: "from-blue-500 to-blue-600",
     icon: <Award className="w-8 h-8 text-blue-500" />,
   },
   {
     id: "microsoft-nonprofit",
-    name: "Microsoft Non-Profit",
-    program: "Verified Partner",
+    name: "Microsoft Nonprofits",
+    program: "Program Member",
     description:
-      "Recognized by Microsoft for our mission to democratize tech education and empower underrepresented communities.",
+      "We are enrolled in the Microsoft Nonprofits program, enabling access to discounted software and cloud services for our organization.",
     color: "from-slate-500 to-slate-600",
     icon: <Verified className="w-8 h-8 text-slate-600 dark:text-slate-300" />,
   },
   {
     id: "slack-nonprofit",
-    name: "Slack for Non-Profits",
-    program: "Program Participant",
+    name: "Slack for Nonprofits",
+    program: "Program Member",
     description:
-      "Approved as a non-profit organization by Slack to enhance team collaboration and community engagement.",
+      "We participate in Slack's nonprofit program, which provides collaboration tools to support our team communication.",
     color: "from-[#008080] to-[#00a3a3]",
     icon: <CheckCircle2 className="w-8 h-8 text-[#008080]" />,
   },
   {
     id: "techsoup",
-    name: "Tech Soup",
-    program: "Registered Organization",
+    name: "TechSoup",
+    program: "Registered Member",
     description:
-      "Listed on Tech Soup as a trusted non-profit organization connecting us with discounted technology solutions.",
+      "We are registered with TechSoup, a nonprofit that connects organizations like ours with discounted technology products and services.",
     color: "from-orange-500 to-orange-600",
     icon: <Award className="w-8 h-8 text-orange-500" />,
   },
@@ -55,7 +55,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
   isDark,
 }) => (
   <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-full ${
+    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-40 ${
       isDark
         ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
         : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
@@ -134,15 +134,15 @@ const NonprofitVerificationSection: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-            Trusted & Verified
+            Nonprofit Program Memberships
           </h2>
           <p
             className={`text-base max-w-xl mx-auto ${
               isDark ? "text-slate-400" : "text-slate-600"
             }`}
           >
-            A verified non-profit recognized by leading tech companies,
-            committed to transparency and quality education.
+            We are members of nonprofit support programs that provide tools
+            and resources to help us deliver quality education.
           </p>
         </div>
       </div>
