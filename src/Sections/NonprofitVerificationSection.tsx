@@ -55,7 +55,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
   isDark,
 }) => (
   <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-72 flex-shrink-0 ${
+    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-3 w-80 flex-shrink-0 h-full ${
       isDark
         ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
         : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
@@ -67,9 +67,9 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
     <div className="relative p-5 z-10">
       <div className="flex items-center gap-3 mb-3">
         <div className="flex-shrink-0">{verification.icon}</div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3
-            className={`text-sm font-bold truncate ${
+            className={`text-sm font-bold leading-tight ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
@@ -85,7 +85,7 @@ const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }
         </div>
       </div>
       <p
-        className={`text-xs leading-relaxed line-clamp-3 ${
+        className={`text-xs leading-relaxed ${
           isDark ? "text-slate-400" : "text-slate-600"
         }`}
       >
@@ -146,29 +146,31 @@ const NonprofitVerificationSection: React.FC = () => {
         </div>
       </div>
 
-      <Marquee
-        gradient={true}
-        gradientColor={isDark ? "#020617" : "#f8fafc"}
-        gradientWidth={80}
-        speed={40}
-        pauseOnHover={true}
-        className="py-2"
-      >
-        {verifications.map((verification) => (
-          <VerificationCard
-            key={verification.id}
-            verification={verification}
-            isDark={isDark}
-          />
-        ))}
-        {verifications.map((verification) => (
-          <VerificationCard
-            key={`${verification.id}-duplicate`}
-            verification={verification}
-            isDark={isDark}
-          />
-        ))}
-      </Marquee>
+      <div className="overflow-x-hidden overflow-y-hidden">
+        <Marquee
+          gradient={true}
+          gradientColor={isDark ? "#020617" : "#f8fafc"}
+          gradientWidth={80}
+          speed={40}
+          pauseOnHover={true}
+          className="py-2 [&>div]:items-stretch"
+        >
+          {verifications.map((verification) => (
+            <VerificationCard
+              key={verification.id}
+              verification={verification}
+              isDark={isDark}
+            />
+          ))}
+          {verifications.map((verification) => (
+            <VerificationCard
+              key={`${verification.id}-duplicate`}
+              verification={verification}
+              isDark={isDark}
+            />
+          ))}
+        </Marquee>
+      </div>
     </section>
   );
 };
