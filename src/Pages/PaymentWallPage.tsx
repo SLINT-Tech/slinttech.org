@@ -227,7 +227,9 @@ const PaymentWallPage = () => {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block transition-colors">SlintTech</span>
+              <span className="text-xl text-[#00a3a3] dark:text-[#00a3a3] hidden md:block transition-colors">
+                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
+              </span>
             </Link>
             <Link
               to="/login"
