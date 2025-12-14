@@ -1279,7 +1279,7 @@ const MentorCourseDetailPage = () => {
               </div>
             </div>
 
-            <div className="px-4 sm:px-6 pb-4 flex-shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-4 flex-shrink-0">
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 transition-colors">
                 Select mentees to enroll in "<span className="font-semibold text-gray-900 dark:text-white">{course?.name}</span>"
               </p>
