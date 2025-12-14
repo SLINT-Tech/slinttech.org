@@ -31,7 +31,7 @@ const HomePage = () => {
       <NonprofitVerificationSection />
 
       {/* Get Started Section */}
-      <GetStartedSection />
+     
 
       {/* Contact Section */}
       <ContactInfoSection />
