@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
                 <a
                   href="#home"
                   onClick={(e) => handleSmoothScroll(e, 'home')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
+                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
                 >
                   Home
                 </a>
@@ -91,7 +91,7 @@ const Footer: React.FC = () => {
                 <a
                   href="#explore"
                   onClick={(e) => handleSmoothScroll(e, 'explore')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
+                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
                 >
                   Career Paths
                 </a>
@@ -99,7 +99,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/signup"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3]"
+                  className="text-sm transition-colors text-slate-400 hover:text-[#008080]"
                 >
                   Join Community
                 </Link>
@@ -108,7 +108,7 @@ const Footer: React.FC = () => {
                 <a
                   href="#contact"
                   onClick={(e) => handleSmoothScroll(e, 'contact')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3] cursor-pointer"
+                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
                 >
                   Contact
                 </a>
@@ -122,16 +122,16 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#00a3a3]" />
+                <Mail className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#008080]" />
                 <a
                   href="mailto:contact@slinttech.org"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#00a3a3]"
+                  className="text-sm transition-colors text-slate-400 hover:text-[#008080]"
                 >
                   contact@slinttech.org
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#00a3a3]" />
+                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#008080]" />
                 <span className="text-sm text-slate-400">
                   Building Future Leaders
                   <br />

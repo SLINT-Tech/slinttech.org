@@ -133,8 +133,8 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center flex-shrink-0">
               <img src="/assets/logo.svg" alt="SlintTech Logo" className="w-10 h-10" />
-              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
-                SlintTech
+              <span className="text-xl text-[#008080] dark:text-[#008080] hidden sm:block">
+                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
               </span>
             </Link>
 

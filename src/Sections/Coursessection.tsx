@@ -331,7 +331,7 @@ const CoursesSection: React.FC = () => {
 
               <div className="relative p-6 z-10 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="text-[#008080] dark:text-[#00a3a3] flex-shrink-0">
+                  <div className="text-[#008080] dark:text-[#008080] flex-shrink-0">
                     {path.icon}
                   </div>
                   <h3

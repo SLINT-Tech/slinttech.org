@@ -378,7 +378,9 @@ const MentorProfilePage = () => {
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="flex items-center">
                 <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white hidden md:block">SLINT Tech Mentor</span>
+                <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block">
+                  <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
+                </span>
               </Link>
               <div className="flex items-center gap-4">
                 <button

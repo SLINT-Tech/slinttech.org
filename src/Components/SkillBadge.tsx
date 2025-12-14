@@ -290,7 +290,7 @@ const skillIconMap: Record<string, React.ReactNode> = {
 
 export const SkillBadge: React.FC<SkillBadgeProps> = ({ skill, isDark }) => {
   const icon = skillIconMap[skill];
-  const defaultIconColor = "#00a3a3";
+  const defaultIconColor = "#008080";
   const iconColor = skillBrandColors[skill] || defaultIconColor;
   const coloredIcon =
     icon && React.isValidElement(icon)
