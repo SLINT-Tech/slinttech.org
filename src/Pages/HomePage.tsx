@@ -7,6 +7,7 @@ import Header from '../Sections/Header';
 import HeroSection from '../Sections/Herosection';
 import MissionVisionSection from '../Sections/MissionVisionSection';
 import NewsletterSection from '../Sections/NewsletterSection';
+import NonprofitVerificationSection from '../Sections/NonprofitVerificationSection';
 
 const HomePage = () => {
   return (
@@ -25,6 +26,9 @@ const HomePage = () => {
 
       {/* Courses Section */}
       <CoursesSection />
+
+      {/* Nonprofit Verification Section */}
+      <NonprofitVerificationSection />
 
       {/* Get Started Section */}
       <GetStartedSection />
