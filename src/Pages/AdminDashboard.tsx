@@ -936,7 +936,7 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <tr key={user.id} onClick={() => handleViewUser(user)} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center transition-colors">
@@ -983,7 +983,7 @@ const AdminDashboard = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleViewUser(user)}

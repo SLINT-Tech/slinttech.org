@@ -413,7 +413,7 @@ const MentorSubmissionsPage = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                     {paginatedSubmissions.map((submission) => (
-                      <tr key={submission.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <tr key={submission.id} onClick={() => handleViewSubmission(submission)} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3 transition-colors">
@@ -437,7 +437,7 @@ const MentorSubmissionsPage = () => {
                             <span className="ml-1">{submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}</span>
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleViewSubmission(submission)}
                             className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
