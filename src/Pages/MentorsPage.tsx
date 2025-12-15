@@ -160,7 +160,7 @@ const MentorsPage = () => {
                       </thead>
                       <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                         {paginatedMentors.map((mentor) => (
-                          <tr key={mentor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                          <tr key={mentor.id} onClick={() => navigate(`/mentor-courses?mentorId=${mentor.id}`)} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center">
@@ -198,7 +198,7 @@ const MentorsPage = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                               {formatDate(mentor.assignedDate)}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={(e) => e.stopPropagation()}>
                               <Link
                                 to={`/mentor-courses?mentorId=${mentor.id}`}
                                 className="flex items-center gap-1 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"

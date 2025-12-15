@@ -310,7 +310,7 @@ const TasksPage = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                     {paginatedTasks.map((task) => (
-                      <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <tr key={task.id} onClick={() => navigate(`/task/${task.id}`)} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">{task.title}</div>
                         </td>
@@ -345,7 +345,7 @@ const TasksPage = () => {
                             <span className="text-sm text-gray-500 dark:text-gray-400 transition-colors">No deadline</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => navigate(`/task/${task.id}`)}
                             className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"

@@ -292,7 +292,7 @@ const LessonsPage = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                     {paginatedLessons.map((lesson) => (
-                      <tr key={lesson.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <tr key={lesson.id} onClick={() => setSelectedLesson(lesson)} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">{lesson.title}</div>
                         </td>
@@ -323,7 +323,7 @@ const LessonsPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors">
                           {new Date(lesson.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => setSelectedLesson(lesson)}
                             className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
