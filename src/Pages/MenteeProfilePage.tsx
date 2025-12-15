@@ -289,7 +289,7 @@ const MenteeProfilePage = () => {
         />
 
         {/* Main Content Skeleton */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button Skeleton */}
           <div className="flex items-center gap-2 mb-6">
             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -377,7 +377,7 @@ const MenteeProfilePage = () => {
 
       {/* Loading State */}
       {loading && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             onClick={() => navigate('/dashboard')}
             className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
@@ -394,7 +394,7 @@ const MenteeProfilePage = () => {
 
       {/* Error State */}
       {!loading && !profileData && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Failed to Load Profile</h1>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Please try refreshing the page or contact support.</p>
@@ -406,7 +406,7 @@ const MenteeProfilePage = () => {
       )}
       {/* Main Content */}
       {!loading && profileData && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button */}
           <button
             onClick={() => navigate('/dashboard')}
