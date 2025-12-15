@@ -133,7 +133,7 @@ export default async (req: Request, context: Context) => {
       .select({
         taskTitle: tasks.title,
         courseId: courses.id,
-        courseName: courses.title,
+        courseName: courses.name,
         mentorId: courses.mentorId
       })
       .from(tasks)
