@@ -1208,22 +1208,22 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-6">Contract Document</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 mt-6 transition-colors">Contract Document</h3>
                   {selectedUser.contractFileUrl ? (
-                    <div className="border border-teal-100 bg-teal-50/50 rounded-lg p-4 hover:bg-teal-50 transition-colors">
+                    <div className="border border-teal-100 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-900/20 rounded-lg p-4 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 flex-1">
-                          <div className="flex items-center justify-center w-10 h-10 bg-teal-100 rounded-lg">
-                            <FileText className="w-5 h-5 text-[#008080]" />
+                          <div className="flex items-center justify-center w-10 h-10 bg-teal-100 dark:bg-teal-800 rounded-lg transition-colors">
+                            <FileText className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">Membership Contract</p>
-                            <p className="text-xs text-gray-500">PDF Document</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white transition-colors">Membership Contract</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">PDF Document</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleDownloadContract(selectedUser.id, selectedUser.fullName)}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+                          className="flex items-center gap-2 px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer"
                         >
                           <Download className="w-4 h-4" />
                           <span className="text-sm font-medium">Download</span>
@@ -1231,14 +1231,14 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-lg">
-                          <FileText className="w-5 h-5 text-gray-400" />
+                        <div className="flex items-center justify-center w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors">
+                          <FileText className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">No contract uploaded</p>
-                          <p className="text-xs text-gray-400">Contract document not available</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors">No contract uploaded</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">Contract document not available</p>
                         </div>
                       </div>
                     </div>
@@ -1248,39 +1248,39 @@ const AdminDashboard = () => {
 
               {/* Payment Information */}
               {(selectedUser.role === 'Mentee' || selectedUser.role === 'Mentor') && selectedUser.membershipEnabled && (
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
-                  <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg p-4 border border-teal-100">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Payment Information</h3>
+                  <div className="bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-teal-100 dark:border-teal-800 transition-colors">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Payment Status</label>
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">Payment Status</label>
                         <div className="flex items-center gap-2">
                           {selectedUser.membershipPaid ? (
                             <>
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                              <span className="text-sm font-semibold text-green-700">Paid</span>
+                              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                              <span className="text-sm font-semibold text-green-700 dark:text-green-400 transition-colors">Paid</span>
                             </>
                           ) : (
                             <>
-                              <XCircle className="w-4 h-4 text-yellow-600" />
-                              <span className="text-sm font-semibold text-yellow-700">Unpaid</span>
+                              <XCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                              <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 transition-colors">Unpaid</span>
                             </>
                           )}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Amount</label>
-                        <p className="text-sm font-semibold text-gray-900">GHS {selectedUser.membershipAmount || 30}</p>
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">Amount</label>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors">GHS {selectedUser.membershipAmount || 30}</p>
                       </div>
                       {selectedUser.membershipPaid && selectedUser.paymentReference && (
                         <>
                           <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Reference</label>
-                            <p className="text-sm font-mono text-gray-900">{selectedUser.paymentReference}</p>
+                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">Reference</label>
+                            <p className="text-sm font-mono text-gray-900 dark:text-white transition-colors">{selectedUser.paymentReference}</p>
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Payment Date</label>
-                            <p className="text-sm text-gray-900">
+                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">Payment Date</label>
+                            <p className="text-sm text-gray-900 dark:text-white transition-colors">
                               {selectedUser.paymentDate ? new Date(selectedUser.paymentDate).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'short',
@@ -1296,26 +1296,26 @@ const AdminDashboard = () => {
               )}
 
               {/* Admin Management Fields */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Membership Settings</h3>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 transition-colors">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors">Membership Settings</h3>
 
                 {/* Membership Settings - Only show for Mentees and Mentors */}
                 {(editingUser.role === 'Mentee' || editingUser.role === 'Mentor') && (
                   <div className="mt-6">
-                    <h4 className="text-md font-semibold text-gray-900 mb-4">
+                    <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
                       {editingUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
                     </h4>
                     
                     {/* Membership Toggle */}
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                           Enable {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Payment
                         </label>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                           When enabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
                           When disabled, {editingUser.role === 'Mentor' ? 'mentor' : 'user'} can access dashboard without payment requirement
                         </p>
                       </div>
@@ -1327,14 +1327,14 @@ const AdminDashboard = () => {
                           className="sr-only peer"
                           disabled={editingUser.status !== 'approved'}
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
+                        <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 dark:peer-focus:ring-teal-400/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] dark:peer-checked:bg-teal-600 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-colors"></div>
                       </label>
                     </div>
 
                     {/* Membership Amount */}
                     {editingUser.membershipEnabled && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                           {editingUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Amount (GHS)
                         </label>
                         <input
@@ -1346,10 +1346,10 @@ const AdminDashboard = () => {
                             const amount = Math.max(0, parseFloat(e.target.value) || 0);
                             setEditingUser({...editingUser, membershipAmount: amount});
                           }}
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                          className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                           placeholder={editingUser.role === 'Mentor' ? '50.00' : '30.00'}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">Minimum amount: 0 GHS</p>
                       </div>
                     )}
                   </div>
@@ -1359,7 +1359,7 @@ const AdminDashboard = () => {
                 {editingUser.role === 'Mentee' && (
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-semibold text-gray-900">Mentor Assignments</h4>
+                    <h4 className="text-md font-semibold text-gray-900 dark:text-white transition-colors">Mentor Assignments</h4>
                     <button
                       onClick={addMentorAssignment}
                       disabled={isLoadingAssignments}
@@ -1375,41 +1375,41 @@ const AdminDashboard = () => {
                   </div>
 
                   {isLoadingAssignments ? (
-                    <div className="border border-gray-200 rounded-lg p-8 mb-3">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 mb-3 transition-colors">
                       <div className="flex flex-col items-center justify-center space-y-3">
-                        <svg className="animate-spin h-8 w-8 text-[#008080]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-8 w-8 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <p className="text-sm text-gray-600">Loading mentor assignments...</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Loading mentor assignments...</p>
                       </div>
                     </div>
                   ) : editingUser.mentorAssignments.length === 0 ? (
-                    <div className="border border-gray-200 rounded-lg p-6 mb-3 text-center">
-                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">No mentors assigned yet</p>
-                      <p className="text-xs text-gray-500 mt-1">Click "Assign Mentor" to add a mentor</p>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-3 text-center transition-colors">
+                      <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-2 transition-colors" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">No mentors assigned yet</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors">Click "Assign Mentor" to add a mentor</p>
                     </div>
                   ) : (
                     editingUser.mentorAssignments.map((assignment, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
+                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-3 transition-colors">
                       <div className="flex justify-between items-start mb-3">
-                        <h5 className="font-medium text-gray-900">Assignment {index + 1}</h5>
+                        <h5 className="font-medium text-gray-900 dark:text-white transition-colors">Assignment {index + 1}</h5>
                         <button
                           onClick={() => removeMentorAssignment(index)}
-                          className="text-red-600 hover:text-red-700 cursor-pointer"
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="grid md:grid-cols-1 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Mentor</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Select Mentor</label>
                           <select
                             value={assignment.mentor}
                             onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
                             disabled={isLoadingMentors || availableMentors.length === 0}
-                            className={`w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none text-sm ${
+                            className={`w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none text-sm transition-colors ${
                               isLoadingMentors || availableMentors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                           >
@@ -1436,8 +1436,8 @@ const AdminDashboard = () => {
                               ))}
                           </select>
                           {isLoadingMentors && (
-                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                              <svg className="animate-spin h-3 w-3 text-[#008080]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors">
+                              <svg className="animate-spin h-3 w-3 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
@@ -1445,7 +1445,7 @@ const AdminDashboard = () => {
                             </p>
                           )}
                           {!isLoadingMentors && availableMentors.length === 0 && (
-                            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1 transition-colors">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                               </svg>
@@ -1462,12 +1462,12 @@ const AdminDashboard = () => {
               </div>
 
               {/* Action Buttons */}
-             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
+             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
                 <button
                   onClick={() => setShowUserModal(false)}
                   disabled={isUpdating}
-                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
-                    isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
+                    isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
                   }`}
                 >
                   Cancel
