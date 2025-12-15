@@ -1,4 +1,4 @@
-import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown, LogOut, Moon, Sun } from 'lucide-react';
+import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -163,9 +163,17 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? (
-                <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               ) : (
-                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
               )}
             </button>
 
@@ -175,7 +183,7 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName.split(' ')[0]}</span>
                 <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
@@ -241,17 +249,38 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName.split(' ')[0]}</span>
               </div>
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onLogout();
-                }}
-                className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDarkMode ? (
+                    <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onLogout();
+                  }}
+                  className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>

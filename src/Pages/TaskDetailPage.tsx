@@ -38,6 +38,7 @@ const TaskDetailPage = () => {
   const { signOut } = useAuth();
 
   const [task, setTask] = useState<Task | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string } | null>(null);
   const [submissionData, setSubmissionData] = useState({
     link: '',
     notes: ''
@@ -48,6 +49,7 @@ const TaskDetailPage = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(user);
     if (user.status === 'pending') {
       navigate('/dashboard');
       return;
@@ -178,7 +180,11 @@ const TaskDetailPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-        <Navigation />
+        <Navigation
+          role="Mentee"
+          userName={currentUser?.fullName || 'User'}
+          onLogout={signOut}
+        />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link
             to="/tasks"
@@ -271,7 +277,11 @@ const TaskDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-      <Navigation />
+      <Navigation
+        role="Mentee"
+        userName={currentUser?.fullName || 'User'}
+        onLogout={signOut}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link

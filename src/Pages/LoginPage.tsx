@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff, Moon, Sun, X } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
@@ -186,9 +186,17 @@ const LoginPage = () => {
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? (
-                  <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 ) : (
-                  <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
                 )}
               </button>
               <Link
