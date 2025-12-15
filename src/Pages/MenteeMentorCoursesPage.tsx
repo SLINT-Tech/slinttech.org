@@ -197,7 +197,7 @@ const MenteeMentorCoursesPage = () => {
                       </thead>
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                         {paginatedCourses.map((course) => (
-                          <tr key={course.courseId} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                          <tr key={course.courseId} onClick={() => navigate(`/mentor-course-detail?mentorId=${mentorId}&courseId=${course.courseId}`)} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
                             <td className="px-6 py-4">
                               <div className="text-sm font-medium text-gray-900 dark:text-white mb-1 transition-colors">
                                 {course.courseName}
@@ -241,7 +241,7 @@ const MenteeMentorCoursesPage = () => {
                                 {course.duration}
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={(e) => e.stopPropagation()}>
                               <Link
                                 to={`/mentor-course-detail?mentorId=${mentorId}&courseId=${course.courseId}`}
                                 className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
