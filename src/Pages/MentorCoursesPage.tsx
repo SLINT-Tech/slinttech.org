@@ -396,7 +396,7 @@ const MentorCoursesPage = () => {
                     {courses
                       .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                       .map((course) => (
-                        <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <tr key={course.id} onClick={() => navigate(`/mentor/course/${course.id}`)} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                           <td className="px-6 py-4">
                             <div className="flex items-center">
                               <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3 transition-colors">
@@ -414,7 +414,7 @@ const MentorCoursesPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 transition-colors">
                             {course.enrolledMentees} {course.enrolledMentees === 1 ? 'mentee' : 'mentees'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={course.status}
                               onChange={(e) => handleStatusChange(course.id, e.target.value)}
@@ -434,7 +434,7 @@ const MentorCoursesPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors">
                             {new Date(course.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => navigate(`/mentor/course/${course.id}`)}
                               className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"

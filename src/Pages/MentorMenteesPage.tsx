@@ -380,7 +380,7 @@ const MentorMenteesPage = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                     {paginatedMentees.map((mentee) => (
-                      <tr key={mentee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <tr key={mentee.id} onClick={() => navigate(`/mentor/mentee/${mentee.menteeId}`)} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3">
@@ -414,7 +414,7 @@ const MentorMenteesPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {new Date(mentee.assignedDate).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => navigate(`/mentor/mentee/${mentee.menteeId}`)}
                             className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"

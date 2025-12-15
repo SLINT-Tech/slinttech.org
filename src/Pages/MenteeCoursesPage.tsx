@@ -140,7 +140,8 @@ const MenteeCoursesPage = () => {
               {paginatedCourses.map((course) => (
                 <div
                   key={course.courseId}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-gray-900/50 transition-all"
+                  onClick={() => navigate(`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`)}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-gray-900/50 transition-all cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -188,12 +189,16 @@ const MenteeCoursesPage = () => {
                       <Clock className="w-3 h-3" />
                       <span>{course.duration}</span>
                     </div>
-                    <Link
-                      to={`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`}
+                    <span
+                      onClick={(e) => e.stopPropagation()}
                       className="text-sm text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium transition-colors"
                     >
-                      View Details →
-                    </Link>
+                      <Link
+                        to={`/mentor-course-detail?mentorId=${course.mentorId}&courseId=${course.courseId}`}
+                      >
+                        View Details →
+                      </Link>
+                    </span>
                   </div>
                 </div>
               ))}
