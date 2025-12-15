@@ -500,7 +500,7 @@ const MentorDashboard = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 transition-colors">
                     {paginatedCourses.map((course) => (
-                      <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <tr key={course.id} onClick={() => !isPending && navigate(`/mentor/course/${course.id}`)} className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${!isPending ? 'cursor-pointer' : ''}`}>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3 transition-colors">
@@ -521,7 +521,7 @@ const MentorDashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors">
                           {new Date(course.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                           {!isPending ? (
                             <button
                               onClick={() => navigate(`/mentor/course/${course.id}`)}
