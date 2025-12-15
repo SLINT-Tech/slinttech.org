@@ -1076,8 +1076,8 @@ const AdminDashboard = () => {
 
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-900/30 dark:bg-gray-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
-         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-900/50 animate-slideUp transition-colors">
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
+         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">User Details & Management</h2>
@@ -1508,17 +1508,17 @@ const AdminDashboard = () => {
 
       {/* Create User Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn">
-         <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-slideUp">
-           <div className="p-6 border-b border-gray-200 flex-shrink-0">
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
+         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
+           <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Create New User</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Create New User</h2>
                 <button
                   onClick={() => {
                     resetCreateUserForm();
                     setShowCreateModal(false);
                   }}
-                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1528,27 +1528,27 @@ const AdminDashboard = () => {
            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={newUser.fullName}
                     onChange={(e) => setNewUser({...newUser, fullName: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Enter full name"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                     Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Enter email"
                     required
                   />
@@ -1557,13 +1557,13 @@ const AdminDashboard = () => {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                     Membership Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={newUser.membershipCategory}
                     onChange={(e) => setNewUser({...newUser, membershipCategory: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     required
                   >
                     <option value="">Select category</option>
@@ -1573,13 +1573,13 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                     Role <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     required
                   >
                     <option value="">Select role</option>
@@ -1592,11 +1592,11 @@ const AdminDashboard = () => {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Career Path</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Career Path</label>
                   <select
                     value={newUser.careerPath}
                     onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   >
                     <option value="">Select career path</option>
                     {courseOptions.map(option => (
@@ -1605,11 +1605,11 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Status</label>
                   <select
                     value={newUser.status}
                     onChange={(e) => setNewUser({...newUser, status: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   >
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -1620,7 +1620,7 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                   Password <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2">
@@ -1628,7 +1628,7 @@ const AdminDashboard = () => {
                     type="text"
                     value={newUser.password}
                     onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                    className="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Click Generate or enter password"
                     minLength={8}
                     required
@@ -1636,31 +1636,31 @@ const AdminDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setNewUser({...newUser, password: generatePassword()})}
-                    className="px-4 py-2 bg-[#008080] text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer whitespace-nowrap"
                   >
                     Generate
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">Password must be at least 8 characters long</p>
               </div>
 
               {/* Membership Settings - Only show for Mentees and Mentors */}
               {(newUser.role === 'Mentee' || newUser.role === 'Mentor') && (
-                <div className="border-t border-gray-200 pt-4">
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 transition-colors">
+                  <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
                     {newUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
                   </h4>
                   
                   {/* Membership Toggle */}
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                         Enable {newUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Payment
                       </label>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                         When enabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} must pay before accessing dashboard
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
                         When disabled, {newUser.role === 'Mentor' ? 'mentor' : 'user'} can access dashboard without payment requirement
                       </p>
                     </div>
@@ -1671,14 +1671,14 @@ const AdminDashboard = () => {
                         onChange={(e) => setNewUser({...newUser, membershipEnabled: e.target.checked})}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080]"></div>
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 dark:peer-focus:ring-teal-400/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] dark:peer-checked:bg-teal-600 transition-colors"></div>
                     </label>
                   </div>
 
                   {/* Membership Amount */}
                   {newUser.membershipEnabled && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                         {newUser.role === 'Mentor' ? 'Mentor' : 'Membership'} Amount (GHS)
                       </label>
                       <input
@@ -1690,24 +1690,24 @@ const AdminDashboard = () => {
                           const amount = Math.max(0, parseFloat(e.target.value) || 0);
                           setNewUser({...newUser, membershipAmount: amount});
                         }}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 focus:outline-none"
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                         placeholder={newUser.role === 'Mentor' ? '50.00' : '30.00'}
                       />
-                      <p className="text-xs text-gray-500 mt-1">Minimum amount: 0 GHS</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">Minimum amount: 0 GHS</p>
                     </div>
                   )}
                 </div>
               )}
 
-             <div className="border-t border-gray-200 pt-6 flex justify-end space-x-3 flex-shrink-0">
+             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
                 <button
                   onClick={() => {
                     resetCreateUserForm();
                     setShowCreateModal(false);
                   }}
                   disabled={isCreating}
-                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
-                    isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
+                    isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
                   }`}
                 >
                   Cancel
@@ -1715,8 +1715,8 @@ const AdminDashboard = () => {
                 <button
                   onClick={handleCreateUser}
                   disabled={isCreating}
-                  className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
+                  className={`px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg transition-colors flex items-center gap-2 ${
+                    isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 dark:hover:bg-teal-500 cursor-pointer'
                   }`}
                 >
                   {isCreating ? (
@@ -1739,14 +1739,14 @@ const AdminDashboard = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && userToDelete && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full shadow-xl dark:shadow-gray-950/50 transition-colors">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">Confirm Delete</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors">Confirm Delete</h2>
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1755,24 +1755,24 @@ const AdminDashboard = () => {
             
             <div className="p-6">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mr-4 transition-colors">
+                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
-                  <p className="text-gray-600">This action cannot be undone</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Delete User</h3>
+                  <p className="text-gray-600 dark:text-gray-400 transition-colors">This action cannot be undone</p>
                 </div>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-600 mb-2">You are about to delete:</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 transition-colors">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors">You are about to delete:</p>
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-[#008080] rounded-full flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center mr-3 transition-colors">
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{userToDelete.full_name}</p>
-                    <p className="text-sm text-gray-500">{userToDelete.email}</p>
+                    <p className="font-medium text-gray-900 dark:text-white transition-colors">{userToDelete.full_name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors">{userToDelete.email}</p>
                   </div>
                 </div>
               </div>
@@ -1781,8 +1781,8 @@ const AdminDashboard = () => {
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   disabled={isDeleting}
-                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 transition-colors ${
-                    isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
+                    isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
                   }`}
                 >
                   Cancel
@@ -1790,8 +1790,8 @@ const AdminDashboard = () => {
                 <button
                   onClick={confirmDeleteUser}
                   disabled={isDeleting}
-                  className={`px-4 py-2 bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isDeleting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700 cursor-pointer'
+                  className={`px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2 ${
+                    isDeleting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700 dark:hover:bg-red-600 cursor-pointer'
                   }`}
                 >
                   {isDeleting ? (

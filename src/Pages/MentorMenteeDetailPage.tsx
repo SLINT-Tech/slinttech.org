@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Toast from '../Components/Toast';
 import { useAuth } from '../hooks/useAuth';
+import Navigation from '../Components/Navigation';
 
 interface Course {
   id: string;
@@ -39,7 +40,7 @@ interface MenteeData {
 const MentorMenteeDetailPage = () => {
   const { menteeId } = useParams();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { signOut } = useAuth();
 
   const [menteeData, setMenteeData] = useState<MenteeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,9 +48,11 @@ const MentorMenteeDetailPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string } | null>(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(user);
     if (user.status === 'pending') {
       navigate('/mentor/dashboard');
       return;
@@ -152,27 +155,14 @@ const MentorMenteeDetailPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950">
-        <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="flex items-center">
-                <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-                <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block">
-                  <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-                </span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <span className="text-gray-600 dark:text-gray-400">{user?.fullName}</span>
-                <button
-                  onClick={logout}
-                  className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+        <Navigation
+          role="Mentor"
+          userName={currentUser?.fullName || 'Mentor'}
+          onLogout={() => {
+            signOut();
+            navigate('/login');
+          }}
+        />
         <MenteeDetailSkeletonLoader backLink={{ to: '/mentor/mentees', label: 'Back to Mentees' }} />
       </div>
     );
@@ -206,27 +196,14 @@ const MentorMenteeDetailPage = () => {
         />
       )}
 
-      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block">
-                  <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-                </span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600 dark:text-gray-400">{user?.fullName}</span>
-              <button
-                onClick={logout}
-                className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation
+        role="Mentor"
+        userName={currentUser?.fullName || 'Mentor'}
+        onLogout={() => {
+          signOut();
+          navigate('/login');
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
