@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Task {
   id: string;
@@ -66,11 +67,7 @@ const TasksPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-tasks', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/mentee-get-tasks');
 
       if (!response.ok) {
         throw new Error('Failed to fetch tasks');
@@ -97,7 +94,7 @@ const TasksPage = () => {
 
   const filteredTasks = tasksToShow.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      task.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMentor = filterMentor === 'all' || task.mentor.name === filterMentor;
     const matchesStatus = filterStatus === 'all' || (task.submission ? task.submission.status === filterStatus : filterStatus === 'not_submitted');
 
@@ -268,11 +265,10 @@ const TasksPage = () => {
               setShowCompleted(false);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              !showCompleted
+            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${!showCompleted
                 ? 'bg-[#008080] dark:bg-teal-600 text-white hover:bg-teal-700 dark:hover:bg-teal-500'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-            }`}
+              }`}
           >
             Active Tasks ({activeTasks.length})
           </button>
@@ -281,11 +277,10 @@ const TasksPage = () => {
               setShowCompleted(true);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              showCompleted
+            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${showCompleted
                 ? 'bg-[#008080] dark:bg-teal-600 text-white hover:bg-teal-700 dark:hover:bg-teal-500'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-            }`}
+              }`}
           >
             Completed Tasks ({completedTasks.length})
           </button>
@@ -393,11 +388,10 @@ const TasksPage = () => {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                              currentPage === pageNum
+                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                 ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md hover:bg-teal-700 dark:hover:bg-teal-500'
                                 : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}
+                              }`}
                           >
                             {pageNum}
                           </button>

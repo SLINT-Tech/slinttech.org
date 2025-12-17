@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Submission {
   id: string;
@@ -69,11 +70,7 @@ const MentorSubmissionsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-get-submissions', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/mentor-get-submissions');
 
       if (!response.ok) {
         throw new Error('Failed to fetch submissions');
@@ -111,17 +108,10 @@ const MentorSubmissionsPage = () => {
       setReviewAction(action);
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/mentor-review-submission', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          submissionId: selectedSubmission.id,
-          status: action,
-          feedback: feedback
-        })
+      const response = await apiPost('/mentor-review-submission', {
+        submissionId: selectedSubmission.id,
+        status: action,
+        feedback: feedback
       });
 
       if (!response.ok) {
@@ -485,11 +475,10 @@ const MentorSubmissionsPage = () => {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                              currentPage === pageNum
+                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                 ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md hover:bg-teal-700 dark:hover:bg-teal-500'
                                 : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}
+                              }`}
                           >
                             {pageNum}
                           </button>
@@ -632,11 +621,10 @@ const MentorSubmissionsPage = () => {
                     if (feedbackError) setFeedbackError('');
                   }}
                   disabled={reviewLoading}
-                  className={`w-full border rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
-                    feedbackError
+                  className={`w-full border rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${feedbackError
                       ? 'border-red-500 dark:border-red-600 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500/20 dark:focus:ring-red-400/20'
                       : 'border-gray-300 dark:border-gray-700 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20'
-                  }`}
+                    }`}
                   rows={6}
                   placeholder="Provide detailed feedback on the submission..."
                 />

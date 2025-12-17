@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
+import { apiPost } from '../lib/api';
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
@@ -23,7 +24,7 @@ declare global {
             value: string;
           }>;
         };
-        callback: (response: { reference: string; status: string }) => void;
+        callback: (response: { reference: string; status: string; }) => void;
         onClose: () => void;
       }) => {
         openIframe: () => void;
@@ -96,13 +97,7 @@ const PaymentWallPage = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/payment-initialize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiPost('/payment-initialize');
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -136,19 +131,12 @@ const PaymentWallPage = () => {
             }
           ]
         },
-        callback: function(response) {
+        callback: function (response) {
           if (response.status === 'success') {
             console.log('Payment successful, verifying...');
             setPaymentStatus('verifying');
 
-            fetch('/api/payment-verify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ reference: response.reference })
-            })
+            apiPost('/payment-verify', { reference: response.reference })
               .then(verifyResponse => {
                 if (!verifyResponse.ok) {
                   throw new Error('Payment verification failed');
@@ -183,7 +171,7 @@ const PaymentWallPage = () => {
             setIsProcessing(false);
           }
         },
-        onClose: function() {
+        onClose: function () {
           console.log('Payment modal closed');
           setIsProcessing(false);
         }

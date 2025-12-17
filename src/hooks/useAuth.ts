@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { logout, clearAuthData } from '../lib/auth';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { logout, clearAuthData } from "../lib/auth";
+import { apiGet } from "../lib/api";
 
 export interface UserProfile {
   id: string;
@@ -29,7 +30,8 @@ export const useAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("authToken");
 
       if (!token) {
         setLoading(false);
@@ -37,11 +39,7 @@ export const useAuth = () => {
       }
 
       try {
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiGet("/auth-me");
 
         if (response.ok) {
           const data = await response.json();
@@ -50,7 +48,7 @@ export const useAuth = () => {
           clearAuthData();
         }
       } catch (error) {
-        console.error('Error checking auth:', error);
+        console.error("Error checking auth:", error);
         clearAuthData();
       }
 
@@ -60,7 +58,7 @@ export const useAuth = () => {
     checkAuth();
   }, []);
 
-  const signOut = (redirectTo: string = '/login') => {
+  const signOut = (redirectTo: string = "/login") => {
     setProfile(null);
     logout(navigate, redirectTo);
   };
@@ -69,6 +67,6 @@ export const useAuth = () => {
     profile,
     loading,
     signOut,
-    isAuthenticated: !!profile
+    isAuthenticated: !!profile,
   };
 };

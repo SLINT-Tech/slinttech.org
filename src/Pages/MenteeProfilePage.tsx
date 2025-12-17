@@ -4,13 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
-import { apiGet } from '../lib/api';
+import { apiGet, apiPost } from '../lib/api';
 
 const MenteeProfilePage = () => {
   const { signOut } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success'; } | null>(null);
 
   // Get current user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -39,11 +39,7 @@ const MenteeProfilePage = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiGet('/auth-me');
 
         if (!response.ok) {
           console.error('Error fetching profile');
@@ -139,16 +135,9 @@ const MenteeProfilePage = () => {
         return;
       }
 
-      const response = await fetch('/api/auth-change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        })
+      const response = await apiPost('/auth-change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
       });
 
       const data = await response.json();

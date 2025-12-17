@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
-import { apiGet, apiDelete } from '../lib/api';
+import { apiGet, apiPost, apiPut, apiDelete } from '../lib/api';
 
 interface Course {
   id: string;
@@ -54,7 +54,7 @@ const MentorCourseDetailPage = () => {
 
   const [course, setCourse] = useState<Course | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; } | null>(null);
   const [courseStatus, setCourseStatus] = useState('active');
   const [currentUser, setCurrentUser] = useState<any>(null);
 
@@ -143,16 +143,9 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-update-course-status', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          status: newStatus
-        })
+      const response = await apiPut('/mentor-update-course-status', {
+        courseId,
+        status: newStatus
       });
 
       const data = await response.json();
@@ -212,16 +205,9 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-create-lesson', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          ...newLesson
-        })
+      const response = await apiPost('/mentor-create-lesson', {
+        courseId,
+        ...newLesson
       });
 
       const data = await response.json();
@@ -258,17 +244,10 @@ const MentorCourseDetailPage = () => {
 
       const filteredRequirements = newTask.requirements.filter(req => req.trim() !== '');
 
-      const response = await fetch('/api/mentor-create-task', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          ...newTask,
-          requirements: filteredRequirements
-        })
+      const response = await apiPost('/mentor-create-task', {
+        courseId,
+        ...newTask,
+        requirements: filteredRequirements
       });
 
       const data = await response.json();
@@ -308,18 +287,11 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-update-lesson', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          lessonId: editingLesson.id,
-          title: editingLesson.title,
-          description: editingLesson.description,
-          link: editingLesson.link
-        })
+      const response = await apiPut('/mentor-update-lesson', {
+        lessonId: editingLesson.id,
+        title: editingLesson.title,
+        description: editingLesson.description,
+        link: editingLesson.link
       });
 
       const data = await response.json();
@@ -403,19 +375,12 @@ const MentorCourseDetailPage = () => {
 
       const filteredRequirements = editingTask.requirements.filter(req => req.trim() !== '');
 
-      const response = await fetch('/api/mentor-update-task', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          taskId: editingTask.id,
-          title: editingTask.title,
-          description: editingTask.description,
-          requirements: filteredRequirements,
-          deadline: editingTask.deadline
-        })
+      const response = await apiPut('/mentor-update-task', {
+        taskId: editingTask.id,
+        title: editingTask.title,
+        description: editingTask.description,
+        requirements: filteredRequirements,
+        deadline: editingTask.deadline
       });
 
       const data = await response.json();
@@ -491,16 +456,9 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-enroll-mentees', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          menteeIds: unenrolledSelected
-        })
+      const response = await apiPost('/mentor-enroll-mentees', {
+        courseId,
+        menteeIds: unenrolledSelected
       });
 
       const data = await response.json();
@@ -794,9 +752,8 @@ const MentorCourseDetailPage = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3 mb-2">
                           <h4 className="font-semibold text-gray-900 dark:text-white text-base transition-colors">{task.title}</h4>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${
-                            task.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                          }`}>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${task.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
+                            }`}>
                             {task.status}
                           </span>
                         </div>
@@ -1299,13 +1256,12 @@ const MentorCourseDetailPage = () => {
                     .map((mentee) => (
                       <div
                         key={mentee.id}
-                        className={`flex items-start p-3 sm:p-4 border rounded-lg transition-all ${
-                          mentee.isEnrolled
+                        className={`flex items-start p-3 sm:p-4 border rounded-lg transition-all ${mentee.isEnrolled
                             ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed'
                             : selectedMentees.includes(mentee.id)
-                            ? 'border-[#008080] dark:border-teal-600 bg-[#008080]/5 dark:bg-teal-600/10 cursor-pointer'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-[#008080]/50 dark:hover:border-teal-600/50 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
-                        }`}
+                              ? 'border-[#008080] dark:border-teal-600 bg-[#008080]/5 dark:bg-teal-600/10 cursor-pointer'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-[#008080]/50 dark:hover:border-teal-600/50 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+                          }`}
                         onClick={() => {
                           if (mentee.isEnrolled) return;
                           if (selectedMentees.includes(mentee.id)) {
@@ -1320,7 +1276,7 @@ const MentorCourseDetailPage = () => {
                             type="checkbox"
                             checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
                             disabled={mentee.isEnrolled}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-[#008080] focus:ring-[#008080] dark:focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer accent-[#008080] dark:accent-teal-400 transition-colors"
                             style={{
                               accentColor: '#008080'
@@ -1338,9 +1294,8 @@ const MentorCourseDetailPage = () => {
                                 Enrolled
                               </span>
                             )}
-                            <span className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors sm:hidden ${
-                              mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                            }`}>
+                            <span className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors sm:hidden ${mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
+                              }`}>
                               {mentee.status}
                             </span>
                           </div>
@@ -1359,9 +1314,8 @@ const MentorCourseDetailPage = () => {
                             </div>
                           )}
                         </div>
-                        <span className={`hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2 transition-colors ${
-                          mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                        }`}>
+                        <span className={`hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2 transition-colors ${mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
+                          }`}>
                           {mentee.status}
                         </span>
                       </div>

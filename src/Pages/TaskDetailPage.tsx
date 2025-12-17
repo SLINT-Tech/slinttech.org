@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import Toast from '../Components/Toast';
-import { apiGet } from '../lib/api';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Task {
   id: string;
@@ -39,14 +39,14 @@ const TaskDetailPage = () => {
   const { signOut } = useAuth();
 
   const [task, setTask] = useState<Task | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string; } | null>(null);
   const [submissionData, setSubmissionData] = useState({
     link: '',
     notes: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; } | null>(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -104,17 +104,10 @@ const TaskDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-submit-task', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          taskId,
-          submissionLink: submissionData.link,
-          submissionNotes: submissionData.notes
-        })
+      const response = await apiPost('/mentee-submit-task', {
+        taskId,
+        submissionLink: submissionData.link,
+        submissionNotes: submissionData.notes
       });
 
       if (!response.ok) {
@@ -350,17 +343,14 @@ const TaskDetailPage = () => {
             </div>
 
             {task.submission?.mentorFeedback && (
-              <div className={`rounded-xl shadow-sm p-6 border transition-colors ${
-                task.submission.status === 'approved' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-              }`}>
-                <h2 className={`text-xl font-semibold mb-4 transition-colors ${
-                  task.submission.status === 'approved' ? 'text-green-900 dark:text-green-400' : 'text-red-900 dark:text-red-400'
+              <div className={`rounded-xl shadow-sm p-6 border transition-colors ${task.submission.status === 'approved' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                 }`}>
+                <h2 className={`text-xl font-semibold mb-4 transition-colors ${task.submission.status === 'approved' ? 'text-green-900 dark:text-green-400' : 'text-red-900 dark:text-red-400'
+                  }`}>
                   Mentor Feedback
                 </h2>
-                <p className={`leading-relaxed transition-colors ${
-                  task.submission.status === 'approved' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
-                }`}>
+                <p className={`leading-relaxed transition-colors ${task.submission.status === 'approved' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
+                  }`}>
                   {task.submission.mentorFeedback}
                 </p>
               </div>

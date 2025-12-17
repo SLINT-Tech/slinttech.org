@@ -5,7 +5,7 @@ import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Toast from '../Components/Toast';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
-import { apiGet } from '../lib/api';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Course {
   id: string;
@@ -48,8 +48,8 @@ const MentorMenteeDetailPage = () => {
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName?: string; status?: string; } | null>(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -104,16 +104,9 @@ const MentorMenteeDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-send-message', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          menteeId: menteeId,
-          message: message.trim()
-        })
+      const response = await apiPost('/mentor-send-message', {
+        menteeId: menteeId,
+        message: message.trim()
       });
 
       const data = await response.json();

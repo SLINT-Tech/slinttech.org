@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CourseCardSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface ActiveCourse {
   courseId: string;
@@ -52,11 +53,7 @@ const MenteeCoursesPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-mentors', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/mentee-get-mentors');
 
       if (!response.ok) {
         console.error('Error fetching courses');
@@ -237,11 +234,10 @@ const MenteeCoursesPage = () => {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                              currentPage === pageNum
+                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                 ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/50'
                                 : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                            }`}
+                              }`}
                           >
                             {pageNum}
                           </button>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 import { useEffect, useState } from 'react';
 import { PageLoader } from '../Components/SkeletonLoader';
+import { apiGet } from '../lib/api';
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
@@ -19,11 +20,7 @@ const PendingApprovalPage = () => {
       }
 
       try {
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiGet('/auth-me');
 
         if (!response.ok) {
           logout(navigate, '/login');

@@ -6,6 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import PendingBanner from '../Components/PendingBanner';
+import { apiGet } from '../lib/api';
 
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
@@ -14,7 +15,7 @@ const MenteeDashboard = () => {
   const [lessonsData, setLessonsData] = useState({ completed: 0, total: 0 });
   const [tasksData, setTasksData] = useState({ approved: 0, total: 0 });
   const navigate = useNavigate();
-  
+
   // Get current user status from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
   const isPending = currentUser.status === 'pending';
@@ -29,11 +30,7 @@ const MenteeDashboard = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiGet('/auth-me');
 
         if (!response.ok) {
           console.error('Error fetching profile');
@@ -72,11 +69,7 @@ const MenteeDashboard = () => {
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        const dashboardResponse = await fetch('/api/mentee-get-dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const dashboardResponse = await apiGet('/mentee-get-dashboard');
 
         if (dashboardResponse.ok) {
           const dashboardData = await dashboardResponse.json();
@@ -271,7 +264,7 @@ const MenteeDashboard = () => {
           {/* Overview Panel */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 mb-8 border border-transparent dark:border-gray-800 transition-colors">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors">Overview</h2>
-            
+
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               {/* Progress Stats */}
               <div>
@@ -314,7 +307,7 @@ const MenteeDashboard = () => {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">{menteeData.careerPath}</p>
               </div>
             </div>
-            
+
             {/* Mentor Contact Info */}
           </div>
 
@@ -508,11 +501,10 @@ const MenteeDashboard = () => {
               {menteeData.announcements?.length > 0 ? (
                 <div className="space-y-4">
                   {menteeData.announcements.slice(0, 3).map((announcement) => (
-                    <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg transition-colors ${
-                      announcement.type === 'warning'
+                    <div key={announcement.id} className={`border-l-4 p-4 rounded-r-lg transition-colors ${announcement.type === 'warning'
                         ? 'border-yellow-500 dark:border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
                         : 'border-[#008080] dark:border-teal-400 bg-gray-50 dark:bg-gray-800'
-                    }`}>
+                      }`}>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 dark:text-white mb-1 transition-colors">{announcement.title}</h3>

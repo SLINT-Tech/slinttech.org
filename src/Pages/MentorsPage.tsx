@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface AssignedMentor {
   id: string;
@@ -44,11 +45,7 @@ const MentorsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-mentors', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/mentee-get-mentors');
 
       if (!response.ok) {
         console.error('Error fetching mentors');
@@ -183,11 +180,10 @@ const MentorsPage = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center gap-2">
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                  mentor.enrolledCoursesCount > 0
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${mentor.enrolledCoursesCount > 0
                                     ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                                }`}>
+                                  }`}>
                                   {mentor.enrolledCoursesCount > 0
                                     ? `${mentor.enrolledCoursesCount} Course${mentor.enrolledCoursesCount > 1 ? 's' : ''}`
                                     : 'No courses yet'
@@ -248,11 +244,10 @@ const MentorsPage = () => {
                               <button
                                 key={pageNum}
                                 onClick={() => handlePageChange(pageNum)}
-                                className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                                  currentPage === pageNum
+                                className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                     ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
                                     : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                                }`}
+                                  }`}
                               >
                                 {pageNum}
                               </button>

@@ -2,6 +2,7 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import { apiPost } from '../lib/api';
 
 const AdminLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,7 @@ const AdminLoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success'; } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,16 +42,10 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/admin-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
-      });
+      const response = await apiPost('/admin-login', {
+        email: formData.email.trim(),
+        password: formData.password,
+      }, { skipAuth: true });
 
       const data = await response.json();
 

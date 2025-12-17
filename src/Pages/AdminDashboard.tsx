@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
 import Navigation from '../Components/Navigation';
-import { apiGet } from '../lib/api';
+import { apiGet, apiPost, apiPut, apiDelete } from '../lib/api';
 
 interface UserProfile {
   id: string;
@@ -59,7 +59,7 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
   const [filterMembershipCategory, setFilterMembershipCategory] = useState('all');
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success'; } | null>(null);
   const [availableMentors, setAvailableMentors] = useState<MentorOption[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -150,20 +150,13 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-users', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          page: currentPage,
-          perPage: usersPerPage,
-          search: debouncedSearchTerm || '',
-          status: filterStatus,
-          role: filterRole,
-          membershipCategory: filterMembershipCategory
-        })
+      const response = await apiPost('/admin-get-users', {
+        page: currentPage,
+        perPage: usersPerPage,
+        search: debouncedSearchTerm || '',
+        status: filterStatus,
+        role: filterRole,
+        membershipCategory: filterMembershipCategory
       });
 
       if (!response.ok) {
@@ -196,13 +189,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-stats', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await apiPost('/admin-get-stats');
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -227,13 +214,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      const response = await fetch('/api/admin-get-mentors', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await apiGet('/admin-get-mentors');
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -460,23 +441,16 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-create-user', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: newUser.fullName,
-          email: newUser.email,
-          password: generatedPassword,
-          membershipCategory: newUser.membershipCategory,
-          careerPath: newUser.careerPath || null,
-          role: newUser.role,
-          status: newUser.status,
-          membershipEnabled: newUser.membershipEnabled,
-          membershipAmount: newUser.membershipAmount
-        })
+      const response = await apiPost('/admin-create-user', {
+        fullName: newUser.fullName,
+        email: newUser.email,
+        password: generatedPassword,
+        membershipCategory: newUser.membershipCategory,
+        careerPath: newUser.careerPath || null,
+        role: newUser.role,
+        status: newUser.status,
+        membershipEnabled: newUser.membershipEnabled,
+        membershipAmount: newUser.membershipAmount
       });
 
       const data = await response.json();
@@ -542,26 +516,19 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      // Update user profile via Netlify function
-      const response = await fetch('/api/admin-update-user', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          fullName: editingUser.fullName,
-          email: editingUser.email,
-          password: editingUser.password || undefined,
-          membershipCategory: editingUser.membershipCategory,
-          careerPath: editingUser.careerPath,
-          role: editingUser.role,
-          status: editingUser.status,
-          communityLink: editingUser.communityLink,
-          membershipEnabled: editingUser.membershipEnabled,
-          membershipAmount: editingUser.membershipAmount
-        })
+      // Update user profile via API
+      const response = await apiPut('/admin-update-user', {
+        userId: selectedUser.id,
+        fullName: editingUser.fullName,
+        email: editingUser.email,
+        password: editingUser.password || undefined,
+        membershipCategory: editingUser.membershipCategory,
+        careerPath: editingUser.careerPath,
+        role: editingUser.role,
+        status: editingUser.status,
+        communityLink: editingUser.communityLink,
+        membershipEnabled: editingUser.membershipEnabled,
+        membershipAmount: editingUser.membershipAmount
       });
 
       const data = await response.json();
@@ -572,16 +539,9 @@ const AdminDashboard = () => {
 
       // Handle mentor assignments for mentees
       if (editingUser.role === 'Mentee') {
-        const assignmentResponse = await fetch('/api/admin-update-mentor-assignments', {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            menteeId: selectedUser.id,
-            assignments: editingUser.mentorAssignments
-          })
+        const assignmentResponse = await apiPut('/admin-update-mentor-assignments', {
+          menteeId: selectedUser.id,
+          assignments: editingUser.mentorAssignments
         });
 
         if (!assignmentResponse.ok) {
@@ -637,15 +597,8 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-delete-user', {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userToDelete.id
-        })
+      const response = await apiDelete('/admin-delete-user', {
+        userId: userToDelete.id
       });
 
       const data = await response.json();
@@ -982,11 +935,10 @@ const AdminDashboard = () => {
                           <button
                             onClick={() => handleDeleteUser(user)}
                             disabled={user.id === currentUser.id}
-                            className={`${
-                              user.id === currentUser.id
+                            className={`${user.id === currentUser.id
                                 ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
                                 : 'text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer'
-                            } transition-colors`}
+                              } transition-colors`}
                             title={user.id === currentUser.id ? 'Cannot delete yourself' : 'Delete user'}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1035,11 +987,10 @@ const AdminDashboard = () => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                          currentPage === pageNum
+                        className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                             ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md'
                             : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -1064,8 +1015,8 @@ const AdminDashboard = () => {
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
-         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
-           <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">User Details & Management</h2>
                 <button
@@ -1076,8 +1027,8 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
-            
-           <div className="p-6 space-y-6 overflow-y-auto flex-1">
+
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
               {/* User Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -1088,24 +1039,24 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         value={editingUser.fullName}
-                        onChange={(e) => setEditingUser({...editingUser, fullName: e.target.value})}
+                        onChange={(e) => setEditingUser({ ...editingUser, fullName: e.target.value })}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       />
                     </div>
                     <div>
-                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Email</label>
-                     <input
-                       type="email"
-                       value={editingUser.email}
-                       onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                       className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
-                     />
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Email</label>
+                      <input
+                        type="email"
+                        value={editingUser.email}
+                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                        className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Membership Category</label>
                       <select
                         value={editingUser.membershipCategory}
-                        onChange={(e) => setEditingUser({...editingUser, membershipCategory: e.target.value})}
+                        onChange={(e) => setEditingUser({ ...editingUser, membershipCategory: e.target.value })}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         <option value="Student">Student</option>
@@ -1117,7 +1068,7 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Career Path</label>
                       <select
                         value={editingUser.careerPath}
-                        onChange={(e) => setEditingUser({...editingUser, careerPath: e.target.value})}
+                        onChange={(e) => setEditingUser({ ...editingUser, careerPath: e.target.value })}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
                         {courseOptions.map(option => (
@@ -1143,13 +1094,13 @@ const AdminDashboard = () => {
                         <input
                           type="text"
                           value={editingUser.password}
-                          onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                          onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
                           className="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                           placeholder="Leave empty to keep current password"
                         />
                         <button
                           type="button"
-                          onClick={() => setEditingUser({...editingUser, password: generatePassword()})}
+                          onClick={() => setEditingUser({ ...editingUser, password: generatePassword() })}
                           className="px-3 py-2 bg-gray-500 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-600 dark:hover:bg-gray-600 transition-colors cursor-pointer"
                         >
                           Generate
@@ -1188,7 +1139,7 @@ const AdminDashboard = () => {
                       <input
                         type="url"
                         value={editingUser.communityLink}
-                        onChange={(e) => setEditingUser({...editingUser, communityLink: e.target.value})}
+                        onChange={(e) => setEditingUser({ ...editingUser, communityLink: e.target.value })}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                         placeholder="https://slack.com/..."
                       />
@@ -1292,7 +1243,7 @@ const AdminDashboard = () => {
                     <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
                       {editingUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
                     </h4>
-                    
+
                     {/* Membership Toggle */}
                     <div className="flex items-center justify-between mb-4">
                       <div>
@@ -1310,7 +1261,7 @@ const AdminDashboard = () => {
                         <input
                           type="checkbox"
                           checked={editingUser.membershipEnabled}
-                          onChange={(e) => setEditingUser({...editingUser, membershipEnabled: e.target.checked})}
+                          onChange={(e) => setEditingUser({ ...editingUser, membershipEnabled: e.target.checked })}
                           className="sr-only peer"
                           disabled={editingUser.status !== 'approved'}
                         />
@@ -1331,7 +1282,7 @@ const AdminDashboard = () => {
                           value={editingUser.membershipAmount}
                           onChange={(e) => {
                             const amount = Math.max(0, parseFloat(e.target.value) || 0);
-                            setEditingUser({...editingUser, membershipAmount: amount});
+                            setEditingUser({ ...editingUser, membershipAmount: amount });
                           }}
                           className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                           placeholder={editingUser.role === 'Mentor' ? '50.00' : '30.00'}
@@ -1344,127 +1295,123 @@ const AdminDashboard = () => {
 
                 {/* Mentor Assignments - Only show for Mentees */}
                 {editingUser.role === 'Mentee' && (
-                <div className="mt-6">
-                  <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-md font-semibold text-gray-900 dark:text-white transition-colors">Mentor Assignments</h4>
-                    <button
-                      onClick={addMentorAssignment}
-                      disabled={isLoadingAssignments}
-                      className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${
-                        isLoadingAssignments
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-[#008080] hover:bg-teal-700 cursor-pointer'
-                      } text-white`}
-                    >
-                      <Plus className="w-3 h-3" />
-                      Assign Mentor
-                    </button>
-                  </div>
+                  <div className="mt-6">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-md font-semibold text-gray-900 dark:text-white transition-colors">Mentor Assignments</h4>
+                      <button
+                        onClick={addMentorAssignment}
+                        disabled={isLoadingAssignments}
+                        className={`px-3 py-1 rounded-lg transition-colors text-sm flex items-center gap-1 ${isLoadingAssignments
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-[#008080] hover:bg-teal-700 cursor-pointer'
+                          } text-white`}
+                      >
+                        <Plus className="w-3 h-3" />
+                        Assign Mentor
+                      </button>
+                    </div>
 
-                  {isLoadingAssignments ? (
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 mb-3 transition-colors">
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <svg className="animate-spin h-8 w-8 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Loading mentor assignments...</p>
-                      </div>
-                    </div>
-                  ) : editingUser.mentorAssignments.length === 0 ? (
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-3 text-center transition-colors">
-                      <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-2 transition-colors" />
-                      <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">No mentors assigned yet</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors">Click "Assign Mentor" to add a mentor</p>
-                    </div>
-                  ) : (
-                    editingUser.mentorAssignments.map((assignment, index) => (
-                    <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-3 transition-colors">
-                      <div className="flex justify-between items-start mb-3">
-                        <h5 className="font-medium text-gray-900 dark:text-white transition-colors">Assignment {index + 1}</h5>
-                        <button
-                          onClick={() => removeMentorAssignment(index)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="grid md:grid-cols-1 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Select Mentor</label>
-                          <select
-                            value={assignment.mentor}
-                            onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
-                            disabled={isLoadingMentors || availableMentors.length === 0}
-                            className={`w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none text-sm transition-colors ${
-                              isLoadingMentors || availableMentors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                          >
-                            <option value="">
-                              {isLoadingMentors
-                                ? 'Loading mentors...'
-                                : availableMentors.length === 0
-                                  ? 'No approved mentors available'
-                                  : 'Select mentor'}
-                            </option>
-                            {availableMentors
-                              .filter(mentor => {
-                                // Show the currently selected mentor or mentors not yet assigned
-                                const isCurrentSelection = assignment.mentor === mentor.id;
-                                const isAlreadyAssigned = editingUser.mentorAssignments.some(
-                                  (a, i) => i !== index && a.mentor === mentor.id
-                                );
-                                return isCurrentSelection || !isAlreadyAssigned;
-                              })
-                              .map(mentor => (
-                                <option key={mentor.id} value={mentor.id}>
-                                  {mentor.full_name} - {mentor.specialization}
-                                </option>
-                              ))}
-                          </select>
-                          {isLoadingMentors && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors">
-                              <svg className="animate-spin h-3 w-3 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Loading available mentors...
-                            </p>
-                          )}
-                          {!isLoadingMentors && availableMentors.length === 0 && (
-                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1 transition-colors">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
-                              No approved mentors in the system. Please approve mentors first.
-                            </p>
-                          )}
+                    {isLoadingAssignments ? (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 mb-3 transition-colors">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <svg className="animate-spin h-8 w-8 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Loading mentor assignments...</p>
                         </div>
                       </div>
-                    </div>
-                  ))
-                  )}
-                </div>
+                    ) : editingUser.mentorAssignments.length === 0 ? (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-3 text-center transition-colors">
+                        <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-2 transition-colors" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">No mentors assigned yet</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 transition-colors">Click "Assign Mentor" to add a mentor</p>
+                      </div>
+                    ) : (
+                      editingUser.mentorAssignments.map((assignment, index) => (
+                        <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-3 transition-colors">
+                          <div className="flex justify-between items-start mb-3">
+                            <h5 className="font-medium text-gray-900 dark:text-white transition-colors">Assignment {index + 1}</h5>
+                            <button
+                              onClick={() => removeMentorAssignment(index)}
+                              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="grid md:grid-cols-1 gap-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Select Mentor</label>
+                              <select
+                                value={assignment.mentor}
+                                onChange={(e) => updateMentorAssignment(index, 'mentor', e.target.value)}
+                                disabled={isLoadingMentors || availableMentors.length === 0}
+                                className={`w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none text-sm transition-colors ${isLoadingMentors || availableMentors.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                              >
+                                <option value="">
+                                  {isLoadingMentors
+                                    ? 'Loading mentors...'
+                                    : availableMentors.length === 0
+                                      ? 'No approved mentors available'
+                                      : 'Select mentor'}
+                                </option>
+                                {availableMentors
+                                  .filter(mentor => {
+                                    // Show the currently selected mentor or mentors not yet assigned
+                                    const isCurrentSelection = assignment.mentor === mentor.id;
+                                    const isAlreadyAssigned = editingUser.mentorAssignments.some(
+                                      (a, i) => i !== index && a.mentor === mentor.id
+                                    );
+                                    return isCurrentSelection || !isAlreadyAssigned;
+                                  })
+                                  .map(mentor => (
+                                    <option key={mentor.id} value={mentor.id}>
+                                      {mentor.full_name} - {mentor.specialization}
+                                    </option>
+                                  ))}
+                              </select>
+                              {isLoadingMentors && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1 transition-colors">
+                                  <svg className="animate-spin h-3 w-3 text-[#008080] dark:text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Loading available mentors...
+                                </p>
+                              )}
+                              {!isLoadingMentors && availableMentors.length === 0 && (
+                                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1 transition-colors">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                  </svg>
+                                  No approved mentors in the system. Please approve mentors first.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 )}
               </div>
 
               {/* Action Buttons */}
-             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
                 <button
                   onClick={() => setShowUserModal(false)}
                   disabled={isUpdating}
-                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
-                    isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+                    }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpdateUser}
                   disabled={isUpdating || isLoadingAssignments}
-                  className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isUpdating || isLoadingAssignments ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 bg-[#008080] text-white rounded-lg transition-colors flex items-center gap-2 ${isUpdating || isLoadingAssignments ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 cursor-pointer'
+                    }`}
                   title={isLoadingAssignments ? 'Please wait for mentor assignments to load' : ''}
                 >
                   {isUpdating ? (
@@ -1496,8 +1443,8 @@ const AdminDashboard = () => {
       {/* Create User Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fadeIn transition-colors">
-         <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
-           <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl dark:shadow-gray-950/50 animate-slideUp transition-colors">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Create New User</h2>
                 <button
@@ -1511,8 +1458,8 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
-            
-           <div className="p-6 space-y-4 overflow-y-auto flex-1">
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
@@ -1521,7 +1468,7 @@ const AdminDashboard = () => {
                   <input
                     type="text"
                     value={newUser.fullName}
-                    onChange={(e) => setNewUser({...newUser, fullName: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Enter full name"
                     required
@@ -1534,7 +1481,7 @@ const AdminDashboard = () => {
                   <input
                     type="email"
                     value={newUser.email}
-                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Enter email"
                     required
@@ -1549,7 +1496,7 @@ const AdminDashboard = () => {
                   </label>
                   <select
                     value={newUser.membershipCategory}
-                    onChange={(e) => setNewUser({...newUser, membershipCategory: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, membershipCategory: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     required
                   >
@@ -1565,7 +1512,7 @@ const AdminDashboard = () => {
                   </label>
                   <select
                     value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     required
                   >
@@ -1582,7 +1529,7 @@ const AdminDashboard = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Career Path</label>
                   <select
                     value={newUser.careerPath}
-                    onChange={(e) => setNewUser({...newUser, careerPath: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, careerPath: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   >
                     <option value="">Select career path</option>
@@ -1595,7 +1542,7 @@ const AdminDashboard = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Status</label>
                   <select
                     value={newUser.status}
-                    onChange={(e) => setNewUser({...newUser, status: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   >
                     <option value="pending">Pending</option>
@@ -1614,7 +1561,7 @@ const AdminDashboard = () => {
                   <input
                     type="text"
                     value={newUser.password}
-                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                     className="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                     placeholder="Click Generate or enter password"
                     minLength={8}
@@ -1622,7 +1569,7 @@ const AdminDashboard = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => setNewUser({...newUser, password: generatePassword()})}
+                    onClick={() => setNewUser({ ...newUser, password: generatePassword() })}
                     className="px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer whitespace-nowrap"
                   >
                     Generate
@@ -1637,7 +1584,7 @@ const AdminDashboard = () => {
                   <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
                     {newUser.role === 'Mentor' ? 'Mentor Membership Settings' : 'Membership Settings'}
                   </h4>
-                  
+
                   {/* Membership Toggle */}
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -1655,7 +1602,7 @@ const AdminDashboard = () => {
                       <input
                         type="checkbox"
                         checked={newUser.membershipEnabled}
-                        onChange={(e) => setNewUser({...newUser, membershipEnabled: e.target.checked})}
+                        onChange={(e) => setNewUser({ ...newUser, membershipEnabled: e.target.checked })}
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#008080]/20 dark:peer-focus:ring-teal-400/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#008080] dark:peer-checked:bg-teal-600 transition-colors"></div>
@@ -1675,7 +1622,7 @@ const AdminDashboard = () => {
                         value={newUser.membershipAmount}
                         onChange={(e) => {
                           const amount = Math.max(0, parseFloat(e.target.value) || 0);
-                          setNewUser({...newUser, membershipAmount: amount});
+                          setNewUser({ ...newUser, membershipAmount: amount });
                         }}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                         placeholder={newUser.role === 'Mentor' ? '50.00' : '30.00'}
@@ -1686,25 +1633,23 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-3 flex-shrink-0 transition-colors">
                 <button
                   onClick={() => {
                     resetCreateUserForm();
                     setShowCreateModal(false);
                   }}
                   disabled={isCreating}
-                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
-                    isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${isCreating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+                    }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateUser}
                   disabled={isCreating}
-                  className={`px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 dark:hover:bg-teal-500 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg transition-colors flex items-center gap-2 ${isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-teal-700 dark:hover:bg-teal-500 cursor-pointer'
+                    }`}
                 >
                   {isCreating ? (
                     <>
@@ -1739,7 +1684,7 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="p-6">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mr-4 transition-colors">
@@ -1750,7 +1695,7 @@ const AdminDashboard = () => {
                   <p className="text-gray-600 dark:text-gray-400 transition-colors">This action cannot be undone</p>
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 transition-colors">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors">You are about to delete:</p>
                 <div className="flex items-center">
@@ -1763,23 +1708,21 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   disabled={isDeleting}
-                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${
-                    isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors ${isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+                    }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteUser}
                   disabled={isDeleting}
-                  className={`px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2 ${
-                    isDeleting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700 dark:hover:bg-red-600 cursor-pointer'
-                  }`}
+                  className={`px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2 ${isDeleting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700 dark:hover:bg-red-600 cursor-pointer'
+                    }`}
                 >
                   {isDeleting ? (
                     <>

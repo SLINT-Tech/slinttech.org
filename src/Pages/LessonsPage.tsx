@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Lesson {
   id: string;
@@ -61,11 +62,7 @@ const LessonsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-lessons', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/mentee-get-lessons');
 
       if (!response.ok) {
         throw new Error('Failed to fetch lessons');
@@ -90,14 +87,7 @@ const LessonsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-complete-lesson', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ lessonId })
-      });
+      const response = await apiPost('/mentee-complete-lesson', { lessonId });
 
       if (!response.ok) {
         throw new Error('Failed to mark lesson as complete');
@@ -121,7 +111,7 @@ const LessonsPage = () => {
 
   const filteredLessons = lessonsToShow.filter(lesson => {
     const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         lesson.description.toLowerCase().includes(searchTerm.toLowerCase());
+      lesson.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMentor = filterMentor === 'all' || lesson.mentor.name === filterMentor;
     const matchesCourse = filterCourse === 'all' || lesson.course.name === filterCourse;
 
@@ -250,11 +240,10 @@ const LessonsPage = () => {
               setShowCompleted(false);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              !showCompleted
+            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${!showCompleted
                 ? 'bg-[#008080] dark:bg-teal-600 text-white'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-            }`}
+              }`}
           >
             Active Lessons ({activeLessons.length})
           </button>
@@ -263,11 +252,10 @@ const LessonsPage = () => {
               setShowCompleted(true);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-              showCompleted
+            className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${showCompleted
                 ? 'bg-[#008080] dark:bg-teal-600 text-white'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-            }`}
+              }`}
           >
             Completed Lessons ({completedLessons.length})
           </button>
@@ -371,11 +359,10 @@ const LessonsPage = () => {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                              currentPage === pageNum
+                            className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                 ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md'
                                 : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}
+                              }`}
                           >
                             {pageNum}
                           </button>

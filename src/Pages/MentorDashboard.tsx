@@ -5,6 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import PendingBanner from '../Components/PendingBanner';
+import { apiGet } from '../lib/api';
 
 interface Course {
   id: string;
@@ -53,11 +54,7 @@ const MentorDashboard = () => {
           return;
         }
 
-        const profileResponse = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const profileResponse = await apiGet('/auth-me');
 
         if (!profileResponse.ok) {
           console.error('Error fetching profile');
@@ -114,11 +111,7 @@ const MentorDashboard = () => {
           joinedDate: profile.createdAt || profile.created_at
         });
 
-        const dashboardResponse = await fetch('/api/mentor-get-dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const dashboardResponse = await apiGet('/mentor-get-dashboard');
 
         if (dashboardResponse.ok) {
           const dashboardData = await dashboardResponse.json();
@@ -574,11 +567,10 @@ const MentorDashboard = () => {
                             <button
                               key={pageNum}
                               onClick={() => handlePageChange(pageNum)}
-                              className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${
-                                currentPage === pageNum
+                              className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
                                   ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md'
                                   : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                              }`}
+                                }`}
                             >
                               {pageNum}
                             </button>
