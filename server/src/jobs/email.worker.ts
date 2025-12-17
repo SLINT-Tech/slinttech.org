@@ -1,7 +1,7 @@
-import 'dotenv/config';
-import { Worker, Job } from 'bullmq';
-import { createRedisConnection } from '../config/redis.js';
-import { createBrevoService } from '../services/brevo.service.js';
+import "dotenv/config";
+import { Worker, Job } from "bullmq";
+import { createRedisConnection } from "../config/redis.js";
+import { createBrevoService } from "../services/brevo.service.js";
 import {
   renderAccountAwaitingApproval,
   renderApplicationStatusUpdate,
@@ -13,10 +13,26 @@ import {
   renderAdminNewUserNotification,
   getStatusEmailData,
   getTaskReviewEmailData,
-} from '../services/email-templates.js';
-import type { EmailJobData } from './email.queue.js';
+} from "../services/email-templates.js";
+import type { EmailJobData } from "./email.queue.js";
 
-const connection = createRedisConnection();
+// Check if Redis is configured
+if (!process.env.REDIS_URL) {
+  console.log(
+    "[EMAIL_WORKER] ⚠️ REDIS_URL not configured - email worker not starting"
+  );
+  console.log("[EMAIL_WORKER] Emails will be sent directly by the API");
+  process.exit(0);
+}
+
+let connection;
+try {
+  connection = createRedisConnection();
+} catch (error) {
+  console.error("[EMAIL_WORKER] Failed to create Redis connection:", error);
+  process.exit(1);
+}
+
 const brevoService = createBrevoService();
 
 async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
@@ -35,50 +51,50 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
 
   // Generate email content based on type
   switch (type) {
-    case 'account-awaiting-approval':
+    case "account-awaiting-approval":
       emailHtml = renderAccountAwaitingApproval(data as any);
-      subject = 'Welcome to SlintTech - Account Awaiting Approval';
+      subject = "Welcome to SlintTech - Account Awaiting Approval";
       break;
 
-    case 'application-status-update':
+    case "application-status-update":
       const statusData = getStatusEmailData(data.status);
       emailHtml = renderApplicationStatusUpdate({
         userName: data.userName,
-        ...statusData
+        ...statusData,
       });
       subject = `SlintTech Application Status: ${statusData.statusText}`;
       break;
 
-    case 'payment-success':
+    case "payment-success":
       emailHtml = renderPaymentSuccess(data as any);
-      subject = 'Payment Successful - SlintTech Membership Activated';
+      subject = "Payment Successful - SlintTech Membership Activated";
       break;
 
-    case 'course-enrollment':
+    case "course-enrollment":
       emailHtml = renderCourseEnrollment(data as any);
       subject = `You've Been Enrolled in ${data.courseTitle}`;
       break;
 
-    case 'task-submission-mentor':
+    case "task-submission-mentor":
       emailHtml = renderTaskSubmissionMentor(data as any);
       subject = `New Task Submission from ${data.menteeName}`;
       break;
 
-    case 'task-review-mentee':
+    case "task-review-mentee":
       const reviewData = getTaskReviewEmailData(data.status);
       emailHtml = renderTaskReviewMentee({
         ...data,
-        ...reviewData
+        ...reviewData,
       } as any);
       subject = `Task Review: ${data.taskTitle} - ${reviewData.reviewStatus}`;
       break;
 
-    case 'direct-message':
+    case "direct-message":
       emailHtml = renderDirectMessage(data as any);
       subject = `New Message from ${data.mentorName}`;
       break;
 
-    case 'admin-new-user-notification':
+    case "admin-new-user-notification":
       emailHtml = renderAdminNewUserNotification(data as any);
       subject = `New ${data.userRole} Registration - ${data.userName}`;
       break;
@@ -91,7 +107,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
   await brevoService.sendEmail({
     to: [to],
     subject,
-    htmlContent: emailHtml
+    htmlContent: emailHtml,
   });
 
   const duration = Date.now() - startTime;
@@ -103,7 +119,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
 }
 
 // Create the worker
-const worker = new Worker<EmailJobData>('email', processEmailJob, {
+const worker = new Worker<EmailJobData>("email", processEmailJob, {
   connection,
   concurrency: 5, // Process 5 emails concurrently
   limiter: {
@@ -113,11 +129,11 @@ const worker = new Worker<EmailJobData>('email', processEmailJob, {
 });
 
 // Worker event listeners
-worker.on('completed', (job) => {
+worker.on("completed", (job) => {
   console.log(`[EMAIL_WORKER] ✅ Job ${job.id} completed successfully`);
 });
 
-worker.on('failed', (job, err) => {
+worker.on("failed", (job, err) => {
   console.error(`[EMAIL_WORKER] ❌ Job ${job?.id} failed:`, {
     error: err.message,
     type: job?.data.type,
@@ -126,11 +142,11 @@ worker.on('failed', (job, err) => {
   });
 });
 
-worker.on('error', (err) => {
-  console.error('[EMAIL_WORKER] Worker error:', err);
+worker.on("error", (err) => {
+  console.error("[EMAIL_WORKER] Worker error:", err);
 });
 
-worker.on('stalled', (jobId) => {
+worker.on("stalled", (jobId) => {
   console.warn(`[EMAIL_WORKER] ⚠️ Job ${jobId} stalled`);
 });
 
@@ -141,10 +157,9 @@ const gracefulShutdown = async (signal: string) => {
   process.exit(0);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-console.log('🚀 Email worker started and listening for jobs...');
+console.log("🚀 Email worker started and listening for jobs...");
 
 export default worker;
-

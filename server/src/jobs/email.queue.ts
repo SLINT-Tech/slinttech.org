@@ -1,15 +1,28 @@
-import { Queue } from 'bullmq';
-import { createRedisConnection } from '../config/redis.js';
+import { Queue } from "bullmq";
+import { createRedisConnection } from "../config/redis.js";
+import { createBrevoService } from "../services/brevo.service.js";
+import {
+  renderAccountAwaitingApproval,
+  renderApplicationStatusUpdate,
+  renderPaymentSuccess,
+  renderCourseEnrollment,
+  renderTaskSubmissionMentor,
+  renderTaskReviewMentee,
+  renderDirectMessage,
+  renderAdminNewUserNotification,
+  getStatusEmailData,
+  getTaskReviewEmailData,
+} from "../services/email-templates.js";
 
-export type EmailType = 
-  | 'account-awaiting-approval'
-  | 'application-status-update'
-  | 'payment-success'
-  | 'course-enrollment'
-  | 'task-submission-mentor'
-  | 'task-review-mentee'
-  | 'direct-message'
-  | 'admin-new-user-notification';
+export type EmailType =
+  | "account-awaiting-approval"
+  | "application-status-update"
+  | "payment-success"
+  | "course-enrollment"
+  | "task-submission-mentor"
+  | "task-review-mentee"
+  | "direct-message"
+  | "admin-new-user-notification";
 
 export interface EmailJobData {
   type: EmailType;
@@ -18,27 +31,72 @@ export interface EmailJobData {
   correlationId?: string;
 }
 
-// Create the email queue
-const connection = createRedisConnection();
+// Track Redis availability
+let redisAvailable = false;
+let emailQueue: Queue<EmailJobData> | null = null;
 
-export const emailQueue = new Queue<EmailJobData>('email', {
-  connection,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 5000, // 5 seconds initial delay
-    },
-    removeOnComplete: {
-      count: 100, // Keep last 100 completed jobs
-      age: 24 * 60 * 60, // Keep for 24 hours
-    },
-    removeOnFail: {
-      count: 500, // Keep last 500 failed jobs for debugging
-      age: 7 * 24 * 60 * 60, // Keep for 7 days
-    },
-  },
-});
+// Try to initialize Redis connection with timeout
+const initRedis = async () => {
+  const REDIS_URL = process.env.REDIS_URL;
+
+  // Skip Redis if not configured
+  if (!REDIS_URL) {
+    console.log(
+      "[EMAIL_QUEUE] Redis URL not configured - using direct email sending"
+    );
+    return;
+  }
+
+  try {
+    const connection = createRedisConnection();
+
+    // Test connection with 5 second timeout
+    await Promise.race([
+      new Promise<void>((resolve, reject) => {
+        connection.once("ready", () => {
+          redisAvailable = true;
+          resolve();
+        });
+        connection.once("error", (err) => {
+          reject(err);
+        });
+      }),
+      new Promise<void>((_, reject) =>
+        setTimeout(() => reject(new Error("Redis connection timeout")), 5000)
+      ),
+    ]);
+
+    emailQueue = new Queue<EmailJobData>("email", {
+      connection,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+        removeOnComplete: {
+          count: 100,
+          age: 24 * 60 * 60,
+        },
+        removeOnFail: {
+          count: 500,
+          age: 7 * 24 * 60 * 60,
+        },
+      },
+    });
+
+    console.log("[EMAIL_QUEUE] ✅ Redis connected - using queue for emails");
+  } catch (error) {
+    console.warn(
+      "[EMAIL_QUEUE] ⚠️ Redis not available - using direct email sending:",
+      error instanceof Error ? error.message : error
+    );
+    redisAvailable = false;
+  }
+};
+
+// Initialize Redis (non-blocking)
+initRedis().catch(console.error);
 
 // Generate correlation ID for request tracking
 function generateCorrelationId(): string {
@@ -46,22 +104,121 @@ function generateCorrelationId(): string {
 }
 
 /**
- * Queue an email for background processing
+ * Send email directly (fallback when Redis is unavailable)
  */
-export async function queueEmail(params: Omit<EmailJobData, 'correlationId'>): Promise<string> {
-  const correlationId = generateCorrelationId();
-  
-  const job = await emailQueue.add('send-email', {
-    ...params,
-    correlationId,
-  }, {
-    priority: getEmailPriority(params.type),
+async function sendEmailDirect(params: EmailJobData): Promise<void> {
+  const { type, to, data } = params;
+  const brevoService = createBrevoService();
+
+  let emailHtml: string;
+  let subject: string;
+
+  // Generate email content based on type
+  switch (type) {
+    case "account-awaiting-approval":
+      emailHtml = renderAccountAwaitingApproval(data as any);
+      subject = "Welcome to SlintTech - Account Awaiting Approval";
+      break;
+
+    case "application-status-update":
+      const statusData = getStatusEmailData(data.status);
+      emailHtml = renderApplicationStatusUpdate({
+        userName: data.userName,
+        ...statusData,
+      });
+      subject = `SlintTech Application Status: ${statusData.statusText}`;
+      break;
+
+    case "payment-success":
+      emailHtml = renderPaymentSuccess(data as any);
+      subject = "Payment Successful - SlintTech Membership Activated";
+      break;
+
+    case "course-enrollment":
+      emailHtml = renderCourseEnrollment(data as any);
+      subject = `You've Been Enrolled in ${data.courseTitle}`;
+      break;
+
+    case "task-submission-mentor":
+      emailHtml = renderTaskSubmissionMentor(data as any);
+      subject = `New Task Submission from ${data.menteeName}`;
+      break;
+
+    case "task-review-mentee":
+      const reviewData = getTaskReviewEmailData(data.status);
+      emailHtml = renderTaskReviewMentee({
+        ...data,
+        ...reviewData,
+      } as any);
+      subject = `Task Review: ${data.taskTitle} - ${reviewData.reviewStatus}`;
+      break;
+
+    case "direct-message":
+      emailHtml = renderDirectMessage(data as any);
+      subject = `New Message from ${data.mentorName}`;
+      break;
+
+    case "admin-new-user-notification":
+      emailHtml = renderAdminNewUserNotification(data as any);
+      subject = `New ${data.userRole} Registration - ${data.userName}`;
+      break;
+
+    default:
+      throw new Error(`Invalid email type: ${type}`);
+  }
+
+  await brevoService.sendEmail({
+    to: [to],
+    subject,
+    htmlContent: emailHtml,
   });
 
-  console.log(`[EMAIL_QUEUE] Job ${job.id} queued:`, {
-    type: params.type,
-    to: params.to.email,
-    correlationId,
+  console.log(`[EMAIL_DIRECT] Email sent:`, {
+    type,
+    to: to.email,
+    correlationId: params.correlationId,
+  });
+}
+
+/**
+ * Queue an email for background processing
+ * Falls back to direct sending if Redis is unavailable
+ */
+export async function queueEmail(
+  params: Omit<EmailJobData, "correlationId">
+): Promise<string> {
+  const correlationId = generateCorrelationId();
+  const jobData = { ...params, correlationId };
+
+  // If Redis is available and queue exists, use the queue
+  if (redisAvailable && emailQueue) {
+    try {
+      const job = await emailQueue.add("send-email", jobData, {
+        priority: getEmailPriority(params.type),
+      });
+
+      console.log(`[EMAIL_QUEUE] Job ${job.id} queued:`, {
+        type: params.type,
+        to: params.to.email,
+        correlationId,
+      });
+
+      return correlationId;
+    } catch (error) {
+      console.warn(
+        "[EMAIL_QUEUE] Failed to queue email, falling back to direct send:",
+        error
+      );
+    }
+  }
+
+  // Fallback: send email directly (non-blocking)
+  sendEmailDirect(jobData).catch((error) => {
+    console.error("[EMAIL_DIRECT] Failed to send email:", {
+      type: params.type,
+      to: params.to.email,
+      error: error instanceof Error ? error.message : error,
+    });
   });
 
   return correlationId;
@@ -73,30 +230,26 @@ export async function queueEmail(params: Omit<EmailJobData, 'correlationId'>): P
  */
 function getEmailPriority(type: EmailType): number {
   switch (type) {
-    case 'payment-success':
+    case "payment-success":
       return 1; // Highest priority - payment confirmations
-    case 'application-status-update':
+    case "application-status-update":
       return 2; // High priority - status updates
-    case 'account-awaiting-approval':
+    case "account-awaiting-approval":
       return 3; // Medium-high - new registrations
-    case 'task-submission-mentor':
-    case 'task-review-mentee':
+    case "task-submission-mentor":
+    case "task-review-mentee":
       return 4; // Medium priority - task notifications
-    case 'course-enrollment':
+    case "course-enrollment":
       return 5; // Medium priority - course notifications
-    case 'direct-message':
+    case "direct-message":
       return 6; // Lower priority - messages
-    case 'admin-new-user-notification':
+    case "admin-new-user-notification":
       return 7; // Lowest priority - admin notifications
     default:
       return 5;
   }
 }
 
-// Queue event listeners for logging
-emailQueue.on('error', (err) => {
-  console.error('[EMAIL_QUEUE] Queue error:', err);
-});
-
+// Export the queue (may be null if Redis is not available)
+export { emailQueue };
 export default emailQueue;
-
