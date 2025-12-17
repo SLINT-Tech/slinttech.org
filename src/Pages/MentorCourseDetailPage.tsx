@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiDelete } from '../lib/api';
 
 interface Course {
   id: string;
@@ -112,11 +113,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-course-detail?courseId=${courseId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentor-get-course-detail?courseId=${courseId}`);
 
       const data = await response.json();
 
@@ -184,11 +181,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-assigned-mentees?courseId=${courseId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentor-get-assigned-mentees?courseId=${courseId}`);
 
       const data = await response.json();
 
@@ -363,12 +356,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-lesson?lessonId=${lessonToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiDelete(`/mentor-delete-lesson?lessonId=${lessonToDelete}`);
 
       const data = await response.json();
 
@@ -464,12 +452,7 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-task?taskId=${taskToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiDelete(`/mentor-delete-task?taskId=${taskToDelete}`);
 
       const data = await response.json();
 

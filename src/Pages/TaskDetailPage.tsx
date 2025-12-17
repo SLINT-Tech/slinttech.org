@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import Toast from '../Components/Toast';
+import { apiGet } from '../lib/api';
 
 interface Task {
   id: string;
@@ -67,11 +68,7 @@ const TaskDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-task-detail?taskId=${taskId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentee-get-task-detail?taskId=${taskId}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch task detail');

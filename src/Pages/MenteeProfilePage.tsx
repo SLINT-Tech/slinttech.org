@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 const MenteeProfilePage = () => {
   const { signOut } = useAuth();
@@ -206,12 +207,7 @@ const MenteeProfilePage = () => {
         type: 'success'
       });
 
-      const response = await fetch(`/api/download-contract?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+      const response = await apiGet(`/download-contract?userId=${userId}`);
 
       if (!response.ok) {
         const contentType = response.headers.get('content-type');

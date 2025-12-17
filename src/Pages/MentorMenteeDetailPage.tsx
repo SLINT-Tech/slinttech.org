@@ -5,6 +5,7 @@ import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Toast from '../Components/Toast';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Course {
   id: string;
@@ -69,11 +70,7 @@ const MentorMenteeDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-mentee-detail?menteeId=${menteeId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentor-get-mentee-detail?menteeId=${menteeId}`);
 
       const data = await response.json();
 

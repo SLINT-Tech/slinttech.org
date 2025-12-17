@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { uploadContractToCloudinary } from '../lib/cloudinary';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiPost } from '../lib/api';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -180,21 +179,15 @@ const SignUpPage = () => {
     try {
       let response;
       try {
-        response = await fetch(`${API_BASE_URL}/auth-signup`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email.trim(),
-            password: formData.password,
-            fullName: formData.fullName.trim(),
-            membershipCategory: formData.membershipCategory,
-            careerPath: formData.careerPath,
-            role: formData.role,
-            specialization: formData.role === 'Mentor' ? formData.careerPath : null
-          }),
-        });
+        response = await apiPost('/auth-signup', {
+          email: formData.email.trim(),
+          password: formData.password,
+          fullName: formData.fullName.trim(),
+          membershipCategory: formData.membershipCategory,
+          careerPath: formData.careerPath,
+          role: formData.role,
+          specialization: formData.role === 'Mentor' ? formData.careerPath : null
+        }, { skipAuth: true });
       } catch (networkError) {
         throw new Error('Network error. Please check your internet connection and try again.');
       }
@@ -233,16 +226,10 @@ const SignUpPage = () => {
       }
 
       try {
-        const updateResponse = await fetch(`${API_BASE_URL}/auth-update-profile`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: data.userId,
-            contractFileUrl: uploadResult.url,
-          }),
-        });
+        const updateResponse = await apiPost('/auth-update-profile', {
+          userId: data.userId,
+          contractFileUrl: uploadResult.url,
+        }, { skipAuth: true });
 
         if (!updateResponse.ok) {
           const updateData = await updateResponse.json();

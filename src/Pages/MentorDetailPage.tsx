@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { MentorDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Lesson {
   id: string;
@@ -100,11 +101,7 @@ const MentorDetailPage = () => {
       }
 
       console.log('Fetching mentor detail for mentorId:', mentorId);
-      const response = await fetch(`/api/mentee-get-mentor-detail?mentorId=${mentorId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentee-get-mentor-detail?mentorId=${mentorId}`);
 
       console.log('Response status:', response.status);
 

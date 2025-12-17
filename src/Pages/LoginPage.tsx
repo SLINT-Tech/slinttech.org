@@ -2,8 +2,7 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiPost } from '../lib/api';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -62,16 +61,10 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
-      });
+      const response = await apiPost('/auth-login', {
+        email: formData.email.trim(),
+        password: formData.password,
+      }, { skipAuth: true });
 
       const data = await response.json();
 

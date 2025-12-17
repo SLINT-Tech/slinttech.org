@@ -4,6 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { MentorCoursesTableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface CourseStats {
   totalLessons: number;
@@ -71,11 +72,7 @@ const MenteeMentorCoursesPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-mentor-courses?mentorId=${mentorId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiGet(`/mentee-get-mentor-courses?mentorId=${mentorId}`);
 
       if (!response.ok) {
         const errorData = await response.json();

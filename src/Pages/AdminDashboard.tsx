@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface UserProfile {
   id: string;
@@ -291,12 +292,7 @@ const AdminDashboard = () => {
         type: 'success'
       });
 
-      const response = await fetch(`/api/download-contract?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+      const response = await apiGet(`/download-contract?userId=${userId}`);
 
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
@@ -405,23 +401,14 @@ const AdminDashboard = () => {
     if (user.role === 'Mentee') {
       setIsLoadingAssignments(true);
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await fetch(`/api/admin-get-mentor-assignments?menteeId=${user.id}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            }
-          });
+        const response = await apiGet(`/admin-get-mentor-assignments?menteeId=${user.id}`);
 
-          if (response.ok) {
-            const { assignments } = await response.json();
-            setEditingUser(prev => ({
-              ...prev,
-              mentorAssignments: assignments || []
-            }));
-          }
+        if (response.ok) {
+          const { assignments } = await response.json();
+          setEditingUser(prev => ({
+            ...prev,
+            mentorAssignments: assignments || []
+          }));
         }
       } catch (error) {
         console.error('Error fetching mentor assignments:', error);
