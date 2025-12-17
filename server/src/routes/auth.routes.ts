@@ -16,8 +16,8 @@ const validateEmail = (email: string): boolean => {
 };
 
 const validatePassword = (password: string): { valid: boolean; error?: string } => {
-  if (password.length < 6) {
-    return { valid: false, error: 'Password must be at least 6 characters long' };
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long' };
   }
   if (password.length > 128) {
     return { valid: false, error: 'Password is too long' };
@@ -404,8 +404,9 @@ router.post('/auth-change-password', verifyToken, asyncHandler(async (req: Reque
     return res.status(400).json({ error: 'Current password and new password are required' });
   }
 
-  if (newPassword.length < 8) {
-    return res.status(400).json({ error: 'New password must be at least 8 characters long' });
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.valid) {
+    return res.status(400).json({ error: passwordValidation.error });
   }
 
   const [user] = await db

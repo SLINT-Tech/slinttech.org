@@ -9,6 +9,17 @@ import { queueEmail } from '../jobs/email.producer.js';
 
 const router = Router();
 
+// Validation helpers
+const validatePassword = (password: string): { valid: boolean; error?: string } => {
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long' };
+  }
+  if (password.length > 128) {
+    return { valid: false, error: 'Password is too long' };
+  }
+  return { valid: true };
+};
+
 // POST /api/admin-get-users
 router.post('/admin-get-users', verifyToken, requireRole('Admin'), asyncHandler(async (req: Request, res: Response) => {
   const {
@@ -220,8 +231,9 @@ router.post('/admin-create-user', verifyToken, requireRole('Admin'), asyncHandle
     return res.status(400).json({ error: 'Invalid email format' });
   }
 
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.valid) {
+    return res.status(400).json({ error: passwordValidation.error });
   }
 
   if (!['Admin', 'Mentor', 'Mentee'].includes(role)) {
