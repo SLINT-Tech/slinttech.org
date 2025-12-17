@@ -12,10 +12,10 @@
     "worker:prod": "node dist/jobs/email.worker.js"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.26.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.34.8",
     "busboy": "^1.6.0",
-    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.44.7",

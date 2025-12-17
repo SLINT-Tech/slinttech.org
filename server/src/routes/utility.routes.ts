@@ -1,21 +1,35 @@
 import { Router, Request, Response } from 'express';
-import { v2 as cloudinary } from 'cloudinary';
+import { BlobServiceClient } from '@azure/storage-blob';
 import Busboy from 'busboy';
-import { Readable } from 'stream';
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { userProfiles } from '../db/schema.js';
-import { verifyToken, requireRole } from '../middleware/auth.middleware.js';
+import { verifyToken } from '../middleware/auth.middleware.js';
 import { asyncHandler } from '../middleware/error.middleware.js';
 
 const router = Router();
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Azure Blob Storage configuration
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME || 'contracts';
+
+// Initialize Azure Blob Service Client (lazy initialization)
+let blobServiceClient: BlobServiceClient | null = null;
+
+const getBlobServiceClient = () => {
+  if (!blobServiceClient && AZURE_STORAGE_CONNECTION_STRING) {
+    blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+  }
+  return blobServiceClient;
+};
+
+const getContainerClient = () => {
+  const client = getBlobServiceClient();
+  if (!client) {
+    throw new Error('Azure Storage is not configured');
+  }
+  return client.getContainerClient(AZURE_STORAGE_CONTAINER_NAME);
+};
 
 interface FileData {
   buffer: Buffer;
@@ -25,8 +39,8 @@ interface FileData {
 
 // POST /api/upload-contract
 router.post('/upload-contract', asyncHandler(async (req: Request, res: Response) => {
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    console.error('Cloudinary configuration missing');
+  if (!AZURE_STORAGE_CONNECTION_STRING) {
+    console.error('Azure Storage configuration missing');
     return res.status(500).json({
       error: 'Server configuration error',
       details: 'File upload service is not properly configured'
@@ -138,39 +152,26 @@ router.post('/upload-contract', asyncHandler(async (req: Request, res: Response)
     });
   }
 
-  const bufferStream = Readable.from(file.buffer);
+  // Upload to Azure Blob Storage
+  const containerClient = getContainerClient();
+  const blobName = `contract_${userId}_${Date.now()}.pdf`;
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-  const result = await new Promise<any>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'contract_files',
-        resource_type: 'raw',
-        public_id: `contract_${userId}_${Date.now()}.pdf`,
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-
-    stream.on('error', (error) => {
-      reject(error);
-    });
-
-    bufferStream.pipe(stream);
+  await blockBlobClient.uploadData(file.buffer, {
+    blobHTTPHeaders: {
+      blobContentType: 'application/pdf',
+      blobContentDisposition: `attachment; filename="${blobName}"`,
+    },
   });
 
-  if (!result || !result.secure_url) {
-    throw new Error('Upload completed but no URL was returned');
-  }
+  const blobUrl = blockBlobClient.url;
+
+  console.log('File uploaded to Azure Blob Storage:', blobUrl);
 
   res.status(200).json({
     success: true,
-    url: result.secure_url,
-    publicId: result.public_id,
+    url: blobUrl,
+    blobName: blobName,
   });
 }));
 
@@ -201,18 +202,18 @@ router.get('/download-contract', verifyToken, asyncHandler(async (req: Request, 
     return res.status(404).json({ error: 'Contract not found' });
   }
 
-  console.log('Fetching contract from Cloudinary:', user.contractFileUrl);
+  console.log('Fetching contract from storage:', user.contractFileUrl);
 
-  // Fetch the file directly from Cloudinary
-  const cloudinaryResponse = await fetch(user.contractFileUrl);
+  // Fetch the file from the stored URL (works for both Azure Blob and legacy Cloudinary URLs)
+  const storageResponse = await fetch(user.contractFileUrl);
 
-  if (!cloudinaryResponse.ok) {
-    console.error('Cloudinary fetch failed:', cloudinaryResponse.status, cloudinaryResponse.statusText);
-    throw new Error(`Failed to fetch file from Cloudinary. Status: ${cloudinaryResponse.status}`);
+  if (!storageResponse.ok) {
+    console.error('Storage fetch failed:', storageResponse.status, storageResponse.statusText);
+    throw new Error(`Failed to fetch file from storage. Status: ${storageResponse.status}`);
   }
 
   // Get the file as a buffer
-  const fileBuffer = await cloudinaryResponse.arrayBuffer();
+  const fileBuffer = await storageResponse.arrayBuffer();
 
   // Generate a clean filename
   const sanitizedName = user.fullName
@@ -231,4 +232,3 @@ router.get('/download-contract', verifyToken, asyncHandler(async (req: Request, 
 }));
 
 export default router;
-
