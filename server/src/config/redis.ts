@@ -36,7 +36,7 @@ export const createRedisConnection = () => {
 export const redis = new Redis({
   ...redisOptions,
   maxRetriesPerRequest: 3,
-  retryDelayOnFailover: 100,
+  retryStrategy: (times) => Math.min(times * 100, 3000),
 });
 
 redis.on('error', (err) => {

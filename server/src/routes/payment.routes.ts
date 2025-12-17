@@ -9,6 +9,22 @@ import { queueEmail } from '../jobs/email.producer.js';
 const router = Router();
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
 
+// Paystack API response types
+interface PaystackVerifyResponse {
+  status: boolean;
+  message: string;
+  data: {
+    status: string;
+    amount: number;
+    paid_at: string;
+    metadata?: {
+      userId?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
+}
+
 // POST /api/payment-initialize
 router.post('/payment-initialize', verifyToken, asyncHandler(async (req: Request, res: Response) => {
   const [user] = await db
@@ -87,7 +103,7 @@ router.post('/payment-verify', verifyToken, asyncHandler(async (req: Request, re
     return res.status(400).json({ error: 'Payment verification failed' });
   }
 
-  const paystackData = await paystackResponse.json();
+  const paystackData = await paystackResponse.json() as PaystackVerifyResponse;
 
   console.log('Paystack response:', JSON.stringify(paystackData, null, 2));
 

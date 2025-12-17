@@ -71,7 +71,7 @@ export class BrevoService {
         throw new Error(`Brevo API error: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as BrevoResponse;
       console.log('[BREVO] Email sent successfully:', data.messageId);
       return data;
     } catch (error) {
