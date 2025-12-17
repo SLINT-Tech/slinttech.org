@@ -905,20 +905,23 @@ router.post('/mentor-enroll-mentees', verifyToken, requireRole('Mentor'), asyncH
 
   const courseLink = `${process.env.APP_URL || 'https://slinttech.netlify.app'}/dashboard`;
 
-  for (const mentee of mentees) {
-    await queueEmail({
-      type: 'course-enrollment',
-      to: { email: mentee.email, name: mentee.fullName },
-      data: {
-        menteeName: mentee.fullName,
-        courseTitle: course[0].name,
-        courseDescription: course[0].description || 'No description available',
-        courseDuration: course[0].duration || 'Self-paced',
-        courseLevel: 'Intermediate',
-        mentorName: mentor.fullName,
-        courseLink
-      }
-    });
+  // Only send emails if mentor exists
+  if (mentor) {
+    for (const mentee of mentees) {
+      await queueEmail({
+        type: 'course-enrollment',
+        to: { email: mentee.email, name: mentee.fullName },
+        data: {
+          menteeName: mentee.fullName,
+          courseTitle: course[0].name,
+          courseDescription: course[0].description || 'No description available',
+          courseDuration: course[0].duration || 'Self-paced',
+          courseLevel: 'Intermediate',
+          mentorName: mentor.fullName,
+          courseLink
+        }
+      });
+    }
   }
 
   res.status(201).json({
