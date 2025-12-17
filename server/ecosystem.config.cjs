@@ -1,0 +1,27 @@
+module.exports = {
+  apps: [
+    {
+      name: 'api',
+      script: 'dist/index.js',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '500M',
+      env: {
+        NODE_ENV: 'production'
+      }
+    },
+    {
+      name: 'email-worker',
+      script: 'dist/jobs/email.worker.js',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '300M',
+      env: {
+        NODE_ENV: 'production'
+      }
+    }
+  ]
+};
+
