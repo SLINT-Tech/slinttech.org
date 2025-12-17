@@ -444,13 +444,15 @@ router.post('/auth-change-password', verifyToken, asyncHandler(async (req: Reque
 }));
 
 // POST /api/auth-update-profile
-router.post('/auth-update-profile', asyncHandler(async (req: Request, res: Response) => {
-  const { userId, contractFileUrl } = req.body;
+router.post('/auth-update-profile', verifyToken, asyncHandler(async (req: Request, res: Response) => {
+  const { contractFileUrl } = req.body;
+  // Always use the authenticated user's ID - never accept userId from request body
+  const userId = req.user!.userId;
 
-  if (!userId || !contractFileUrl) {
+  if (!contractFileUrl) {
     return res.status(400).json({
       error: 'Missing required fields',
-      details: 'User ID and contract file URL are required'
+      details: 'Contract file URL is required'
     });
   }
 

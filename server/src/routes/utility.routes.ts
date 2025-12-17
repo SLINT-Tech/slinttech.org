@@ -38,7 +38,7 @@ interface FileData {
 }
 
 // POST /api/upload-contract
-router.post('/upload-contract', asyncHandler(async (req: Request, res: Response) => {
+router.post('/upload-contract', verifyToken, asyncHandler(async (req: Request, res: Response) => {
   if (!AZURE_STORAGE_CONNECTION_STRING) {
     console.error('Azure Storage configuration missing');
     return res.status(500).json({
@@ -122,13 +122,9 @@ router.post('/upload-contract', asyncHandler(async (req: Request, res: Response)
     });
   }
 
-  const userId = fields.userId;
-  if (!userId) {
-    return res.status(400).json({
-      error: 'Missing user ID',
-      details: 'User identification is required for file upload'
-    });
-  }
+  // SECURITY: Always use the authenticated user's ID from the JWT token.
+  // Never accept userId from form data as it could allow uploading to other users' profiles.
+  const userId = req.user!.userId;
 
   if (file.mimeType !== 'application/pdf') {
     return res.status(400).json({

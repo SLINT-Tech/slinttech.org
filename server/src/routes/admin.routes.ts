@@ -269,10 +269,12 @@ router.post('/admin-create-user', verifyToken, requireRole('Admin'), asyncHandle
       createdAt: userProfiles.createdAt,
     });
 
+  // Note: Password is NOT returned in the response for security.
+  // The admin must communicate the temporary password to the user via secure out-of-band means
+  // (e.g., in person, secure messaging) or implement a "set password" email flow.
   res.status(201).json({
-    message: 'User created successfully',
-    user: newUser,
-    temporaryPassword: password
+    message: 'User created successfully. Please securely communicate the temporary password to the user.',
+    user: newUser
   });
 }));
 

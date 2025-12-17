@@ -98,7 +98,9 @@ router.post('/payment-verify', verifyToken, asyncHandler(async (req: Request, re
     });
   }
 
-  const userId = paystackData.data.metadata?.userId || req.user!.userId;
+  // SECURITY: Always use the authenticated user's ID from the JWT token.
+  // Never trust userId from payment provider metadata as it could be spoofed.
+  const userId = req.user!.userId;
 
   const [user] = await db
     .select({
