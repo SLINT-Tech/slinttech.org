@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*", "/assets/*", "*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,ttf,eot}"]
+  },
+  "routes": [
+    {
+      "route": "/api/*",
+      "allowedRoles": ["anonymous", "authenticated"]
+    }
+  ],
+  "globalHeaders": {
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.paystack.co https://api.brevo.com https://api.cloudinary.com https://www.google-analytics.com https://region1.google-analytics.com; frame-ancestors 'none';"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2"
+  },
+  "platform": {
+    "apiRuntime": "node:20"
+  },
+  "responseOverrides": {
+    "401": {
+      "statusCode": 401,
+      "body": {
+        "error": "Unauthorized",
+        "message": "Authentication required"
+      }
+    },
+    "403": {
+      "statusCode": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Access denied"
+      }
+    },
+    "404": {
+      "rewrite": "/index.html"
+    }
+  }
+}
+
