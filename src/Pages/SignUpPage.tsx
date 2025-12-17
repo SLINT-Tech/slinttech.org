@@ -2,7 +2,7 @@ import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-r
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-import { uploadContractToCloudinary } from '../lib/cloudinary';
+import { uploadContract } from '../lib/storage';
 import { apiPost } from '../lib/api';
 
 const SignUpPage = () => {
@@ -215,7 +215,7 @@ const SignUpPage = () => {
 
       let uploadResult;
       try {
-        uploadResult = await uploadContractToCloudinary(formData.contractFile, data.userId);
+        uploadResult = await uploadContract(formData.contractFile, data.userId);
       } catch (uploadError: any) {
         console.error('Contract upload error:', uploadError);
         throw new Error('Account created but contract upload failed. Please contact support with your email to complete registration.');

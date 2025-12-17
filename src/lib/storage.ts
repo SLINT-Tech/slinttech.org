@@ -7,7 +7,10 @@ export interface UploadResult {
   error?: string;
 }
 
-export const uploadContractToCloudinary = async (
+/**
+ * Upload a contract file to Azure Blob Storage via the backend API
+ */
+export const uploadContract = async (
   file: File,
   userId: string
 ): Promise<UploadResult> => {
@@ -36,3 +39,5 @@ export const uploadContractToCloudinary = async (
     };
   }
 };
+
+
