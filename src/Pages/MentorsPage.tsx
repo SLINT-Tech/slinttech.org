@@ -102,7 +102,7 @@ const MentorsPage = () => {
         {/* Back Button */}
         <Link
           to="/dashboard"
-          className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -181,8 +181,8 @@ const MentorsPage = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${mentor.enrolledCoursesCount > 0
-                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                   }`}>
                                   {mentor.enrolledCoursesCount > 0
                                     ? `${mentor.enrolledCoursesCount} Course${mentor.enrolledCoursesCount > 1 ? 's' : ''}`
@@ -245,8 +245,8 @@ const MentorsPage = () => {
                                 key={pageNum}
                                 onClick={() => handlePageChange(pageNum)}
                                 className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
-                                    ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
-                                    : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                  ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
+                                  : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                                   }`}
                               >
                                 {pageNum}

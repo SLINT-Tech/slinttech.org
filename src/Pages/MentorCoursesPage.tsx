@@ -176,7 +176,7 @@ const MentorCoursesPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             onClick={() => navigate('/mentor/dashboard')}
-            className="flex items-center gap-2 text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -291,7 +291,7 @@ const MentorCoursesPage = () => {
           {/* Back Button */}
           <button
             onClick={() => navigate('/mentor/dashboard')}
-            className="flex items-center gap-2 text-[#008080] hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -402,10 +402,10 @@ const MentorCoursesPage = () => {
                                 value={course.status}
                                 onChange={(e) => handleStatusChange(course.id, e.target.value)}
                                 className={`text-xs font-semibold rounded-full px-3 py-1 border cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 transition-colors ${course.status === 'active'
-                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800'
-                                    : course.status === 'archived'
-                                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700'
-                                      : 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 border-orange-200 dark:border-orange-800'
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800'
+                                  : course.status === 'archived'
+                                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                                    : 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 border-orange-200 dark:border-orange-800'
                                   }`}
                               >
                                 <option value="active">Active</option>
@@ -468,8 +468,8 @@ const MentorCoursesPage = () => {
                               <button
                                 onClick={() => setCurrentPage(page)}
                                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${currentPage === page
-                                    ? 'bg-[#008080] dark:bg-teal-600 text-white'
-                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent dark:border-gray-700'
+                                  ? 'bg-[#008080] dark:bg-teal-600 text-white'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent dark:border-gray-700'
                                   }`}
                               >
                                 {page}

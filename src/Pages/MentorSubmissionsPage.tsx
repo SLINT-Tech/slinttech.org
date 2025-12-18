@@ -206,7 +206,7 @@ const MentorSubmissionsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link
             to="/mentor/dashboard"
-            className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium"
+            className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -476,8 +476,8 @@ const MentorSubmissionsPage = () => {
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
                             className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${currentPage === pageNum
-                                ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md hover:bg-teal-700 dark:hover:bg-teal-500'
-                                : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                              ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md hover:bg-teal-700 dark:hover:bg-teal-500'
+                              : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                               }`}
                           >
                             {pageNum}
@@ -622,8 +622,8 @@ const MentorSubmissionsPage = () => {
                   }}
                   disabled={reviewLoading}
                   className={`w-full border rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${feedbackError
-                      ? 'border-red-500 dark:border-red-600 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500/20 dark:focus:ring-red-400/20'
-                      : 'border-gray-300 dark:border-gray-700 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20'
+                    ? 'border-red-500 dark:border-red-600 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500/20 dark:focus:ring-red-400/20'
+                    : 'border-gray-300 dark:border-gray-700 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20'
                     }`}
                   rows={6}
                   placeholder="Provide detailed feedback on the submission..."

@@ -365,7 +365,7 @@ const MenteeProfilePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -383,7 +383,7 @@ const MenteeProfilePage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Failed to Load Profile</h1>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/dashboard" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors font-medium cursor-pointer">
               Back to Dashboard
             </Link>
           </div>
@@ -395,7 +395,7 @@ const MenteeProfilePage = () => {
           {/* Back Button */}
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard

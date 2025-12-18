@@ -1,7 +1,7 @@
 /**
  * Notification Sound Utility
- * Uses Web Audio API to generate a pleasant notification tone
- * Industry-standard two-tone chime similar to Slack, Discord, etc.
+ * Uses Web Audio API to generate a subtle, modern notification tone
+ * Inspired by iMessage/WhatsApp style "bubble pop" sounds
  */
 
 let audioContext: AudioContext | null = null;
@@ -21,8 +21,8 @@ const getAudioContext = (): AudioContext | null => {
 };
 
 /**
- * Play a pleasant two-tone notification chime
- * Similar to Slack/Discord notification sounds
+ * Play a subtle, modern "bubble pop" notification sound
+ * Soft and refreshing - similar to iMessage/modern chat apps
  */
 export const playNotificationSound = (): void => {
   const ctx = getAudioContext();
@@ -35,31 +35,53 @@ export const playNotificationSound = (): void => {
 
   const now = ctx.currentTime;
 
-  // Create a pleasant two-tone notification (like Slack)
-  const frequencies = [830, 1050]; // E5, C6 - pleasant interval
-  const duration = 0.12;
-  const gap = 0.08;
+  // Create primary tone - soft "pop"
+  const oscillator = ctx.createOscillator();
+  const gainNode = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
 
-  frequencies.forEach((freq, index) => {
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+  // Connect: oscillator -> filter -> gain -> output
+  oscillator.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(ctx.destination);
 
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
+  // Sine wave for a soft, warm tone
+  oscillator.type = "sine";
 
-    // Use sine wave for a soft, pleasant tone
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(freq, now);
+  // Start at a higher frequency and quickly drop - creates the "pop" effect
+  oscillator.frequency.setValueAtTime(1800, now);
+  oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.08);
 
-    // Envelope for smooth attack and decay
-    const startTime = now + index * (duration + gap);
-    gainNode.gain.setValueAtTime(0, startTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01); // Quick attack
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration); // Smooth decay
+  // Low-pass filter to soften the sound
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(2000, now);
+  filter.Q.setValueAtTime(1, now);
 
-    oscillator.start(startTime);
-    oscillator.stop(startTime + duration + 0.05);
-  });
+  // Gentle volume envelope
+  gainNode.gain.setValueAtTime(0, now);
+  gainNode.gain.linearRampToValueAtTime(0.15, now + 0.005); // Very quick, soft attack
+  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15); // Smooth fade out
+
+  oscillator.start(now);
+  oscillator.stop(now + 0.2);
+
+  // Add a subtle harmonic for richness
+  const harmonic = ctx.createOscillator();
+  const harmonicGain = ctx.createGain();
+
+  harmonic.connect(harmonicGain);
+  harmonicGain.connect(ctx.destination);
+
+  harmonic.type = "sine";
+  harmonic.frequency.setValueAtTime(2400, now);
+  harmonic.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+
+  harmonicGain.gain.setValueAtTime(0, now);
+  harmonicGain.gain.linearRampToValueAtTime(0.05, now + 0.003); // Even softer
+  harmonicGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+  harmonic.start(now);
+  harmonic.stop(now + 0.15);
 };
 
 /**
