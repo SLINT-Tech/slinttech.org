@@ -387,9 +387,9 @@ export const CourseCardSkeletonLoader = () => {
 
 export const NotificationSkeletonLoader = ({ count = 10 }: { count?: number; }) => {
   return (
-    <div className="divide-y divide-gray-100 dark:divide-gray-700">
+    <div className="divide-y divide-gray-200 dark:divide-gray-700">
       {[...Array(count)].map((_, index) => (
-        <div key={index} className="px-4 sm:px-6 py-4 flex items-start gap-4 animate-pulse">
+        <div key={index} className="px-4 sm:px-6 py-4 flex items-start gap-4 animate-pulse bg-white dark:bg-gray-900 transition-colors">
           {/* Icon skeleton */}
           <div className="shrink-0">
             <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors"></div>
@@ -404,7 +404,8 @@ export const NotificationSkeletonLoader = ({ count = 10 }: { count?: number; }) 
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4 transition-colors"></div>
               </div>
               {/* Action button skeleton */}
-              <div className="shrink-0">
+              <div className="shrink-0 flex items-center gap-1">
+                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors"></div>
                 <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors"></div>
               </div>
             </div>

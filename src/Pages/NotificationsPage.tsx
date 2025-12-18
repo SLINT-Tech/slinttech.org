@@ -336,12 +336,12 @@ const NotificationsPage: React.FC = () => {
         </div>
 
         {/* Notification list */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           {loading ? (
             <NotificationSkeletonLoader count={8} />
           ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
-              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900">
+              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
                 <Bell className="w-10 h-10" />
               </div>
               <p className="text-lg font-medium text-gray-600 dark:text-gray-300">No notifications</p>
@@ -350,7 +350,7 @@ const NotificationsPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {notifications.map((notification) => {
                 const metadata = getMetadata(notification);
                 const isClickable = notification.type !== 'message_received';
@@ -362,9 +362,9 @@ const NotificationsPage: React.FC = () => {
                     className={`px-4 sm:px-6 py-4 flex items-start gap-4 transition-colors ${isClickable ? 'cursor-pointer' : ''
                       } ${!notification.read
                         ? 'bg-[#008080]/5 dark:bg-teal-900/10'
-                        : ''
+                        : 'bg-white dark:bg-gray-900'
                       } ${isClickable
-                        ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        ? 'hover:bg-gray-50 dark:hover:bg-gray-800'
                         : ''
                       }`}
                   >
