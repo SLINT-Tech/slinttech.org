@@ -41,6 +41,8 @@ const parseRedisUrl = (url: string): ParsedRedisConfig => {
       host,
       port,
       password,
+      // For Azure Managed Redis with access keys, use "default" as username
+      username: isAzureManagedRedis ? "default" : undefined,
       tls: useSsl,
       isCluster: isAzureManagedRedis,
     };
@@ -58,11 +60,22 @@ const parseRedisUrl = (url: string): ParsedRedisConfig => {
     const isAzureManagedRedis =
       host.includes(".redis.azure.net") || port === 10000;
 
+    // Decode URL-encoded password (Azure keys often have special chars like + = /)
+    const password = parsed.password
+      ? decodeURIComponent(parsed.password)
+      : undefined;
+
+    // For Azure Managed Redis with access keys, use "default" as username
+    // This is required for Redis 6+ ACL authentication
+    const username = isAzureManagedRedis
+      ? "default"
+      : parsed.username || undefined;
+
     return {
       host,
       port,
-      password: parsed.password || undefined,
-      username: parsed.username || undefined,
+      password,
+      username,
       tls: useTls,
       isCluster: isAzureManagedRedis,
     };
@@ -206,7 +219,9 @@ export const createRedisConnection = (): Redis | Cluster => {
     host: config.host,
     port: config.port,
     tls: config.tls ? "enabled" : "disabled",
+    username: config.username || "(none)",
     hasPassword: !!config.password,
+    passwordLength: config.password?.length || 0,
     mode: config.isCluster
       ? "CLUSTER (Azure Managed Redis)"
       : "STANDARD (Azure Cache for Redis)",
