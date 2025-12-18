@@ -200,26 +200,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  // Generate page numbers to display
-  const getPageNumbers = (): (number | string)[] => {
-    const pages: (number | string)[] = [];
-    const { page, totalPages } = pagination;
-
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (page <= 3) {
-        pages.push(1, 2, 3, 4, '...', totalPages);
-      } else if (page >= totalPages - 2) {
-        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, '...', page - 1, page, page + 1, '...', totalPages);
-      }
-    }
-
-    return pages;
-  };
-
   // Determine user role for navigation
   const userRole = currentUser.role || 'Mentee';
 
@@ -379,58 +359,74 @@ const NotificationsPage: React.FC = () => {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Page {pagination.page} of {pagination.totalPages}
-            </p>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 border border-gray-200 dark:border-gray-700 mt-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing{' '}
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {(pagination.page - 1) * pagination.limit + 1}
+                </span>{' '}
+                to{' '}
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {Math.min(pagination.page * pagination.limit, pagination.total)}
+                </span>{' '}
+                of{' '}
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {pagination.total}
+                </span>{' '}
+                notifications
+              </div>
 
-            <div className="flex items-center gap-1">
-              {/* Previous button */}
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page === 1}
-                className={`p-2 rounded-lg transition-colors ${pagination.page === 1
-                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Previous button */}
+                <button
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={pagination.page === 1}
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
 
-              {/* Page numbers */}
-              {getPageNumbers().map((pageNum, index) =>
-                pageNum === '...' ? (
-                  <span
-                    key={`ellipsis-${index}`}
-                    className="px-3 py-2 text-gray-400 dark:text-gray-500"
-                  >
-                    ...
-                  </span>
-                ) : (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum as number)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pagination.page === pageNum
-                      ? 'bg-[#008080] text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                      }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              )}
+                {/* Page numbers */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.page <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.page >= pagination.totalPages - 2) {
+                      pageNum = pagination.totalPages - 4 + i;
+                    } else {
+                      pageNum = pagination.page - 2 + i;
+                    }
 
-              {/* Next button */}
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page === pagination.totalPages}
-                className={`p-2 rounded-lg transition-colors ${pagination.page === pagination.totalPages
-                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`min-w-[40px] px-3 py-2 rounded-lg cursor-pointer font-medium transition-all ${pagination.page === pageNum
+                          ? 'bg-[#008080] dark:bg-teal-600 text-white shadow-md dark:shadow-gray-900/30'
+                          : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                          }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next button */}
+                <button
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="flex items-center gap-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all text-gray-700 dark:text-gray-300"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}
