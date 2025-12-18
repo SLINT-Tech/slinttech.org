@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
@@ -46,6 +47,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const socketInitialized = useRef(false);
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch unread count from API
   const fetchUnreadCount = useCallback(async () => {
@@ -59,7 +62,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setUnreadCount(data.unreadCount);
       }
     } catch (error) {
-      console.error('[SOCKET] Failed to fetch unread count:', error);
+      // Silent fail - polling will retry
     }
   }, []);
 
@@ -75,7 +78,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setNotifications(data.notifications);
       }
     } catch (error) {
-      console.error('[SOCKET] Failed to fetch notifications:', error);
+      // Silent fail - user can retry by opening offcanvas
     }
   }, []);
 
@@ -84,7 +87,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     try {
       const response = await apiPost(`/notifications/${notificationId}/read`);
       if (response.ok) {
-        // Update local state
         setNotifications((prev) =>
           prev.map((n) =>
             n.id === notificationId ? { ...n, read: true, readAt: new Date().toISOString() } : n
@@ -93,7 +95,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error('[SOCKET] Failed to mark notification as read:', error);
+      console.error('[NOTIFICATIONS] Failed to mark as read:', error);
     }
   }, []);
 
@@ -102,31 +104,57 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     try {
       const response = await apiPost('/notifications/mark-all-read');
       if (response.ok) {
-        // Update local state
         setNotifications((prev) =>
           prev.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() }))
         );
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('[SOCKET] Failed to mark all as read:', error);
+      console.error('[NOTIFICATIONS] Failed to mark all as read:', error);
+    }
+  }, []);
+
+  // Start polling as fallback when socket is not connected
+  const startPolling = useCallback(() => {
+    if (pollingInterval.current) return; // Already polling
+
+    pollingInterval.current = setInterval(() => {
+      const token = getAuthToken();
+      if (token) {
+        fetchUnreadCount();
+      }
+    }, 30000); // Poll every 30 seconds
+  }, [fetchUnreadCount]);
+
+  // Stop polling
+  const stopPolling = useCallback(() => {
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+      pollingInterval.current = null;
     }
   }, []);
 
   // Initialize socket connection
   useEffect(() => {
     const token = getAuthToken();
+
+    // Fetch initial data if token exists
+    if (token) {
+      fetchUnreadCount();
+      fetchLatestNotifications();
+    }
+
+    // Prevent double initialization in React strict mode
+    if (socketInitialized.current) return;
+    socketInitialized.current = true;
+
     if (!token) {
-      // No token, clean up any existing connection
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-        setIsConnected(false);
-      }
+      // No token, start polling for when user logs in
+      startPolling();
       return;
     }
 
-    // Determine socket URL - use API_BASE_URL if set, otherwise current origin
+    // Determine socket URL
     const socketUrl = API_BASE_URL || window.location.origin;
 
     const newSocket = io(socketUrl, {
@@ -134,15 +162,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
+      reconnectionDelayMax: 10000,
+      timeout: 20000,
     });
 
     newSocket.on('connect', () => {
       console.log('[SOCKET] Connected');
       setIsConnected(true);
-      // Fetch initial data
+      stopPolling(); // Stop polling when socket connects
+      // Refresh data on connect
       fetchUnreadCount();
       fetchLatestNotifications();
     });
@@ -150,16 +180,18 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     newSocket.on('disconnect', (reason) => {
       console.log('[SOCKET] Disconnected:', reason);
       setIsConnected(false);
+      startPolling(); // Start polling when socket disconnects
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('[SOCKET] Connection error:', error.message);
+      console.log('[SOCKET] Connection error:', error.message);
       setIsConnected(false);
+      startPolling(); // Start polling on connection error
     });
 
-    // Handle new notifications
+    // Handle new notifications - this is the real-time update
     newSocket.on('notification', (notification: Notification) => {
-      console.log('[SOCKET] New notification:', notification);
+      console.log('[SOCKET] New notification received:', notification);
       // Add to beginning of list and keep only 5
       setNotifications((prev) => [notification, ...prev].slice(0, 5));
       setUnreadCount((prev) => prev + 1);
@@ -169,6 +201,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
     return () => {
       newSocket.disconnect();
+      stopPolling();
+      socketInitialized.current = false;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -200,6 +234,21 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [socket, fetchUnreadCount, fetchLatestNotifications]);
 
+  // Also check for token on mount and on visibility change
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const token = getAuthToken();
+        if (token) {
+          fetchUnreadCount();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchUnreadCount]);
+
   const value: SocketContextValue = {
     socket,
     isConnected,
@@ -219,7 +268,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 export const useSocket = (): SocketContextValue => {
   const context = useContext(SocketContext);
   if (!context) {
-    throw new Error('useSocket must be used within a SocketProvider');
+    // Return a default value instead of throwing - this allows usage before provider mounts
+    return {
+      socket: null,
+      isConnected: false,
+      unreadCount: 0,
+      notifications: [],
+      fetchUnreadCount: async () => { },
+      fetchLatestNotifications: async () => { },
+      markAsRead: async () => { },
+      markAllAsRead: async () => { },
+    };
   }
   return context;
 };

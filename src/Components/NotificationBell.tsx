@@ -1,16 +1,11 @@
 import { Bell } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSocket } from '../contexts/SocketContext';
 import NotificationOffcanvas from './NotificationOffcanvas';
 
-interface NotificationBellProps {
-  darkMode?: boolean;
-}
-
-const NotificationBell: React.FC<NotificationBellProps> = ({ darkMode = false }) => {
+const NotificationBell = () => {
   const { unreadCount, fetchUnreadCount } = useSocket();
   const [isOffcanvasOpen, setIsOffcanvasOpen] = useState(false);
-  const bellRef = useRef<HTMLButtonElement>(null);
 
   // Refresh unread count periodically as fallback
   useEffect(() => {
@@ -35,23 +30,16 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ darkMode = false })
   return (
     <>
       <button
-        ref={bellRef}
         onClick={handleBellClick}
-        className={`relative p-2 rounded-full transition-colors duration-200 ${darkMode
-            ? 'hover:bg-gray-700 text-gray-300 hover:text-white'
-            : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-          }`}
+        className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
       >
-        <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+        <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
 
         {/* Notification badge */}
         {unreadCount > 0 && (
           <span
-            className={`absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold rounded-full ${darkMode
-                ? 'bg-red-500 text-white'
-                : 'bg-red-500 text-white'
-              }`}
+            className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-[#008080] text-white"
             aria-hidden="true"
           >
             {displayCount}
@@ -62,7 +50,6 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ darkMode = false })
       <NotificationOffcanvas
         isOpen={isOffcanvasOpen}
         onClose={handleCloseOffcanvas}
-        darkMode={darkMode}
       />
     </>
   );

@@ -8,12 +8,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
+  ArrowLeft,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '../lib/api';
 import { Notification } from '../contexts/SocketContext';
 import { useSocket } from '../contexts/SocketContext';
+import { useAuth } from '../hooks/useAuth';
+import Navigation from '../Components/Navigation';
 
 // Helper to get relative time string
 const getRelativeTime = (dateString: string): string => {
@@ -38,7 +41,7 @@ const getRelativeTime = (dateString: string): string => {
 const getNotificationIcon = (type: Notification['type'], status?: string) => {
   switch (type) {
     case 'task_submitted':
-      return <ClipboardCheck className="w-5 h-5 text-blue-500" />;
+      return <ClipboardCheck className="w-5 h-5 text-[#008080]" />;
     case 'task_reviewed':
       return status === 'approved' ? (
         <CheckCircle className="w-5 h-5 text-green-500" />
@@ -48,7 +51,7 @@ const getNotificationIcon = (type: Notification['type'], status?: string) => {
     case 'message_received':
       return <Mail className="w-5 h-5 text-purple-500" />;
     case 'course_enrolled':
-      return <BookOpen className="w-5 h-5 text-indigo-500" />;
+      return <BookOpen className="w-5 h-5 text-[#008080]" />;
     default:
       return <Bell className="w-5 h-5 text-gray-500" />;
   }
@@ -64,6 +67,7 @@ interface PaginationInfo {
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const { fetchUnreadCount } = useSocket();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -75,14 +79,9 @@ const NotificationsPage: React.FC = () => {
   });
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem('darkMode');
-      if (savedMode !== null) return savedMode === 'true';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+
+  // Get current user from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
   // Fetch notifications
   const fetchNotifications = useCallback(async (page: number, filterType: 'all' | 'unread') => {
@@ -110,13 +109,13 @@ const NotificationsPage: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       fetchNotifications(newPage, filter);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   // Handle filter change
   const handleFilterChange = (newFilter: 'all' | 'unread') => {
     setFilter(newFilter);
-    // fetchNotifications will be triggered by useEffect
   };
 
   // Handle mark as read
@@ -176,7 +175,7 @@ const NotificationsPage: React.FC = () => {
         break;
       case 'task_reviewed':
         if (notification.referenceId) {
-          navigate(`/tasks/${notification.referenceId}`);
+          navigate(`/task/${notification.referenceId}`);
         }
         break;
       case 'message_received':
@@ -184,7 +183,7 @@ const NotificationsPage: React.FC = () => {
         break;
       case 'course_enrolled':
         if (notification.referenceId) {
-          navigate(`/courses/${notification.referenceId}`);
+          navigate(`/courses`);
         }
         break;
     }
@@ -220,175 +219,168 @@ const NotificationsPage: React.FC = () => {
     return pages;
   };
 
-  return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              Notifications
-            </h1>
-            <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              {pagination.total} total notification{pagination.total !== 1 ? 's' : ''}
-            </p>
-          </div>
+  // Determine user role for navigation
+  const userRole = currentUser.role || 'Mentee';
 
-          <div className="flex items-center gap-3">
-            {/* Filter tabs */}
-            <div className={`flex rounded-lg overflow-hidden border ${darkMode ? 'border-gray-700' : 'border-gray-300'}`}>
-              <button
-                onClick={() => handleFilterChange('all')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'all'
-                    ? darkMode
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-600 text-white'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => handleFilterChange('unread')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'unread'
-                    ? darkMode
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-600 text-white'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-              >
-                Unread
-              </button>
+  return (
+    <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+      {/* Navigation */}
+      <Navigation
+        role={userRole as 'Mentor' | 'Mentee' | 'Admin'}
+        userName={currentUser.fullName || 'User'}
+        onLogout={signOut}
+      />
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button & Header */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-[#008080] dark:hover:text-teal-400 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Notifications
+              </h1>
+              <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                {pagination.total} total notification{pagination.total !== 1 ? 's' : ''}
+              </p>
             </div>
 
-            {/* Mark all as read */}
-            {notifications.some((n) => !n.read) && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${darkMode
-                    ? 'bg-gray-800 text-blue-400 hover:bg-gray-700'
-                    : 'bg-white text-blue-600 hover:bg-gray-50 border border-gray-300'
-                  }`}
-              >
-                <Check className="w-4 h-4" />
-                Mark all read
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Filter tabs */}
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <button
+                  onClick={() => handleFilterChange('all')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'all'
+                      ? 'bg-[#008080] text-white'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => handleFilterChange('unread')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'unread'
+                      ? 'bg-[#008080] text-white'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                >
+                  Unread
+                </button>
+              </div>
+
+              {/* Mark all as read */}
+              {notifications.some((n) => !n.read) && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 border border-gray-200 dark:border-gray-700 transition-colors"
+                >
+                  <Check className="w-4 h-4" />
+                  <span className="hidden sm:inline">Mark all read</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Notification list */}
-        <div className={`rounded-xl overflow-hidden shadow ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           {loading ? (
             <div className="p-8 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#008080]"></div>
             </div>
           ) : notifications.length === 0 ? (
-            <div className={`flex flex-col items-center justify-center py-16 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-              <Bell className="w-16 h-16 mb-4" />
-              <p className="text-lg font-medium">No notifications</p>
+            <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+                <Bell className="w-10 h-10" />
+              </div>
+              <p className="text-lg font-medium text-gray-600 dark:text-gray-300">No notifications</p>
               <p className="text-sm mt-1">
                 {filter === 'unread' ? "You're all caught up!" : "You don't have any notifications yet."}
               </p>
             </div>
           ) : (
-            <ul className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
               {notifications.map((notification) => {
                 const metadata = getMetadata(notification);
                 const isClickable = notification.type !== 'message_received';
 
                 return (
-                  <li key={notification.id}>
-                    <div
-                      onClick={() => isClickable && handleNotificationClick(notification)}
-                      className={`px-4 sm:px-6 py-4 flex items-start gap-4 transition-colors ${isClickable ? 'cursor-pointer' : ''
-                        } ${notification.read
-                          ? darkMode
-                            ? 'bg-gray-800'
-                            : 'bg-white'
-                          : darkMode
-                            ? 'bg-gray-750'
-                            : 'bg-blue-50'
-                        } ${isClickable
-                          ? darkMode
-                            ? 'hover:bg-gray-700'
-                            : 'hover:bg-gray-50'
-                          : ''
-                        }`}
-                    >
-                      {/* Unread indicator */}
-                      <div className="flex-shrink-0 mt-1 w-2">
-                        {!notification.read && (
-                          <span className="block w-2 h-2 rounded-full bg-blue-500" />
-                        )}
-                      </div>
-
-                      {/* Icon */}
-                      <div className="flex-shrink-0">
+                  <div
+                    key={notification.id}
+                    onClick={() => isClickable && handleNotificationClick(notification)}
+                    className={`px-4 sm:px-6 py-4 flex items-start gap-4 transition-colors ${isClickable ? 'cursor-pointer' : ''
+                      } ${!notification.read
+                        ? 'bg-[#008080]/5 dark:bg-teal-900/10'
+                        : ''
+                      } ${isClickable
+                        ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        : ''
+                      }`}
+                  >
+                    {/* Icon */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
+                          ? 'bg-[#008080]/10 dark:bg-teal-400/10'
+                          : 'bg-gray-100 dark:bg-gray-700'
+                        }`}>
                         {getNotificationIcon(notification.type, metadata?.status)}
                       </div>
+                    </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p
-                              className={`text-sm font-medium ${notification.read
-                                  ? darkMode
-                                    ? 'text-gray-300'
-                                    : 'text-gray-700'
-                                  : darkMode
-                                    ? 'text-white'
-                                    : 'text-gray-900'
-                                }`}
-                            >
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className={`text-sm font-medium ${!notification.read
+                                ? 'text-gray-900 dark:text-white'
+                                : 'text-gray-700 dark:text-gray-300'
+                              }`}>
                               {notification.title}
                             </p>
-                            <p
-                              className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'
-                                }`}
-                            >
-                              {notification.message}
-                            </p>
-                            <p
-                              className={`text-xs mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'
-                                }`}
-                            >
-                              {getRelativeTime(notification.createdAt)}
-                            </p>
+                            {!notification.read && (
+                              <span className="w-2 h-2 rounded-full bg-[#008080]" />
+                            )}
                           </div>
-
-                          {/* Mark as read button */}
-                          {!notification.read && (
-                            <button
-                              onClick={(e) => handleMarkAsRead(notification.id, e)}
-                              className={`flex-shrink-0 p-1.5 rounded-full transition-colors ${darkMode
-                                  ? 'hover:bg-gray-600 text-gray-400'
-                                  : 'hover:bg-gray-200 text-gray-500'
-                                }`}
-                              title="Mark as read"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                          )}
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                            {getRelativeTime(notification.createdAt)}
+                          </p>
                         </div>
+
+                        {/* Mark as read button */}
+                        {!notification.read && (
+                          <button
+                            onClick={(e) => handleMarkAsRead(notification.id, e)}
+                            className="flex-shrink-0 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 dark:text-gray-500 transition-colors"
+                            title="Mark as read"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           )}
         </div>
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6">
-            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Page {pagination.page} of {pagination.totalPages}
             </p>
 
@@ -398,12 +390,8 @@ const NotificationsPage: React.FC = () => {
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className={`p-2 rounded-lg transition-colors ${pagination.page === 1
-                    ? darkMode
-                      ? 'text-gray-600 cursor-not-allowed'
-                      : 'text-gray-300 cursor-not-allowed'
-                    : darkMode
-                      ? 'text-gray-400 hover:bg-gray-800'
-                      : 'text-gray-600 hover:bg-gray-100'
+                    ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -414,7 +402,7 @@ const NotificationsPage: React.FC = () => {
                 pageNum === '...' ? (
                   <span
                     key={`ellipsis-${index}`}
-                    className={`px-3 py-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                    className="px-3 py-2 text-gray-400 dark:text-gray-500"
                   >
                     ...
                   </span>
@@ -423,10 +411,8 @@ const NotificationsPage: React.FC = () => {
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum as number)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pagination.page === pageNum
-                        ? 'bg-blue-600 text-white'
-                        : darkMode
-                          ? 'text-gray-400 hover:bg-gray-800'
-                          : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-[#008080] text-white'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                   >
                     {pageNum}
@@ -439,12 +425,8 @@ const NotificationsPage: React.FC = () => {
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.totalPages}
                 className={`p-2 rounded-lg transition-colors ${pagination.page === pagination.totalPages
-                    ? darkMode
-                      ? 'text-gray-600 cursor-not-allowed'
-                      : 'text-gray-300 cursor-not-allowed'
-                    : darkMode
-                      ? 'text-gray-400 hover:bg-gray-800'
-                      : 'text-gray-600 hover:bg-gray-100'
+                    ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <ChevronRight className="w-5 h-5" />
@@ -452,7 +434,7 @@ const NotificationsPage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
