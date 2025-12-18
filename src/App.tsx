@@ -42,7 +42,7 @@ function App() {
   return (
     <Router>
       <SocketProvider>
-        <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+        <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors overflow-x-hidden">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignUpPage />} />

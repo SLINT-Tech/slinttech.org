@@ -155,15 +155,16 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 dark:bg-black/60 z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 bg-black/50 dark:bg-black/70 z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         aria-hidden="true"
+        onClick={onClose}
       />
 
       {/* Offcanvas panel */}
       <div
         ref={offcanvasRef}
-        className={`fixed top-0 right-0 h-full z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 h-full z-[70] transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
           } bg-white dark:bg-gray-900 w-full sm:w-[380px] shadow-2xl flex flex-col border-l border-gray-200 dark:border-gray-800`}
         role="dialog"
         aria-modal="true"
@@ -217,8 +218,8 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                     {/* Icon */}
                     <div className="flex-shrink-0 mt-0.5">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
-                          ? 'bg-[#008080]/10 dark:bg-teal-400/10'
-                          : 'bg-gray-100 dark:bg-gray-800'
+                        ? 'bg-[#008080]/10 dark:bg-teal-400/10'
+                        : 'bg-gray-100 dark:bg-gray-800'
                         }`}>
                         {getNotificationIcon(notification.type, metadata?.status)}
                       </div>
@@ -228,8 +229,8 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className={`text-sm font-medium ${!notification.read
-                            ? 'text-gray-900 dark:text-white'
-                            : 'text-gray-700 dark:text-gray-300'
+                          ? 'text-gray-900 dark:text-white'
+                          : 'text-gray-700 dark:text-gray-300'
                           }`}>
                           {notification.title}
                         </p>
