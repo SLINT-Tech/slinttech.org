@@ -1,6 +1,7 @@
 import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 interface NavLink {
   path: string;
@@ -143,11 +144,10 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center gap-2 px-3 py-2 font-medium transition-all duration-200 ${
-                    isActive(link)
+                  className={`flex items-center gap-2 px-3 py-2 font-medium transition-all duration-200 ${isActive(link)
                       ? 'text-[#008080] dark:text-teal-400'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-                  }`}
+                    }`}
                 >
                   {link.icon}
                   <span className="text-sm">{link.label}</span>
@@ -157,6 +157,9 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            {/* Notification Bell */}
+            <NotificationBell darkMode={isDarkMode} />
+
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
@@ -218,6 +221,9 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
           </div>
 
           <div className="md:hidden flex items-center gap-2">
+            {/* Notification Bell - Mobile */}
+            <NotificationBell darkMode={isDarkMode} />
+
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -257,11 +263,10 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 border-l-4 ${
-                  isActive(link)
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 border-l-4 ${isActive(link)
                     ? 'border-[#008080] dark:border-teal-400 bg-[#008080]/5 dark:bg-teal-900/20 text-[#008080] dark:text-teal-400'
                     : 'border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-                }`}
+                  }`}
               >
                 {link.icon}
                 <span className="text-sm">{link.label}</span>

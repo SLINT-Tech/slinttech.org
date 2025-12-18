@@ -1,25 +1,35 @@
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
-import { errorHandler } from './middleware/error.middleware.js';
+import "dotenv/config";
+import express from "express";
+import { createServer } from "http";
+import cors from "cors";
+import { errorHandler } from "./middleware/error.middleware.js";
+import { initializeSocket } from "./socket/index.js";
 
 // Import routes
-import authRoutes from './routes/auth.routes.js';
-import adminRoutes from './routes/admin.routes.js';
-import mentorRoutes from './routes/mentor.routes.js';
-import menteeRoutes from './routes/mentee.routes.js';
-import paymentRoutes from './routes/payment.routes.js';
-import utilityRoutes from './routes/utility.routes.js';
+import authRoutes from "./routes/auth.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import mentorRoutes from "./routes/mentor.routes.js";
+import menteeRoutes from "./routes/mentee.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import utilityRoutes from "./routes/utility.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Initialize Socket.IO
+initializeSocket(httpServer);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: process.env.ALLOWED_ORIGINS?.split(",") || [
+    "http://localhost:5173",
+    "http://localhost:3000",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 
 // Middleware
@@ -27,51 +37,54 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 // API Routes
-app.use('/api', authRoutes);
-app.use('/api', adminRoutes);
-app.use('/api', mentorRoutes);
-app.use('/api', menteeRoutes);
-app.use('/api', paymentRoutes);
-app.use('/api', utilityRoutes);
+app.use("/api", authRoutes);
+app.use("/api", adminRoutes);
+app.use("/api", mentorRoutes);
+app.use("/api", menteeRoutes);
+app.use("/api", paymentRoutes);
+app.use("/api", utilityRoutes);
+app.use("/api", notificationRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Start server
-const server = app.listen(PORT, () => {
+// Start server (using httpServer for Socket.IO support)
+httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  
+  console.log(`🔌 WebSocket server ready`);
+
   // Signal PM2 that the app is ready
   if (process.send) {
-    process.send('ready');
-    console.log('✅ PM2 ready signal sent');
+    process.send("ready");
+    console.log("✅ PM2 ready signal sent");
   }
 });
 
 // Graceful shutdown handling
 const gracefulShutdown = (signal: string) => {
   console.log(`\n${signal} received. Shutting down gracefully...`);
-  
-  server.close(() => {
-    console.log('HTTP server closed');
+
+  httpServer.close(() => {
+    console.log("HTTP server closed");
     process.exit(0);
   });
 
   // Force close after 10 seconds
   setTimeout(() => {
-    console.error('Could not close connections in time, forcefully shutting down');
+    console.error(
+      "Could not close connections in time, forcefully shutting down"
+    );
     process.exit(1);
   }, 10000);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 export default app;
-

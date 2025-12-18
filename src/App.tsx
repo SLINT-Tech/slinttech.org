@@ -33,155 +33,166 @@ import MentorProfilePage from './Pages/MentorProfilePage';
 import MenteeMentorCoursesPage from './Pages/MenteeMentorCoursesPage';
 import MenteeCourseDetailPage from './Pages/MenteeCourseDetailPage';
 import MenteeCoursesPage from './Pages/MenteeCoursesPage';
+import NotificationsPage from './Pages/NotificationsPage';
 import ProtectedRoute from './Components/ProtectedRoute';
 import NotFoundPage from './Pages/NotFoundPage';
+import { SocketProvider } from './contexts/SocketContext';
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/mentor/login" element={<MentorLoginPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+      <SocketProvider>
+        <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/mentor/login" element={<MentorLoginPage />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          <Route path="/pending-approval" element={
-            <ProtectedRoute requireApproval={false} requirePayment={false}>
-              <PendingApprovalPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/pending-approval" element={
+              <ProtectedRoute requireApproval={false} requirePayment={false}>
+                <PendingApprovalPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/payment-wall" element={
-            <ProtectedRoute requirePayment={false}>
-              <PaymentWallPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/payment-wall" element={
+              <ProtectedRoute requirePayment={false}>
+                <PaymentWallPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/payment" element={
-            <ProtectedRoute requirePayment={false}>
-              <PaymentWallPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/payment" element={
+              <ProtectedRoute requirePayment={false}>
+                <PaymentWallPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/dashboard" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MenteeDashboard />
-            </ProtectedRoute>
-          } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MenteeDashboard />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/profile" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MenteeProfilePage />
-            </ProtectedRoute>
-          } />
+            <Route path="/profile" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MenteeProfilePage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentors" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MentorsPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentors" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MentorsPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/courses" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MenteeCoursesPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/courses" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MenteeCoursesPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/lessons" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <LessonsPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/lessons" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <LessonsPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/tasks" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <TasksPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/tasks" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <TasksPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/task/:taskId" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <TaskDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/task/:taskId" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <TaskDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/:mentorId" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MentorDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/:mentorId" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MentorDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor-detail" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MentorDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor-detail" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MentorDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor-courses" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MenteeMentorCoursesPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor-courses" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MenteeMentorCoursesPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor-course-detail" element={
-            <ProtectedRoute requiredRole="Mentee">
-              <MenteeCourseDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor-course-detail" element={
+              <ProtectedRoute requiredRole="Mentee">
+                <MenteeCourseDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/admin/dashboard" element={
-            <ProtectedRoute requiredRole="Admin" requireApproval={false} requirePayment={false}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute requiredRole="Admin" requireApproval={false} requirePayment={false}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/dashboard" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorDashboard />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/dashboard" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorDashboard />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/mentees" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorMenteesPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/mentees" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorMenteesPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/mentee/:menteeId" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorMenteeDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/mentee/:menteeId" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorMenteeDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/submissions" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorSubmissionsPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/submissions" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorSubmissionsPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/course/:courseId" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorCourseDetailPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/course/:courseId" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorCourseDetailPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/courses" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorCoursesPage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/courses" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorCoursesPage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="/mentor/profile" element={
-            <ProtectedRoute requiredRole="Mentor">
-              <MentorProfilePage />
-            </ProtectedRoute>
-          } />
+            <Route path="/mentor/profile" element={
+              <ProtectedRoute requiredRole="Mentor">
+                <MentorProfilePage />
+              </ProtectedRoute>
+            } />
 
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
+            {/* Notifications - accessible to all authenticated users */}
+            <Route path="/notifications" element={
+              <ProtectedRoute requireApproval={false} requirePayment={false}>
+                <NotificationsPage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </SocketProvider>
     </Router>
   );
 }
