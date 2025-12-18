@@ -2,8 +2,7 @@ import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-r
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
-import { uploadContract } from '../lib/storage';
-import { apiPost } from '../lib/api';
+import { buildApiUrl } from '../lib/api';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ const SignUpPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success'; } | null>(null);
 
   useEffect(() => {
     if (darkMode) {
@@ -177,17 +176,26 @@ const SignUpPage = () => {
     setIsSubmitting(true);
 
     try {
+      // Create FormData with all fields + contract file (single atomic request)
+      const submitData = new FormData();
+      submitData.append('email', formData.email.trim());
+      submitData.append('password', formData.password);
+      submitData.append('fullName', formData.fullName.trim());
+      submitData.append('membershipCategory', formData.membershipCategory);
+      submitData.append('careerPath', formData.careerPath);
+      submitData.append('role', formData.role);
+      if (formData.role === 'Mentor') {
+        submitData.append('specialization', formData.careerPath);
+      }
+      submitData.append('file', formData.contractFile);
+
       let response;
       try {
-        response = await apiPost('/auth-signup', {
-          email: formData.email.trim(),
-          password: formData.password,
-          fullName: formData.fullName.trim(),
-          membershipCategory: formData.membershipCategory,
-          careerPath: formData.careerPath,
-          role: formData.role,
-          specialization: formData.role === 'Mentor' ? formData.careerPath : null
-        }, { skipAuth: true });
+        // Single request with all data + file
+        response = await fetch(buildApiUrl('/auth-signup'), {
+          method: 'POST',
+          body: submitData, // No Content-Type header - browser sets it with boundary
+        });
       } catch (networkError) {
         throw new Error('Network error. Please check your internet connection and try again.');
       }
@@ -209,37 +217,6 @@ const SignUpPage = () => {
       }
 
       setToast({
-        message: 'Account created! Uploading your contract...',
-        type: 'success'
-      });
-
-      let uploadResult;
-      try {
-        uploadResult = await uploadContract(formData.contractFile, data.userId);
-      } catch (uploadError: any) {
-        console.error('Contract upload error:', uploadError);
-        throw new Error('Account created but contract upload failed. Please contact support with your email to complete registration.');
-      }
-
-      if (!uploadResult.success) {
-        throw new Error(uploadResult.error || 'Failed to upload contract. Please contact support to complete your registration.');
-      }
-
-      try {
-        const updateResponse = await apiPost('/auth-update-profile', {
-          userId: data.userId,
-          contractFileUrl: uploadResult.url,
-        }, { skipAuth: true });
-
-        if (!updateResponse.ok) {
-          const updateData = await updateResponse.json();
-          console.error('Profile update failed:', updateData);
-        }
-      } catch (updateError) {
-        console.error('Profile update error:', updateError);
-      }
-
-      setToast({
         message: 'Registration successful! Your account is under review. You will be notified once approved.',
         type: 'success'
       });
@@ -253,7 +230,6 @@ const SignUpPage = () => {
         role: formData.role,
         status: 'pending',
         membershipPaid: false,
-        contractFileUrl: uploadResult.url,
       };
 
       localStorage.setItem('currentUser', JSON.stringify(userInfo));
@@ -293,7 +269,7 @@ const SignUpPage = () => {
       // Direct download approach
       const filename = 'slint_tech_membership_agreement_and_contract.pdf';
       const downloadUrl = `/documents/${encodeURIComponent(filename)}`;
-      
+
       // Use window.open for reliable download
       window.open(downloadUrl, '_blank');
     } catch (error) {

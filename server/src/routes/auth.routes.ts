@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { BlobServiceClient } from "@azure/storage-blob";
+import Busboy from "busboy";
 import { db } from "../db/index.js";
 import { userProfiles } from "../db/schema.js";
 import {
@@ -12,6 +14,32 @@ import { asyncHandler } from "../middleware/error.middleware.js";
 import { queueEmail } from "../jobs/email.producer.js";
 
 const router = Router();
+
+// Azure Blob Storage configuration
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_CONTAINER_NAME =
+  process.env.AZURE_STORAGE_CONTAINER_NAME || "contracts";
+
+// Initialize Azure Blob Service Client (lazy initialization)
+let blobServiceClient: BlobServiceClient | null = null;
+
+const getBlobServiceClient = () => {
+  if (!blobServiceClient && AZURE_STORAGE_CONNECTION_STRING) {
+    blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+  }
+  return blobServiceClient;
+};
+
+const getContainerClient = () => {
+  const client = getBlobServiceClient();
+  if (!client) {
+    throw new Error("Azure Storage is not configured");
+  }
+  return client.getContainerClient(AZURE_STORAGE_CONTAINER_NAME);
+};
 
 // Validation helpers
 const validateEmail = (email: string): boolean => {
@@ -38,10 +66,96 @@ const sanitizeInput = (input: string): string => {
   return input.trim().replace(/[<>]/g, "");
 };
 
+interface FileData {
+  buffer: Buffer;
+  filename: string;
+  mimeType: string;
+}
+
+interface SignupFormData {
+  email?: string;
+  password?: string;
+  fullName?: string;
+  membershipCategory?: string;
+  careerPath?: string;
+  specialization?: string;
+  role?: string;
+}
+
+// Helper to parse multipart form data
+const parseMultipartForm = async (
+  req: Request
+): Promise<{ fields: SignupFormData; file: FileData | null }> => {
+  const contentType = req.headers["content-type"] || "";
+
+  // Get raw body
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) {
+    chunks.push(chunk as Buffer);
+  }
+  const buffer = Buffer.concat(chunks);
+
+  return new Promise((resolve, reject) => {
+    const parsedFields: SignupFormData = {};
+    let fileData: FileData | null = null;
+
+    const busboy = Busboy({ headers: { "content-type": contentType } });
+
+    busboy.on("field", (fieldname, value) => {
+      (parsedFields as any)[fieldname] = value;
+    });
+
+    busboy.on("file", (fieldname, fileStream, info) => {
+      const { filename, mimeType } = info;
+      const fileChunks: Buffer[] = [];
+
+      fileStream.on("data", (chunk) => {
+        fileChunks.push(chunk);
+      });
+
+      fileStream.on("end", () => {
+        fileData = {
+          buffer: Buffer.concat(fileChunks),
+          filename,
+          mimeType,
+        };
+      });
+    });
+
+    busboy.on("finish", () => {
+      resolve({ fields: parsedFields, file: fileData });
+    });
+
+    busboy.on("error", (error) => {
+      reject(error);
+    });
+
+    busboy.write(buffer);
+    busboy.end();
+  });
+};
+
 // POST /api/auth-signup
+// Accepts multipart/form-data with all signup fields + contract file
 router.post(
   "/auth-signup",
   asyncHandler(async (req: Request, res: Response) => {
+    const contentType = req.headers["content-type"] || "";
+
+    let fields: SignupFormData;
+    let file: FileData | null = null;
+
+    // Handle both JSON and multipart/form-data
+    if (contentType.includes("multipart/form-data")) {
+      // Multipart form data (with file)
+      const parsed = await parseMultipartForm(req);
+      fields = parsed.fields;
+      file = parsed.file;
+    } else {
+      // JSON request (legacy support, but file upload won't work)
+      fields = req.body;
+    }
+
     const {
       email,
       password,
@@ -50,8 +164,9 @@ router.post(
       careerPath,
       specialization,
       role,
-    } = req.body;
+    } = fields;
 
+    // Validate required fields
     if (!email || !password || !fullName || !membershipCategory) {
       return res.status(400).json({
         error: "Missing required fields",
@@ -99,9 +214,40 @@ router.post(
       });
     }
 
+    // Validate contract file (required)
+    if (!file) {
+      return res.status(400).json({
+        error: "Contract file required",
+        details: "Please upload the signed membership agreement",
+      });
+    }
+
+    if (file.mimeType !== "application/pdf") {
+      return res.status(400).json({
+        error: "Invalid file type",
+        details: "Only PDF files are allowed for the contract",
+      });
+    }
+
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (file.buffer.length > maxFileSize) {
+      return res.status(400).json({
+        error: "File too large",
+        details: "Contract file must not exceed 10MB",
+      });
+    }
+
+    if (file.buffer.length === 0) {
+      return res.status(400).json({
+        error: "Empty file",
+        details: "The uploaded contract file appears to be empty",
+      });
+    }
+
     const sanitizedEmail = sanitizeInput(email.toLowerCase());
     const sanitizedFullName = sanitizeInput(fullName);
 
+    // Check if email already exists
     const existingUser = await db
       .select()
       .from(userProfiles)
@@ -115,6 +261,31 @@ router.post(
       });
     }
 
+    // Upload contract to Azure Blob Storage
+    if (!AZURE_STORAGE_CONNECTION_STRING) {
+      return res.status(500).json({
+        error: "Server configuration error",
+        details: "File storage service is not properly configured",
+      });
+    }
+
+    const containerClient = getContainerClient();
+    const tempUserId = `temp_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 9)}`;
+    const blobName = `contract_${tempUserId}.pdf`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    await blockBlobClient.uploadData(file.buffer, {
+      blobHTTPHeaders: {
+        blobContentType: "application/pdf",
+        blobContentDisposition: `attachment; filename="${blobName}"`,
+      },
+    });
+
+    const contractFileUrl = blockBlobClient.url;
+
+    // Create user with contract URL (atomic operation)
     const passwordHash = await bcrypt.hash(password, 10);
 
     const [newUser] = await db
@@ -130,8 +301,25 @@ router.post(
         status: "pending",
         membershipEnabled: false,
         membershipPaid: false,
+        contractFileUrl, // Contract URL included in initial creation
       })
       .returning();
+
+    // Rename blob with actual user ID for better organization
+    const finalBlobName = `contract_${newUser.id}_${Date.now()}.pdf`;
+    const finalBlockBlobClient =
+      containerClient.getBlockBlobClient(finalBlobName);
+
+    // Copy to new name and delete old
+    await finalBlockBlobClient.beginCopyFromURL(contractFileUrl);
+    await blockBlobClient.delete();
+
+    // Update user with final contract URL
+    const finalContractUrl = finalBlockBlobClient.url;
+    await db
+      .update(userProfiles)
+      .set({ contractFileUrl: finalContractUrl })
+      .where(eq(userProfiles.id, newUser.id));
 
     const appUrl = process.env.APP_URL || "https://slinttech.netlify.app";
     const loginLink =
