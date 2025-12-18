@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { API_BASE_URL, getAuthToken, apiGet, apiPost } from '../lib/api';
+import { playNotificationSound, initNotificationSound } from '../lib/notificationSound';
 
 // Notification type from backend
 export interface Notification {
@@ -195,6 +196,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       // Add to beginning of list and keep only 5
       setNotifications((prev) => [notification, ...prev].slice(0, 5));
       setUnreadCount((prev) => prev + 1);
+      // Play notification sound
+      playNotificationSound();
     });
 
     setSocket(newSocket);
@@ -248,6 +251,27 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [fetchUnreadCount]);
+
+  // Initialize audio context on first user interaction (browser requirement)
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      initNotificationSound();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('keydown', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, []);
 
   const value: SocketContextValue = {
     socket,

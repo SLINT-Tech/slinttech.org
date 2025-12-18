@@ -39,7 +39,7 @@ const NotificationBell = () => {
         {/* Notification badge */}
         {unreadCount > 0 && (
           <span
-            className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold rounded-full bg-[#008080] text-white"
+            className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold rounded-full bg-red-500 text-white"
             aria-hidden="true"
           >
             {displayCount}
