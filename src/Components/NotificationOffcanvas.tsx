@@ -1,5 +1,5 @@
 import { X, Bell, CheckCircle, XCircle, Mail, BookOpen, ClipboardCheck, ChevronRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSocket, Notification } from '../contexts/SocketContext';
@@ -60,6 +60,28 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     markAllAsRead,
   } = useSocket();
   const offcanvasRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Handle open/close animation
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+      // Small delay to ensure DOM is ready before animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(true);
+        });
+      });
+    } else {
+      setIsAnimating(false);
+      // Wait for animation to complete before hiding
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   // Fetch latest notifications when offcanvas opens
   useEffect(() => {
@@ -136,23 +158,30 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     }
   };
 
-  // Don't render anything if not open (for performance)
-  if (!isOpen) return null;
+  // Don't render anything if not visible
+  if (!isVisible) return null;
 
   // Use portal to render outside of Navigation's stacking context
   return createPortal(
-    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true" aria-label="Notifications">
-      {/* Backdrop - matches modal pattern */}
+    <div
+      className="fixed inset-0 z-[9999]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Notifications"
+    >
+      {/* Backdrop with smooth transition */}
       <div
-        className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md transition-opacity duration-300"
+        className={`fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-sm transition-opacity duration-300 ease-out ${isAnimating ? 'opacity-100' : 'opacity-0'
+          }`}
         aria-hidden="true"
         onClick={onClose}
       />
 
-      {/* Offcanvas panel */}
+      {/* Offcanvas panel with slide transition */}
       <div
         ref={offcanvasRef}
-        className="fixed top-0 right-0 h-full w-full sm:w-[360px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out animate-slideInRight"
+        className={`fixed top-0 right-0 h-full w-full sm:w-[360px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col transition-transform duration-300 ease-out ${isAnimating ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 shrink-0">
@@ -163,14 +192,14 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
             {notifications.some((n) => !n.read) && (
               <button
                 onClick={markAllAsRead}
-                className="text-xs px-2 py-1 rounded-md text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 transition-colors font-medium"
+                className="text-xs px-2 py-1 rounded-md text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 transition-colors font-medium cursor-pointer"
               >
                 Mark all read
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors cursor-pointer"
               aria-label="Close notifications"
             >
               <X className="w-5 h-5" />
@@ -196,14 +225,17 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!notification.read ? 'bg-[#008080]/5 dark:bg-teal-900/10' : ''}`}
+                    className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer ${!notification.read ? 'bg-[#008080]/5 dark:bg-teal-900/10' : ''
+                      }`}
                   >
                     {/* Icon */}
                     <div className="shrink-0 mt-0.5">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${!notification.read
-                        ? 'bg-[#008080]/10 dark:bg-teal-400/10'
-                        : 'bg-gray-100 dark:bg-gray-800'
-                        }`}>
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center ${!notification.read
+                            ? 'bg-[#008080]/10 dark:bg-teal-400/10'
+                            : 'bg-gray-100 dark:bg-gray-800'
+                          }`}
+                      >
                         {getNotificationIcon(notification.type, metadata?.status)}
                       </div>
                     </div>
@@ -211,10 +243,12 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm font-medium line-clamp-1 ${!notification.read
-                          ? 'text-gray-900 dark:text-white'
-                          : 'text-gray-700 dark:text-gray-300'
-                          }`}>
+                        <p
+                          className={`text-sm font-medium line-clamp-1 ${!notification.read
+                              ? 'text-gray-900 dark:text-white'
+                              : 'text-gray-700 dark:text-gray-300'
+                            }`}
+                        >
                           {notification.title}
                         </p>
                         {!notification.read && (
@@ -240,7 +274,7 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
           <Link
             to="/notifications"
             onClick={onClose}
-            className="flex items-center justify-center gap-1.5 text-sm font-medium text-[#008080] dark:text-teal-400 hover:text-[#006666] dark:hover:text-teal-300 transition-colors"
+            className="flex items-center justify-center gap-1.5 text-sm font-medium text-[#008080] dark:text-teal-400 hover:text-[#006666] dark:hover:text-teal-300 transition-colors cursor-pointer"
           >
             View all notifications
             <ChevronRight className="w-4 h-4" />

@@ -131,20 +131,6 @@
   animation: slideUp 0.3s ease-out;
 }
 
-/* Offcanvas slide in from right animation */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.animate-slideInRight {
-  animation: slideInRight 0.3s ease-out forwards;
-}
-
 /* Hide scrollbar for marquee */
 .rfm-marquee-container {
   overflow: hidden !important;

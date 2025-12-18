@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../lib/api';
 import { Notification } from '../contexts/SocketContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -238,10 +238,10 @@ const NotificationsPage: React.FC = () => {
         <div className="mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-[#008080] dark:hover:text-teal-400 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back</span>
+            Back to Dashboard
           </button>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
