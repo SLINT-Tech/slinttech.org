@@ -97,17 +97,20 @@ const createClusterConnection = (config: ParsedRedisConfig): Cluster => {
       connectTimeout: 15000,
       keepAlive: 30000,
       family: 4,
+      // BullMQ requirements - must be inside redisOptions for Cluster
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
     },
-    // BullMQ requirements
-    enableReadyCheck: false,
-    maxRetriesPerRequest: null,
     // Cluster specific settings
     slotsRefreshTimeout: 10000,
-    dnsLookup: (address, callback) => callback(null, address),
+    dnsLookup: (
+      address: string,
+      callback: (err: Error | null, address: string) => void
+    ) => callback(null, address),
     natMap: undefined,
     // Don't auto-discover nodes (Azure manages this)
     scaleReads: "master",
-    clusterRetryStrategy: (times) => {
+    clusterRetryStrategy: (times: number) => {
       if (times > 5) {
         console.error("[REDIS] Cluster max retries reached");
         return null;
