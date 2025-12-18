@@ -9,10 +9,11 @@ import {
   ChevronRight,
   Check,
   ArrowLeft,
+  Trash2,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGet, apiPost } from '../lib/api';
+import { apiGet, apiPost, apiDelete } from '../lib/api';
 import { Notification } from '../contexts/SocketContext';
 import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../hooks/useAuth';
@@ -73,7 +74,7 @@ const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
-    limit: 20,
+    limit: 10,
     total: 0,
     totalPages: 0,
     hasMore: false,
@@ -88,7 +89,7 @@ const NotificationsPage: React.FC = () => {
   const fetchNotifications = useCallback(async (page: number, filterType: 'all' | 'unread') => {
     setLoading(true);
     try {
-      const response = await apiGet(`/notifications?page=${page}&limit=20&filter=${filterType}`);
+      const response = await apiGet(`/notifications?page=${page}&limit=10&filter=${filterType}`);
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
@@ -149,6 +150,57 @@ const NotificationsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to mark all as read:', error);
+    }
+  };
+
+  // Handle delete notification
+  const handleDelete = async (notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const response = await apiDelete(`/notifications/${notificationId}`);
+      if (response.ok) {
+        // Check if notification was unread before removing
+        const notification = notifications.find((n) => n.id === notificationId);
+        const wasUnread = notification && !notification.read;
+
+        // Remove from local state with animation
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+
+        // Update pagination total
+        setPagination((prev) => ({
+          ...prev,
+          total: prev.total - 1,
+          totalPages: Math.ceil((prev.total - 1) / prev.limit),
+        }));
+
+        // Update unread count if it was unread
+        if (wasUnread) {
+          fetchUnreadCount();
+        }
+
+        // If we've deleted all items on this page, go to previous page
+        if (notifications.length === 1 && pagination.page > 1) {
+          fetchNotifications(pagination.page - 1, filter);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  // Handle clear all read notifications
+  const handleClearAllRead = async () => {
+    try {
+      const response = await apiDelete('/notifications/clear-all');
+      if (response.ok) {
+        // Remove all read notifications from state
+        setNotifications((prev) => prev.filter((n) => !n.read));
+
+        // Refresh to get accurate pagination
+        fetchNotifications(1, filter);
+      }
+    } catch (error) {
+      console.error('Failed to clear read notifications:', error);
     }
   };
 
@@ -262,10 +314,21 @@ const NotificationsPage: React.FC = () => {
               {notifications.some((n) => !n.read) && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 border border-gray-200 dark:border-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span className="hidden sm:inline">Mark all read</span>
+                </button>
+              )}
+
+              {/* Clear read notifications */}
+              {notifications.some((n) => n.read) && (
+                <button
+                  onClick={handleClearAllRead}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Clear read</span>
                 </button>
               )}
             </div>
@@ -338,16 +401,28 @@ const NotificationsPage: React.FC = () => {
                           </p>
                         </div>
 
-                        {/* Mark as read button */}
-                        {!notification.read && (
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {/* Mark as read button */}
+                          {!notification.read && (
+                            <button
+                              onClick={(e) => handleMarkAsRead(notification.id, e)}
+                              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 dark:text-gray-500 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer"
+                              title="Mark as read"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          {/* Delete button */}
                           <button
-                            onClick={(e) => handleMarkAsRead(notification.id, e)}
-                            className="flex-shrink-0 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 dark:text-gray-500 transition-colors cursor-pointer"
-                            title="Mark as read"
+                            onClick={(e) => handleDelete(notification.id, e)}
+                            className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                            title="Delete notification"
                           >
-                            <Check className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -139,4 +139,52 @@ router.post(
   })
 );
 
+// DELETE /api/notifications/:id - Delete a single notification
+router.delete(
+  "/notifications/:id",
+  verifyToken,
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.userId;
+    const notificationId = req.params.id;
+
+    const result = await db
+      .delete(notifications)
+      .where(
+        and(
+          eq(notifications.id, notificationId),
+          eq(notifications.userId, userId)
+        )
+      )
+      .returning();
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    res.json({ success: true, message: "Notification deleted" });
+  })
+);
+
+// DELETE /api/notifications/clear-all - Delete all read notifications
+router.delete(
+  "/notifications/clear-all",
+  verifyToken,
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.userId;
+
+    const result = await db
+      .delete(notifications)
+      .where(
+        and(eq(notifications.userId, userId), eq(notifications.read, true))
+      )
+      .returning();
+
+    res.json({
+      success: true,
+      message: `${result.length} notification(s) deleted`,
+      deletedCount: result.length,
+    });
+  })
+);
+
 export default router;
