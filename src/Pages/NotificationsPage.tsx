@@ -17,6 +17,7 @@ import { Notification } from '../contexts/SocketContext';
 import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { NotificationSkeletonLoader } from '../Components/SkeletonLoader';
 
 // Helper to get relative time string
 const getRelativeTime = (dateString: string): string => {
@@ -232,7 +233,7 @@ const NotificationsPage: React.FC = () => {
       />
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button & Header */}
         <div className="mb-6">
           <button
@@ -259,8 +260,8 @@ const NotificationsPage: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange('all')}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'all'
-                      ? 'bg-[#008080] text-white'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    ? 'bg-[#008080] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                 >
                   All
@@ -268,8 +269,8 @@ const NotificationsPage: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange('unread')}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'unread'
-                      ? 'bg-[#008080] text-white'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    ? 'bg-[#008080] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                 >
                   Unread
@@ -293,9 +294,7 @@ const NotificationsPage: React.FC = () => {
         {/* Notification list */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           {loading ? (
-            <div className="p-8 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#008080]"></div>
-            </div>
+            <NotificationSkeletonLoader count={8} />
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
               <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
@@ -328,8 +327,8 @@ const NotificationsPage: React.FC = () => {
                     {/* Icon */}
                     <div className="flex-shrink-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
-                          ? 'bg-[#008080]/10 dark:bg-teal-400/10'
-                          : 'bg-gray-100 dark:bg-gray-700'
+                        ? 'bg-[#008080]/10 dark:bg-teal-400/10'
+                        : 'bg-gray-100 dark:bg-gray-700'
                         }`}>
                         {getNotificationIcon(notification.type, metadata?.status)}
                       </div>
@@ -341,8 +340,8 @@ const NotificationsPage: React.FC = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <p className={`text-sm font-medium ${!notification.read
-                                ? 'text-gray-900 dark:text-white'
-                                : 'text-gray-700 dark:text-gray-300'
+                              ? 'text-gray-900 dark:text-white'
+                              : 'text-gray-700 dark:text-gray-300'
                               }`}>
                               {notification.title}
                             </p>
@@ -390,8 +389,8 @@ const NotificationsPage: React.FC = () => {
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className={`p-2 rounded-lg transition-colors ${pagination.page === 1
-                    ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -411,8 +410,8 @@ const NotificationsPage: React.FC = () => {
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum as number)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pagination.page === pageNum
-                        ? 'bg-[#008080] text-white'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-[#008080] text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                   >
                     {pageNum}
@@ -425,8 +424,8 @@ const NotificationsPage: React.FC = () => {
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.totalPages}
                 className={`p-2 rounded-lg transition-colors ${pagination.page === pagination.totalPages
-                    ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <ChevronRight className="w-5 h-5" />

@@ -1,6 +1,7 @@
-import { X, Bell, CheckCircle, XCircle, Mail, BookOpen, ClipboardCheck } from 'lucide-react';
+import { X, Bell, CheckCircle, XCircle, Mail, BookOpen, ClipboardCheck, ChevronRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSocket, Notification } from '../contexts/SocketContext';
 
 interface NotificationOffcanvasProps {
@@ -67,28 +68,18 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     }
   }, [isOpen, fetchLatestNotifications]);
 
-  // Handle click outside to close
+  // Handle body scroll lock
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        offcanvasRef.current &&
-        !offcanvasRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      // Prevent body scroll when offcanvas is open
       document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   // Handle escape key
   useEffect(() => {
@@ -135,14 +126,8 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     onClose();
   };
 
-  // Handle view all click
-  const handleViewAll = () => {
-    navigate('/notifications');
-    onClose();
-  };
-
   // Parse metadata if exists
-  const getMetadata = (notification: Notification): Record<string, any> => {
+  const getMetadata = (notification: Notification): Record<string, string> => {
     if (!notification.metadata) return {};
     try {
       return JSON.parse(notification.metadata);
@@ -151,12 +136,15 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
     }
   };
 
-  return (
-    <>
-      {/* Backdrop */}
+  // Don't render anything if not open (for performance)
+  if (!isOpen) return null;
+
+  // Use portal to render outside of Navigation's stacking context
+  return createPortal(
+    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true" aria-label="Notifications">
+      {/* Backdrop - matches modal pattern */}
       <div
-        className={`fixed inset-0 bg-black/50 dark:bg-black/70 z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+        className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md transition-opacity duration-300"
         aria-hidden="true"
         onClick={onClose}
       />
@@ -164,29 +152,25 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
       {/* Offcanvas panel */}
       <div
         ref={offcanvasRef}
-        className={`fixed top-0 right-0 h-full z-[70] transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
-          } bg-white dark:bg-gray-900 w-full sm:w-[380px] shadow-2xl flex flex-col border-l border-gray-200 dark:border-gray-800`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Notifications"
+        className="fixed top-0 right-0 h-full w-full sm:w-[360px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out animate-slideInRight"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 shrink-0">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
             Notifications
           </h2>
           <div className="flex items-center gap-2">
             {notifications.some((n) => !n.read) && (
               <button
                 onClick={markAllAsRead}
-                className="text-sm px-3 py-1.5 rounded-lg text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 transition-colors font-medium"
+                className="text-xs px-2 py-1 rounded-md text-[#008080] dark:text-teal-400 hover:bg-[#008080]/10 dark:hover:bg-teal-400/10 transition-colors font-medium"
               >
                 Mark all read
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
               aria-label="Close notifications"
             >
               <X className="w-5 h-5" />
@@ -195,14 +179,14 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
         </div>
 
         {/* Notification list */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-400 dark:text-gray-500">
-              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                <Bell className="w-8 h-8" />
+            <div className="flex flex-col items-center justify-center h-64 text-gray-400 dark:text-gray-500 px-4">
+              <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                <Bell className="w-7 h-7" />
               </div>
-              <p className="text-sm font-medium">No notifications yet</p>
-              <p className="text-xs mt-1 text-gray-400">We'll notify you when something arrives</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">No notifications</p>
+              <p className="text-xs mt-1 text-center">We'll notify you when something arrives</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -212,12 +196,11 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`w-full text-left px-4 py-4 flex items-start gap-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!notification.read ? 'bg-[#008080]/5 dark:bg-teal-900/10' : ''
-                      }`}
+                    className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${!notification.read ? 'bg-[#008080]/5 dark:bg-teal-900/10' : ''}`}
                   >
                     {/* Icon */}
-                    <div className="flex-shrink-0 mt-0.5">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${!notification.read
+                    <div className="shrink-0 mt-0.5">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${!notification.read
                         ? 'bg-[#008080]/10 dark:bg-teal-400/10'
                         : 'bg-gray-100 dark:bg-gray-800'
                         }`}>
@@ -228,20 +211,20 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm font-medium ${!notification.read
+                        <p className={`text-sm font-medium line-clamp-1 ${!notification.read
                           ? 'text-gray-900 dark:text-white'
                           : 'text-gray-700 dark:text-gray-300'
                           }`}>
                           {notification.title}
                         </p>
                         {!notification.read && (
-                          <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#008080] mt-1.5" />
+                          <span className="shrink-0 w-2 h-2 rounded-full bg-[#008080] mt-1.5" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                         {getRelativeTime(notification.createdAt)}
                       </p>
                     </div>
@@ -252,17 +235,20 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-          <button
-            onClick={handleViewAll}
-            className="w-full py-2.5 text-center text-sm font-medium rounded-lg bg-[#008080] hover:bg-[#006666] text-white transition-colors"
+        {/* Footer - View all link */}
+        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 shrink-0">
+          <Link
+            to="/notifications"
+            onClick={onClose}
+            className="flex items-center justify-center gap-1.5 text-sm font-medium text-[#008080] dark:text-teal-400 hover:text-[#006666] dark:hover:text-teal-300 transition-colors"
           >
-            View All Notifications
-          </button>
+            View all notifications
+            <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 
