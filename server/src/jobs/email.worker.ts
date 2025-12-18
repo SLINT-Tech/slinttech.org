@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Worker, Job } from "bullmq";
-import { createRedisConnection } from "../config/redis.js";
+import { createRedisConnection, isClusterMode } from "../config/redis.js";
 import { createBrevoService } from "../services/brevo.service.js";
 import {
   renderAccountAwaitingApproval,
@@ -26,8 +26,11 @@ if (!process.env.REDIS_URL) {
 }
 
 let connection;
+let useCluster: boolean;
 try {
   connection = createRedisConnection();
+  useCluster = isClusterMode();
+  console.log(`[EMAIL_WORKER] Using cluster mode: ${useCluster}`);
 } catch (error) {
   console.error("[EMAIL_WORKER] Failed to create Redis connection:", error);
   process.exit(1);
@@ -118,9 +121,17 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
   });
 }
 
+// Queue name must match the queue producer
+// For Redis Cluster (Azure Managed Redis), use hash tags
+const queueName = useCluster ? "{email}" : "email";
+const queuePrefix = useCluster ? "{bull}" : "bull";
+
+console.log(`[EMAIL_WORKER] Connecting to queue "${queuePrefix}:${queueName}"`);
+
 // Create the worker
-const worker = new Worker<EmailJobData>("email", processEmailJob, {
+const worker = new Worker<EmailJobData>(queueName, processEmailJob, {
   connection,
+  prefix: queuePrefix,
   concurrency: 5, // Process 5 emails concurrently
   limiter: {
     max: 100, // Max 100 jobs per minute (Brevo rate limit consideration)

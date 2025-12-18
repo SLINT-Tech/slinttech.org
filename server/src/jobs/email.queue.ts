@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { createRedisConnection } from "../config/redis.js";
+import { createRedisConnection, isClusterMode } from "../config/redis.js";
 import { createBrevoService } from "../services/brevo.service.js";
 import {
   renderAccountAwaitingApproval,
@@ -49,8 +49,9 @@ const initRedis = async () => {
 
   try {
     const connection = createRedisConnection();
+    const useCluster = isClusterMode();
 
-    // Test connection with 5 second timeout
+    // Test connection with 10 second timeout (Azure can be slow)
     await Promise.race([
       new Promise<void>((resolve, reject) => {
         connection.once("ready", () => {
@@ -62,12 +63,23 @@ const initRedis = async () => {
         });
       }),
       new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error("Redis connection timeout")), 5000)
+        setTimeout(() => reject(new Error("Redis connection timeout")), 10000)
       ),
     ]);
 
-    emailQueue = new Queue<EmailJobData>("email", {
+    // For Redis Cluster (Azure Managed Redis), use hash tags to ensure
+    // all queue keys are in the same hash slot
+    // Queue name with hash tag: {email} ensures all keys go to same slot
+    const queueName = useCluster ? "{email}" : "email";
+
+    console.log(
+      `[EMAIL_QUEUE] Creating queue "${queueName}" (cluster mode: ${useCluster})`
+    );
+
+    emailQueue = new Queue<EmailJobData>(queueName, {
       connection,
+      // Use prefix with hash tag for cluster mode
+      prefix: useCluster ? "{bull}" : "bull",
       defaultJobOptions: {
         attempts: 3,
         backoff: {
