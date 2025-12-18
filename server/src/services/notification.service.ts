@@ -1,14 +1,16 @@
 import { db } from "../db/index.js";
-import { notifications } from "../db/schema.js";
+import { notifications, userProfiles } from "../db/schema.js";
 import { emitNotification } from "../socket/index.js";
+import { eq } from "drizzle-orm";
 
 export type NotificationType =
   | "task_submitted"
   | "task_reviewed"
   | "message_received"
-  | "course_enrolled";
+  | "course_enrolled"
+  | "user_registered";
 
-export type ReferenceType = "task" | "course" | "message" | null;
+export type ReferenceType = "task" | "course" | "message" | "user" | null;
 
 interface CreateNotificationParams {
   userId: string;
@@ -174,4 +176,55 @@ export async function notifyCourseEnrolled(params: {
       mentorName: params.mentorName,
     },
   });
+}
+
+/**
+ * Notify all admins when a new user registers
+ */
+export async function notifyAdminsNewUserRegistered(params: {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  membershipCategory: string;
+  careerPath: string;
+}): Promise<void> {
+  try {
+    // Get all admin users
+    const admins = await db
+      .select({ id: userProfiles.id })
+      .from(userProfiles)
+      .where(eq(userProfiles.role, "Admin"));
+
+    if (admins.length === 0) {
+      console.log("[NOTIFICATION] No admins found to notify");
+      return;
+    }
+
+    // Create notification for each admin
+    for (const admin of admins) {
+      await createNotification({
+        userId: admin.id,
+        type: "user_registered",
+        title: "New User Registration",
+        message: `${params.userName} (${params.membershipCategory}) has registered and is awaiting approval`,
+        referenceType: "user",
+        referenceId: params.userId,
+        metadata: {
+          userName: params.userName,
+          userEmail: params.userEmail,
+          membershipCategory: params.membershipCategory,
+          careerPath: params.careerPath,
+        },
+      });
+    }
+
+    console.log(
+      `[NOTIFICATION] Notified ${admins.length} admin(s) about new user registration: ${params.userName}`
+    );
+  } catch (error) {
+    console.error(
+      "[NOTIFICATION] Failed to notify admins of new registration:",
+      error
+    );
+  }
 }

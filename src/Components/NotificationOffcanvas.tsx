@@ -1,4 +1,4 @@
-import { X, Bell, CheckCircle, XCircle, Mail, BookOpen, ClipboardCheck, ChevronRight } from 'lucide-react';
+import { X, Bell, CheckCircle, XCircle, Mail, BookOpen, ClipboardCheck, ChevronRight, UserPlus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
@@ -43,6 +43,8 @@ const getNotificationIcon = (type: Notification['type'], status?: string) => {
       return <Mail className="w-5 h-5 text-purple-500" />;
     case 'course_enrolled':
       return <BookOpen className="w-5 h-5 text-[#008080]" />;
+    case 'user_registered':
+      return <UserPlus className="w-5 h-5 text-blue-500" />;
     default:
       return <Bell className="w-5 h-5 text-gray-500" />;
   }
@@ -143,6 +145,10 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
           navigate(`/courses`);
         }
         break;
+      case 'user_registered':
+        // Navigate to admin dashboard for admin to review
+        navigate('/admin/dashboard');
+        break;
     }
 
     onClose();
@@ -232,8 +238,8 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                     <div className="shrink-0 mt-0.5">
                       <div
                         className={`w-9 h-9 rounded-full flex items-center justify-center ${!notification.read
-                            ? 'bg-[#008080]/10 dark:bg-teal-400/10'
-                            : 'bg-gray-100 dark:bg-gray-800'
+                          ? 'bg-[#008080]/10 dark:bg-teal-400/10'
+                          : 'bg-gray-100 dark:bg-gray-800'
                           }`}
                       >
                         {getNotificationIcon(notification.type, metadata?.status)}
@@ -245,8 +251,8 @@ const NotificationOffcanvas: React.FC<NotificationOffcanvasProps> = ({
                       <div className="flex items-start justify-between gap-2">
                         <p
                           className={`text-sm font-medium line-clamp-1 ${!notification.read
-                              ? 'text-gray-900 dark:text-white'
-                              : 'text-gray-700 dark:text-gray-300'
+                            ? 'text-gray-900 dark:text-white'
+                            : 'text-gray-700 dark:text-gray-300'
                             }`}
                         >
                           {notification.title}

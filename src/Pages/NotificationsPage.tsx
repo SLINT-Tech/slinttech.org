@@ -10,6 +10,7 @@ import {
   Check,
   ArrowLeft,
   Trash2,
+  UserPlus,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +55,8 @@ const getNotificationIcon = (type: Notification['type'], status?: string) => {
       return <Mail className="w-5 h-5 text-purple-500" />;
     case 'course_enrolled':
       return <BookOpen className="w-5 h-5 text-[#008080]" />;
+    case 'user_registered':
+      return <UserPlus className="w-5 h-5 text-blue-500" />;
     default:
       return <Bell className="w-5 h-5 text-gray-500" />;
   }
@@ -238,6 +241,10 @@ const NotificationsPage: React.FC = () => {
         if (notification.referenceId) {
           navigate(`/courses`);
         }
+        break;
+      case 'user_registered':
+        // Navigate to admin dashboard for admin to review
+        navigate('/admin/dashboard');
         break;
     }
   };

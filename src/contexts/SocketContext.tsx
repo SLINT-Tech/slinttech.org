@@ -15,12 +15,12 @@ import { playNotificationSound, initNotificationSound } from '../lib/notificatio
 export interface Notification {
   id: string;
   userId: string;
-  type: 'task_submitted' | 'task_reviewed' | 'message_received' | 'course_enrolled';
+  type: 'task_submitted' | 'task_reviewed' | 'message_received' | 'course_enrolled' | 'user_registered';
   title: string;
   message: string;
   read: boolean;
   readAt: string | null;
-  referenceType: 'task' | 'course' | 'message' | null;
+  referenceType: 'task' | 'course' | 'message' | 'user' | null;
   referenceId: string | null;
   metadata: string | null;
   createdAt: string;

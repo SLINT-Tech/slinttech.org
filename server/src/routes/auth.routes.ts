@@ -12,6 +12,7 @@ import {
 } from "../middleware/auth.middleware.js";
 import { asyncHandler } from "../middleware/error.middleware.js";
 import { queueEmail } from "../jobs/email.producer.js";
+import { notifyAdminsNewUserRegistered } from "../services/notification.service.js";
 
 const router = Router();
 
@@ -372,6 +373,15 @@ router.post(
     } catch (adminEmailError) {
       console.error("Failed to send admin notifications:", adminEmailError);
     }
+
+    // Send real-time notification to all admins
+    await notifyAdminsNewUserRegistered({
+      userId: newUser.id,
+      userName: newUser.fullName,
+      userEmail: newUser.email,
+      membershipCategory: newUser.membershipCategory,
+      careerPath: newUser.careerPath || "Not specified",
+    });
 
     res.status(201).json({
       success: true,
