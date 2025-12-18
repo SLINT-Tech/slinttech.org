@@ -1,7 +1,7 @@
 /**
  * Notification Sound Utility
- * Uses Web Audio API to generate a subtle, modern notification tone
- * Inspired by iMessage/WhatsApp style "bubble pop" sounds
+ * Uses Web Audio API to generate a pleasant notification chime
+ * Industry-standard alert tone - balanced duration, smooth and attention-getting
  */
 
 let audioContext: AudioContext | null = null;
@@ -21,8 +21,9 @@ const getAudioContext = (): AudioContext | null => {
 };
 
 /**
- * Play a subtle, modern "bubble pop" notification sound
- * Soft and refreshing - similar to iMessage/modern chat apps
+ * Play a pleasant notification chime
+ * Three-note ascending tone - smooth, alerting, ~350ms total
+ * Similar to Slack, Teams, and email notification sounds
  */
 export const playNotificationSound = (): void => {
   const ctx = getAudioContext();
@@ -35,53 +36,66 @@ export const playNotificationSound = (): void => {
 
   const now = ctx.currentTime;
 
-  // Create primary tone - soft "pop"
-  const oscillator = ctx.createOscillator();
-  const gainNode = ctx.createGain();
-  const filter = ctx.createBiquadFilter();
+  // Three-note ascending chime (C5, E5, G5 - major triad)
+  // Pleasant, recognizable, and alerting
+  const notes = [
+    { freq: 523, start: 0, duration: 0.12 }, // C5
+    { freq: 659, start: 0.1, duration: 0.12 }, // E5
+    { freq: 784, start: 0.2, duration: 0.18 }, // G5 (slightly longer for resolution)
+  ];
 
-  // Connect: oscillator -> filter -> gain -> output
-  oscillator.connect(filter);
-  filter.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  notes.forEach((note) => {
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
 
-  // Sine wave for a soft, warm tone
-  oscillator.type = "sine";
+    // Connect: oscillator -> filter -> gain -> output
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
 
-  // Start at a higher frequency and quickly drop - creates the "pop" effect
-  oscillator.frequency.setValueAtTime(1800, now);
-  oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+    // Sine wave for a clean, bell-like tone
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(note.freq, now + note.start);
 
-  // Low-pass filter to soften the sound
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(2000, now);
-  filter.Q.setValueAtTime(1, now);
+    // Low-pass filter for smoothness
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(3000, now);
+    filter.Q.setValueAtTime(0.5, now);
 
-  // Gentle volume envelope
-  gainNode.gain.setValueAtTime(0, now);
-  gainNode.gain.linearRampToValueAtTime(0.15, now + 0.005); // Very quick, soft attack
-  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15); // Smooth fade out
+    // Smooth envelope - quick attack, gentle decay
+    const startTime = now + note.start;
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.015); // Quick but smooth attack
+    gainNode.gain.setValueAtTime(0.2, startTime + 0.03); // Brief sustain
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      startTime + note.duration
+    ); // Smooth decay
 
-  oscillator.start(now);
-  oscillator.stop(now + 0.2);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + note.duration + 0.05);
 
-  // Add a subtle harmonic for richness
-  const harmonic = ctx.createOscillator();
-  const harmonicGain = ctx.createGain();
+    // Add subtle overtone for richness (bell-like quality)
+    const overtone = ctx.createOscillator();
+    const overtoneGain = ctx.createGain();
 
-  harmonic.connect(harmonicGain);
-  harmonicGain.connect(ctx.destination);
+    overtone.connect(overtoneGain);
+    overtoneGain.connect(ctx.destination);
 
-  harmonic.type = "sine";
-  harmonic.frequency.setValueAtTime(2400, now);
-  harmonic.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+    overtone.type = "sine";
+    overtone.frequency.setValueAtTime(note.freq * 2, startTime); // Octave above
 
-  harmonicGain.gain.setValueAtTime(0, now);
-  harmonicGain.gain.linearRampToValueAtTime(0.05, now + 0.003); // Even softer
-  harmonicGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    overtoneGain.gain.setValueAtTime(0, startTime);
+    overtoneGain.gain.linearRampToValueAtTime(0.05, startTime + 0.01);
+    overtoneGain.gain.exponentialRampToValueAtTime(
+      0.001,
+      startTime + note.duration * 0.7
+    );
 
-  harmonic.start(now);
-  harmonic.stop(now + 0.15);
+    overtone.start(startTime);
+    overtone.stop(startTime + note.duration);
+  });
 };
 
 /**
