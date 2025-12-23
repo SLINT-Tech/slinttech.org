@@ -34,7 +34,7 @@ declare global {
 }
 
 const PaymentWallPage = () => {
-  const { profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading, signOut } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -219,12 +219,15 @@ const PaymentWallPage = () => {
                 <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
               </span>
             </Link>
-            <Link
-              to="/login"
+            <button
+              onClick={() => {
+                signOut();
+                navigate('/login');
+              }}
               className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
             >
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </header>
