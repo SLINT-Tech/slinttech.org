@@ -1,7 +1,7 @@
 {
   "name": "slinttech.org",
   "version": "1.0.0",
-  "description": "The official website of SLINT Tech \u2014 Selfless Leadership and Innovation for a New Tomorrow.",
+  "description": "The official website of SLINT Tech — Selfless Leadership and Innovation for a New Tomorrow.",
   "private": true,
   "license": "MIT",
   "homepage": "https://slinttech.org",
@@ -20,7 +20,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
     "postcss": "^8.4.35",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.5.3",
