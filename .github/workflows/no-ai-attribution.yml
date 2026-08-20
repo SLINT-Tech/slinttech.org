@@ -1,0 +1,44 @@
+name: No AI attribution
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check commits and description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan commit messages
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          pattern='co-authored-by:.*(claude|anthropic)|generated with .*claude|claude\.com/claude-code|claude\.ai/code'
+          if git log --format='%H %B' "$BASE..$HEAD" | grep -inE "$pattern"; then
+            echo "::error::A commit message contains AI attribution. Remove it, then force-push the rewritten branch."
+            exit 1
+          fi
+          echo "Commit messages are clean."
+
+      - name: Scan pull request description
+        env:
+          # Read through the environment, never interpolated into the script.
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          pattern='co-authored-by:.*(claude|anthropic)|generated with .*claude|claude\.com/claude-code|claude\.ai/code'
+          if printf '%s\n%s\n' "$PR_TITLE" "${PR_BODY:-}" | grep -inE "$pattern"; then
+            echo "::error::The pull request title or description contains AI attribution. Edit it and remove the line."
+            exit 1
+          fi
+          echo "Pull request description is clean."

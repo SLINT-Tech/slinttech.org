@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+#
+# Strip AI attribution from commit messages.
+#
+# Removes "Co-Authored-By: Claude ...", "Generated with Claude Code", and any
+# anthropic.com co-author trailer, then trims the blank lines left behind.
+# Everything else in the message is untouched.
+
+MSG_FILE="$1"
+[ -f "$MSG_FILE" ] || exit 0
+
+TMP="$MSG_FILE.strip"
+
+awk '
+  tolower($0) ~ /^[[:space:]]*co-authored-by:.*(claude|anthropic)/ { next }
+  tolower($0) ~ /generated with .*claude/                          { next }
+  tolower($0) ~ /claude\.com\/claude-code/                         { next }
+  tolower($0) ~ /claude\.ai\/code/                                 { next }
+  { lines[++n] = $0 }
+  END {
+    while (n > 0 && lines[n] ~ /^[[:space:]]*$/) n--
+    for (i = 1; i <= n; i++) print lines[i]
+  }
+' "$MSG_FILE" > "$TMP" && mv "$TMP" "$MSG_FILE"
+
+exit 0
