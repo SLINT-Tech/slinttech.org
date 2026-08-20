@@ -1,8 +1,21 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "slinttech.org",
+  "version": "1.0.0",
+  "description": "The official website of SLINT Tech \u2014 Selfless Leadership and Innovation for a New Tomorrow.",
   "private": true,
-  "version": "0.0.0",
+  "license": "MIT",
+  "homepage": "https://slinttech.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SLINT-Tech/slinttech.org.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SLINT-Tech/slinttech.org/issues"
+  },
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
