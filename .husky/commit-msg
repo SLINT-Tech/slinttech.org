@@ -2,9 +2,12 @@
 #
 # Strip AI attribution from commit messages.
 #
-# Removes "Co-Authored-By: Claude ...", "Generated with Claude Code", and any
-# anthropic.com co-author trailer, then trims the blank lines left behind.
-# Everything else in the message is untouched.
+# Removes two things, and only in the position a tool actually writes them:
+#   - a Co-Authored-By trailer naming Claude or anthropic.com
+#   - a "Generated with Claude Code" footer line
+#
+# Both patterns are anchored to the start of the line so that prose merely
+# mentioning them survives. Human co-authors are never touched.
 
 MSG_FILE="$1"
 [ -f "$MSG_FILE" ] || exit 0
@@ -12,11 +15,16 @@ MSG_FILE="$1"
 TMP="$MSG_FILE.strip"
 
 awk '
+  # Co-Authored-By trailer for Claude or any anthropic.com address.
   tolower($0) ~ /^[[:space:]]*co-authored-by:.*(claude|anthropic)/ { next }
-  tolower($0) ~ /generated with .*claude/                          { next }
-  tolower($0) ~ /claude\.com\/claude-code/                         { next }
-  tolower($0) ~ /claude\.ai\/code/                                 { next }
+
+  # "🤖 Generated with [Claude Code](...)" footer. The leading .{0,8} allows
+  # the emoji and whitespace, and keeps the match at the start of the line so
+  # that a sentence containing the phrase is not removed.
+  tolower($0) ~ /^.{0,8}generated with \[?claude code/ { next }
+
   { lines[++n] = $0 }
+
   END {
     while (n > 0 && lines[n] ~ /^[[:space:]]*$/) n--
     for (i = 1; i <= n; i++) print lines[i]
