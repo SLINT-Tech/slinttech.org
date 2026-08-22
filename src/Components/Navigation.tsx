@@ -1,4 +1,4 @@
-import { BookOpen, Home, Menu, Users, User, X, LayoutDashboard, Settings, ChevronDown, LogOut } from 'lucide-react';
+import { BookOpen, ChevronDown, Home, LayoutDashboard, LogOut, Menu, Moon, Sun, User, Users, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -126,167 +126,158 @@ const Navigation = ({ role, userName, onLogout }: NavigationProps) => {
     });
   };
 
+  const iconButtonClass =
+    "cursor-pointer rounded-full p-2.5 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800";
+
   return (
-    <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/20 dark:border-gray-800/50 sticky top-0 z-50 transition-colors shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center flex-shrink-0">
-              <img src="/assets/logo.svg" alt="SlintTech Logo" className="w-10 h-10" />
-              <span className="text-xl text-[#008080] dark:text-[#008080] hidden sm:block">
+    <header className="sticky top-0 z-50 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between rounded-full bg-white/90 pr-2 pl-4 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150 sm:pl-6 dark:bg-gray-900/90 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex shrink-0 items-center">
+              <img src="/assets/logo.svg" alt="" className="h-8 w-8" />
+              <span className="hidden text-xl text-[#008080] sm:block">
                 <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden items-center gap-1 md:flex">
               {links.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`flex items-center gap-2 px-3 py-2 font-medium transition-all duration-200 ${
+                  aria-current={isActive(link) ? 'page' : undefined}
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
                     isActive(link)
-                      ? 'text-[#008080] dark:text-teal-400'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
                   }`}
                 >
                   {link.icon}
-                  <span className="text-sm">{link.label}</span>
+                  <span>{link.label}</span>
                 </Link>
               ))}
             </nav>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden items-center gap-2 md:flex">
             <button
+              type="button"
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-              aria-label="Toggle dark mode"
+              className={iconButtonClass}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDarkMode ? (
-                <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
             <div className="relative" ref={userMenuRef}>
               <button
+                type="button"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                aria-expanded={showUserMenu}
+                className="flex cursor-pointer items-center gap-2 rounded-full bg-gray-900/[0.05] py-2 pr-3 pl-2 transition hover:bg-gray-900/10 dark:bg-white/[0.07] dark:hover:bg-white/12"
               >
-                <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName.split(' ')[0]}</span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/15 dark:text-teal-400">
+                  <User className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{userName.split(' ')[0]}</span>
+                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform dark:text-gray-400 ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 rounded-lg shadow-lg border border-white/20 dark:border-gray-700/50 py-2 z-50">
+                <div className="absolute right-0 z-50 mt-3 w-52 rounded-2xl bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-1 ring-black/5 dark:bg-gray-900 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
                   {role !== 'Admin' && (
                     <>
                       <Link
                         to={role === 'Mentor' ? '/mentor/profile' : '/profile'}
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                       >
-                        <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm font-medium">View Profile</span>
+                        <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-medium">View profile</span>
                       </Link>
-                      <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      <div className="my-1 border-t border-gray-200 dark:border-gray-800" />
                     </>
                   )}
                   <button
+                    type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       onLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer text-left"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                   >
-                    <LogOut className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className="text-sm font-medium">Logout</span>
+                    <LogOut className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <span className="text-sm font-medium">Log out</span>
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="md:hidden flex items-center gap-2">
+          <div className="flex items-center gap-1 md:hidden">
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-              aria-label="Toggle dark mode"
+              className={iconButtonClass}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDarkMode ? (
-                <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
+              className="cursor-pointer rounded-full p-2.5 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
-      </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-white/20 dark:border-gray-800/50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150">
-          <nav className="px-4 py-3 space-y-1">
-            {links.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 border-l-4 ${
-                  isActive(link)
-                    ? 'border-[#008080] dark:border-teal-400 bg-[#008080]/5 dark:bg-teal-900/20 text-[#008080] dark:text-teal-400'
-                    : 'border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-                }`}
-              >
-                {link.icon}
-                <span className="text-sm">{link.label}</span>
-              </Link>
-            ))}
-          </nav>
-          <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{userName.split(' ')[0]}</span>
-              </div>
+        {isMenuOpen && (
+          <div className="mt-2 rounded-3xl bg-white/95 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 backdrop-blur-xl md:hidden dark:bg-gray-900/95 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
+            <nav className="space-y-1">
+              {links.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-current={isActive(link) ? 'page' : undefined}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive(link)
+                      ? 'bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400'
+                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {link.icon}
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </nav>
+
+            <div className="mt-3 flex items-center justify-between border-t border-gray-200 px-4 pt-4 dark:border-gray-800">
+              <span className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/15 dark:text-teal-400">
+                  <User className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{userName.split(' ')[0]}</span>
+              </span>
               <button
+                type="button"
                 onClick={() => {
                   setIsMenuOpen(false);
                   onLogout();
                 }}
-                className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer"
+                className="cursor-pointer text-sm font-semibold text-gray-600 transition-colors hover:text-[#008080] dark:text-gray-400 dark:hover:text-teal-400"
               >
-                Logout
+                Log out
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };

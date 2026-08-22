@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from "react";
-import Marquee from "react-fast-marquee";
-import { CheckCircle2, Award, Verified } from "lucide-react";
+import React from "react";
+import { Award, CheckCircle2, ShieldCheck, Verified } from "lucide-react";
 
 interface Verification {
   id: string;
   name: string;
   program: string;
   description: string;
-  color: string;
   icon: React.ReactNode;
 }
 
@@ -15,173 +13,82 @@ const verifications: Verification[] = [
   {
     id: "google-nonprofit",
     name: "Google for Nonprofits",
-    program: "Program Member",
+    program: "Program member",
     description:
       "We participate in the Google for Nonprofits program, which provides access to Google tools and resources designed for nonprofit organizations.",
-    color: "from-blue-500 to-blue-600",
-    icon: <Award className="w-12 h-12 text-blue-500" />,
+    icon: <Award className="h-5 w-5" />,
   },
   {
     id: "microsoft-nonprofit",
     name: "Microsoft Nonprofits",
-    program: "Program Member",
+    program: "Program member",
     description:
       "We are enrolled in the Microsoft Nonprofits program, enabling access to discounted software and cloud services for our organization.",
-    color: "from-slate-500 to-slate-600",
-    icon: <Verified className="w-12 h-12 text-slate-600 dark:text-slate-300" />,
+    icon: <Verified className="h-5 w-5" />,
   },
   {
     id: "slack-nonprofit",
     name: "Slack for Nonprofits",
-    program: "Program Member",
+    program: "Program member",
     description:
       "We participate in Slack's nonprofit program, which provides collaboration tools to support our team communication.",
-    color: "from-[#008080] to-[#00a3a3]",
-    icon: <CheckCircle2 className="w-12 h-12 text-[#008080]" />,
+    icon: <CheckCircle2 className="h-5 w-5" />,
   },
   {
     id: "techsoup",
     name: "TechSoup",
-    program: "Registered Member",
+    program: "Registered member",
     description:
       "We are registered with TechSoup, a nonprofit that connects organizations like ours with discounted technology products and services.",
-    color: "from-orange-500 to-orange-600",
-    icon: <Award className="w-12 h-12 text-orange-500" />,
+    icon: <ShieldCheck className="h-5 w-5" />,
   },
 ];
 
-const VerificationCard: React.FC<{ verification: Verification; isDark: boolean }> = ({
-  verification,
-  isDark,
-}) => (
-  <div
-    className={`relative overflow-hidden rounded-xl backdrop-blur-xl transition-all duration-300 mx-4 w-96 flex-shrink-0 h-60 ${
-      isDark
-        ? "bg-slate-800/60 border border-slate-700/50 hover:border-teal-500/50"
-        : "bg-white border border-slate-200 hover:border-[#008080]/30 shadow-sm"
-    }`}
+const NonprofitVerificationSection: React.FC = () => (
+  <section
+    id="certifications"
+    className="bg-[#F8F8F8] py-24 transition-colors dark:bg-gray-950"
   >
-    <div
-      className={`absolute inset-0 bg-gradient-to-br ${verification.color} opacity-5`}
-    />
-    <div className="relative p-7 z-10">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex-shrink-0">{verification.icon}</div>
-        <div className="min-w-0 flex-1">
-          <h3
-            className={`text-lg font-bold leading-tight ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
-          >
-            {verification.name}
-          </h3>
-          <p
-            className={`text-sm ${
-              isDark ? "text-teal-400" : "text-[#008080]"
-            }`}
-          >
-            {verification.program}
-          </p>
-        </div>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl">
+        <span className="text-xs font-semibold tracking-[0.18em] text-[#008080] uppercase dark:text-teal-400">
+          Verified
+        </span>
+        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl dark:text-white">
+          Nonprofit program{" "}
+          <span className="text-[#008080] dark:text-teal-400">memberships</span>
+        </h2>
+        <p className="mt-4 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
+          We are members of nonprofit support programs that provide the tools
+          and resources behind the training we deliver.
+        </p>
       </div>
-      <p
-        className={`text-sm leading-relaxed ${
-          isDark ? "text-slate-400" : "text-slate-600"
-        }`}
-      >
-        {verification.description}
-      </p>
+
+      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {verifications.map((verification) => (
+          <li
+            key={verification.id}
+            className="flex flex-col rounded-2xl bg-white p-6 ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
+              {verification.icon}
+            </span>
+
+            <h3 className="mt-5 leading-snug font-bold text-gray-900 dark:text-white">
+              {verification.name}
+            </h3>
+            <span className="mt-1.5 inline-flex w-fit rounded-full bg-[#008080]/10 px-2.5 py-1 text-xs font-semibold text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
+              {verification.program}
+            </span>
+
+            <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+              {verification.description}
+            </p>
+          </li>
+        ))}
+      </ul>
     </div>
-  </div>
+  </section>
 );
-
-const NonprofitVerificationSection: React.FC = () => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const checkDarkMode = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
-
-    checkDarkMode();
-
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <section
-      id="certifications"
-      className={`py-16 transition-colors duration-300 ${
-        isDark ? "bg-slate-950" : "bg-gradient-to-b from-slate-50 to-white"
-      }`}
-      style={{ overflow: 'hidden', maxWidth: '100vw' }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-        <div className="text-center">
-          <div className="flex justify-center mb-3">
-            <div
-              className={`p-3 rounded-full ${
-                isDark ? "bg-teal-900/30" : "bg-[#008080]/10"
-              }`}
-            >
-              <CheckCircle2 className="w-8 h-8 text-[#008080]" />
-            </div>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-            Nonprofit Program Memberships
-          </h2>
-          <p
-            className={`text-base max-w-xl mx-auto ${
-              isDark ? "text-slate-400" : "text-slate-600"
-            }`}
-          >
-            We are members of nonprofit support programs that provide tools
-            and resources to help us deliver quality education.
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="w-full"
-        style={{
-          overflow: 'hidden',
-          maxWidth: '100vw'
-        }}
-      >
-        <Marquee
-          gradient={true}
-          gradientColor={isDark ? "#020617" : "#f8fafc"}
-          gradientWidth={80}
-          speed={40}
-          pauseOnHover={true}
-          style={{ overflow: 'hidden' }}
-        >
-          <div className="flex items-stretch py-4">
-            {verifications.map((verification) => (
-              <VerificationCard
-                key={verification.id}
-                verification={verification}
-                isDark={isDark}
-              />
-            ))}
-            {verifications.map((verification) => (
-              <VerificationCard
-                key={`${verification.id}-duplicate`}
-                verification={verification}
-                isDark={isDark}
-              />
-            ))}
-          </div>
-        </Marquee>
-      </div>
-    </section>
-  );
-};
 
 export default NonprofitVerificationSection;

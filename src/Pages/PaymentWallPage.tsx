@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
+import { apiPost } from '../lib/api';
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
@@ -96,20 +97,7 @@ const PaymentWallPage = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/payment-initialize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to initialize payment');
-      }
-
-      const paymentData = await response.json();
+      const paymentData = await apiPost('/payment/initialize');
 
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
@@ -141,20 +129,7 @@ const PaymentWallPage = () => {
             console.log('Payment successful, verifying...');
             setPaymentStatus('verifying');
 
-            fetch('/api/payment-verify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ reference: response.reference })
-            })
-              .then(verifyResponse => {
-                if (!verifyResponse.ok) {
-                  throw new Error('Payment verification failed');
-                }
-                return verifyResponse.json();
-              })
+            apiPost('/payment/verify', { reference: response.reference })
               .then(verifyData => {
                 console.log('Payment verified:', verifyData);
                 setIsProcessing(false);

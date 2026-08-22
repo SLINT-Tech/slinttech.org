@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Mentee {
   id: string;
@@ -63,19 +64,9 @@ const MentorMenteesPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-get-mentees', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch mentees');
-      }
-
-      const result = await response.json();
-      setMentees(result.data.mentees || []);
-      setStats(result.data.stats || {
+      const result = await apiGet('/mentor/mentees');
+      setMentees(result.mentees || []);
+      setStats(result.stats || {
         totalMentees: 0,
         activeMentees: 0,
         completedMentees: 0,

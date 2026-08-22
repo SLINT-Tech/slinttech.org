@@ -6,6 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import PendingBanner from '../Components/PendingBanner';
+import { apiGet } from '../lib/api';
 
 const MenteeDashboard = () => {
   const { signOut } = useAuth();
@@ -29,20 +30,15 @@ const MenteeDashboard = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          console.error('Error fetching profile');
+        let profile;
+        try {
+          const data = await apiGet('/auth/me');
+          profile = data.profile;
+        } catch (error) {
+          console.error('Error fetching profile', error);
           setLoading(false);
           return;
         }
-
-        const data = await response.json();
-        const profile = data.profile;
 
         // Check payment requirement - handle both camelCase and snake_case
         const membershipEnabled = profile.membershipEnabled || profile.membership_enabled;
@@ -72,15 +68,9 @@ const MenteeDashboard = () => {
 
         localStorage.setItem('currentUser', JSON.stringify(userData));
 
-        const dashboardResponse = await fetch('/api/mentee-get-dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (dashboardResponse.ok) {
-          const dashboardData = await dashboardResponse.json();
-          const { mentorAssignments, lessonsData, tasksData, announcements } = dashboardData.data;
+        try {
+          const { mentorAssignments, lessonsData, tasksData, announcements } =
+            await apiGet('/mentee/dashboard');
 
           setLessonsData(lessonsData);
           setTasksData(tasksData);
@@ -100,7 +90,8 @@ const MenteeDashboard = () => {
             mentorAssignments: mentorAssignments,
             announcements: announcements
           });
-        } else {
+        } catch (dashboardError) {
+          console.error('Error fetching dashboard:', dashboardError);
           setLessonsData({ completed: 0, total: 0 });
           setTasksData({ approved: 0, total: 0 });
 

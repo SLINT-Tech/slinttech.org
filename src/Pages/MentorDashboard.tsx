@@ -5,6 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import PendingBanner from '../Components/PendingBanner';
+import { apiGet } from '../lib/api';
 
 interface Course {
   id: string;
@@ -53,21 +54,16 @@ const MentorDashboard = () => {
           return;
         }
 
-        const profileResponse = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!profileResponse.ok) {
-          console.error('Error fetching profile');
+        let profile;
+        try {
+          const profileData = await apiGet('/auth/me');
+          profile = profileData.profile;
+        } catch (profileError) {
+          console.error('Error fetching profile', profileError);
           setError('Failed to load profile data');
           setLoading(false);
           return;
         }
-
-        const profileData = await profileResponse.json();
-        const profile = profileData.profile;
 
         if (profile.role !== 'Mentor') {
           navigate('/mentor/login');
@@ -114,17 +110,9 @@ const MentorDashboard = () => {
           joinedDate: profile.createdAt || profile.created_at
         });
 
-        const dashboardResponse = await fetch('/api/mentor-get-dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (dashboardResponse.ok) {
-          const dashboardData = await dashboardResponse.json();
-          setStats(dashboardData.data.stats);
-          setCourses(dashboardData.data.recentCourses || []);
-        }
+        const dashboardData = await apiGet('/mentor/dashboard');
+        setStats(dashboardData.stats);
+        setCourses(dashboardData.recentCourses || []);
 
       } catch (error) {
         console.error('Error fetching mentor data:', error);

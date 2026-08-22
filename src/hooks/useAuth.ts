@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout, clearAuthData } from '../lib/auth';
+import { apiGet, getAuthToken } from '../lib/api';
 
 export interface UserProfile {
   id: string;
@@ -29,7 +30,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setLoading(false);
@@ -37,18 +38,8 @@ export const useAuth = () => {
       }
 
       try {
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data.profile);
-        } else {
-          clearAuthData();
-        }
+        const data = await apiGet('/auth/me');
+        setProfile(data.profile);
       } catch (error) {
         console.error('Error checking auth:', error);
         clearAuthData();

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface AssignedMentor {
   id: string;
@@ -44,19 +45,8 @@ const MentorsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-mentors', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        console.error('Error fetching mentors');
-        return;
-      }
-
-      const result = await response.json();
-      setAssignedMentors(result.data.assignedMentors || []);
+      const result = await apiGet('/mentee/mentors');
+      setAssignedMentors(result.assignedMentors || []);
     } catch (error) {
       console.error('Error fetching mentors:', error);
     } finally {

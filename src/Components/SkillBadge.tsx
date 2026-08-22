@@ -57,7 +57,7 @@ import {
 
 interface SkillBadgeProps {
   skill: string;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
 const skillBrandColors: Record<string, string> = {
@@ -288,7 +288,7 @@ const skillIconMap: Record<string, React.ReactNode> = {
   "A/B Testing": <FaChartBar className="w-3 h-3" />,
 };
 
-export const SkillBadge: React.FC<SkillBadgeProps> = ({ skill, isDark }) => {
+export const SkillBadge: React.FC<SkillBadgeProps> = ({ skill }) => {
   const icon = skillIconMap[skill];
   const defaultIconColor = "#008080";
   const iconColor = skillBrandColors[skill] || defaultIconColor;
@@ -299,11 +299,7 @@ export const SkillBadge: React.FC<SkillBadgeProps> = ({ skill, isDark }) => {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full ${
-        isDark
-          ? "bg-white/10 text-slate-200 border border-white/10"
-          : "bg-white/80 text-slate-700 border border-slate-200"
-      }`}
+      className="inline-flex items-center gap-1.5 rounded-full border border-gray-900/10 bg-gray-900/[0.04] px-2.5 py-1 text-xs text-gray-700 dark:border-white/10 dark:bg-white/10 dark:text-gray-200"
     >
       {coloredIcon && <span className="flex-shrink-0">{coloredIcon}</span>}
       <span>{skill}</span>

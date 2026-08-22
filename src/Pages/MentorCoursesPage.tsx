@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost, apiPut } from '../lib/api';
 
 interface Course {
   id: string;
@@ -57,23 +58,12 @@ const MentorCoursesPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-get-courses', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setCourses(data.data.courses);
-        setStats(data.data.stats);
-      } else {
-        setToast({ message: data.error || 'Failed to fetch courses', type: 'error' });
-      }
+      const data = await apiGet('/mentor/courses');
+      setCourses(data.courses);
+      setStats(data.stats);
     } catch (error) {
       console.error('Fetch courses error:', error);
-      setToast({ message: 'Failed to fetch courses', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to fetch courses', type: 'error' });
     } finally {
       setPageLoading(false);
     }
@@ -107,32 +97,19 @@ const MentorCoursesPage = () => {
 
       const duration = `${newCourse.durationNumber} ${newCourse.durationUnit}`;
 
-      const response = await fetch('/api/mentor-create-course', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: newCourse.name.trim(),
-          duration,
-          description: newCourse.description.trim()
-        })
+      await apiPost('/mentor/courses/create', {
+        name: newCourse.name.trim(),
+        duration,
+        description: newCourse.description.trim()
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Course created successfully!', type: 'success' });
-        setNewCourse({ name: '', durationNumber: '', durationUnit: 'weeks', description: '' });
-        setShowCreateCourseModal(false);
-        fetchCourses();
-      } else {
-        setToast({ message: data.error || 'Failed to create course', type: 'error' });
-      }
+      setToast({ message: 'Course created successfully!', type: 'success' });
+      setNewCourse({ name: '', durationNumber: '', durationUnit: 'weeks', description: '' });
+      setShowCreateCourseModal(false);
+      fetchCourses();
     } catch (error) {
       console.error('Create course error:', error);
-      setToast({ message: 'Failed to create course. Please try again.', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to create course. Please try again.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -147,31 +124,18 @@ const MentorCoursesPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-update-course-status', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          status: newStatus
-        })
+      await apiPut('/mentor/courses/status', {
+        courseId,
+        status: newStatus
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setCourses(prev => prev.map(course =>
-          course.id === courseId ? { ...course, status: newStatus } : course
-        ));
-        setToast({ message: 'Course status updated successfully!', type: 'success' });
-      } else {
-        setToast({ message: data.error || 'Failed to update course status', type: 'error' });
-      }
+      setCourses(prev => prev.map(course =>
+        course.id === courseId ? { ...course, status: newStatus } : course
+      ));
+      setToast({ message: 'Course status updated successfully!', type: 'success' });
     } catch (error) {
       console.error('Update status error:', error);
-      setToast({ message: 'Failed to update course status', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to update course status', type: 'error' });
     }
   };
 

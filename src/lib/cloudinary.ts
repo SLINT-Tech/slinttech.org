@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import { apiUpload } from './api';
 
 export interface UploadResult {
   success: boolean;
@@ -16,17 +16,8 @@ export const uploadContractToCloudinary = async (
     formData.append('file', file);
     formData.append('userId', userId);
 
-    const response = await fetch(`${API_BASE_URL}/upload-contract`, {
-      method: 'POST',
-      body: formData,
-    });
+    const data = await apiUpload('/upload-contract', formData);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Upload failed');
-    }
-
-    const data = await response.json();
     return {
       success: true,
       url: data.url,

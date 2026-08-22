@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
 import Toast from '../Components/Toast';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Task {
   id: string;
@@ -67,18 +68,7 @@ const TaskDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-task-detail?taskId=${taskId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch task detail');
-      }
-
-      const result = await response.json();
-      const taskData = result.data;
+      const taskData = await apiGet('/mentee/tasks/detail', { taskId });
       setTask(taskData);
 
       if (taskData.submission) {
@@ -107,22 +97,11 @@ const TaskDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-submit-task', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          taskId,
-          submissionLink: submissionData.link,
-          submissionNotes: submissionData.notes
-        })
+      await apiPost('/mentee/tasks/submit', {
+        taskId,
+        submissionLink: submissionData.link,
+        submissionNotes: submissionData.notes
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit task');
-      }
 
       setToast({ message: 'Task submitted successfully!', type: 'success' });
       fetchTaskDetail();

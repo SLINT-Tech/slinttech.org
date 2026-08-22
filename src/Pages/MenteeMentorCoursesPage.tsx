@@ -4,6 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { MentorCoursesTableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface CourseStats {
   totalLessons: number;
@@ -71,20 +72,9 @@ const MenteeMentorCoursesPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-mentor-courses?mentorId=${mentorId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to fetch courses');
-      }
-
-      const result = await response.json();
-      setMentor(result.data.mentor);
-      setCourses(result.data.courses || []);
+      const result = await apiGet('/mentee/mentors/courses', { mentorId });
+      setMentor(result.mentor);
+      setCourses(result.courses || []);
     } catch (error: any) {
       console.error('Error fetching mentor courses:', error);
       navigate('/mentors');

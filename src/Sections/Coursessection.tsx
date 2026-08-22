@@ -12,15 +12,15 @@ import {
   Wand2,
   Database,
   Clock,
-  BookOpen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SkillBadge } from "../Components/SkillBadge";
 
 interface CareerPath {
   id: string;
   title: string;
+  category: string;
   description: string;
   icon: React.ReactNode;
   image: string;
@@ -36,6 +36,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "software-engineering",
     title: "Software Engineering",
+    category: "Engineering",
     description:
       "Master the complete software development lifecycle from architecture to deployment.",
     icon: <Zap className="w-10 h-10" />,
@@ -51,6 +52,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "frontend",
     title: "Front-end Development",
+    category: "Engineering",
     description:
       "Build stunning, responsive user interfaces with modern frameworks and tools.",
     icon: <Palette className="w-10 h-10" />,
@@ -66,6 +68,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "backend",
     title: "Back-end Development",
+    category: "Engineering",
     description:
       "Design scalable backend systems and manage data with confidence.",
     icon: <Server className="w-10 h-10" />,
@@ -81,6 +84,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "cybersecurity",
     title: "Cybersecurity",
+    category: "Cloud & Security",
     description:
       "Protect systems and data from threats in an increasingly digital world.",
     icon: <Shield className="w-10 h-10" />,
@@ -101,6 +105,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "cloud",
     title: "Cloud Computing",
+    category: "Cloud & Security",
     description: "Deploy and manage applications on leading cloud platforms.",
     icon: <Cloud className="w-10 h-10" />,
     image:
@@ -115,6 +120,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "data-analysis",
     title: "Data Analysis",
+    category: "Data & AI",
     description: "Transform raw data into actionable business insights.",
     icon: <BarChart3 className="w-10 h-10" />,
     image:
@@ -129,6 +135,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "data-science",
     title: "Data Science",
+    category: "Data & AI",
     description:
       "Extract insights from complex data using statistics, ML, and visualization.",
     icon: <Database className="w-10 h-10" />,
@@ -144,6 +151,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "machine-learning",
     title: "Machine Learning",
+    category: "Data & AI",
     description:
       "Build intelligent systems that learn from data and make predictions.",
     icon: <Brain className="w-10 h-10" />,
@@ -159,6 +167,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "mobile-development",
     title: "Mobile Development",
+    category: "Engineering",
     description:
       "Create powerful mobile applications for iOS and Android platforms.",
     icon: <Smartphone className="w-10 h-10" />,
@@ -174,6 +183,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "graphic-design",
     title: "Graphic Design",
+    category: "Design",
     description:
       "Master the art of visual communication and digital design principles.",
     icon: <Pencil className="w-10 h-10" />,
@@ -189,6 +199,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "ux-ui-design",
     title: "UX/UI Design",
+    category: "Design",
     description:
       "Design intuitive user experiences and beautiful interfaces that users love.",
     icon: <Wand2 className="w-10 h-10" />,
@@ -209,6 +220,7 @@ const careerPaths: CareerPath[] = [
   {
     id: "ai-engineering",
     title: "AI Engineering",
+    category: "Data & AI",
     description:
       "Deploy and manage AI models in production for real-world applications.",
     icon: <Zap className="w-10 h-10" />,
@@ -223,274 +235,195 @@ const careerPaths: CareerPath[] = [
   },
 ];
 
+const CATEGORIES = ["All", "Engineering", "Data & AI", "Cloud & Security", "Design"];
+const INITIAL_COUNT = 6;
+
 const CoursesSection: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
-    null
-  );
-  const [showAll, setShowAll] = React.useState(false);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const checkDarkMode = () => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    };
-
-    checkDarkMode();
-
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showAll, setShowAll] = useState(false);
 
   const handleJoinCommunity = () => {
     navigate("/signup");
   };
 
-  const categories = [
-    "All",
-    ...Array.from(new Set(careerPaths.map((path) => path.title))),
-  ];
-
   const filteredPaths =
-    selectedCategory && selectedCategory !== "All"
-      ? careerPaths.filter((path) => path.title === selectedCategory)
-      : careerPaths;
+    selectedCategory === "All"
+      ? careerPaths
+      : careerPaths.filter((path) => path.category === selectedCategory);
 
-  const displayedPaths =
-    !selectedCategory && !showAll ? filteredPaths.slice(0, 6) : filteredPaths;
+  const displayedPaths = showAll
+    ? filteredPaths
+    : filteredPaths.slice(0, INITIAL_COUNT);
 
-  const hasMore = !selectedCategory && filteredPaths.length > 6;
+  const hiddenCount = filteredPaths.length - displayedPaths.length;
 
   return (
     <section
       id="explore"
-      className={`py-20 transition-colors duration-300 ${
-        isDark
-          ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
-          : "bg-white"
-      }`}
+      className="bg-white py-24 transition-colors dark:bg-gray-950"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-left mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-            Career Paths
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section header */}
+        <div className="max-w-2xl">
+          <span className="text-xs font-semibold tracking-[0.18em] text-[#008080] uppercase dark:text-teal-400">
+            Explore
+          </span>
+          <h2 className="mt-3 text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-white">
+            Career <span className="text-[#008080] dark:text-teal-400">Paths</span>
           </h2>
-          <p
-            className={`text-lg max-w-2xl ${
-              isDark ? "text-slate-300" : "text-[#9C9C9C]"
-            }`}
-          >
+          <p className="mt-4 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
             Choose your path and start your journey with expert mentorship and
-            hands-on learning. Join our community to unlock your potential in
-            these high-demand fields.
+            hands-on learning. Every track pairs you with a mentor and ends with
+            work you can show an employer.
           </p>
+        </div>
 
-          <div className="flex flex-wrap gap-3 justify-start mt-8">
-            {categories.map((category) => (
+        {/* Filter */}
+        <div className="mt-10 flex flex-wrap gap-2">
+          {CATEGORIES.map((category) => {
+            const isActive = selectedCategory === category;
+            const count =
+              category === "All"
+                ? careerPaths.length
+                : careerPaths.filter((path) => path.category === category).length;
+
+            return (
               <button
                 key={category}
+                type="button"
                 onClick={() => {
-                  setSelectedCategory(category === "All" ? null : category);
+                  setSelectedCategory(category);
                   setShowAll(false);
                 }}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
-                  selectedCategory === category ||
-                  (selectedCategory === null && category === "All")
-                    ? "bg-gradient-to-r from-[#008080] to-[#00a3a3] text-white"
-                    : isDark
-                    ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                aria-pressed={isActive}
+                className={`cursor-pointer rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-[#1E1E1E] text-white dark:bg-teal-500 dark:text-gray-950"
+                    : "bg-gray-900/[0.05] text-gray-700 hover:bg-gray-900/10 dark:bg-white/[0.07] dark:text-gray-300 dark:hover:bg-white/12"
                 }`}
               >
                 {category}
+                <span className={isActive ? "ml-2 opacity-70" : "ml-2 opacity-50"}>
+                  {count}
+                </span>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {displayedPaths.map((path) => (
-            <div
-              key={path.id}
-              className={`group relative overflow-hidden rounded-3xl backdrop-blur-2xl transition-all duration-300 cursor-pointer h-full min-h-[520px] hover:scale-[1.02] ${
-                isDark
-                  ? "bg-teal-900/30 border border-teal-400/30"
-                  : "bg-white/50 border border-slate-200/60"
-              }`}
-            >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${path.color} ${
-                  isDark ? "opacity-10" : "opacity-0"
-                }`}
-              />
+        {/* Cards */}
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {displayedPaths.map((path) => {
+            const stack = [...path.languages, ...path.frameworks];
+            const shown = stack.slice(0, 4);
+            const rest = stack.length - shown.length;
 
-              <div className="relative p-6 z-10 h-full flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="text-[#008080] dark:text-[#008080] flex-shrink-0">
-                    {path.icon}
-                  </div>
-                  <h3
-                    className={`text-lg font-bold ${
-                      isDark ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    {path.title}
-                  </h3>
-                </div>
-
-                <p
-                  className={`text-sm mb-4 line-clamp-3 ${
-                    isDark ? "text-slate-300" : "text-[#9C9C9C]"
-                  }`}
-                >
-                  {path.description}
-                </p>
-
-                <div className="relative h-32 overflow-hidden rounded-2xl mb-4">
+            return (
+              <article
+                key={path.id}
+                className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
+              >
+                <div className="relative h-36 overflow-hidden">
                   <img
                     src={path.image}
-                    alt={path.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-t ${path.color} opacity-30`}
-                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-gray-900">
+                    <Clock className="h-3.5 w-3.5" />
+                    {path.duration}
+                  </span>
                 </div>
 
-                <div
-                  className={`text-xs mb-4 space-y-2 ${
-                    isDark ? "text-slate-400" : "text-slate-500"
-                  }`}
-                >
-                  <p className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Duration: {path.duration}</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4" />
-                    <span>Platform: {path.learningPlatform}</span>
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {path.skills.slice(0, 2).map((skill) => (
-                    <SkillBadge key={skill} skill={skill} isDark={isDark} />
-                  ))}
-                </div>
-
-                <div className="flex-1 mb-4">
-                  <div className="mb-3">
-                    <p
-                      className={`text-xs font-semibold mb-2 ${
-                        isDark ? "text-slate-300" : "text-slate-600"
-                      }`}
-                    >
-                      Languages:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {path.languages.map((lang) => (
-                        <SkillBadge key={lang} skill={lang} isDark={isDark} />
-                      ))}
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
+                      <span className="[&>svg]:h-5 [&>svg]:w-5">{path.icon}</span>
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-lg leading-snug font-bold text-gray-900 dark:text-white">
+                        {path.title}
+                      </h3>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {path.category}
+                      </span>
                     </div>
                   </div>
 
-                  <div>
-                    <p
-                      className={`text-xs font-semibold mb-2 ${
-                        isDark ? "text-slate-300" : "text-slate-600"
-                      }`}
-                    >
-                      Frameworks:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {path.frameworks.map((framework) => (
-                        <SkillBadge
-                          key={framework}
-                          skill={framework}
-                          isDark={isDark}
-                        />
-                      ))}
-                    </div>
+                  <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                    {path.description}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {shown.map((item) => (
+                      <SkillBadge key={item} skill={item} />
+                    ))}
+                    {rest > 0 && (
+                      <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs text-gray-500 dark:text-gray-400">
+                        +{rest} more
+                      </span>
+                    )}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={handleJoinCommunity}
+                    className="mt-5 flex cursor-pointer items-center justify-between border-t border-gray-900/10 pt-4 text-sm font-semibold text-gray-900 transition group-hover:text-[#008080] dark:border-white/10 dark:text-white dark:group-hover:text-teal-400"
+                  >
+                    Start this path
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
                 </div>
-              </div>
-            </div>
-          ))}
+              </article>
+            );
+          })}
         </div>
 
-        {hasMore && !showAll && (
-          <div className="text-center mb-12">
+        {filteredPaths.length > INITIAL_COUNT && (
+          <div className="mt-10 flex justify-center">
             <button
-              onClick={() => setShowAll(true)}
-              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
-                isDark
-                  ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              Load More ({filteredPaths.length - 6} more)
-            </button>
-          </div>
-        )}
-
-        {hasMore && showAll && (
-          <div className="text-center mb-12">
-            <button
+              type="button"
               onClick={() => {
-                setShowAll(false);
-                document
-                  .getElementById("explore")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (showAll) {
+                  document
+                    .getElementById("explore")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+                setShowAll(!showAll);
               }}
-              className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer ${
-                isDark
-                  ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-              }`}
+              className="cursor-pointer rounded-full border border-gray-900/20 px-7 py-3 font-semibold text-gray-900 transition hover:border-[#008080] hover:text-[#008080] dark:border-white/25 dark:text-white dark:hover:border-teal-400 dark:hover:text-teal-400"
             >
-              Show Less
+              {showAll ? "Show fewer paths" : `Show ${hiddenCount} more paths`}
             </button>
           </div>
         )}
 
-        <div
-          className={`text-center p-8 rounded-2xl backdrop-blur-xl transition-colors duration-300 ${
-            isDark
-              ? "bg-slate-900 border border-slate-800"
-              : "bg-white/50 border border-slate-200/60"
-          }`}
-        >
-          <h3
-            className={`text-2xl font-bold mb-4 ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Ready to Start Your Journey?
+        {/* Closing CTA */}
+        <div className="mt-16 overflow-hidden rounded-3xl bg-[#008080]/[0.08] p-8 text-center sm:p-12 dark:bg-teal-400/[0.08]">
+          <h3 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl dark:text-white">
+            Not sure which path is yours?
           </h3>
-          <p
-            className={`mb-6 max-w-2xl mx-auto ${
-              isDark ? "text-slate-300" : "text-[#9C9C9C]"
-            }`}
-          >
-            Join our community of passionate learners and get matched with
-            expert mentors who will guide you through your chosen career path.
+          <p className="mx-auto mt-3 max-w-xl leading-relaxed text-gray-600 dark:text-gray-300">
+            Join and we'll match you with a mentor who works in the field. They
+            will help you pick the track that fits where you want to end up.
           </p>
           <button
+            type="button"
             onClick={handleJoinCommunity}
-            className="bg-gradient-to-r from-[#008080] to-[#00a3a3] hover:from-[#006666] hover:to-[#008080] text-white px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-2 mx-auto cursor-pointer font-semibold"
+            className="mx-auto mt-7 flex cursor-pointer items-center gap-2 rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-8 py-3.5 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
           >
-            Join Our Community
-            <ArrowRight className="w-5 h-5" />
+            Join our community
+            <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </div>
     </section>
   );
 };
+
 
 export default CoursesSection;

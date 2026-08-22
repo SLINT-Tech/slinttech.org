@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/auth';
 import { useEffect, useState } from 'react';
 import { PageLoader } from '../Components/SkeletonLoader';
+import { apiGet } from '../lib/api';
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
@@ -19,19 +20,14 @@ const PendingApprovalPage = () => {
       }
 
       try {
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
+        let profile;
+        try {
+          const data = await apiGet('/auth/me');
+          profile = data.profile;
+        } catch {
           logout(navigate, '/login');
           return;
         }
-
-        const data = await response.json();
-        const profile = data.profile;
 
         const userData = {
           id: profile.id,

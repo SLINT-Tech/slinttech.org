@@ -2,8 +2,8 @@ import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import { apiPublicPost, ApiError } from '../lib/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const MentorLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -47,21 +47,16 @@ const MentorLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/mentor-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      let data;
+      try {
+        data = await apiPublicPost('/mentor/login', {
           email: formData.email.trim(),
           password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 403 && data.error.includes('pending approval')) {
+        });
+      } catch (loginError) {
+        const apiError = loginError as ApiError;
+        const data = apiError.data || {};
+        if (apiError.status === 403 && String(apiError.message).includes('pending approval')) {
           const profile = data.profile;
           const userData = {
             id: profile.id,
@@ -83,7 +78,7 @@ const MentorLoginPage = () => {
           navigate('/mentor/dashboard');
           return;
         }
-        throw new Error(data.error || 'Login failed');
+        throw loginError;
       }
 
       const profile = data.profile;

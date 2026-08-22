@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPut } from '../lib/api';
 
 interface Submission {
   id: string;
@@ -69,19 +70,9 @@ const MentorSubmissionsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-get-submissions', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch submissions');
-      }
-
-      const result = await response.json();
-      setSubmissions(result.data.submissions || []);
-      setStats(result.data.stats || { total: 0, pending: 0, approved: 0, rejected: 0 });
+      const result = await apiGet('/mentor/submissions');
+      setSubmissions(result.submissions || []);
+      setStats(result.stats || { total: 0, pending: 0, approved: 0, rejected: 0 });
     } catch (error) {
       console.error('Error fetching submissions:', error);
     } finally {
@@ -109,25 +100,12 @@ const MentorSubmissionsPage = () => {
     try {
       setReviewLoading(true);
       setReviewAction(action);
-      const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/mentor-review-submission', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          submissionId: selectedSubmission.id,
-          status: action,
-          feedback: feedback
-        })
+      await apiPut('/mentor/submissions/review', {
+        submissionId: selectedSubmission.id,
+        status: action,
+        feedback: feedback
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to review submission');
-      }
 
       await fetchSubmissions();
       setShowReviewModal(false);

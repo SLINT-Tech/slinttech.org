@@ -1,19 +1,14 @@
-import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowRight, CheckCircle, Download, FileText, Upload } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
 import { uploadContractToCloudinary } from '../lib/cloudinary';
+import { apiPublicPost, ApiError } from '../lib/api';
+import Header from '../Sections/Header';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -28,25 +23,6 @@ const SignUpPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -178,37 +154,20 @@ const SignUpPage = () => {
     setIsSubmitting(true);
 
     try {
-      let response;
-      try {
-        response = await fetch(`${API_BASE_URL}/auth-signup`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email.trim(),
-            password: formData.password,
-            fullName: formData.fullName.trim(),
-            membershipCategory: formData.membershipCategory,
-            careerPath: formData.careerPath,
-            role: formData.role,
-            specialization: formData.role === 'Mentor' ? formData.careerPath : null
-          }),
-        });
-      } catch (networkError) {
-        throw new Error('Network error. Please check your internet connection and try again.');
-      }
-
       let data;
       try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error('Invalid server response. Please try again later.');
-      }
-
-      if (!response.ok) {
-        const errorMessage = data.details || data.error || 'Registration failed';
-        throw new Error(errorMessage);
+        data = await apiPublicPost('/auth/signup', {
+          email: formData.email.trim(),
+          password: formData.password,
+          fullName: formData.fullName.trim(),
+          membershipCategory: formData.membershipCategory,
+          careerPath: formData.careerPath,
+          role: formData.role,
+          specialization: formData.role === 'Mentor' ? formData.careerPath : null
+        });
+      } catch (signupError) {
+        const apiError = signupError as ApiError;
+        throw new Error(apiError.details || apiError.message || 'Registration failed');
       }
 
       if (!data.userId) {
@@ -233,21 +192,10 @@ const SignUpPage = () => {
       }
 
       try {
-        const updateResponse = await fetch(`${API_BASE_URL}/auth-update-profile`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: data.userId,
-            contractFileUrl: uploadResult.url,
-          }),
+        await apiPublicPost('/auth/contract-file', {
+          userId: data.userId,
+          contractFileUrl: uploadResult.url,
         });
-
-        if (!updateResponse.ok) {
-          const updateData = await updateResponse.json();
-          console.error('Profile update failed:', updateData);
-        }
       } catch (updateError) {
         console.error('Profile update error:', updateError);
       }
@@ -321,45 +269,7 @@ const SignUpPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/20 dark:border-gray-800/50 sticky top-0 z-10 transition-colors shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center gap-0">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="hidden md:inline text-[#008080] dark:text-[#008080] text-xl">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? (
-                  <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-              </button>
-              <Link
-                to="/"
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              >
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost } from '../lib/api';
 
 interface Lesson {
   id: string;
@@ -61,18 +62,8 @@ const LessonsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-lessons', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch lessons');
-      }
-
-      const result = await response.json();
-      setLessons(result.data.lessons || []);
+      const result = await apiGet('/mentee/lessons');
+      setLessons(result.lessons || []);
     } catch (error) {
       console.error('Error fetching lessons:', error);
     } finally {
@@ -90,18 +81,7 @@ const LessonsPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-complete-lesson', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ lessonId })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to mark lesson as complete');
-      }
+      await apiPost('/mentee/lessons/complete', { lessonId });
 
       setLessons(prev => prev.map(lesson =>
         lesson.id === lessonId ? { ...lesson, completed: true, completedAt: new Date().toISOString() } : lesson

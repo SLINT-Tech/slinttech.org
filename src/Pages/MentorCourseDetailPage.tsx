@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost, apiPut, apiDelete, toIsoDateTime, ApiError } from '../lib/api';
 
 interface Course {
   id: string;
@@ -112,26 +113,16 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-course-detail?courseId=${courseId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setCourse(data.data);
-        setCourseStatus(data.data.status);
-      } else {
-        setToast({ message: data.error || 'Failed to fetch course details', type: 'error' });
-        if (response.status === 404) {
-          setTimeout(() => navigate('/mentor/courses'), 2000);
-        }
-      }
+      const data = await apiGet('/mentor/courses/detail', { courseId });
+      setCourse(data);
+      setCourseStatus(data.status);
     } catch (error) {
       console.error('Fetch course details error:', error);
-      setToast({ message: 'Failed to fetch course details', type: 'error' });
+      const apiError = error as ApiError;
+      setToast({ message: apiError.message || 'Failed to fetch course details', type: 'error' });
+      if (apiError.status === 404) {
+        setTimeout(() => navigate('/mentor/courses'), 2000);
+      }
     } finally {
       setPageLoading(false);
     }
@@ -146,32 +137,19 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-update-course-status', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          status: newStatus
-        })
+      await apiPut('/mentor/courses/status', {
+        courseId,
+        status: newStatus
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setCourseStatus(newStatus);
-        if (course) {
-          setCourse({ ...course, status: newStatus });
-        }
-        setToast({ message: 'Course status updated successfully!', type: 'success' });
-      } else {
-        setToast({ message: data.error || 'Failed to update course status', type: 'error' });
+      setCourseStatus(newStatus);
+      if (course) {
+        setCourse({ ...course, status: newStatus });
       }
+      setToast({ message: 'Course status updated successfully!', type: 'success' });
     } catch (error) {
       console.error('Update status error:', error);
-      setToast({ message: 'Failed to update course status', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to update course status', type: 'error' });
     }
   };
 
@@ -184,22 +162,11 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-assigned-mentees?courseId=${courseId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setAvailableMentees(data.data);
-      } else {
-        setToast({ message: data.error || 'Failed to fetch mentees', type: 'error' });
-      }
+      const data = await apiGet('/mentor/mentees/assigned', { courseId });
+      setAvailableMentees(data);
     } catch (error) {
       console.error('Fetch mentees error:', error);
-      setToast({ message: 'Failed to fetch mentees', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to fetch mentees', type: 'error' });
     } finally {
       setFetchingMentees(false);
     }
@@ -219,31 +186,18 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-create-lesson', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          ...newLesson
-        })
+      await apiPost('/mentor/lessons/create', {
+        courseId,
+        ...newLesson
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Lesson created successfully!', type: 'success' });
-        setNewLesson({ title: '', description: '', link: '' });
-        setShowCreateLessonModal(false);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to create lesson', type: 'error' });
-      }
+      setToast({ message: 'Lesson created successfully!', type: 'success' });
+      setNewLesson({ title: '', description: '', link: '' });
+      setShowCreateLessonModal(false);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Create lesson error:', error);
-      setToast({ message: 'Failed to create lesson', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to create lesson', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -265,32 +219,20 @@ const MentorCourseDetailPage = () => {
 
       const filteredRequirements = newTask.requirements.filter(req => req.trim() !== '');
 
-      const response = await fetch('/api/mentor-create-task', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          ...newTask,
-          requirements: filteredRequirements
-        })
+      await apiPost('/mentor/tasks/create', {
+        courseId,
+        ...newTask,
+        deadline: toIsoDateTime(newTask.deadline),
+        requirements: filteredRequirements
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Task created successfully!', type: 'success' });
-        setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
-        setShowCreateTaskModal(false);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to create task', type: 'error' });
-      }
+      setToast({ message: 'Task created successfully!', type: 'success' });
+      setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+      setShowCreateTaskModal(false);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Create task error:', error);
-      setToast({ message: 'Failed to create task', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to create task', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -315,33 +257,20 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-update-lesson', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          lessonId: editingLesson.id,
-          title: editingLesson.title,
-          description: editingLesson.description,
-          link: editingLesson.link
-        })
+      await apiPut('/mentor/lessons/update', {
+        lessonId: editingLesson.id,
+        title: editingLesson.title,
+        description: editingLesson.description,
+        link: editingLesson.link
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Lesson updated successfully!', type: 'success' });
-        setShowEditLessonModal(false);
-        setEditingLesson(null);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to update lesson', type: 'error' });
-      }
+      setToast({ message: 'Lesson updated successfully!', type: 'success' });
+      setShowEditLessonModal(false);
+      setEditingLesson(null);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Error updating lesson:', error);
-      setToast({ message: 'Failed to update lesson', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to update lesson', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -363,26 +292,15 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-lesson?lessonId=${lessonToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await apiDelete('/mentor/lessons/delete', { lessonId: lessonToDelete });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Lesson deleted successfully!', type: 'success' });
-        setShowDeleteLessonModal(false);
-        setLessonToDelete(null);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to delete lesson', type: 'error' });
-      }
+      setToast({ message: 'Lesson deleted successfully!', type: 'success' });
+      setShowDeleteLessonModal(false);
+      setLessonToDelete(null);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Error deleting lesson:', error);
-      setToast({ message: 'Failed to delete lesson', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to delete lesson', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -415,34 +333,21 @@ const MentorCourseDetailPage = () => {
 
       const filteredRequirements = editingTask.requirements.filter(req => req.trim() !== '');
 
-      const response = await fetch('/api/mentor-update-task', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          taskId: editingTask.id,
-          title: editingTask.title,
-          description: editingTask.description,
-          requirements: filteredRequirements,
-          deadline: editingTask.deadline
-        })
+      await apiPut('/mentor/tasks/update', {
+        taskId: editingTask.id,
+        title: editingTask.title,
+        description: editingTask.description,
+        requirements: filteredRequirements,
+        deadline: toIsoDateTime(editingTask.deadline)
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Task updated successfully!', type: 'success' });
-        setShowEditTaskModal(false);
-        setEditingTask(null);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to update task', type: 'error' });
-      }
+      setToast({ message: 'Task updated successfully!', type: 'success' });
+      setShowEditTaskModal(false);
+      setEditingTask(null);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Error updating task:', error);
-      setToast({ message: 'Failed to update task', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to update task', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -464,26 +369,15 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-delete-task?taskId=${taskToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await apiDelete('/mentor/tasks/delete', { taskId: taskToDelete });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({ message: 'Task deleted successfully!', type: 'success' });
-        setShowDeleteTaskModal(false);
-        setTaskToDelete(null);
-        fetchCourseDetails();
-      } else {
-        setToast({ message: data.error || 'Failed to delete task', type: 'error' });
-      }
+      setToast({ message: 'Task deleted successfully!', type: 'success' });
+      setShowDeleteTaskModal(false);
+      setTaskToDelete(null);
+      fetchCourseDetails();
     } catch (error) {
       console.error('Error deleting task:', error);
-      setToast({ message: 'Failed to delete task', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to delete task', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -508,35 +402,22 @@ const MentorCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-enroll-mentees', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId,
-          menteeIds: unenrolledSelected
-        })
+      const data = await apiPost('/mentor/enroll', {
+        courseId,
+        menteeIds: unenrolledSelected
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setToast({
-          message: `${data.data.enrolledCount} mentee(s) enrolled successfully!`,
-          type: 'success'
-        });
-        setSelectedMentees([]);
-        setShowEnrollMenteesModal(false);
-        fetchCourseDetails();
-        fetchAvailableMentees();
-      } else {
-        setToast({ message: data.error || 'Failed to enroll mentees', type: 'error' });
-      }
+      setToast({
+        message: `${data.enrolledCount} mentee(s) enrolled successfully!`,
+        type: 'success'
+      });
+      setSelectedMentees([]);
+      setShowEnrollMenteesModal(false);
+      fetchCourseDetails();
+      fetchAvailableMentees();
     } catch (error) {
       console.error('Enroll mentees error:', error);
-      setToast({ message: 'Failed to enroll mentees', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to enroll mentees', type: 'error' });
     } finally {
       setLoading(false);
     }

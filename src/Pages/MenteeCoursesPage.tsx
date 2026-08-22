@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CourseCardSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface ActiveCourse {
   courseId: string;
@@ -52,19 +53,8 @@ const MenteeCoursesPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-mentors', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        console.error('Error fetching courses');
-        return;
-      }
-
-      const result = await response.json();
-      setActiveCourses(result.data.activeCourses || []);
+      const result = await apiGet('/mentee/mentors');
+      setActiveCourses(result.activeCourses || []);
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {

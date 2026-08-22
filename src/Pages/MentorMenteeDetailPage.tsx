@@ -5,6 +5,7 @@ import { MenteeDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Toast from '../Components/Toast';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost, ApiError } from '../lib/api';
 
 interface Course {
   id: string;
@@ -69,25 +70,15 @@ const MentorMenteeDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentor-get-mentee-detail?menteeId=${menteeId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setMenteeData(data.data);
-      } else {
-        setToast({ message: data.error || 'Failed to fetch mentee details', type: 'error' });
-        if (response.status === 403) {
-          setTimeout(() => navigate('/mentor/mentees'), 2000);
-        }
-      }
+      const data = await apiGet('/mentor/mentees/detail', { menteeId });
+      setMenteeData(data);
     } catch (error) {
       console.error('Fetch mentee detail error:', error);
-      setToast({ message: 'Failed to fetch mentee details', type: 'error' });
+      const apiError = error as ApiError;
+      setToast({ message: apiError.message || 'Failed to fetch mentee details', type: 'error' });
+      if (apiError.status === 403) {
+        setTimeout(() => navigate('/mentor/mentees'), 2000);
+      }
     } finally {
       setLoading(false);
     }
@@ -107,29 +98,16 @@ const MentorMenteeDetailPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentor-send-message', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          menteeId: menteeId,
-          message: message.trim()
-        })
+      await apiPost('/mentor/messages/send', {
+        menteeId: menteeId,
+        message: message.trim()
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setMessage('');
-        setToast({ message: 'Message sent successfully!', type: 'success' });
-      } else {
-        setToast({ message: data.error || 'Failed to send message', type: 'error' });
-      }
+      setMessage('');
+      setToast({ message: 'Message sent successfully!', type: 'success' });
     } catch (error) {
       console.error('Send message error:', error);
-      setToast({ message: 'Failed to send message', type: 'error' });
+      setToast({ message: error instanceof Error ? error.message : 'Failed to send message', type: 'error' });
     } finally {
       setSendingMessage(false);
     }

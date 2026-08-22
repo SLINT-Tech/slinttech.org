@@ -4,6 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CourseDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Lesson {
   id: string;
@@ -98,22 +99,11 @@ const MenteeCourseDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/mentee-get-course-detail?courseId=${courseId}&mentorId=${mentorId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to fetch course details');
-      }
-
-      const result = await response.json();
-      setCourse(result.data.course);
-      setLessons(result.data.lessons || []);
-      setTasks(result.data.tasks || []);
-      setStats(result.data.stats);
+      const result = await apiGet('/mentee/courses/detail', { courseId, mentorId });
+      setCourse(result.course);
+      setLessons(result.lessons || []);
+      setTasks(result.tasks || []);
+      setStats(result.stats);
     } catch (error: any) {
       console.error('Error fetching course detail:', error);
       navigate(`/mentor-courses?mentorId=${mentorId}`);

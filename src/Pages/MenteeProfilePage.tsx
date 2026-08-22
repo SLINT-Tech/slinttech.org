@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import Navigation from '../Components/Navigation';
+import { apiGet, apiPost, apiDownload, saveBlob } from '../lib/api';
 
 const MenteeProfilePage = () => {
   const { signOut } = useAuth();
@@ -38,20 +39,15 @@ const MenteeProfilePage = () => {
           return;
         }
 
-        const response = await fetch('/api/auth-me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          console.error('Error fetching profile');
+        let profile;
+        try {
+          const data = await apiGet('/auth/me');
+          profile = data.profile;
+        } catch (error) {
+          console.error('Error fetching profile', error);
           setLoading(false);
           return;
         }
-
-        const data = await response.json();
-        const profile = data.profile;
 
         // Update localStorage with fresh data
         const userData = {
@@ -138,23 +134,10 @@ const MenteeProfilePage = () => {
         return;
       }
 
-      const response = await fetch('/api/auth-change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        })
+      await apiPost('/auth/change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update password');
-      }
 
       setToast({
         message: 'Password updated successfully!',
@@ -206,42 +189,12 @@ const MenteeProfilePage = () => {
         type: 'success'
       });
 
-      const response = await fetch(`/api/download-contract?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+      const { blob, fileName } = await apiDownload('/download-contract', { userId });
 
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to download contract');
-        } else {
-          throw new Error('Failed to download contract');
-        }
-      }
-
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let fileName = `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`;
-
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"|filename=([^\s;]+)/i);
-        if (fileNameMatch) {
-          fileName = fileNameMatch[1] || fileNameMatch[2];
-        }
-      }
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
+      saveBlob(
+        blob,
+        fileName || `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`
+      );
 
       setToast({
         message: 'Contract downloaded successfully!',

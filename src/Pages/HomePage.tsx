@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import ContactInfoSection from '../Sections/ContactInfosection';
 import CoursesSection from '../Sections/Coursessection';
 import { FeaturesSection } from '../Sections/Featuressection';
@@ -10,6 +12,19 @@ import NewsletterSection from '../Sections/NewsletterSection';
 import NonprofitVerificationSection from '../Sections/NonprofitVerificationSection';
 
 const HomePage = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const scrollTo = (location.state as { scrollTo?: string } | null)?.scrollTo;
+    if (!scrollTo) return;
+
+    // let the sections mount before measuring their offsets
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.state]);
+
   return (
     <div className="bg-[#f8f8f8] dark:bg-gray-950 transition-colors">
       {/* Header */}

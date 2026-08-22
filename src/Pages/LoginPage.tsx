@@ -1,9 +1,10 @@
-import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import { apiPublicPost, ApiError } from '../lib/api';
+import Header from '../Sections/Header';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -13,24 +14,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
   const navigate = useNavigate();
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -62,21 +46,16 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      let data;
+      try {
+        data = await apiPublicPost('/auth/login', {
           email: formData.email.trim(),
           password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 403 && data.error.includes('pending approval')) {
+        });
+      } catch (loginError) {
+        const apiError = loginError as ApiError;
+        const data = apiError.data || {};
+        if (apiError.status === 403 && String(apiError.message).includes('pending approval')) {
           const profile = data.profile;
           const userData = {
             id: profile.id,
@@ -98,7 +77,7 @@ const LoginPage = () => {
           navigate('/dashboard');
           return;
         }
-        throw new Error(data.error || 'Login failed');
+        throw loginError;
       }
 
       const profile = data.profile;
@@ -170,45 +149,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-      <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/20 dark:border-gray-800/50 sticky top-0 z-10 transition-colors shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center gap-0">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="hidden md:inline text-[#008080] dark:text-[#008080] text-xl">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? (
-                  <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-              </button>
-              <Link
-                to="/"
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              >
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl backdrop-saturate-150 rounded-xl border border-white/20 dark:border-gray-800/50 p-8 transition-colors">

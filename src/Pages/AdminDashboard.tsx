@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
 import Navigation from '../Components/Navigation';
+import { apiRequest, apiGet, apiPost, apiPut, apiDownload, saveBlob } from '../lib/api';
 
 interface UserProfile {
   id: string;
@@ -30,7 +31,7 @@ interface UserProfile {
 
 interface MentorOption {
   id: string;
-  full_name: string;
+  fullName: string;
   specialization: string;
 }
 
@@ -149,28 +150,14 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-users', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          page: currentPage,
-          perPage: usersPerPage,
-          search: debouncedSearchTerm || '',
-          status: filterStatus,
-          role: filterRole,
-          membershipCategory: filterMembershipCategory
-        })
+      const result = await apiPost('/admin/users', {
+        page: currentPage,
+        perPage: usersPerPage,
+        search: debouncedSearchTerm || '',
+        status: filterStatus,
+        role: filterRole,
+        membershipCategory: filterMembershipCategory
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch users');
-      }
-
-      const result = await response.json();
       setUsers(result.users || []);
       setTotalUsers(result.totalCount || 0);
       setTotalPages(result.totalPages || 1);
@@ -195,20 +182,7 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-get-stats', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch stats');
-      }
-
-      const { stats: statsData } = await response.json();
+      const statsData = await apiGet('/admin/stats');
       setStats(statsData);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -226,25 +200,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      const response = await fetch('/api/admin-get-mentors', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to fetch mentors:', errorData);
-        setToast({
-          message: `Failed to load mentors: ${errorData.error || 'Unknown error'}`,
-          type: 'error'
-        });
-        return;
-      }
-
-      const { mentors } = await response.json();
+      const mentors = await apiGet('/admin/mentors');
       setAvailableMentors(mentors || []);
     } catch (error) {
       console.error('Error fetching mentors:', error);
@@ -291,52 +247,12 @@ const AdminDashboard = () => {
         type: 'success'
       });
 
-      const response = await fetch(`/api/download-contract?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+      const { blob, fileName: serverFileName } = await apiDownload('/download-contract', { userId });
 
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to download contract');
-        } else {
-          throw new Error('Failed to download contract');
-        }
-      }
-
-      // Get the filename from Content-Disposition header or use default
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let fileName = `${userName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`;
-
-      if (contentDisposition) {
-        // Match filename with or without quotes, and extract just the name
-        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"|filename=([^\s;]+)/i);
-        if (fileNameMatch) {
-          // Use the quoted version (group 1) if available, otherwise the unquoted version (group 2)
-          fileName = fileNameMatch[1] || fileNameMatch[2];
-        }
-      }
-
-      // Get the file as a blob
-      const blob = await response.blob();
-
-      // Create a temporary URL for the blob
-      const blobUrl = window.URL.createObjectURL(blob);
-
-      // Create a temporary link and trigger download
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
+      saveBlob(
+        blob,
+        serverFileName || `${userName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`
+      );
 
       setToast({
         message: 'Contract downloaded successfully!',
@@ -407,21 +323,11 @@ const AdminDashboard = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          const response = await fetch(`/api/admin-get-mentor-assignments?menteeId=${user.id}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            }
-          });
-
-          if (response.ok) {
-            const { assignments } = await response.json();
-            setEditingUser(prev => ({
-              ...prev,
-              mentorAssignments: assignments || []
-            }));
-          }
+          const { assignments } = await apiGet('/admin/mentor-assignments', { menteeId: user.id });
+          setEditingUser(prev => ({
+            ...prev,
+            mentorAssignments: assignments || []
+          }));
         }
       } catch (error) {
         console.error('Error fetching mentor assignments:', error);
@@ -473,30 +379,17 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-create-user', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: newUser.fullName,
-          email: newUser.email,
-          password: generatedPassword,
-          membershipCategory: newUser.membershipCategory,
-          careerPath: newUser.careerPath || null,
-          role: newUser.role,
-          status: newUser.status,
-          membershipEnabled: newUser.membershipEnabled,
-          membershipAmount: newUser.membershipAmount
-        })
+      await apiPost('/admin/users/create', {
+        fullName: newUser.fullName,
+        email: newUser.email,
+        password: generatedPassword,
+        membershipCategory: newUser.membershipCategory,
+        careerPath: newUser.careerPath || null,
+        role: newUser.role,
+        status: newUser.status,
+        membershipEnabled: newUser.membershipEnabled,
+        membershipAmount: newUser.membershipAmount
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create user');
-      }
 
       setToast({
         message: `User created successfully! Temporary password: ${generatedPassword}`,
@@ -555,52 +448,28 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      // Update user profile via Netlify function
-      const response = await fetch('/api/admin-update-user', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          fullName: editingUser.fullName,
-          email: editingUser.email,
-          password: editingUser.password || undefined,
-          membershipCategory: editingUser.membershipCategory,
-          careerPath: editingUser.careerPath,
-          role: editingUser.role,
-          status: editingUser.status,
-          communityLink: editingUser.communityLink,
-          membershipEnabled: editingUser.membershipEnabled,
-          membershipAmount: editingUser.membershipAmount
-        })
+      await apiPut('/admin/users/update', {
+        userId: selectedUser.id,
+        fullName: editingUser.fullName,
+        email: editingUser.email,
+        password: editingUser.password || undefined,
+        membershipCategory: editingUser.membershipCategory,
+        careerPath: editingUser.careerPath,
+        role: editingUser.role,
+        status: editingUser.status,
+        communityLink: editingUser.communityLink,
+        membershipEnabled: editingUser.membershipEnabled,
+        membershipAmount: editingUser.membershipAmount
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update user');
-      }
-
-      // Handle mentor assignments for mentees
       if (editingUser.role === 'Mentee') {
-        const assignmentResponse = await fetch('/api/admin-update-mentor-assignments', {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        try {
+          await apiPut('/admin/mentor-assignments/update', {
             menteeId: selectedUser.id,
             assignments: editingUser.mentorAssignments
-          })
-        });
-
-        if (!assignmentResponse.ok) {
-          const assignmentError = await assignmentResponse.json();
+          });
+        } catch (assignmentError) {
           console.error('Error updating mentor assignments:', assignmentError);
-          // Don't throw error for mentor assignment update failure
         }
       }
 
@@ -650,22 +519,10 @@ const AdminDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/admin-delete-user', {
+      await apiRequest('/admin/users/delete', {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userToDelete.id
-        })
+        body: { userId: userToDelete.id }
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete user');
-      }
 
       setToast({
         message: 'User deleted successfully!',
@@ -721,7 +578,7 @@ const AdminDashboard = () => {
         if (field === 'mentor' && value) {
           const selectedMentor = availableMentors.find(m => m.id === value);
           if (selectedMentor) {
-            updated.mentorName = selectedMentor.full_name;
+            updated.mentorName = selectedMentor.fullName;
           }
         }
 
@@ -1431,7 +1288,7 @@ const AdminDashboard = () => {
                               })
                               .map(mentor => (
                                 <option key={mentor.id} value={mentor.id}>
-                                  {mentor.full_name} - {mentor.specialization}
+                                  {mentor.fullName} - {mentor.specialization}
                                 </option>
                               ))}
                           </select>
@@ -1771,7 +1628,7 @@ const AdminDashboard = () => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white transition-colors">{userToDelete.full_name}</p>
+                    <p className="font-medium text-gray-900 dark:text-white transition-colors">{userToDelete.fullName}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors">{userToDelete.email}</p>
                   </div>
                 </div>

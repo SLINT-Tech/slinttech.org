@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { TableSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Task {
   id: string;
@@ -66,18 +67,8 @@ const TasksPage = () => {
         return;
       }
 
-      const response = await fetch('/api/mentee-get-tasks', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-
-      const result = await response.json();
-      setTasks(result.data.tasks || []);
+      const result = await apiGet('/mentee/tasks');
+      setTasks(result.tasks || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     } finally {

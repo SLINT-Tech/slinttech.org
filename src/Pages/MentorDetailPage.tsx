@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import Toast from '../Components/Toast';
 import { MentorDetailSkeletonLoader } from '../Components/SkeletonLoader';
 import Navigation from '../Components/Navigation';
+import { apiGet } from '../lib/api';
 
 interface Lesson {
   id: string;
@@ -99,30 +100,8 @@ const MentorDetailPage = () => {
         return;
       }
 
-      console.log('Fetching mentor detail for mentorId:', mentorId);
-      const response = await fetch(`/api/mentee-get-mentor-detail?mentorId=${mentorId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error response:', errorData);
-        throw new Error(errorData.message || errorData.error || 'Failed to fetch mentor details');
-      }
-
-      const result = await response.json();
-      console.log('API result:', result);
-
-      if (result.success && result.data) {
-        setMentorData(result.data);
-        console.log('Mentor data set:', result.data);
-      } else {
-        throw new Error('Invalid response format');
-      }
+      const result = await apiGet('/mentee/mentors/detail', { mentorId });
+      setMentorData(result);
     } catch (error: any) {
       console.error('Error fetching mentor detail:', error);
       setToast({
