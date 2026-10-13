@@ -391,6 +391,7 @@ const SignUpPage = () => {
                     id="signup-fullName"
                     type="text"
                     name="fullName"
+                    autoComplete="name"
                     value={formData.fullName}
                     onChange={handleInputChange}
                     className={inputClassName}
@@ -408,6 +409,7 @@ const SignUpPage = () => {
                     id="signup-email"
                     type="email"
                     name="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     className={inputClassName}
@@ -425,6 +427,7 @@ const SignUpPage = () => {
                     id="signup-password"
                     type="password"
                     name="password"
+                    autoComplete="new-password"
                     value={formData.password}
                     onChange={handleInputChange}
                     className={inputClassName}
@@ -443,6 +446,7 @@ const SignUpPage = () => {
                     id="signup-confirmPassword"
                     type="password"
                     name="confirmPassword"
+                    autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     className={inputClassName}
@@ -497,7 +501,7 @@ const SignUpPage = () => {
             {/* Contract Section - Full Width */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200 dark:border-gray-700">
               <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
+                <FileText aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Membership Contract</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">Please download, sign, and upload the membership agreement to complete your registration</p>
@@ -509,7 +513,7 @@ const SignUpPage = () => {
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-[#008080]/30 dark:hover:border-teal-400/30 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
-                      <Download className="w-5 h-5 text-[#008080] dark:text-teal-400" />
+                      <Download aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 1: Download Contract</p>
@@ -523,7 +527,7 @@ const SignUpPage = () => {
                     onClick={downloadContract}
                     className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-2.5 rounded-lg hover:bg-[#006666] transition-all hover:shadow-md cursor-pointer text-sm font-medium"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download aria-hidden="true" className="w-4 h-4" />
                     Download Agreement
                   </button>
                 </div>
@@ -532,7 +536,7 @@ const SignUpPage = () => {
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
-                      <Upload className="w-5 h-5 text-[#008080] dark:text-teal-400" />
+                      <Upload aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 2: Upload Signed Contract *</p>
@@ -559,9 +563,9 @@ const SignUpPage = () => {
                     <label htmlFor="contract-upload" className="block cursor-pointer rounded-md peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#008080] dark:peer-focus-visible:outline-teal-400">
                       {formData.contractFile ? (
                         <div className="flex flex-col items-center">
-                          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
+                          <CheckCircle aria-hidden="true" className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
                           <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 font-semibold mb-1">
-                            <FileText className="w-4 h-4" />
+                            <FileText aria-hidden="true" className="w-4 h-4" />
                             <span>{formData.contractFile.name}</span>
                           </div>
                           <p className="text-xs text-green-600 dark:text-green-400 font-medium">
@@ -571,7 +575,7 @@ const SignUpPage = () => {
                         </div>
                       ) : (
                         <div>
-                          <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                          <Upload aria-hidden="true" className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Click to upload signed contract</p>
                           <p id="contract-upload-hint" className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
                         </div>
@@ -597,7 +601,7 @@ const SignUpPage = () => {
                 ) : (
                   <>
                     Create Account
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight aria-hidden="true" className="w-5 h-5" />
                   </>
                 )}
               </button>
