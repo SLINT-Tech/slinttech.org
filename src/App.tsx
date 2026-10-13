@@ -1,13 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ContactInfoSection from './Sections/contactinfosection';
-import CoursesSection from './Sections/Coursessection';
-import { FeaturesSection } from './Sections/Featuressection';
-import Footer from './Sections/Footer';
-import GetStartedSection from './Sections/Getstartedsection';
-import Header from './Sections/Header';
-import HeroSection from './Sections/Herosection';
-import NewsletterSection from './Sections/NewsletterSection';
-import SponsorsSection from './Sections/Sponsorssection';
+import { useLayoutEffect } from 'react';
+import RouteSurface from './Components/RouteSurface';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import SignUpPage from './Pages/SignUpPage';
 import LoginPage from './Pages/LoginPage';
 import HomePage from './Pages/HomePage';
@@ -36,10 +29,21 @@ import MenteeCoursesPage from './Pages/MenteeCoursesPage';
 import ProtectedRoute from './Components/ProtectedRoute';
 import NotFoundPage from './Pages/NotFoundPage';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <Router>
-      <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
+      <ScrollToTop />
+      <RouteSurface>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUpPage />} />
@@ -181,7 +185,7 @@ function App() {
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </div>
+      </RouteSurface>
     </Router>
   );
 }

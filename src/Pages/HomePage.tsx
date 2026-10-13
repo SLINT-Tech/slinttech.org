@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import ContactInfoSection from '../Sections/ContactInfosection';
-import CoursesSection from '../Sections/Coursessection';
-import { FeaturesSection } from '../Sections/Featuressection';
-import Footer from '../Sections/Footer';
-import GetStartedSection from '../Sections/Getstartedsection';
-import Header from '../Sections/Header';
-import HeroSection from '../Sections/Herosection';
-import MissionVisionSection from '../Sections/MissionVisionSection';
-import NewsletterSection from '../Sections/NewsletterSection';
-import NonprofitVerificationSection from '../Sections/NonprofitVerificationSection';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import ContactInfoSection from "../Sections/ContactInfosection";
+import CoursesSection from "../Sections/Coursessection";
+import { FeaturesSection } from "../Sections/Featuressection";
+import Footer from "../Sections/Footer";
+import HeroSection from "../Sections/Herosection";
+import Header from "../Sections/HomeHeader";
+import MissionVisionSection from "../Sections/MissionVisionSection";
+import NewsletterSection from "../Sections/NewsletterSection";
+import NonprofitVerificationSection from "../Sections/NonprofitVerificationSection";
+import "../styles/home.css";
 
 const HomePage = () => {
   const location = useLocation();
@@ -20,41 +20,49 @@ const HomePage = () => {
 
     // let the sections mount before measuring their offsets
     const frame = requestAnimationFrame(() => {
-      document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById(scrollTo)?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+        block: "start",
+      });
     });
     return () => cancelAnimationFrame(frame);
   }, [location.state]);
 
   return (
-    <div className="bg-[#f8f8f8] dark:bg-gray-950 transition-colors">
-      {/* Header */}
+    <div className="slint-home">
+      <a href="#main-content" className="home-skip-link">
+        Skip to content
+      </a>
       <Header />
-
-      {/* Hero Section */}
-      <HeroSection />
-
-      {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Mission & Vision Section */}
-      <MissionVisionSection />
-
-      {/* Courses Section */}
-      <CoursesSection />
-
-      {/* Nonprofit Verification Section */}
-      <NonprofitVerificationSection />
-
-      {/* Get Started Section */}
-      {/* <GetStartedSection /> */}
-
-      {/* Contact Section */}
-      <ContactInfoSection />
-
-      {/* Newsletter Section */}
-      <NewsletterSection />
-
-      {/* Footer */}
+      <main id="main-content">
+        <HeroSection />
+        <div className="home-proof-strip">
+          <div className="home-container proof-strip-inner">
+            <p>
+              A little direction.
+              <br />
+              <strong>A whole lot of possibility.</strong>
+            </p>
+            <span>
+              <strong>12</strong> career paths to explore
+            </span>
+            <span>
+              <strong>1:1</strong> mentorship that matters
+            </span>
+            <span>
+              <strong>Hands-on</strong> learning, from day one
+            </span>
+          </div>
+        </div>
+        <CoursesSection />
+        <FeaturesSection />
+        <MissionVisionSection />
+        <NonprofitVerificationSection />
+        <ContactInfoSection />
+        <NewsletterSection />
+      </main>
       <Footer />
     </div>
   );

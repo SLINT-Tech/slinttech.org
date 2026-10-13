@@ -1,0 +1,21 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src"],
+  "locale": "en",
+  "canonicalMap": "UX-CONTRACT.md",
+  "ownership": { "Select/Listbox": "native", "Date": "native" },
+  "requiredCapabilities": [
+    "Select/Listbox",
+    "Date",
+    "Form",
+    "Scrollbar",
+    "Toast",
+    "CRUD"
+  ],
+  "requiredCommands": ["build"],
+  "commands": { "build": "npm run build" },
+  "evidence": {
+    "crudFullFlow": "scripts/verify-ui.mjs",
+    "failurePaths": "scripts/verify-ui.mjs"
+  }
+}

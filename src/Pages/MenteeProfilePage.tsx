@@ -1,30 +1,58 @@
-import { ArrowLeft, CheckCircle, Download, Eye, EyeOff, FileText, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import Toast from '../Components/Toast';
-import Navigation from '../Components/Navigation';
-import { apiGet, apiPost, apiDownload, saveBlob } from '../lib/api';
+import {
+  ArrowLeft,
+  CheckCircle,
+  Download,
+  Eye,
+  EyeOff,
+  FileText,
+  User,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AppForm from "../Components/AppForm";
+import Navigation from "../Components/Navigation";
+import Toast from "../Components/Toast";
+import { useAuth, type UserProfile } from "../hooks/useAuth";
+import { apiDownload, apiGet, apiPost, saveBlob } from "../lib/api";
+
+type ProfileDetails = Pick<
+  UserProfile,
+  | "fullName"
+  | "email"
+  | "status"
+  | "membershipCategory"
+  | "careerPath"
+  | "specialization"
+  | "membershipEnabled"
+  | "membershipAmount"
+  | "membershipPaid"
+  | "paymentDate"
+  | "paymentReference"
+  | "contractFileUrl"
+> & { joinedDate: string; contractFile?: string };
 
 const MenteeProfilePage = () => {
   const { signOut } = useAuth();
-  const [profileData, setProfileData] = useState(null);
+  const [profileData, setProfileData] = useState<ProfileDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "error" | "success";
+  } | null>(null);
 
   // Get current user data from localStorage
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
@@ -32,19 +60,19 @@ const MenteeProfilePage = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
 
         if (!token) {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         let profile;
         try {
-          const data = await apiGet('/auth/me');
+          const data = await apiGet("/auth/me");
           profile = data.profile;
         } catch (error) {
-          console.error('Error fetching profile', error);
+          console.error("Error fetching profile", error);
           setLoading(false);
           return;
         }
@@ -54,37 +82,45 @@ const MenteeProfilePage = () => {
           id: profile.id,
           email: profile.email,
           fullName: profile.fullName || profile.full_name,
-          membershipCategory: profile.membershipCategory || profile.membership_category,
+          membershipCategory:
+            profile.membershipCategory || profile.membership_category,
           careerPath: profile.careerPath || profile.career_path,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
-          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipEnabled:
+            profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount:
+            profile.membershipAmount || profile.membership_amount,
           membershipPaid: profile.membershipPaid || profile.membership_paid,
-          paymentReference: profile.paymentReference || profile.payment_reference,
+          paymentReference:
+            profile.paymentReference || profile.payment_reference,
           paymentDate: profile.paymentDate || profile.payment_date,
-          contractFileUrl: profile.contractFileUrl || profile.contract_file_url
+          contractFileUrl: profile.contractFileUrl || profile.contract_file_url,
         };
 
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem("currentUser", JSON.stringify(userData));
 
         setProfileData({
           fullName: profile.fullName || profile.full_name,
           email: profile.email,
-          membershipCategory: profile.membershipCategory || profile.membership_category,
+          membershipCategory:
+            profile.membershipCategory || profile.membership_category,
           careerPath: profile.careerPath || profile.career_path,
           contractFileUrl: profile.contractFileUrl || profile.contract_file_url,
           joinedDate: profile.createdAt || profile.created_at,
           status: profile.status,
-          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
-          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipEnabled:
+            profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount:
+            profile.membershipAmount || profile.membership_amount,
           membershipPaid: profile.membershipPaid || profile.membership_paid,
           paymentDate: profile.paymentDate || profile.payment_date,
-          paymentReference: profile.paymentReference || profile.payment_reference
+          paymentReference:
+            profile.paymentReference || profile.payment_reference,
         });
       } catch (error) {
-        console.error('Error fetching profile data:', error);
+        console.error("Error fetching profile data:", error);
       } finally {
         setLoading(false);
       }
@@ -93,29 +129,29 @@ const MenteeProfilePage = () => {
     fetchProfileData();
   }, [navigate]);
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({
+    setPasswordData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handlePasswordUpdate = async (e) => {
+  const handlePasswordUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setToast({
-        message: 'New passwords do not match!',
-        type: 'error'
+        message: "New passwords do not match!",
+        type: "error",
       });
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
       setToast({
-        message: 'Password must be at least 8 characters long!',
-        type: 'error'
+        message: "Password must be at least 8 characters long!",
+        type: "error",
       });
       return;
     }
@@ -123,38 +159,39 @@ const MenteeProfilePage = () => {
     setIsUpdating(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setToast({
-          message: 'Authentication required',
-          type: 'error'
+          message: "Authentication required",
+          type: "error",
         });
         setIsUpdating(false);
         return;
       }
 
-      await apiPost('/auth/change-password', {
+      await apiPost("/auth/change-password", {
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
       });
 
       setToast({
-        message: 'Password updated successfully!',
-        type: 'success'
+        message: "Password updated successfully!",
+        type: "success",
       });
 
       setShowPasswordForm(false);
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     } catch (error) {
-      console.error('Password update error:', error);
+      console.error("Password update error:", error);
       setToast({
-        message: error instanceof Error ? error.message : 'Failed to update password',
-        type: 'error'
+        message:
+          error instanceof Error ? error.message : "Failed to update password",
+        type: "error",
       });
     } finally {
       setIsUpdating(false);
@@ -167,65 +204,71 @@ const MenteeProfilePage = () => {
 
       if (!contractUrl) {
         setToast({
-          message: 'No contract document available',
-          type: 'error'
+          message: "No contract document available",
+          type: "error",
         });
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const userId = currentUser.id;
 
       if (!token || !userId) {
         setToast({
-          message: 'Authentication required',
-          type: 'error'
+          message: "Authentication required",
+          type: "error",
         });
         return;
       }
 
       setToast({
-        message: 'Downloading contract...',
-        type: 'success'
+        message: "Downloading contract...",
+        type: "success",
       });
 
-      const { blob, fileName } = await apiDownload('/download-contract', { userId });
+      const { blob, fileName } = await apiDownload("/download-contract", {
+        userId,
+      });
 
       saveBlob(
         blob,
-        fileName || `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, '_').trim()}_contract.pdf`
+        fileName ||
+          `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, "_").trim()}_contract.pdf`,
       );
 
       setToast({
-        message: 'Contract downloaded successfully!',
-        type: 'success'
+        message: "Contract downloaded successfully!",
+        type: "success",
       });
     } catch (error) {
-      console.error('Download error:', error);
+      console.error("Download error:", error);
       setToast({
-        message: error instanceof Error ? error.message : 'Failed to download contract',
-        type: 'error'
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to download contract",
+        type: "error",
       });
     }
   };
 
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
+  const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
+    setShowPasswords((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
+      case "approved":
+        return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
+      case "rejected":
+        return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+        return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
@@ -234,15 +277,20 @@ const MenteeProfilePage = () => {
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Navigation
           role="Mentee"
-          userName={currentUser?.fullName || 'User'}
+          userName={currentUser?.fullName || "User"}
           onLogout={() => {
             signOut();
-            navigate('/login');
+            navigate("/login");
           }}
         />
 
         {/* Main Content Skeleton */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          id="workspace-content"
+          tabIndex={-1}
+          role="main"
+          className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        >
           {/* Back Button Skeleton */}
           <div className="flex items-center gap-2 mb-6">
             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -321,18 +369,23 @@ const MenteeProfilePage = () => {
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentee"
-        userName={currentUser?.fullName || 'User'}
+        userName={currentUser?.fullName || "User"}
         onLogout={() => {
           signOut();
-          navigate('/login');
+          navigate("/login");
         }}
       />
 
       {/* Loading State */}
       {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          id="workspace-content"
+          tabIndex={-1}
+          role="main"
+          className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        >
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -340,18 +393,32 @@ const MenteeProfilePage = () => {
           </button>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
             <div className="w-8 h-8 border-2 border-[#008080] dark:border-teal-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">Loading your profile...</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Loading your profile...
+            </p>
           </div>
         </div>
       )}
 
       {/* Error State */}
       {!loading && !profileData && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          id="workspace-content"
+          tabIndex={-1}
+          role="main"
+          className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        >
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center transition-colors">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Failed to Load Profile</h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">Please try refreshing the page or contact support.</p>
-            <Link to="/dashboard" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Failed to Load Profile
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Please try refreshing the page or contact support.
+            </p>
+            <Link
+              to="/dashboard"
+              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
+            >
               Back to Dashboard
             </Link>
           </div>
@@ -359,10 +426,15 @@ const MenteeProfilePage = () => {
       )}
       {/* Main Content */}
       {!loading && profileData && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          id="workspace-content"
+          tabIndex={-1}
+          role="main"
+          className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        >
           {/* Back Button */}
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -376,10 +448,17 @@ const MenteeProfilePage = () => {
                 <User className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profileData.fullName}</h1>
-                <p className="text-gray-600 dark:text-gray-300">{profileData.careerPath}</p>
-                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(profileData.status)} mt-2 transition-colors`}>
-                  {profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)}
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {profileData.fullName}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {profileData.careerPath}
+                </p>
+                <span
+                  className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(profileData.status)} mt-2 transition-colors`}
+                >
+                  {profileData.status.charAt(0).toUpperCase() +
+                    profileData.status.slice(1)}
                 </span>
               </div>
             </div>
@@ -388,56 +467,88 @@ const MenteeProfilePage = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Personal Information */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Personal Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                Personal Information
+              </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Full Name
+                  </label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
-                    <p className="text-gray-900 dark:text-white">{profileData.fullName}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {profileData.fullName}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email Address</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Email Address
+                  </label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
-                    <p className="text-gray-900 dark:text-white">{profileData.email}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {profileData.email}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Membership Category</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Membership Category
+                  </label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
-                    <p className="text-gray-900 dark:text-white">{profileData.membershipCategory}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {profileData.membershipCategory}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Career Path</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Career Path
+                  </label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
-                    <p className="text-gray-900 dark:text-white">{profileData.careerPath}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {profileData.careerPath}
+                    </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Joined Date</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Joined Date
+                  </label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
-                    <p className="text-gray-900 dark:text-white">{new Date(profileData.joinedDate).toLocaleDateString()}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {new Date(profileData.joinedDate).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
 
                 {/* Membership Payment Section */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Membership Payment</label>
-                  {profileData.membershipEnabled && profileData.membershipAmount > 0 ? (
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Membership Payment
+                  </label>
+                  {profileData.membershipEnabled &&
+                  Number(profileData.membershipAmount) > 0 ? (
                     profileData.membershipPaid ? (
                       <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800 transition-colors">
                         <div className="flex items-center gap-2 mb-1">
                           <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          <p className="text-green-800 dark:text-green-400 font-medium">₵{profileData.membershipAmount} - Paid</p>
+                          <p className="text-green-800 dark:text-green-400 font-medium">
+                            ₵{profileData.membershipAmount} - Paid
+                          </p>
                         </div>
                         <p className="text-green-700 dark:text-green-300 text-sm">
-                          Paid on {new Date(profileData.paymentDate).toLocaleDateString()}
+                          Paid on{" "}
+                          {profileData.paymentDate
+                            ? new Date(
+                                profileData.paymentDate,
+                              ).toLocaleDateString()
+                            : "Date unavailable"}
                         </p>
                         <p className="text-green-600 dark:text-green-400 text-xs mt-1">
                           Ref: {profileData.paymentReference}
@@ -445,14 +556,22 @@ const MenteeProfilePage = () => {
                       </div>
                     ) : (
                       <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg border border-yellow-200 dark:border-yellow-800 transition-colors">
-                        <p className="text-yellow-800 dark:text-yellow-400 font-medium">₵{profileData.membershipAmount} - Payment Required</p>
-                        <p className="text-yellow-700 dark:text-yellow-300 text-sm">Membership payment not yet made</p>
+                        <p className="text-yellow-800 dark:text-yellow-400 font-medium">
+                          ₵{profileData.membershipAmount} - Payment Required
+                        </p>
+                        <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                          Membership payment not yet made
+                        </p>
                       </div>
                     )
                   ) : (
                     <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
-                      <p className="text-gray-700 dark:text-gray-300 font-medium">No Payment Required</p>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">Membership payment not enabled</p>
+                      <p className="text-gray-700 dark:text-gray-300 font-medium">
+                        No Payment Required
+                      </p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        Membership payment not enabled
+                      </p>
                     </div>
                   )}
                 </div>
@@ -464,22 +583,33 @@ const MenteeProfilePage = () => {
               {/* Password Update */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Security</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Security
+                  </h2>
                   <button
                     onClick={() => setShowPasswordForm(!showPasswordForm)}
                     className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
                   >
-                    {showPasswordForm ? 'Cancel' : 'Change Password'}
+                    {showPasswordForm ? "Cancel" : "Change Password"}
                   </button>
                 </div>
 
                 {showPasswordForm ? (
-                  <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                  <AppForm
+                    onSubmit={handlePasswordUpdate}
+                    className="space-y-4"
+                  >
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
+                      <label
+                        htmlFor="menteeprofilepage-field-20564"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
+                        Current Password
+                      </label>
                       <div className="relative">
                         <input
-                          type={showPasswords.current ? 'text' : 'password'}
+                          id="menteeprofilepage-field-20564"
+                          type={showPasswords.current ? "text" : "password"}
                           name="currentPassword"
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
@@ -488,19 +618,35 @@ const MenteeProfilePage = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => togglePasswordVisibility('current')}
+                          aria-label={
+                            showPasswords.current
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                          aria-pressed={showPasswords.current}
+                          onClick={() => togglePasswordVisibility("current")}
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
                         >
-                          {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPasswords.current ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
+                      <label
+                        htmlFor="menteeprofilepage-field-21991"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
+                        New Password
+                      </label>
                       <div className="relative">
                         <input
-                          type={showPasswords.new ? 'text' : 'password'}
+                          id="menteeprofilepage-field-21991"
+                          type={showPasswords.new ? "text" : "password"}
                           name="newPassword"
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
@@ -509,19 +655,35 @@ const MenteeProfilePage = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => togglePasswordVisibility('new')}
+                          aria-label={
+                            showPasswords.new
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                          aria-pressed={showPasswords.new}
+                          onClick={() => togglePasswordVisibility("new")}
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
                         >
-                          {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPasswords.new ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
+                      <label
+                        htmlFor="menteeprofilepage-field-23394"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
+                        Confirm New Password
+                      </label>
                       <div className="relative">
                         <input
-                          type={showPasswords.confirm ? 'text' : 'password'}
+                          id="menteeprofilepage-field-23394"
+                          type={showPasswords.confirm ? "text" : "password"}
                           name="confirmPassword"
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
@@ -530,10 +692,20 @@ const MenteeProfilePage = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => togglePasswordVisibility('confirm')}
+                          aria-label={
+                            showPasswords.confirm
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                          aria-pressed={showPasswords.confirm}
+                          onClick={() => togglePasswordVisibility("confirm")}
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
                         >
-                          {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPasswords.confirm ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -549,23 +721,27 @@ const MenteeProfilePage = () => {
                           Updating...
                         </>
                       ) : (
-                        'Update Password'
+                        "Update Password"
                       )}
                     </button>
-                  </form>
+                  </AppForm>
                 ) : (
                   <div className="text-center py-6">
                     <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors">
                       <User className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                     </div>
-                    <p className="text-gray-500 dark:text-gray-400">Click "Change Password" to update your password</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Click "Change Password" to update your password
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Contract Document */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Membership Agreement</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Membership Agreement
+                </h2>
 
                 {profileData.contractFileUrl ? (
                   <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4 transition-colors">
@@ -573,8 +749,12 @@ const MenteeProfilePage = () => {
                       <div className="flex items-start gap-3">
                         <FileText className="w-8 h-8 text-gray-400 dark:text-gray-500 mr-3" />
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">Membership Contract Document</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Signed agreement uploaded during registration</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            Membership Contract Document
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Signed agreement uploaded during registration
+                          </p>
                         </div>
                       </div>
                       <div className="flex justify-center mt-4">
@@ -591,7 +771,9 @@ const MenteeProfilePage = () => {
                 ) : (
                   <div className="text-center py-6">
                     <FileText className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-500 dark:text-gray-400">No contract document available</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No contract document available
+                    </p>
                   </div>
                 )}
               </div>
