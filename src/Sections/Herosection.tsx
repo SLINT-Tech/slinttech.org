@@ -39,15 +39,18 @@ const HeroSection = () => {
                     {/* Social proof: member cluster + count chip, then the claim */}
                     <div className="hero-rise flex items-center gap-3">
                         <div className="flex items-center -space-x-3">
-                            {[0, 1, 2].map((i) => (
-                                <span
+                            {/* decorative: the "Trusted by 100+ students" text carries the meaning */}
+                            {[1, 2, 3].map((i) => (
+                                <img
                                     key={i}
-                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#008080]/12 ring-2 ring-white dark:bg-teal-400/15 dark:ring-gray-950"
-                                >
-                                    <Users className="h-4 w-4 text-[#008080] dark:text-teal-400" />
-                                </span>
+                                    src={`/assets/student-avatar-${i}.jpg`}
+                                    alt=""
+                                    width={36}
+                                    height={36}
+                                    className="h-9 w-9 rounded-full object-cover ring-2 ring-white dark:ring-gray-950"
+                                />
                             ))}
-                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1E1E1E] text-xs font-bold text-white ring-2 ring-white dark:bg-teal-500 dark:ring-gray-950">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#008080] text-xs font-bold text-white ring-2 ring-white dark:ring-gray-950">
                                 100+
                             </span>
                         </div>
