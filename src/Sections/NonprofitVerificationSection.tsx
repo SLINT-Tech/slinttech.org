@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Award, CheckCircle2, ShieldCheck, Verified } from "lucide-react";
 
 interface Verification {
@@ -44,51 +44,80 @@ const verifications: Verification[] = [
   },
 ];
 
-const NonprofitVerificationSection: React.FC = () => (
-  <section
-    id="certifications"
-    className="scroll-mt-24 bg-[#F8F8F8] py-24 transition-colors focus:outline-none dark:bg-gray-950"
-  >
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl">
-        <span className="text-xs font-semibold tracking-[0.18em] text-[#006666] uppercase dark:text-teal-400">
-          Verified
-        </span>
-        <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl dark:text-white">
-          Nonprofit program{" "}
-          <span className="text-[#008080] dark:text-teal-400">memberships</span>
-        </h2>
-        <p className="mt-4 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-          We are members of nonprofit support programs that provide the tools
-          and resources behind the training we deliver.
-        </p>
+const NonprofitVerificationSection: React.FC = () => {
+  const gridRef = useRef<HTMLUListElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setRevealed(true);
+      return;
+    }
+
+    // a bottom margin, not a ratio threshold: a tall stacked grid at 320px may never be 20% visible
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setRevealed(true);
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -20% 0px" }
+    );
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      id="certifications"
+      className="scroll-mt-24 bg-[#F8F8F8] py-24 transition-colors focus:outline-none dark:bg-gray-950"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl">
+          <span className="text-xs font-semibold tracking-[0.18em] text-[#006666] uppercase dark:text-teal-400">
+            Verified
+          </span>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl dark:text-white">
+            Nonprofit program{" "}
+            <span className="text-[#008080] dark:text-teal-400">memberships</span>
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
+            We are members of nonprofit support programs that provide the tools
+            and resources behind the training we deliver.
+          </p>
+        </div>
+
+        <ul ref={gridRef} className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {verifications.map((verification, i) => (
+            <li
+              key={verification.id}
+              // hidden before reveal only when motion is allowed; .hero-rise is off under reduced motion.
+              // transition-shadow, not transition: an opacity transition would outrank the animation's fill
+              className={`${revealed ? "hero-rise" : "motion-safe:opacity-0"} flex flex-col rounded-2xl bg-white p-6 ring-1 ring-gray-900/10 transition-shadow hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40`}
+              style={revealed ? { animationDelay: `${i * 80}ms` } : undefined}
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
+                {verification.icon}
+              </span>
+
+              <h3 className="mt-5 leading-snug font-bold text-gray-900 dark:text-white">
+                {verification.name}
+              </h3>
+              <span className="mt-1.5 inline-flex w-fit rounded-full bg-[#008080]/10 px-2.5 py-1 text-xs font-semibold text-[#006666] dark:bg-teal-400/12 dark:text-teal-400">
+                {verification.program}
+              </span>
+
+              <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                {verification.description}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {verifications.map((verification) => (
-          <li
-            key={verification.id}
-            className="flex flex-col rounded-2xl bg-white p-6 ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
-              {verification.icon}
-            </span>
-
-            <h3 className="mt-5 leading-snug font-bold text-gray-900 dark:text-white">
-              {verification.name}
-            </h3>
-            <span className="mt-1.5 inline-flex w-fit rounded-full bg-[#008080]/10 px-2.5 py-1 text-xs font-semibold text-[#006666] dark:bg-teal-400/12 dark:text-teal-400">
-              {verification.program}
-            </span>
-
-            <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-              {verification.description}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default NonprofitVerificationSection;
