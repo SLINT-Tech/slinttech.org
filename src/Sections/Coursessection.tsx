@@ -304,7 +304,7 @@ const CoursesSection: React.FC = () => {
                 }`}
               >
                 {category}
-                <span className={isActive ? "ml-2 opacity-70" : "ml-2 opacity-50"}>
+                <span className={isActive ? "ml-2 opacity-70" : "ml-2 text-gray-600 dark:text-gray-400"}>
                   {count}
                 </span>
               </button>

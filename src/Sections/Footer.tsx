@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
     "text-sm text-gray-400 transition-colors hover:text-teal-400 cursor-pointer";
 
   const headingClass =
-    "text-xs font-semibold tracking-[0.18em] text-gray-500 uppercase";
+    "text-xs font-semibold tracking-[0.18em] text-gray-400 uppercase";
 
   return (
     <footer className="bg-gray-950 pt-16 pb-8">
@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             &copy; {new Date().getFullYear()}{" "}
             <span className="font-semibold text-gray-300">SlintTech</span>. All
             rights reserved.

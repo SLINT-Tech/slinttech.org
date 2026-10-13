@@ -51,7 +51,7 @@ const NonprofitVerificationSection: React.FC = () => (
   >
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl">
-        <span className="text-xs font-semibold tracking-[0.18em] text-[#008080] uppercase dark:text-teal-400">
+        <span className="text-xs font-semibold tracking-[0.18em] text-[#006666] uppercase dark:text-teal-400">
           Verified
         </span>
         <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl dark:text-white">
@@ -77,7 +77,7 @@ const NonprofitVerificationSection: React.FC = () => (
             <h3 className="mt-5 leading-snug font-bold text-gray-900 dark:text-white">
               {verification.name}
             </h3>
-            <span className="mt-1.5 inline-flex w-fit rounded-full bg-[#008080]/10 px-2.5 py-1 text-xs font-semibold text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
+            <span className="mt-1.5 inline-flex w-fit rounded-full bg-[#008080]/10 px-2.5 py-1 text-xs font-semibold text-[#006666] dark:bg-teal-400/12 dark:text-teal-400">
               {verification.program}
             </span>
 
