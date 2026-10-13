@@ -414,7 +414,7 @@ const CoursesSection: React.FC = () => {
           <button
             type="button"
             onClick={handleJoinCommunity}
-            className="mx-auto mt-7 flex cursor-pointer items-center gap-2 rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-8 py-3.5 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
+            className="mx-auto mt-7 flex cursor-pointer items-center gap-2 rounded-full bg-[#008080] px-8 py-3.5 font-semibold text-white transition-colors hover:bg-[#006666]"
           >
             Join our community
             <ArrowRight className="h-5 w-5" />
