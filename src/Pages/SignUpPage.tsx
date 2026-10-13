@@ -1,8 +1,37 @@
 import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import FormSelect, { type FormSelectOption } from '../Components/FormSelect';
 import Toast from '../Components/Toast';
 import { buildApiUrl } from '../lib/api';
+
+type MemberRole = 'Mentee' | 'Mentor';
+
+const ROLE_OPTIONS: FormSelectOption<MemberRole>[] = [
+  { value: 'Mentee', label: 'Mentee (I want to learn)' },
+  { value: 'Mentor', label: 'Mentor (I want to teach)' },
+];
+
+const MEMBERSHIP_CATEGORY_OPTIONS: FormSelectOption[] = [
+  { value: 'Student', label: 'Student' },
+  { value: 'Professional', label: 'Professional' },
+  { value: 'Volunteer', label: 'Volunteer' },
+];
+
+const CAREER_PATH_OPTIONS: FormSelectOption[] = [
+  'Full Stack Development',
+  'Frontend Development',
+  'Backend Development',
+  'Mobile Development',
+  'Machine Learning/AI',
+  'Data Science',
+  'UI/UX Design',
+].map(path => ({ value: path, label: path }));
+
+const labelClassName = 'block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm';
+
+// Height and colours match the FormSelect trigger so every field in the form lines up.
+const inputClassName = 'h-12 w-full border border-gray-300 bg-white text-base text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-500 dark:placeholder:text-gray-400';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -20,7 +49,7 @@ const SignUpPage = () => {
     confirmPassword: '',
     membershipCategory: '',
     careerPath: '',
-    role: 'Mentee' as 'Mentee' | 'Mentor',
+    role: 'Mentee' as MemberRole,
     contractFile: null as File | null
   });
 
@@ -46,7 +75,7 @@ const SignUpPage = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -354,15 +383,16 @@ const SignUpPage = () => {
 
                 {/* Full Name */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-fullName" className={labelClassName}>
                     Full Name *
                   </label>
                   <input
+                    id="signup-fullName"
                     type="text"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Enter your full name"
                     required
                   />
@@ -370,15 +400,16 @@ const SignUpPage = () => {
 
                 {/* Email Address */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-email" className={labelClassName}>
                     Email Address *
                   </label>
                   <input
+                    id="signup-email"
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Enter your email address"
                     required
                   />
@@ -386,15 +417,16 @@ const SignUpPage = () => {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-password" className={labelClassName}>
                     Password *
                   </label>
                   <input
+                    id="signup-password"
                     type="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Create a password (min 6 characters)"
                     required
                     minLength={6}
@@ -403,15 +435,16 @@ const SignUpPage = () => {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-confirmPassword" className={labelClassName}>
                     Confirm Password *
                   </label>
                   <input
+                    id="signup-confirmPassword"
                     type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Confirm your password"
                     required
                     minLength={6}
@@ -425,66 +458,37 @@ const SignUpPage = () => {
                   Membership Details
                 </h2>
 
-                {/* Role Selection */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    I want to join as *
-                  </label>
-                  <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="Mentee">Mentee (I want to learn)</option>
-                    <option value="Mentor">Mentor (I want to teach)</option>
-                  </select>
-                </div>
+                <FormSelect
+                  id="signup-role"
+                  name="role"
+                  label="I want to join as"
+                  value={formData.role}
+                  onChange={role => setFormData(prev => ({ ...prev, role }))}
+                  options={ROLE_OPTIONS}
+                  required
+                />
 
-                {/* Membership Category */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    Membership Category *
-                  </label>
-                  <select
-                    name="membershipCategory"
-                    value={formData.membershipCategory}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="">Select your category</option>
-                    <option value="Student">Student</option>
-                    <option value="Professional">Professional</option>
-                    <option value="Volunteer">Volunteer</option>
-                  </select>
-                </div>
+                <FormSelect
+                  id="signup-membershipCategory"
+                  name="membershipCategory"
+                  label="Membership Category"
+                  value={formData.membershipCategory}
+                  onChange={membershipCategory => setFormData(prev => ({ ...prev, membershipCategory }))}
+                  options={MEMBERSHIP_CATEGORY_OPTIONS}
+                  placeholder="Select your category"
+                  required
+                />
 
-                {/* Career Path / Specialization */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
-                  </label>
-                  <select
-                    name="careerPath"
-                    value={formData.careerPath}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="">
-                      {formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
-                    </option>
-                    <option value="Full Stack Development">Full Stack Development</option>
-                    <option value="Frontend Development">Frontend Development</option>
-                    <option value="Backend Development">Backend Development</option>
-                    <option value="Mobile Development">Mobile Development</option>
-                    <option value="Machine Learning/AI">Machine Learning/AI</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="UI/UX Design">UI/UX Design</option>
-                  </select>
-                </div>
+                <FormSelect
+                  id="signup-careerPath"
+                  name="careerPath"
+                  label={formData.role === 'Mentor' ? 'Specialization' : 'Interested Career Path'}
+                  value={formData.careerPath}
+                  onChange={careerPath => setFormData(prev => ({ ...prev, careerPath }))}
+                  options={CAREER_PATH_OPTIONS}
+                  placeholder={formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
+                  required
+                />
 
                 {/* Info Card */}
                 <div className="bg-[#008080]/5 dark:bg-teal-500/10 rounded-lg p-4 border border-[#008080]/20 dark:border-teal-500/30">
