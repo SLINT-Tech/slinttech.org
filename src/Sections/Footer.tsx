@@ -9,6 +9,13 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 
+const socials = [
+  { label: "Facebook", href: "https://www.facebook.com/slinttech", icon: Facebook },
+  { label: "Twitter", href: "https://www.twitter.com/slinttech", icon: Twitter },
+  { label: "Instagram", href: "https://www.instagram.com/slinttech/", icon: Instagram },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/slinttech", icon: Linkedin },
+];
+
 const Footer: React.FC = () => {
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -18,98 +25,70 @@ const Footer: React.FC = () => {
     }
   };
 
-  return (
-    <footer className="pt-16 pb-8 transition-colors duration-300 bg-slate-950 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
-          <div className="md:col-span-2 space-y-6">
-            <div className="flex items-center gap-3">
-              <img
-                src="/assets/Slintech_logo.svg"
-                alt="SLINT Tech Logo"
-                className="h-12"
-              />
-            </div>
+  const linkClass =
+    "text-sm text-gray-400 transition-colors hover:text-teal-400 cursor-pointer";
 
-            <p className="text-sm leading-relaxed max-w-md text-slate-400">
+  const headingClass =
+    "text-xs font-semibold tracking-[0.18em] text-gray-500 uppercase";
+
+  return (
+    <footer className="bg-gray-950 pt-16 pb-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-12 md:grid-cols-4">
+          <div className="space-y-6 md:col-span-2">
+            <img
+              src="/assets/Slintech_logo.svg"
+              alt="SlintTech"
+              className="h-11"
+            />
+
+            <p className="max-w-md text-sm leading-relaxed text-gray-400">
               Empowering the next generation of tech leaders through quality
               education, mentorship, and community. Join us in building a future
               where technology uplifts and serves communities.
             </p>
 
-            <div className="flex gap-4">
-              <a
-                href="https://www.facebook.com/slinttech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl transition-all duration-300 bg-slate-800 hover:bg-gradient-to-r hover:from-[#008080] hover:to-[#00a3a3] text-slate-400 hover:text-white shadow-sm hover:shadow-lg"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.twitter.com/slinttech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl transition-all duration-300 bg-slate-800 hover:bg-gradient-to-r hover:from-[#008080] hover:to-[#00a3a3] text-slate-400 hover:text-white shadow-sm hover:shadow-lg"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.instagram.com/slinttech/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl transition-all duration-300 bg-slate-800 hover:bg-gradient-to-r hover:from-[#008080] hover:to-[#00a3a3] text-slate-400 hover:text-white shadow-sm hover:shadow-lg"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/slinttech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl transition-all duration-300 bg-slate-800 hover:bg-gradient-to-r hover:from-[#008080] hover:to-[#00a3a3] text-slate-400 hover:text-white shadow-sm hover:shadow-lg"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
+            <div className="flex gap-3">
+              {socials.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] text-gray-400 transition hover:bg-[#008080] hover:text-white"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-6 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-              Quick Links
-            </h3>
-            <ul className="space-y-3">
+            <h3 className={headingClass}>Quick links</h3>
+            <ul className="mt-6 space-y-3">
               <li>
-                <a
-                  href="#home"
-                  onClick={(e) => handleSmoothScroll(e, 'home')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
-                >
+                <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className={linkClass}>
                   Home
                 </a>
               </li>
               <li>
-                <a
-                  href="#explore"
-                  onClick={(e) => handleSmoothScroll(e, 'explore')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
-                >
-                  Career Paths
+                <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className={linkClass}>
+                  Career paths
                 </a>
               </li>
               <li>
-                <Link
-                  to="/signup"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#008080]"
-                >
-                  Join Community
+                <a href="#certifications" onClick={(e) => handleSmoothScroll(e, 'certifications')} className={linkClass}>
+                  Memberships
+                </a>
+              </li>
+              <li>
+                <Link to="/signup" className={linkClass}>
+                  Join community
                 </Link>
               </li>
               <li>
-                <a
-                  href="#contact"
-                  onClick={(e) => handleSmoothScroll(e, 'contact')}
-                  className="text-sm transition-colors text-slate-400 hover:text-[#008080] cursor-pointer"
-                >
+                <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className={linkClass}>
                   Contact
                 </a>
               </li>
@@ -117,56 +96,38 @@ const Footer: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-6 bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-              Get in Touch
-            </h3>
-            <ul className="space-y-4">
+            <h3 className={headingClass}>Get in touch</h3>
+            <ul className="mt-6 space-y-4">
               <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#008080]" />
-                <a
-                  href="mailto:contact@slinttech.org"
-                  className="text-sm transition-colors text-slate-400 hover:text-[#008080]"
-                >
+                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#008080]" />
+                <a href="mailto:contact@slinttech.org" className={linkClass}>
                   contact@slinttech.org
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#008080]" />
-                <span className="text-sm text-slate-400">
-                  Building Future Leaders
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#008080]" />
+                <span className="text-sm text-gray-400">
+                  Building future leaders
                   <br />
-                  Across the Globe
+                  across the globe
                 </span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-800">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-slate-400">
-              &copy; {new Date().getFullYear()}{" "}
-              <span className="font-bold bg-gradient-to-r from-[#008080] to-[#00a3a3] bg-clip-text text-transparent">
-                SLINT Tech
-              </span>
-              . All Rights Reserved.
-            </p>
-
-            {/* <div className="flex gap-6">
-              <a
-                href="#"
-                className="text-sm transition-colors text-slate-600 hover:text-[#008080] dark:text-slate-400 dark:hover:text-[#00a3a3]"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="text-sm transition-colors text-slate-600 hover:text-[#008080] dark:text-slate-400 dark:hover:text-[#00a3a3]"
-              >
-                Terms of Service
-              </a>
-            </div> */}
-          </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
+          <p className="text-sm text-gray-500">
+            &copy; {new Date().getFullYear()}{" "}
+            <span className="font-semibold text-gray-300">SlintTech</span>. All
+            rights reserved.
+          </p>
+          <Link
+            to="/login"
+            className="text-sm text-gray-400 transition-colors hover:text-teal-400"
+          >
+            Member login
+          </Link>
         </div>
       </div>
     </footer>

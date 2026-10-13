@@ -1,9 +1,13 @@
-import { ArrowRight, Menu, X } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === '/';
+  const onSignup = location.pathname === '/signup';
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -11,11 +15,14 @@ export default function Header() {
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
     setIsMenuOpen(false);
+
+    if (!isHome) {
+      navigate('/', { state: { scrollTo: targetId } });
+      return;
+    }
+
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -44,102 +51,86 @@ export default function Header() {
     }
   };
 
+  const navLinkClass =
+    "text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer";
+
   return (
-    <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/20 dark:border-gray-800/50 sticky top-0 z-10 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className="sticky top-0 z-50 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative flex h-14 items-center justify-between rounded-full bg-white/90 pr-2 pl-4 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150 sm:pr-3 sm:pl-6 dark:bg-gray-900/90 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
           {/* Logo */}
-          <div className="flex items-center">
-            <div className="flex items-center gap-0">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="hidden md:inline text-[#008080] dark:text-[#008080] text-xl">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </div>
-          </div>
+          <Link to="/" className="flex items-center gap-0 shrink-0">
+            <img src="/assets/logo.svg" alt="" className="h-8 w-8" />
+            <span className="hidden text-xl text-[#008080] sm:inline">
+              <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
+            </span>
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Home</a>
-            <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Explore</a>
-            <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors">Join Community</Link>
-            <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Contact</a>
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
+            <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className={navLinkClass}>Home</a>
+            <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className={navLinkClass}>Explore</a>
+            <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className={navLinkClass}>Mentorship</a>
+            <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className={navLinkClass}>Contact</a>
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-6 space-x-4">
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-2 md:flex">
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-              aria-label="Toggle dark mode"
+              className="cursor-pointer rounded-full p-2.5 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDarkMode ? (
-                <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            {/* <button className="text-[#008080] font-medium hover:text-[#008080] transition-colors">Login</button>
-                        <button className="bg-[#008080] text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center">
-                            Get Started
-                            <ArrowRight className="ml-2 w-4 h-4" />
-                        </button> */}
+            <Link
+              to={onSignup ? '/login' : '/signup'}
+              className="rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-5 py-2.5 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
+            >
+              {onSignup ? 'Log in' : 'Join Us'}
+            </Link>
           </div>
 
           {/* Mobile buttons */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="flex items-center gap-1 md:hidden">
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-              aria-label="Toggle dark mode"
+              className="cursor-pointer rounded-full p-2.5 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDarkMode ? (
-                <svg className="w-5 h-5" fill="#008080" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12a1 1 0 001.414-1.414zM2.05 2.05a1 1 0 011.414 0l2.12 2.12a1 1 0 01-1.414 1.414L1.636 3.464a1 1 0 010-1.414zM17.364 17.364a1 1 0 001.414-1.414l-2.12-2.12a1 1 0 00-1.414 1.414l2.12 2.12z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="#364153" viewBox="0 0 20 20">
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
               type="button"
               onClick={toggleMenu}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="cursor-pointer rounded-full p-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
             >
-              {isMenuOpen ? <X className="w-6 h-6 text-gray-700 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />}
+              {isMenuOpen ? <X className="h-6 w-6 text-gray-700 dark:text-gray-300" /> : <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl backdrop-saturate-150 border-t border-white/20 dark:border-gray-800/50 py-4 transition-colors">
+          <div className="mt-2 rounded-3xl bg-white/95 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 backdrop-blur-xl md:hidden dark:bg-gray-900/95 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
             <div className="flex flex-col space-y-4">
-              <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Home</a>
-              <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Explore</a>
-              <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors" onClick={() => setIsMenuOpen(false)}>Join Community</Link>
-              <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors cursor-pointer">Contact</a>
-              <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-800 transition-colors">
-                <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-[#008080] dark:hover:text-teal-400 transition-colors text-left" onClick={() => setIsMenuOpen(false)}>Login</Link>
-                <Link to="/signup" className="bg-[#008080] dark:bg-teal-600 text-white px-4 py-3 rounded-lg justify-center hover:bg-teal-700 dark:hover:bg-teal-700 transition-colors flex items-center cursor-pointer" onClick={() => setIsMenuOpen(false)}>
-                  Get Started
-                  <ArrowRight className="ml-2 w-4 h-4" />
+              <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className={navLinkClass}>Home</a>
+              <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className={navLinkClass}>Explore</a>
+              <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className={navLinkClass}>Mentorship</a>
+              <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className={navLinkClass}>Contact</a>
+              <div className="flex flex-col space-y-3 border-t border-gray-200 pt-4 dark:border-gray-800">
+                <Link to="/login" className={`${navLinkClass} text-left`} onClick={() => setIsMenuOpen(false)}>Login</Link>
+                <Link
+                  to={onSignup ? '/login' : '/signup'}
+                  className="flex cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-4 py-3 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Join Us
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </div>
             </div>

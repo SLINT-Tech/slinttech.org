@@ -11,23 +11,23 @@ const SponsorsSection: React.FC = () => (
             <Marquee gradient={true}>
                 <div className="flex flex-row w-full justify-between items-center gap-28">
                     <img
-                        src="dist/assets/logos_figma.svg"
+                        src="/assets/logos_figma.svg"
                         alt="Sponsor 1"
                         className="h-10 object-cover" />
                     <img
-                        src="dist/assets/logos_coursera.svg"
+                        src="/assets/logos_coursera.svg"
                         alt="Sponsor 1"
                         className="h-6 object-cover" />
                     <img
-                        src="dist/assets/logos_udemy.svg"
+                        src="/assets/logos_udemy.svg"
                         alt="Sponsor 1"
                         className="h-10 object-cover" />
                     <img
-                        src="dist/assets/accra_tu.svg"
+                        src="/assets/accra_tu.svg"
                         alt="Sponsor 1"
                         className="h-12 object-cover" />
                     <img
-                        src="dist/assets/ges.svg"
+                        src="/assets/ges.svg"
                         alt="Sponsor 1"
                         className="h-16 object-cover mr-28" />
                 </div>

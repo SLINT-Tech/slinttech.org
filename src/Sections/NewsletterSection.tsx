@@ -9,29 +9,41 @@ const NewsletterSection: React.FC = () => {
         navigate('/signup');
     };
 
-    return (<section id="community" className="py-16 bg-gradient-to-r from-[#008080] to-[#00a3a3] transition-colors">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-10 md:flex-row flex-col">
-        <div className="text-left">
-            <div>
-                <h2 className="text-3xl font-bold text-white mb-4">Join Our Community</h2>
-                <p className="text-lg text-teal-100 dark:text-teal-50 max-w-2xl ">
-                    Connect with mentors and fellow learners to accelerate <br /> your growth and unlock new opportunities.
-                </p>
+    return (
+        <section
+            id="community"
+            className="relative overflow-hidden bg-[linear-gradient(100deg,#008080_0%,#00a3a3_100%)] py-20"
+        >
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_120%_at_85%_10%,rgba(255,255,255,0.18),transparent_60%)]"
+            />
+
+            <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-10 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+                <div className="max-w-2xl">
+                    <span className="text-xs font-semibold tracking-[0.18em] text-white/70 uppercase">
+                        Join our community
+                    </span>
+                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                        Your mentor is one step away
+                    </h2>
+                    <p className="mt-4 text-lg leading-relaxed text-white/85">
+                        Create an account and we will match you with a mentor working in
+                        the field you want to move into.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={handleJoinCommunity}
+                    className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold whitespace-nowrap text-[#008080] transition hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#008080] focus-visible:outline-none"
+                >
+                    Create your account
+                    <ArrowRight className="h-5 w-5" />
+                </button>
             </div>
-
-        </div>
-        <div className="flex justify-center">
-            <button
-                onClick={handleJoinCommunity}
-                className="bg-white dark:bg-gray-900 cursor-pointer text-black dark:text-white font-semibold px-8 py-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 whitespace-nowrap flex items-center gap-2"
-            >
-                Join Our Community
-                <ArrowRight className="w-5 h-5" />
-            </button>
-        </div>
-    </div>
-</section>);
+        </section>
+    );
 };
-
 
 export default NewsletterSection;
