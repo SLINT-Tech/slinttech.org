@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap");
 
+@import './styles/tokens.css';
+
 @import 'tailwindcss';
 
 @theme {
@@ -167,3 +169,14 @@
         }
     }
 }
+
+/* One visible, theme-aware scrollbar baseline for application surfaces. */
+:root { --scroll-thumb: #92aaa5; --scroll-track: #edf2ef; --scroll-hover: #658f85; --scroll-active: #008080; }
+:root.dark { --scroll-thumb: #49655d; --scroll-track: #101a1a; --scroll-hover: #7fa599; --scroll-active: #66d1c7; }
+* { scrollbar-color: var(--scroll-thumb) var(--scroll-track); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: var(--scroll-track); }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border: 2px solid var(--scroll-track); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+::-webkit-scrollbar-thumb:active { background: var(--scroll-active); }
+@media (forced-colors: active) { * { scrollbar-color: auto; } }

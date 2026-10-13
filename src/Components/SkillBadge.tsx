@@ -52,7 +52,6 @@ import {
   FaEye,
   FaCode,
   FaJava,
-  FaCloud,
 } from "react-icons/fa";
 
 interface SkillBadgeProps {

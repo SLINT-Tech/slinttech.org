@@ -9,7 +9,6 @@ interface FeaturesSectionCardProps {
 
 const FeaturesSectionCard: React.FC<FeaturesSectionCardProps> = ({
     image,
-    icon,
     title,
     description,
 }) => (

@@ -1,9 +1,11 @@
-import { CheckCircle, CreditCard, Shield, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { PageLoader } from '../Components/SkeletonLoader';
-import { apiPost } from '../lib/api';
+import { CheckCircle, CreditCard, Loader2, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { PublicHeader } from "../Components/AuthLayout";
+import Modal from "../Components/Modal";
+import { PageLoader } from "../Components/SkeletonLoader";
+import { useAuth } from "../hooks/useAuth";
+import { apiPost } from "../lib/api";
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 
@@ -34,16 +36,18 @@ declare global {
 }
 
 const PaymentWallPage = () => {
-  const { profile, loading: authLoading } = useAuth();
+  const { profile, loading: authLoading, signOut } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string>('');
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'verifying' | 'success'>('idle');
+  const [error, setError] = useState<string>("");
+  const [paymentStatus, setPaymentStatus] = useState<
+    "idle" | "verifying" | "success"
+  >("idle");
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
-  const isMentor = profile?.role === 'Mentor';
+  const token = localStorage.getItem("token");
+  const isMentor = profile?.role === "Mentor";
 
   useEffect(() => {
     if (authLoading) {
@@ -51,33 +55,40 @@ const PaymentWallPage = () => {
     }
 
     if (!token || !profile) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
-    const membershipPaid = (profile as any).membershipPaid || (profile as any).membership_paid;
-    const membershipEnabled = (profile as any).membershipEnabled || (profile as any).membership_enabled;
-    const membershipAmountValue = (profile as any).membershipAmount || (profile as any).membership_amount;
+    const membershipPaid =
+      (profile as any).membershipPaid || (profile as any).membership_paid;
+    const membershipEnabled =
+      (profile as any).membershipEnabled || (profile as any).membership_enabled;
+    const membershipAmountValue =
+      (profile as any).membershipAmount || (profile as any).membership_amount;
 
     if (membershipPaid) {
-      const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+      const dashboardPath =
+        profile.role === "Mentor" ? "/mentor/dashboard" : "/dashboard";
       navigate(dashboardPath, { replace: true });
       return;
     }
 
     if (!membershipEnabled) {
-      const dashboardPath = profile.role === 'Mentor' ? '/mentor/dashboard' : '/dashboard';
+      const dashboardPath =
+        profile.role === "Mentor" ? "/mentor/dashboard" : "/dashboard";
       navigate(dashboardPath, { replace: true });
       return;
     }
 
-    setMembershipAmount(parseFloat(membershipAmountValue || '30.00'));
+    setMembershipAmount(Number.parseFloat(membershipAmountValue || "30.00"));
     setIsLoading(false);
   }, [profile, authLoading, token, navigate]);
 
   if (!authLoading && profile) {
-    const membershipPaid = (profile as any).membershipPaid || (profile as any).membership_paid;
-    const membershipEnabled = (profile as any).membershipEnabled || (profile as any).membership_enabled;
+    const membershipPaid =
+      (profile as any).membershipPaid || (profile as any).membership_paid;
+    const membershipEnabled =
+      (profile as any).membershipEnabled || (profile as any).membership_enabled;
     if (membershipPaid || !membershipEnabled) {
       return <PageLoader message="Redirecting to dashboard..." />;
     }
@@ -89,90 +100,101 @@ const PaymentWallPage = () => {
 
   const handlePayment = async () => {
     if (!window.PaystackPop) {
-      alert('Payment system is not available. Please refresh the page and try again.');
+      setError(
+        "Payment system is not available. Please refresh the page and try again.",
+      );
       return;
     }
 
     setIsProcessing(true);
-    setError('');
+    setError("");
 
     try {
-      const paymentData = await apiPost('/payment/initialize');
+      const paymentData = await apiPost("/payment/initialize");
 
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
         email: paymentData.email,
         amount: paymentData.amount,
-        currency: 'GHS',
+        currency: "GHS",
         ref: paymentData.reference,
         metadata: {
           custom_fields: [
             {
               display_name: "User ID",
               variable_name: "userId",
-              value: paymentData.metadata.userId
+              value: paymentData.metadata.userId,
             },
             {
               display_name: "Full Name",
               variable_name: "fullName",
-              value: paymentData.metadata.fullName
+              value: paymentData.metadata.fullName,
             },
             {
               display_name: "Membership Type",
               variable_name: "membershipType",
-              value: paymentData.metadata.membershipType
-            }
-          ]
+              value: paymentData.metadata.membershipType,
+            },
+          ],
         },
-        callback: function(response) {
-          if (response.status === 'success') {
-            console.log('Payment successful, verifying...');
-            setPaymentStatus('verifying');
+        callback: function (response) {
+          if (response.status === "success") {
+            console.log("Payment successful, verifying...");
+            setPaymentStatus("verifying");
 
-            apiPost('/payment/verify', { reference: response.reference })
-              .then(verifyData => {
-                console.log('Payment verified:', verifyData);
+            apiPost("/payment/verify", { reference: response.reference })
+              .then((verifyData) => {
+                console.log("Payment verified:", verifyData);
                 setIsProcessing(false);
-                setPaymentStatus('success');
+                setPaymentStatus("success");
 
-                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const currentUser = JSON.parse(
+                  localStorage.getItem("currentUser") || "{}",
+                );
                 currentUser.membershipPaid = true;
                 currentUser.paymentReference = response.reference;
                 currentUser.paymentDate = new Date().toISOString();
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem(
+                  "currentUser",
+                  JSON.stringify(currentUser),
+                );
 
                 setTimeout(() => {
-                  const dashboardPath = isMentor ? '/mentor/dashboard' : '/dashboard';
+                  const dashboardPath = isMentor
+                    ? "/mentor/dashboard"
+                    : "/dashboard";
                   navigate(dashboardPath, { replace: true });
                 }, 5000);
               })
-              .catch(verifyError => {
-                console.error('Verification error:', verifyError);
-                setPaymentStatus('idle');
-                alert('Payment was successful but verification failed. Please contact support.');
+              .catch((verifyError) => {
+                console.error("Verification error:", verifyError);
+                setPaymentStatus("idle");
+                setError(
+                  "Payment was successful but verification failed. Please contact support.",
+                );
                 setIsProcessing(false);
               });
           } else {
-            console.log('Payment failed:', response);
-            alert('Payment was not successful. Please try again.');
+            console.log("Payment failed:", response);
+            setError("Payment was not successful. Please try again.");
             setIsProcessing(false);
           }
         },
-        onClose: function() {
-          console.log('Payment modal closed');
+        onClose: function () {
+          console.log("Payment modal closed");
           setIsProcessing(false);
-        }
+        },
       });
 
       handler.openIframe();
     } catch (error: any) {
-      console.error('Payment initialization error:', error);
-      setError(error.message || 'Failed to initialize payment');
-      alert(error.message || 'Failed to initialize payment. Please try again.');
+      console.error("Payment initialization error:", error);
+      setError(
+        error.message || "Failed to initialize payment. Please try again.",
+      );
       setIsProcessing(false);
     }
   };
-
 
   if (isLoading) {
     return <PageLoader message="Loading payment information..." />;
@@ -182,11 +204,17 @@ const PaymentWallPage = () => {
     return (
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 text-center max-w-md transition-colors">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">Invalid Membership</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
+            Invalid Membership
+          </h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors">
-            There seems to be an issue with your membership configuration. Please contact support.
+            There seems to be an issue with your membership configuration.
+            Please contact support.
           </p>
-          <Link to="/login" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
+          <Link
+            to="/login"
+            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
+          >
             Back to Login
           </Link>
         </div>
@@ -197,24 +225,17 @@ const PaymentWallPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block transition-colors">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </Link>
-            <Link
-              to="/login"
-              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
-            >
-              Logout
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicHeader
+        action={
+          <button
+            type="button"
+            className="app-button app-button-outline"
+            onClick={() => signOut(isMentor ? "/mentor/login" : "/login")}
+          >
+            Log out
+          </button>
+        }
+      />
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -230,12 +251,16 @@ const PaymentWallPage = () => {
             </h1>
 
             <p className="text-gray-600 dark:text-gray-300 mb-2 transition-colors">
-              Congratulations <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{profile.fullName}</span>!
-              Your account has been approved.
+              Congratulations{" "}
+              <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">
+                {profile.fullName}
+              </span>
+              ! Your account has been approved.
             </p>
 
             <p className="text-gray-600 dark:text-gray-300 transition-colors">
-              Complete your one-time membership payment to access your dashboard.
+              Complete your one-time membership payment to access your
+              dashboard.
             </p>
           </div>
 
@@ -246,12 +271,16 @@ const PaymentWallPage = () => {
                 <CreditCard className="w-8 h-8 mr-3" />
                 <div>
                   <h3 className="text-xl font-bold">Membership Payment</h3>
-                  <p className="text-teal-100 dark:text-teal-200 transition-colors">One-time payment required</p>
+                  <p className="text-teal-100 dark:text-teal-200 transition-colors">
+                    One-time payment required
+                  </p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold">₵{membershipAmount}</div>
-                <div className="text-teal-100 dark:text-teal-200 text-sm transition-colors">GHS</div>
+                <div className="text-teal-100 dark:text-teal-200 text-sm transition-colors">
+                  GHS
+                </div>
               </div>
             </div>
 
@@ -266,58 +295,86 @@ const PaymentWallPage = () => {
           {/* What You Get */}
           <div className="mb-8">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
-              {isMentor ? 'What you get as a mentor:' : 'What you get with membership:'}
+              {isMentor
+                ? "What you get as a mentor:"
+                : "What you get with membership:"}
             </h3>
             <div className="space-y-3">
               {isMentor ? (
                 <>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Access to mentor dashboard and tools</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Access to mentor dashboard and tools
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Create and manage courses</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Create and manage courses
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Mentee management and progress tracking</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Mentee management and progress tracking
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Task assignment and review system</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Task assignment and review system
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Community Slack mentor access</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Community Slack mentor access
+                    </span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Access to all courses and learning materials</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Access to all courses and learning materials
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Personal mentorship and guidance</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Personal mentorship and guidance
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Community Slack access</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Community Slack access
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Project assignments and feedback</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Project assignments and feedback
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 transition-colors" />
-                    <span className="text-gray-700 dark:text-gray-300 transition-colors">Certificate upon completion</span>
+                    <span className="text-gray-700 dark:text-gray-300 transition-colors">
+                      Certificate upon completion
+                    </span>
                   </div>
                 </>
               )}
             </div>
           </div>
+
+          {error && (
+            <div className="app-form-error mb-5" role="alert">
+              {error}
+            </div>
+          )}
 
           {/* Payment Button */}
           <button
@@ -331,9 +388,7 @@ const PaymentWallPage = () => {
                 Processing Payment...
               </>
             ) : (
-              <>
-                Pay ₵{membershipAmount.toFixed(2)}
-              </>
+              <>Pay ₵{membershipAmount.toFixed(2)}</>
             )}
           </button>
 
@@ -343,33 +398,46 @@ const PaymentWallPage = () => {
               <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5 transition-colors" />
               <div className="text-sm text-gray-600 dark:text-gray-300 transition-colors">
                 <p className="font-medium mb-1">Secure Payment</p>
-                <p>Your payment is processed securely through Paystack. We don't store your card details.</p>
+                <p>
+                  Your payment is processed securely through Paystack. We don't
+                  store your card details.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {paymentStatus === 'verifying' && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
+      {paymentStatus === "verifying" && (
+        <Modal>
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center transition-colors">
             <Loader2 className="w-16 h-16 text-[#008080] dark:text-teal-400 mx-auto mb-6 animate-spin" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Verifying Payment</h2>
-            <p className="text-gray-600 dark:text-gray-300 transition-colors">Please wait while we confirm your payment...</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+              Verifying Payment
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 transition-colors">
+              Please wait while we confirm your payment...
+            </p>
           </div>
-        </div>
+        </Modal>
       )}
 
-      {paymentStatus === 'success' && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
+      {paymentStatus === "success" && (
+        <Modal>
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-8 text-center transition-colors">
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
               <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 transition-colors">Payment Successful!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 transition-colors">
+              Payment Successful!
+            </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-2 transition-colors">
-              Welcome to SlintTech, <span className="font-semibold text-[#008080] dark:text-teal-400">{profile?.fullName}</span>!
+              Welcome to SlintTech,{" "}
+              <span className="font-semibold text-[#008080] dark:text-teal-400">
+                {profile?.fullName}
+              </span>
+              !
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 transition-colors">
               Your membership is now active. Redirecting to your dashboard...
@@ -379,9 +447,8 @@ const PaymentWallPage = () => {
               <Loader2 className="w-5 h-5 animate-spin" />
             </div>
           </div>
-        </div>
+        </Modal>
       )}
-
     </div>
   );
 };

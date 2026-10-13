@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&display=swap");
+
+:root {
+  --slint-brand: #008080;
+  --slint-brand-hover: #006666;
+  --slint-accent: #008080;
+  --slint-ink: #1e2929;
+  --slint-muted: #626e6c;
+  --slint-bg: #f8f8f8;
+  --slint-surface: #ffffff;
+  --slint-soft: #eaf3f1;
+  --slint-line: #dce4e1;
+  --slint-display: "Bricolage Grotesque", sans-serif;
+  --slint-body: "DM Sans", sans-serif;
+  --slint-danger: #b33e3e;
+}
+:root.dark {
+  color-scheme: dark;
+  --slint-accent: #66d1c7;
+  --slint-ink: #f0f5f3;
+  --slint-muted: #aabbb6;
+  --slint-bg: #101a1a;
+  --slint-surface: #172323;
+  --slint-soft: #1b302e;
+  --slint-line: #30423e;
+  --slint-danger: #f49d9d;
+}

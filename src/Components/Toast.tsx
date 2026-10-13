@@ -1,76 +1,40 @@
-import { AlertCircle, CheckCircle2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 interface ToastProps {
   message: string;
-  type: 'error' | 'success';
+  type: "error" | "success";
   onClose: () => void;
 }
-
-const Toast = ({ message, type, onClose }: ToastProps) => {
-  const [isVisible, setIsVisible] = useState(true);
-
+export default function Toast({ message, type, onClose }: ToastProps) {
+  const closeRef = useRef(onClose);
   useEffect(() => {
-    const duration = message.length > 100 ? 8000 : 6000;
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onClose, 300);
-    }, duration);
-
+    closeRef.current = onClose;
+  }, [onClose]);
+  useEffect(() => {
+    // Errors stay available until dismissed so a recovery instruction is never lost.
+    if (type === "error") return;
+    const timer = setTimeout(
+      () => closeRef.current(),
+      message.length > 100 ? 8000 : 6000,
+    );
     return () => clearTimeout(timer);
-  }, [message, onClose]);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(onClose, 300);
-  };
-
-  return (
-    <div className={`
-      fixed top-4 right-4 z-[99999] transition-all duration-300 isolate
-      ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
-    `}>
-      <div className={`
-        flex items-start gap-3 p-4 rounded-lg shadow-lg max-w-md min-w-[320px]
-        ${type === 'error'
-          ? 'bg-red-50 border-2 border-red-200'
-          : 'bg-green-50 border-2 border-green-200'
-        }
-      `}>
-        <div className={`
-          flex-shrink-0 mt-0.5
-          ${type === 'error' ? 'text-red-600' : 'text-green-600'}
-        `}>
-          {type === 'error' ? (
-            <AlertCircle className="w-5 h-5" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5" />
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={`
-            text-sm font-medium leading-relaxed
-            ${type === 'error' ? 'text-red-800' : 'text-green-800'}
-          `}>
-            {message}
-          </p>
-        </div>
-        <button
-          onClick={handleClose}
-          className={`
-            flex-shrink-0 p-1 rounded-full transition-colors
-            ${type === 'error'
-              ? 'hover:bg-red-100 text-red-600'
-              : 'hover:bg-green-100 text-green-600'
-            }
-          `}
-          aria-label="Close notification"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+  }, [message, type]);
+  return createPortal(
+    <div
+      className={`app-toast app-toast-${type}`}
+      role={type === "error" ? "alert" : "status"}
+    >
+      {type === "error" ? (
+        <AlertCircle size={20} />
+      ) : (
+        <CheckCircle2 size={20} />
+      )}
+      <p>{message}</p>
+      <button type="button" onClick={onClose} aria-label="Close notification">
+        <X size={17} />
+      </button>
+    </div>,
+    document.querySelector("dialog[open]") || document.body,
   );
-};
-
-export default Toast;
+}

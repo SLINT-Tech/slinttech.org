@@ -1,10 +1,32 @@
-import { ArrowLeft, BookOpen, Edit, Eye, Loader2, Plus, Search, Target, Trash2, User, UserPlus, Users, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import Toast from '../Components/Toast';
-import Navigation from '../Components/Navigation';
-import { apiGet, apiPost, apiPut, apiDelete, toIsoDateTime, ApiError } from '../lib/api';
+import {
+  ArrowLeft,
+  BookOpen,
+  Edit,
+  Eye,
+  Loader2,
+  Plus,
+  Target,
+  Trash2,
+  User,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import Modal from "../Components/Modal";
+import Navigation from "../Components/Navigation";
+import SearchInput from "../Components/SearchInput";
+import Toast from "../Components/Toast";
+import { useAuth } from "../hooks/useAuth";
+import {
+  apiDelete,
+  ApiError,
+  apiGet,
+  apiPost,
+  apiPut,
+  toIsoDateTime,
+} from "../lib/api";
 
 interface Course {
   id: string;
@@ -49,13 +71,16 @@ interface Mentee {
 
 const MentorCourseDetailPage = () => {
   const { courseId } = useParams();
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [courseStatus, setCourseStatus] = useState('active');
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const [courseStatus, setCourseStatus] = useState("active");
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   const [showCreateLessonModal, setShowCreateLessonModal] = useState(false);
@@ -72,56 +97,59 @@ const MentorCourseDetailPage = () => {
 
   const [availableMentees, setAvailableMentees] = useState<Mentee[]>([]);
   const [selectedMentees, setSelectedMentees] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchingMentees, setFetchingMentees] = useState(false);
 
   const [newLesson, setNewLesson] = useState({
-    title: '',
-    description: '',
-    link: ''
+    title: "",
+    description: "",
+    link: "",
   });
 
   const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    requirements: [''],
-    deadline: ''
+    title: "",
+    description: "",
+    requirements: [""],
+    deadline: "",
   });
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
     setCurrentUser(user);
-    if (user.status === 'pending') {
-      navigate('/mentor/dashboard');
+    if (user.status === "pending") {
+      navigate("/mentor/dashboard");
       return;
     }
   }, [navigate]);
 
   useEffect(() => {
     if (courseId) {
-      fetchCourseDetails();
+      void fetchCourseDetails();
     }
   }, [courseId]);
 
   const fetchCourseDetails = async () => {
     setPageLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      const data = await apiGet('/mentor/courses/detail', { courseId });
+      const data = await apiGet("/mentor/courses/detail", { courseId });
       setCourse(data);
       setCourseStatus(data.status);
     } catch (error) {
-      console.error('Fetch course details error:', error);
+      console.error("Fetch course details error:", error);
       const apiError = error as ApiError;
-      setToast({ message: apiError.message || 'Failed to fetch course details', type: 'error' });
+      setToast({
+        message: apiError.message || "Failed to fetch course details",
+        type: "error",
+      });
       if (apiError.status === 404) {
-        setTimeout(() => navigate('/mentor/courses'), 2000);
+        setTimeout(() => navigate("/mentor/courses"), 2000);
       }
     } finally {
       setPageLoading(false);
@@ -130,43 +158,56 @@ const MentorCourseDetailPage = () => {
 
   const handleStatusChange = async (newStatus: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        setToast({ message: 'Please log in again', type: 'error' });
-        navigate('/mentor/login');
+        setToast({ message: "Please log in again", type: "error" });
+        navigate("/mentor/login");
         return;
       }
 
-      await apiPut('/mentor/courses/status', {
+      await apiPut("/mentor/courses/status", {
         courseId,
-        status: newStatus
+        status: newStatus,
       });
 
       setCourseStatus(newStatus);
       if (course) {
         setCourse({ ...course, status: newStatus });
       }
-      setToast({ message: 'Course status updated successfully!', type: 'success' });
+      setToast({
+        message: "Course status updated successfully!",
+        type: "success",
+      });
     } catch (error) {
-      console.error('Update status error:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to update course status', type: 'error' });
+      console.error("Update status error:", error);
+      setToast({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to update course status",
+        type: "error",
+      });
     }
   };
 
   const fetchAvailableMentees = async () => {
     setFetchingMentees(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         setFetchingMentees(false);
         return;
       }
 
-      const data = await apiGet('/mentor/mentees/assigned', { courseId });
+      const data = await apiGet("/mentor/mentees/assigned", { courseId });
       setAvailableMentees(data);
     } catch (error) {
-      console.error('Fetch mentees error:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to fetch mentees', type: 'error' });
+      console.error("Fetch mentees error:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to fetch mentees",
+        type: "error",
+      });
     } finally {
       setFetchingMentees(false);
     }
@@ -174,65 +215,90 @@ const MentorCourseDetailPage = () => {
 
   const handleCreateLesson = async () => {
     if (!newLesson.title.trim() || !newLesson.link.trim()) {
-      setToast({ message: 'Please fill in all required fields', type: 'error' });
+      setToast({
+        message: "Please fill in all required fields",
+        type: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      await apiPost('/mentor/lessons/create', {
+      await apiPost("/mentor/lessons/create", {
         courseId,
-        ...newLesson
+        ...newLesson,
       });
 
-      setToast({ message: 'Lesson created successfully!', type: 'success' });
-      setNewLesson({ title: '', description: '', link: '' });
+      setToast({ message: "Lesson created successfully!", type: "success" });
+      setNewLesson({ title: "", description: "", link: "" });
       setShowCreateLessonModal(false);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Create lesson error:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to create lesson', type: 'error' });
+      console.error("Create lesson error:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to create lesson",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateTask = async () => {
-    if (!newTask.title.trim() || !newTask.description.trim() || !newTask.deadline) {
-      setToast({ message: 'Please fill in all required fields', type: 'error' });
+    if (
+      !newTask.title.trim() ||
+      !newTask.description.trim() ||
+      !newTask.deadline
+    ) {
+      setToast({
+        message: "Please fill in all required fields",
+        type: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      const filteredRequirements = newTask.requirements.filter(req => req.trim() !== '');
+      const filteredRequirements = newTask.requirements.filter(
+        (req) => req.trim() !== "",
+      );
 
-      await apiPost('/mentor/tasks/create', {
+      await apiPost("/mentor/tasks/create", {
         courseId,
         ...newTask,
         deadline: toIsoDateTime(newTask.deadline),
-        requirements: filteredRequirements
+        requirements: filteredRequirements,
       });
 
-      setToast({ message: 'Task created successfully!', type: 'success' });
-      setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+      setToast({ message: "Task created successfully!", type: "success" });
+      setNewTask({
+        title: "",
+        description: "",
+        requirements: [""],
+        deadline: "",
+      });
       setShowCreateTaskModal(false);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Create task error:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to create task', type: 'error' });
+      console.error("Create task error:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to create task",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -244,33 +310,44 @@ const MentorCourseDetailPage = () => {
   };
 
   const handleUpdateLesson = async () => {
-    if (!editingLesson || !editingLesson.title.trim() || !editingLesson.link.trim()) {
-      setToast({ message: 'Please fill in all required fields', type: 'error' });
+    if (
+      !editingLesson ||
+      !editingLesson.title.trim() ||
+      !editingLesson.link.trim()
+    ) {
+      setToast({
+        message: "Please fill in all required fields",
+        type: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      await apiPut('/mentor/lessons/update', {
+      await apiPut("/mentor/lessons/update", {
         lessonId: editingLesson.id,
         title: editingLesson.title,
         description: editingLesson.description,
-        link: editingLesson.link
+        link: editingLesson.link,
       });
 
-      setToast({ message: 'Lesson updated successfully!', type: 'success' });
+      setToast({ message: "Lesson updated successfully!", type: "success" });
       setShowEditLessonModal(false);
       setEditingLesson(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Error updating lesson:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to update lesson', type: 'error' });
+      console.error("Error updating lesson:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to update lesson",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -286,68 +363,87 @@ const MentorCourseDetailPage = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      await apiDelete('/mentor/lessons/delete', { lessonId: lessonToDelete });
+      await apiDelete("/mentor/lessons/delete", { lessonId: lessonToDelete });
 
-      setToast({ message: 'Lesson deleted successfully!', type: 'success' });
+      setToast({ message: "Lesson deleted successfully!", type: "success" });
       setShowDeleteLessonModal(false);
       setLessonToDelete(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Error deleting lesson:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to delete lesson', type: 'error' });
+      console.error("Error deleting lesson:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to delete lesson",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleEditTask = (task: Task) => {
-    const requirements = Array.isArray(task.requirements) && task.requirements.length > 0
-      ? task.requirements
-      : [''];
+    const requirements =
+      Array.isArray(task.requirements) && task.requirements.length > 0
+        ? task.requirements
+        : [""];
     setEditingTask({
       ...task,
-      requirements
+      requirements,
     });
     setShowEditTaskModal(true);
   };
 
   const handleUpdateTask = async () => {
-    if (!editingTask || !editingTask.title.trim() || !editingTask.description.trim() || !editingTask.deadline) {
-      setToast({ message: 'Please fill in all required fields', type: 'error' });
+    if (
+      !editingTask ||
+      !editingTask.title.trim() ||
+      !editingTask.description.trim() ||
+      !editingTask.deadline
+    ) {
+      setToast({
+        message: "Please fill in all required fields",
+        type: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      const filteredRequirements = editingTask.requirements.filter(req => req.trim() !== '');
+      const filteredRequirements = editingTask.requirements.filter(
+        (req) => req.trim() !== "",
+      );
 
-      await apiPut('/mentor/tasks/update', {
+      await apiPut("/mentor/tasks/update", {
         taskId: editingTask.id,
         title: editingTask.title,
         description: editingTask.description,
         requirements: filteredRequirements,
-        deadline: toIsoDateTime(editingTask.deadline)
+        deadline: toIsoDateTime(editingTask.deadline),
       });
 
-      setToast({ message: 'Task updated successfully!', type: 'success' });
+      setToast({ message: "Task updated successfully!", type: "success" });
       setShowEditTaskModal(false);
       setEditingTask(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Error updating task:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to update task', type: 'error' });
+      console.error("Error updating task:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to update task",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -363,99 +459,112 @@ const MentorCourseDetailPage = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      await apiDelete('/mentor/tasks/delete', { taskId: taskToDelete });
+      await apiDelete("/mentor/tasks/delete", { taskId: taskToDelete });
 
-      setToast({ message: 'Task deleted successfully!', type: 'success' });
+      setToast({ message: "Task deleted successfully!", type: "success" });
       setShowDeleteTaskModal(false);
       setTaskToDelete(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
-      console.error('Error deleting task:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to delete task', type: 'error' });
+      console.error("Error deleting task:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to delete task",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleEnrollMentees = async () => {
-    const unenrolledSelected = selectedMentees.filter(id => {
-      const mentee = availableMentees.find(m => m.id === id);
+    const unenrolledSelected = selectedMentees.filter((id) => {
+      const mentee = availableMentees.find((m) => m.id === id);
       return mentee && !mentee.isEnrolled;
     });
 
     if (unenrolledSelected.length === 0) {
-      setToast({ message: 'Please select at least one mentee who is not already enrolled', type: 'error' });
+      setToast({
+        message:
+          "Please select at least one mentee who is not already enrolled",
+        type: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        navigate('/mentor/login');
+        navigate("/mentor/login");
         return;
       }
 
-      const data = await apiPost('/mentor/enroll', {
+      const data = await apiPost("/mentor/enroll", {
         courseId,
-        menteeIds: unenrolledSelected
+        menteeIds: unenrolledSelected,
       });
 
       setToast({
         message: `${data.enrolledCount} mentee(s) enrolled successfully!`,
-        type: 'success'
+        type: "success",
       });
       setSelectedMentees([]);
       setShowEnrollMenteesModal(false);
-      fetchCourseDetails();
-      fetchAvailableMentees();
+      await Promise.all([fetchCourseDetails(), fetchAvailableMentees()]);
     } catch (error) {
-      console.error('Enroll mentees error:', error);
-      setToast({ message: error instanceof Error ? error.message : 'Failed to enroll mentees', type: 'error' });
+      console.error("Enroll mentees error:", error);
+      setToast({
+        message:
+          error instanceof Error ? error.message : "Failed to enroll mentees",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const addRequirement = () => {
-    setNewTask(prev => ({
+    setNewTask((prev) => ({
       ...prev,
-      requirements: [...prev.requirements, '']
+      requirements: [...prev.requirements, ""],
     }));
   };
 
   const updateRequirement = (index: number, value: string) => {
-    setNewTask(prev => ({
+    setNewTask((prev) => ({
       ...prev,
-      requirements: prev.requirements.map((req, i) => i === index ? value : req)
+      requirements: prev.requirements.map((req, i) =>
+        i === index ? value : req,
+      ),
     }));
   };
 
   const removeRequirement = (index: number) => {
     if (newTask.requirements.length > 1) {
-      setNewTask(prev => ({
+      setNewTask((prev) => ({
         ...prev,
-        requirements: prev.requirements.filter((_, i) => i !== index)
+        requirements: prev.requirements.filter((_, i) => i !== index),
       }));
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'archived':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'ended':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case "active":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "archived":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "ended":
+        return "bg-orange-100 text-orange-800 border-orange-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -464,15 +573,20 @@ const MentorCourseDetailPage = () => {
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
         <Navigation
           role="Mentor"
-          userName={currentUser?.fullName || 'Mentor'}
+          userName={currentUser?.fullName || "Mentor"}
           onLogout={() => {
-            navigate('/mentor/login');
+            navigate("/mentor/login");
           }}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          id="workspace-content"
+          tabIndex={-1}
+          role="main"
+          className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        >
           <button
-            onClick={() => navigate('/mentor/courses')}
+            onClick={() => navigate("/mentor/courses")}
             className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -501,11 +615,17 @@ const MentorCourseDetailPage = () => {
 
           <div className="grid lg:grid-cols-2 gap-8">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors"
+              >
                 <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-4 animate-pulse transition-colors"></div>
                 <div className="space-y-3">
                   {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse transition-colors"></div>
+                    <div
+                      key={j}
+                      className="h-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse transition-colors"
+                    ></div>
                   ))}
                 </div>
               </div>
@@ -520,9 +640,16 @@ const MentorCourseDetailPage = () => {
     return (
       <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 flex items-center justify-center transition-colors">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Course Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors">The course you're looking for doesn't exist.</p>
-          <Link to="/mentor/courses" className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+            Course Not Found
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors">
+            The course you're looking for doesn't exist.
+          </p>
+          <Link
+            to="/mentor/courses"
+            className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 cursor-pointer transition-colors"
+          >
             Back to Courses
           </Link>
         </div>
@@ -534,15 +661,20 @@ const MentorCourseDetailPage = () => {
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       <Navigation
         role="Mentor"
-        userName={currentUser?.fullName || 'Mentor'}
+        userName={currentUser?.fullName || "Mentor"}
         onLogout={() => {
-          navigate('/mentor/login');
+          navigate("/mentor/login");
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        id="workspace-content"
+        tabIndex={-1}
+        role="main"
+        className="app-page-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
         <button
-          onClick={() => navigate('/mentor/courses')}
+          onClick={() => navigate("/mentor/courses")}
           className="flex items-center gap-2 text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 cursor-pointer transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -556,13 +688,23 @@ const MentorCourseDetailPage = () => {
                 <BookOpen className="w-8 h-8 text-white" />
               </div>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{course.name}</h1>
-                <p className="text-gray-600 dark:text-gray-400 transition-colors">{course.description}</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  {course.name}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 transition-colors">
+                  {course.description}
+                </p>
               </div>
             </div>
             <div className="ml-4">
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 transition-colors">Course Status</label>
+              <label
+                htmlFor="mentorcoursedetailpage-field-18677"
+                className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 transition-colors"
+              >
+                Course Status
+              </label>
               <select
+                id="mentorcoursedetailpage-field-18677"
                 value={courseStatus}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 className={`text-sm font-semibold rounded-full px-4 py-2 border cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 transition-colors ${getStatusColor(courseStatus)}`}
@@ -576,28 +718,64 @@ const MentorCourseDetailPage = () => {
 
           <div className="grid md:grid-cols-3 gap-6 mt-6">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">Course Details</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+                Course Details
+              </h3>
               <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Duration:</span> {course.duration}</p>
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Created:</span> {new Date(course.createdAt).toLocaleDateString()}</p>
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Status:</span> {courseStatus.charAt(0).toUpperCase() + courseStatus.slice(1)}</p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Duration:
+                  </span>{" "}
+                  {course.duration}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Created:
+                  </span>{" "}
+                  {new Date(course.createdAt).toLocaleDateString()}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Status:
+                  </span>{" "}
+                  {courseStatus.charAt(0).toUpperCase() + courseStatus.slice(1)}
+                </p>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">Course Content</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+                Course Content
+              </h3>
               <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Enrolled Mentees:</span> {course.enrolledMentees}</p>
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Lessons:</span> {course.lessons.length}</p>
-                <p><span className="font-medium text-gray-900 dark:text-gray-300">Tasks:</span> {course.tasks.length}</p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Enrolled Mentees:
+                  </span>{" "}
+                  {course.enrolledMentees}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Lessons:
+                  </span>{" "}
+                  {course.lessons.length}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">
+                    Tasks:
+                  </span>{" "}
+                  {course.tasks.length}
+                </p>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">Quick Actions</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+                Quick Actions
+              </h3>
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
                     setShowEnrollMenteesModal(true);
-                    fetchAvailableMentees();
+                    void fetchAvailableMentees();
                   }}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium text-left cursor-pointer flex items-center gap-1 transition-colors"
                 >
@@ -626,17 +804,26 @@ const MentorCourseDetailPage = () => {
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Lessons ({course.lessons.length})</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+                Lessons ({course.lessons.length})
+              </h3>
             </div>
 
             {course.lessons.length > 0 ? (
               <div className="space-y-3">
                 {course.lessons.map((lesson) => (
-                  <div key={lesson.id} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 transition-colors">
+                  <div
+                    key={lesson.id}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 transition-colors"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 dark:text-white transition-colors">{lesson.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors">{lesson.description}</p>
+                        <h4 className="font-medium text-gray-900 dark:text-white transition-colors">
+                          {lesson.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 transition-colors">
+                          {lesson.description}
+                        </p>
                         <a
                           href={lesson.link}
                           target="_blank"
@@ -647,7 +834,8 @@ const MentorCourseDetailPage = () => {
                           <Eye className="w-3 h-3" />
                         </a>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 transition-colors">
-                          Created: {new Date(lesson.createdAt).toLocaleDateString()}
+                          Created:{" "}
+                          {new Date(lesson.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
@@ -673,44 +861,67 @@ const MentorCourseDetailPage = () => {
             ) : (
               <div className="text-center py-8">
                 <BookOpen className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3 transition-colors" />
-                <p className="text-gray-500 dark:text-gray-400 transition-colors">No lessons created yet</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">Add lessons to help your mentees learn</p>
+                <p className="text-gray-500 dark:text-gray-400 transition-colors">
+                  No lessons created yet
+                </p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">
+                  Add lessons to help your mentees learn
+                </p>
               </div>
             )}
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Tasks ({course.tasks.length})</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+                Tasks ({course.tasks.length})
+              </h3>
             </div>
 
             {course.tasks.length > 0 ? (
               <div className="space-y-3">
                 {course.tasks.map((task) => (
-                  <div key={task.id} className="p-4 border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:border-yellow-300 dark:hover:border-yellow-700 transition-colors">
+                  <div
+                    key={task.id}
+                    className="p-4 border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:border-yellow-300 dark:hover:border-yellow-700 transition-colors"
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3 mb-2">
-                          <h4 className="font-semibold text-gray-900 dark:text-white text-base transition-colors">{task.title}</h4>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${
-                            task.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                          }`}>
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-base transition-colors">
+                            {task.title}
+                          </h4>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${
+                              task.status === "active"
+                                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400"
+                            }`}
+                          >
                             {task.status}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 transition-colors">{task.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 transition-colors">
+                          {task.description}
+                        </p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400 transition-colors">
                           <span className="flex items-center gap-1">
-                            <span className="font-medium text-gray-900 dark:text-gray-300">Due:</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-300">
+                              Due:
+                            </span>
                             {new Date(task.deadline).toLocaleDateString()}
                           </span>
-                          {task.requirements && Array.isArray(task.requirements) && task.requirements.length > 0 && (
-                            <span className="text-[#008080] dark:text-teal-400 font-medium transition-colors">
-                              {task.requirements.length} requirement{task.requirements.length !== 1 ? 's' : ''}
-                            </span>
-                          )}
+                          {task.requirements &&
+                            Array.isArray(task.requirements) &&
+                            task.requirements.length > 0 && (
+                              <span className="text-[#008080] dark:text-teal-400 font-medium transition-colors">
+                                {task.requirements.length} requirement
+                                {task.requirements.length !== 1 ? "s" : ""}
+                              </span>
+                            )}
                           <span className="text-gray-400 dark:text-gray-500 transition-colors">
-                            Created {new Date(task.createdAt).toLocaleDateString()}
+                            Created{" "}
+                            {new Date(task.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -737,8 +948,12 @@ const MentorCourseDetailPage = () => {
             ) : (
               <div className="text-center py-8">
                 <Target className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3 transition-colors" />
-                <p className="text-gray-500 dark:text-gray-400 transition-colors">No tasks created yet</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">Create tasks to challenge your mentees</p>
+                <p className="text-gray-500 dark:text-gray-400 transition-colors">
+                  No tasks created yet
+                </p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 transition-colors">
+                  Create tasks to challenge your mentees
+                </p>
               </div>
             )}
           </div>
@@ -755,15 +970,24 @@ const MentorCourseDetailPage = () => {
 
       {/* Create Lesson Modal */}
       {showCreateLessonModal && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowCreateLessonModal(false);
+            setNewLesson({ title: "", description: "", link: "" });
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-xl dark:shadow-gray-950/50 transition-colors">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Create New Lesson</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  Create New Lesson
+                </h2>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   onClick={() => {
                     setShowCreateLessonModal(false);
-                    setNewLesson({ title: '', description: '', link: '' });
+                    setNewLesson({ title: "", description: "", link: "" });
                   }}
                   className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
@@ -774,35 +998,57 @@ const MentorCourseDetailPage = () => {
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Lesson Title <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-31443"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Lesson Title{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-31443"
                   type="text"
                   value={newLesson.title}
-                  onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewLesson({ ...newLesson, title: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="e.g., Introduction to React Components"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Description</label>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-32301"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Description
+                </label>
                 <textarea
+                  id="mentorcoursedetailpage-field-32301"
                   value={newLesson.description}
-                  onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                  onChange={(e) =>
+                    setNewLesson({ ...newLesson, description: e.target.value })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors resize-none"
                   rows={3}
                   placeholder="Brief description of the lesson..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Lesson URL <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-33072"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Lesson URL{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-33072"
                   type="url"
                   value={newLesson.link}
-                  onChange={(e) => setNewLesson({ ...newLesson, link: e.target.value })}
+                  onChange={(e) =>
+                    setNewLesson({ ...newLesson, link: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="https://example.com/lesson-url"
                 />
@@ -813,7 +1059,7 @@ const MentorCourseDetailPage = () => {
               <button
                 onClick={() => {
                   setShowCreateLessonModal(false);
-                  setNewLesson({ title: '', description: '', link: '' });
+                  setNewLesson({ title: "", description: "", link: "" });
                 }}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
               >
@@ -825,21 +1071,30 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Creating...' : 'Create Lesson'}
+                {loading ? "Creating..." : "Create Lesson"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Edit Lesson Modal */}
       {showEditLessonModal && editingLesson && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowEditLessonModal(false);
+            setEditingLesson(null);
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-xl dark:shadow-gray-950/50 transition-colors">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Edit Lesson</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  Edit Lesson
+                </h2>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   onClick={() => {
                     setShowEditLessonModal(false);
                     setEditingLesson(null);
@@ -853,35 +1108,63 @@ const MentorCourseDetailPage = () => {
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Lesson Title <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-36310"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Lesson Title{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-36310"
                   type="text"
                   value={editingLesson.title}
-                  onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditingLesson({
+                      ...editingLesson,
+                      title: e.target.value,
+                    })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="e.g., Introduction to React Components"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Description</label>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-37180"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Description
+                </label>
                 <textarea
+                  id="mentorcoursedetailpage-field-37180"
                   value={editingLesson.description}
-                  onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                  onChange={(e) =>
+                    setEditingLesson({
+                      ...editingLesson,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors resize-none"
                   rows={3}
                   placeholder="Brief description of the lesson..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Lesson URL <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-37963"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Lesson URL{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-37963"
                   type="url"
                   value={editingLesson.link}
-                  onChange={(e) => setEditingLesson({ ...editingLesson, link: e.target.value })}
+                  onChange={(e) =>
+                    setEditingLesson({ ...editingLesson, link: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="https://example.com/lesson-url"
                 />
@@ -904,24 +1187,43 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Updating...' : 'Update Lesson'}
+                {loading ? "Updating..." : "Update Lesson"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Create Task Modal */}
       {showCreateTaskModal && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowCreateTaskModal(false);
+            setNewTask({
+              title: "",
+              description: "",
+              requirements: [""],
+              deadline: "",
+            });
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col transition-colors">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Create New Task</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  Create New Task
+                </h2>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   onClick={() => {
                     setShowCreateTaskModal(false);
-                    setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+                    setNewTask({
+                      title: "",
+                      description: "",
+                      requirements: [""],
+                      deadline: "",
+                    });
                   }}
                   className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors"
                 >
@@ -932,32 +1234,48 @@ const MentorCourseDetailPage = () => {
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Task Title <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-41186"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Task Title{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-41186"
                   type="text"
                   value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, title: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="e.g., Build a Todo App with React"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Description <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-42031"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Description{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <textarea
+                  id="mentorcoursedetailpage-field-42031"
                   value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, description: e.target.value })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors resize-none"
                   rows={4}
                   placeholder="Detailed description of the task..."
                 />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">Requirements</label>
+                  <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
+                    Requirements
+                  </p>
                   <button
                     onClick={addRequirement}
                     className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 text-sm font-medium cursor-pointer flex items-center gap-1 transition-colors"
@@ -970,6 +1288,7 @@ const MentorCourseDetailPage = () => {
                   <div key={index} className="flex gap-2 mb-2">
                     <input
                       type="text"
+                      aria-label={`Requirement ${index + 1}`}
                       value={requirement}
                       onChange={(e) => updateRequirement(index, e.target.value)}
                       className="flex-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
@@ -977,6 +1296,7 @@ const MentorCourseDetailPage = () => {
                     />
                     {newTask.requirements.length > 1 && (
                       <button
+                        aria-label={`Remove requirement ${index + 1}`}
                         onClick={() => removeRequirement(index)}
                         className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
                       >
@@ -987,13 +1307,20 @@ const MentorCourseDetailPage = () => {
                 ))}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Due Date <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-44735"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Due Date{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-44735"
                   type="date"
                   value={newTask.deadline}
-                  onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, deadline: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 />
               </div>
@@ -1003,7 +1330,12 @@ const MentorCourseDetailPage = () => {
               <button
                 onClick={() => {
                   setShowCreateTaskModal(false);
-                  setNewTask({ title: '', description: '', requirements: [''], deadline: '' });
+                  setNewTask({
+                    title: "",
+                    description: "",
+                    requirements: [""],
+                    deadline: "",
+                  });
                 }}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
               >
@@ -1015,21 +1347,30 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-yellow-500 dark:bg-yellow-600 text-white rounded-lg hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Creating...' : 'Create Task'}
+                {loading ? "Creating..." : "Create Task"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Edit Task Modal */}
       {showEditTaskModal && editingTask && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowEditTaskModal(false);
+            setEditingTask(null);
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col transition-colors">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Edit Task</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  Edit Task
+                </h2>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   onClick={() => {
                     setShowEditTaskModal(false);
                     setEditingTask(null);
@@ -1043,75 +1384,121 @@ const MentorCourseDetailPage = () => {
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Task Title <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-47888"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Task Title{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-47888"
                   type="text"
                   value={editingTask.title}
-                  onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditingTask({ ...editingTask, title: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   placeholder="e.g., Build a Todo App with React"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Description <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-48745"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Description{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <textarea
+                  id="mentorcoursedetailpage-field-48745"
                   value={editingTask.description}
-                  onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
-                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                  onChange={(e) =>
+                    setEditingTask({
+                      ...editingTask,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors resize-none"
                   rows={3}
                   placeholder="Detailed description of what the mentee needs to accomplish..."
                 />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">Requirements</label>
+                  <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
+                    Requirements
+                  </p>
                   <button
-                    onClick={() => setEditingTask({ ...editingTask, requirements: [...editingTask.requirements, ''] })}
+                    onClick={() =>
+                      setEditingTask({
+                        ...editingTask,
+                        requirements: [...editingTask.requirements, ""],
+                      })
+                    }
                     className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 text-sm font-medium cursor-pointer flex items-center gap-1 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     Add Requirement
                   </button>
                 </div>
-                {editingTask.requirements && editingTask.requirements.map((req, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={req}
-                      onChange={(e) => {
-                        const updated = [...editingTask.requirements];
-                        updated[index] = e.target.value;
-                        setEditingTask({ ...editingTask, requirements: updated });
-                      }}
-                      className="flex-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
-                      placeholder="Enter requirement..."
-                    />
-                    {editingTask.requirements.length > 1 && (
-                      <button
-                        onClick={() => {
-                          const updated = editingTask.requirements.filter((_, i) => i !== index);
-                          setEditingTask({ ...editingTask, requirements: updated });
+                {editingTask.requirements &&
+                  editingTask.requirements.map((req, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={req}
+                        onChange={(e) => {
+                          const updated = [...editingTask.requirements];
+                          updated[index] = e.target.value;
+                          setEditingTask({
+                            ...editingTask,
+                            requirements: updated,
+                          });
                         }}
-                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                        className="flex-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
+                        placeholder="Enter requirement..."
+                      />
+                      {editingTask.requirements.length > 1 && (
+                        <button
+                          onClick={() => {
+                            const updated = editingTask.requirements.filter(
+                              (_, i) => i !== index,
+                            );
+                            setEditingTask({
+                              ...editingTask,
+                              requirements: updated,
+                            });
+                          }}
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 cursor-pointer transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                  Deadline <span className="text-red-500 dark:text-red-400">*</span>
+                <label
+                  htmlFor="mentorcoursedetailpage-field-51965"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
+                >
+                  Deadline{" "}
+                  <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
+                  id="mentorcoursedetailpage-field-51965"
                   type="date"
-                  value={editingTask.deadline ? new Date(editingTask.deadline).toISOString().split('T')[0] : ''}
-                  onChange={(e) => setEditingTask({ ...editingTask, deadline: e.target.value })}
+                  value={
+                    editingTask.deadline
+                      ? new Date(editingTask.deadline)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setEditingTask({ ...editingTask, deadline: e.target.value })
+                  }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                 />
               </div>
@@ -1133,25 +1520,35 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-yellow-500 dark:bg-yellow-600 text-white rounded-lg hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Updating...' : 'Update Task'}
+                {loading ? "Updating..." : "Update Task"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Enroll Mentees Modal */}
       {showEnrollMenteesModal && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowEnrollMenteesModal(false);
+            setSelectedMentees([]);
+            setSearchTerm("");
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col transition-colors">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
               <div className="flex justify-between items-center gap-2">
-                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white transition-colors">Enroll Mentees</h2>
+                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white transition-colors">
+                  Enroll Mentees
+                </h2>
                 <button
+                  type="button"
+                  aria-label="Close dialog"
                   onClick={() => {
                     setShowEnrollMenteesModal(false);
                     setSelectedMentees([]);
-                    setSearchTerm('');
+                    setSearchTerm("");
                   }}
                   className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer transition-colors flex-shrink-0"
                 >
@@ -1162,17 +1559,20 @@ const MentorCourseDetailPage = () => {
 
             <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-4 flex-shrink-0">
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 transition-colors">
-                Select mentees to enroll in "<span className="font-semibold text-gray-900 dark:text-white">{course?.name}</span>"
+                Select mentees to enroll in "
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {course?.name}
+                </span>
+                "
               </p>
 
               {/* Search */}
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors" />
-                <input
+                <SearchInput
                   type="text"
                   placeholder="Search mentees..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onValueChange={(value) => setSearchTerm(value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors text-sm sm:text-base"
                   disabled={fetchingMentees}
                 />
@@ -1184,30 +1584,41 @@ const MentorCourseDetailPage = () => {
               {fetchingMentees ? (
                 <div className="text-center py-12">
                   <Loader2 className="w-12 h-12 text-[#008080] dark:text-teal-400 mx-auto mb-4 animate-spin transition-colors" />
-                  <p className="text-gray-600 dark:text-gray-400 font-medium transition-colors">Loading mentees...</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1 transition-colors">Please wait while we fetch your assigned mentees</p>
+                  <p className="text-gray-600 dark:text-gray-400 font-medium transition-colors">
+                    Loading mentees...
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1 transition-colors">
+                    Please wait while we fetch your assigned mentees
+                  </p>
                 </div>
               ) : availableMentees.length > 0 ? (
                 <div className="space-y-2">
                   {availableMentees
-                    .filter(mentee =>
-                      mentee.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      mentee.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    .filter(
+                      (mentee) =>
+                        mentee.fullName
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()) ||
+                        mentee.email
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()),
                     )
                     .map((mentee) => (
                       <div
                         key={mentee.id}
                         className={`flex items-start p-3 sm:p-4 border rounded-lg transition-all ${
                           mentee.isEnrolled
-                            ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed'
+                            ? "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed"
                             : selectedMentees.includes(mentee.id)
-                            ? 'border-[#008080] dark:border-teal-600 bg-[#008080]/5 dark:bg-teal-600/10 cursor-pointer'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-[#008080]/50 dark:hover:border-teal-600/50 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
+                              ? "border-[#008080] dark:border-teal-600 bg-[#008080]/5 dark:bg-teal-600/10 cursor-pointer"
+                              : "border-gray-200 dark:border-gray-700 hover:border-[#008080]/50 dark:hover:border-teal-600/50 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                         }`}
                         onClick={() => {
                           if (mentee.isEnrolled) return;
                           if (selectedMentees.includes(mentee.id)) {
-                            setSelectedMentees(selectedMentees.filter(id => id !== mentee.id));
+                            setSelectedMentees(
+                              selectedMentees.filter((id) => id !== mentee.id),
+                            );
                           } else {
                             setSelectedMentees([...selectedMentees, mentee.id]);
                           }
@@ -1216,33 +1627,46 @@ const MentorCourseDetailPage = () => {
                         <div className="mr-2 sm:mr-3 flex-shrink-0 pt-0.5">
                           <input
                             type="checkbox"
-                            checked={mentee.isEnrolled || selectedMentees.includes(mentee.id)}
+                            checked={
+                              mentee.isEnrolled ||
+                              selectedMentees.includes(mentee.id)
+                            }
                             disabled={mentee.isEnrolled}
                             onChange={() => {}}
                             className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 text-[#008080] focus:ring-[#008080] dark:focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer accent-[#008080] dark:accent-teal-400 transition-colors"
                             style={{
-                              accentColor: '#008080'
+                              accentColor: "#008080",
                             }}
                           />
                         </div>
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 ${mentee.isEnrolled ? 'bg-gray-400 dark:bg-gray-600' : 'bg-[#008080] dark:bg-teal-600'} rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 transition-colors`}>
+                        <div
+                          className={`w-8 h-8 sm:w-10 sm:h-10 ${mentee.isEnrolled ? "bg-gray-400 dark:bg-gray-600" : "bg-[#008080] dark:bg-teal-600"} rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 transition-colors`}
+                        >
                           <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
-                            <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white transition-colors truncate">{mentee.fullName}</div>
+                            <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white transition-colors truncate">
+                              {mentee.fullName}
+                            </div>
                             {mentee.isEnrolled && (
                               <span className="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 transition-colors">
                                 Enrolled
                               </span>
                             )}
-                            <span className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors sm:hidden ${
-                              mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                            }`}>
+                            <span
+                              className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full transition-colors sm:hidden ${
+                                mentee.status === "active"
+                                  ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                                  : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400"
+                              }`}
+                            >
                               {mentee.status}
                             </span>
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate transition-colors">{mentee.email}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate transition-colors">
+                            {mentee.email}
+                          </div>
                           {mentee.careerPath && (
                             <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5">
                               <Target className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#008080] dark:text-teal-400 transition-colors flex-shrink-0" />
@@ -1257,9 +1681,13 @@ const MentorCourseDetailPage = () => {
                             </div>
                           )}
                         </div>
-                        <span className={`hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2 transition-colors ${
-                          mentee.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400'
-                        }`}>
+                        <span
+                          className={`hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2 transition-colors ${
+                            mentee.status === "active"
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400"
+                          }`}
+                        >
                           {mentee.status}
                         </span>
                       </div>
@@ -1268,9 +1696,12 @@ const MentorCourseDetailPage = () => {
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4 transition-colors" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 transition-colors">No Mentees Assigned</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+                    No Mentees Assigned
+                  </h3>
                   <p className="text-gray-500 dark:text-gray-400 transition-colors">
-                    You don't have any mentees assigned yet. Contact your administrator to assign mentees to you.
+                    You don't have any mentees assigned yet. Contact your
+                    administrator to assign mentees to you.
                   </p>
                 </div>
               )}
@@ -1279,10 +1710,13 @@ const MentorCourseDetailPage = () => {
             <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 flex-shrink-0 transition-colors">
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 transition-colors">
                 <p className="font-medium">
-                  {selectedMentees.length} mentee{selectedMentees.length !== 1 ? 's' : ''} selected
+                  {selectedMentees.length} mentee
+                  {selectedMentees.length !== 1 ? "s" : ""} selected
                 </p>
                 <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500 mt-0.5 sm:mt-1">
-                  {availableMentees.filter(m => m.isEnrolled).length} enrolled | {availableMentees.filter(m => !m.isEnrolled).length} available
+                  {availableMentees.filter((m) => m.isEnrolled).length} enrolled
+                  | {availableMentees.filter((m) => !m.isEnrolled).length}{" "}
+                  available
                 </p>
               </div>
               <div className="flex space-x-2 sm:space-x-3">
@@ -1290,7 +1724,7 @@ const MentorCourseDetailPage = () => {
                   onClick={() => {
                     setShowEnrollMenteesModal(false);
                     setSelectedMentees([]);
-                    setSearchTerm('');
+                    setSearchTerm("");
                   }}
                   className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 >
@@ -1302,22 +1736,33 @@ const MentorCourseDetailPage = () => {
                   className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-[#008080] dark:bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {loading ? 'Enrolling...' : `Enroll (${selectedMentees.length})`}
+                  {loading
+                    ? "Enrolling..."
+                    : `Enroll (${selectedMentees.length})`}
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Delete Lesson Modal */}
       {showDeleteLessonModal && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowDeleteLessonModal(false);
+            setLessonToDelete(null);
+          }}
+          busy={loading}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 transition-colors">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Delete Lesson</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+                Delete Lesson
+              </h2>
               <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                Are you sure you want to delete this lesson? This action cannot be undone.
+                Are you sure you want to delete this lesson? This action cannot
+                be undone.
               </p>
             </div>
             <div className="flex justify-end space-x-3">
@@ -1337,21 +1782,30 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Deleting...' : 'Delete'}
+                {loading ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Delete Task Modal */}
       {showDeleteTaskModal && (
-        <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-colors">
+        <Modal
+          onClose={() => {
+            setShowDeleteTaskModal(false);
+            setTaskToDelete(null);
+          }}
+          busy={loading}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 transition-colors">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">Delete Task</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+                Delete Task
+              </h2>
               <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                Are you sure you want to delete this task? This action cannot be undone.
+                Are you sure you want to delete this task? This action cannot be
+                undone.
               </p>
             </div>
             <div className="flex justify-end space-x-3">
@@ -1371,11 +1825,11 @@ const MentorCourseDetailPage = () => {
                 className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {loading ? 'Deleting...' : 'Delete'}
+                {loading ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

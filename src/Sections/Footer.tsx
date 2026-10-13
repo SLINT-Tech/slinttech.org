@@ -1,54 +1,44 @@
-import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Mail,
-  MapPin,
-} from "lucide-react";
-import React from "react";
+import { Facebook, Globe2, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
-
 const socials = [
-  { label: "Facebook", href: "https://www.facebook.com/slinttech", icon: Facebook },
-  { label: "Twitter", href: "https://www.twitter.com/slinttech", icon: Twitter },
-  { label: "Instagram", href: "https://www.instagram.com/slinttech/", icon: Instagram },
-  { label: "LinkedIn", href: "https://www.linkedin.com/company/slinttech", icon: Linkedin },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/slinttech",
+    icon: Facebook,
+  },
+  {
+    label: "Twitter",
+    href: "https://www.twitter.com/slinttech",
+    icon: Twitter,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/slinttech/",
+    icon: Instagram,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/slinttech",
+    icon: Linkedin,
+  },
 ];
-
-const Footer: React.FC = () => {
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const linkClass =
-    "text-sm text-gray-400 transition-colors hover:text-teal-400 cursor-pointer";
-
-  const headingClass =
-    "text-xs font-semibold tracking-[0.18em] text-gray-500 uppercase";
-
+export default function Footer() {
   return (
-    <footer className="bg-gray-950 pt-16 pb-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-4">
-          <div className="space-y-6 md:col-span-2">
-            <img
-              src="/assets/Slintech_logo.svg"
-              alt="SlintTech"
-              className="h-11"
-            />
-
-            <p className="max-w-md text-sm leading-relaxed text-gray-400">
-              Empowering the next generation of tech leaders through quality
-              education, mentorship, and community. Join us in building a future
-              where technology uplifts and serves communities.
+    <footer className="home-footer">
+      <div className="home-container">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <Link to="/" className="home-logo" aria-label="SlintTech home">
+              <img src="/assets/logo.svg" alt="" width="36" height="36" />
+              <span>
+                SLINT<span>Tech</span>
+              </span>
+            </Link>
+            <p>
+              Skills to build with. People to grow with.
+              <br />A future worth showing up for.
             </p>
-
-            <div className="flex gap-3">
+            <div className="footer-socials">
               {socials.map(({ label, href, icon: Icon }) => (
                 <a
                   key={label}
@@ -56,82 +46,56 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.06] text-gray-400 transition hover:bg-[#008080] hover:text-white"
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon size={15} />
                 </a>
               ))}
             </div>
           </div>
-
-          <div>
-            <h3 className={headingClass}>Quick links</h3>
-            <ul className="mt-6 space-y-3">
+          <div className="footer-column">
+            <h3>FIND YOUR WAY</h3>
+            <ul>
               <li>
-                <a href="#home" onClick={(e) => handleSmoothScroll(e, 'home')} className={linkClass}>
-                  Home
-                </a>
+                <a href="#explore">Explore career paths</a>
               </li>
               <li>
-                <a href="#explore" onClick={(e) => handleSmoothScroll(e, 'explore')} className={linkClass}>
-                  Career paths
-                </a>
+                <a href="#features">Mentorship & community</a>
               </li>
               <li>
-                <a href="#certifications" onClick={(e) => handleSmoothScroll(e, 'certifications')} className={linkClass}>
-                  Memberships
-                </a>
+                <a href="#about">Our story</a>
               </li>
               <li>
-                <Link to="/signup" className={linkClass}>
-                  Join community
-                </Link>
-              </li>
-              <li>
-                <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className={linkClass}>
-                  Contact
-                </a>
+                <a href="#certifications">Nonprofit memberships</a>
               </li>
             </ul>
           </div>
-
-          <div>
-            <h3 className={headingClass}>Get in touch</h3>
-            <ul className="mt-6 space-y-4">
-              <li className="flex items-start gap-3">
-                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#008080]" />
-                <a href="mailto:contact@slinttech.org" className={linkClass}>
-                  contact@slinttech.org
-                </a>
+          <div className="footer-column">
+            <h3>LET’S CONNECT</h3>
+            <ul>
+              <li>
+                <a href="mailto:contact@slinttech.org">contact@slinttech.org</a>
               </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#008080]" />
-                <span className="text-sm text-gray-400">
-                  Building future leaders
-                  <br />
-                  across the globe
-                </span>
+              <li>
+                <Link to="/signup">Join the community</Link>
+              </li>
+              <li>
+                <Link to="/login">Member login</Link>
               </li>
             </ul>
+            <p>
+              Building future leaders,
+              <br />
+              across the globe.
+            </p>
           </div>
         </div>
-
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()}{" "}
-            <span className="font-semibold text-gray-300">SlintTech</span>. All
-            rights reserved.
-          </p>
-          <Link
-            to="/login"
-            className="text-sm text-gray-400 transition-colors hover:text-teal-400"
-          >
-            Member login
-          </Link>
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} SlintTech. All rights reserved.</p>
+          <span>
+            <Globe2 size={13} /> BIG DREAMS HAVE NO BORDERS.
+          </span>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

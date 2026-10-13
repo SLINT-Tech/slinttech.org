@@ -1,9 +1,17 @@
-import { Clock, Mail, MessageSquare, LayoutDashboard, Check, Loader2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { logout } from '../lib/auth';
-import { useEffect, useState } from 'react';
-import { PageLoader } from '../Components/SkeletonLoader';
-import { apiGet } from '../lib/api';
+import {
+  Check,
+  Clock,
+  LayoutDashboard,
+  Loader2,
+  Mail,
+  MessageSquare,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { PublicHeader } from "../Components/AuthLayout";
+import { PageLoader } from "../Components/SkeletonLoader";
+import { apiGet } from "../lib/api";
+import { logout } from "../lib/auth";
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
@@ -12,20 +20,20 @@ const PendingApprovalPage = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (!token) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
       try {
         let profile;
         try {
-          const data = await apiGet('/auth/me');
+          const data = await apiGet("/auth/me");
           profile = data.profile;
         } catch {
-          logout(navigate, '/login');
+          logout(navigate, "/login");
           return;
         }
 
@@ -33,84 +41,81 @@ const PendingApprovalPage = () => {
           id: profile.id,
           email: profile.email,
           fullName: profile.fullName || profile.full_name,
-          membershipCategory: profile.membershipCategory || profile.membership_category,
+          membershipCategory:
+            profile.membershipCategory || profile.membership_category,
           careerPath: profile.careerPath || profile.career_path,
           role: profile.role,
           status: profile.status,
           specialization: profile.specialization,
-          membershipEnabled: profile.membershipEnabled || profile.membership_enabled,
-          membershipAmount: profile.membershipAmount || profile.membership_amount,
+          membershipEnabled:
+            profile.membershipEnabled || profile.membership_enabled,
+          membershipAmount:
+            profile.membershipAmount || profile.membership_amount,
           membershipPaid: profile.membershipPaid || profile.membership_paid,
-          paymentReference: profile.paymentReference || profile.payment_reference,
-          paymentDate: profile.paymentDate || profile.payment_date
+          paymentReference:
+            profile.paymentReference || profile.payment_reference,
+          paymentDate: profile.paymentDate || profile.payment_date,
         };
 
-        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem("currentUser", JSON.stringify(userData));
         setCurrentUser(userData);
 
-        if (userData.status !== 'pending') {
-          if (userData.status === 'approved') {
+        if (userData.status !== "pending") {
+          if (userData.status === "approved") {
             if (userData.membershipEnabled && !userData.membershipPaid) {
-              navigate('/payment-wall', { replace: true });
-            } else if (userData.role === 'Mentor') {
-              navigate('/mentor/dashboard', { replace: true });
-            } else if (userData.role === 'Admin') {
-              navigate('/admin/dashboard', { replace: true });
+              navigate("/payment-wall", { replace: true });
+            } else if (userData.role === "Mentor") {
+              navigate("/mentor/dashboard", { replace: true });
+            } else if (userData.role === "Admin") {
+              navigate("/admin/dashboard", { replace: true });
             } else {
-              navigate('/dashboard', { replace: true });
+              navigate("/dashboard", { replace: true });
             }
           } else {
-            if (userData.role === 'Mentor') {
-              navigate('/mentor/login', { replace: true });
-            } else if (userData.role === 'Admin') {
-              navigate('/admin/login', { replace: true });
+            if (userData.role === "Mentor") {
+              navigate("/mentor/login", { replace: true });
+            } else if (userData.role === "Admin") {
+              navigate("/admin/login", { replace: true });
             } else {
-              navigate('/login', { replace: true });
+              navigate("/login", { replace: true });
             }
           }
         }
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching profile:', error);
-        logout(navigate, '/login');
+        console.error("Error fetching profile:", error);
+        logout(navigate, "/login");
       }
     };
 
-    fetchUserProfile();
+    void fetchUserProfile();
   }, [navigate]);
 
   if (loading || !currentUser) {
     return <PageLoader message="Checking approval status..." />;
   }
 
-  const isMentor = currentUser.role === 'Mentor';
+  const isMentor = currentUser.role === "Mentor";
 
   const handleLogout = () => {
-    logout(navigate, '/login');
+    logout(navigate, "/login");
   };
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
       {/* Header */}
-      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block transition-colors">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader
+        action={
+          <button
+            type="button"
+            className="app-button app-button-outline"
+            onClick={handleLogout}
+          >
+            Log out
+          </button>
+        }
+      />
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -126,8 +131,11 @@ const PendingApprovalPage = () => {
           </h1>
 
           <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg transition-colors">
-            Hello <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">{currentUser.fullName}</span>!
-            Your account is currently under review by our admin team.
+            Hello{" "}
+            <span className="font-semibold text-[#008080] dark:text-teal-400 transition-colors">
+              {currentUser.fullName}
+            </span>
+            ! Your account is currently under review by our admin team.
           </p>
 
           {/* Status Card */}
@@ -137,8 +145,12 @@ const PendingApprovalPage = () => {
                 <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors" />
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-yellow-800 dark:text-yellow-400 transition-colors">Status: Pending Review</h3>
-                <p className="text-yellow-700 dark:text-yellow-400 text-sm transition-colors">We're reviewing your membership application</p>
+                <h3 className="font-semibold text-yellow-800 dark:text-yellow-400 transition-colors">
+                  Status: Pending Review
+                </h3>
+                <p className="text-yellow-700 dark:text-yellow-400 text-sm transition-colors">
+                  We're reviewing your membership application
+                </p>
               </div>
             </div>
 
@@ -160,7 +172,9 @@ const PendingApprovalPage = () => {
 
           {/* What's Next */}
           <div className="text-left mb-8">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 transition-colors">What happens next?</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
+              What happens next?
+            </h3>
             <div className="space-y-3 text-gray-600 dark:text-gray-300 transition-colors">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
@@ -172,7 +186,9 @@ const PendingApprovalPage = () => {
                 <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
                   <span className="text-white text-xs font-bold">2</span>
                 </div>
-                <p>You'll receive an email notification with the approval status</p>
+                <p>
+                  You'll receive an email notification with the approval status
+                </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-[#008080] dark:bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
@@ -180,9 +196,8 @@ const PendingApprovalPage = () => {
                 </div>
                 <p>
                   {isMentor
-                    ? 'Once approved, you can access your mentor dashboard and start teaching'
-                    : 'Once approved, you can access your dashboard and start learning'
-                  }
+                    ? "Once approved, you can access your mentor dashboard and start teaching"
+                    : "Once approved, you can access your dashboard and start learning"}
                 </p>
               </div>
             </div>
@@ -190,7 +205,7 @@ const PendingApprovalPage = () => {
 
           {/* Preview Dashboard Button */}
           <Link
-            to={isMentor ? '/mentor/dashboard' : '/dashboard'}
+            to={isMentor ? "/mentor/dashboard" : "/dashboard"}
             className="flex items-center justify-center gap-2 w-full bg-[#008080] dark:bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors font-medium mb-8"
           >
             <LayoutDashboard className="w-5 h-5" />
@@ -201,14 +216,20 @@ const PendingApprovalPage = () => {
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 transition-colors">
             <div className="flex items-center justify-center mb-3">
               <MessageSquare className="w-5 h-5 text-[#008080] dark:text-teal-400 mr-2 transition-colors" />
-              <h4 className="font-semibold text-gray-900 dark:text-white transition-colors">Need Help?</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white transition-colors">
+                Need Help?
+              </h4>
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 transition-colors">
-              If you have any questions about your application status, feel free to contact our support team.
+              If you have any questions about your application status, feel free
+              to contact our support team.
             </p>
             <div className="flex items-center justify-center gap-2 text-[#008080] dark:text-teal-400 transition-colors">
               <Mail className="w-4 h-4" />
-              <a href="mailto:contact@slinttech.org" className="font-medium hover:underline">
+              <a
+                href="mailto:contact@slinttech.org"
+                className="font-medium hover:underline"
+              >
                 contact@slinttech.org
               </a>
             </div>
