@@ -84,7 +84,7 @@ const HeroSection = () => {
                                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-900">
                                     <GraduationCap className="h-4 w-4 text-[#008080] dark:text-teal-400" />
                                 </span>
-                                <span className="truncate font-semibold text-gray-900 dark:text-white">
+                                <span className="font-semibold text-gray-900 dark:text-white">
                                     Career tracks
                                 </span>
                             </div>
@@ -106,7 +106,7 @@ const HeroSection = () => {
                                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-900">
                                     <Users className="h-4 w-4 text-[#008080] dark:text-teal-400" />
                                 </span>
-                                <span className="truncate font-semibold text-gray-900 dark:text-white">
+                                <span className="font-semibold text-gray-900 dark:text-white">
                                     Mentorship
                                 </span>
                             </div>

@@ -354,7 +354,7 @@ const CoursesSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                  <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                     {path.description}
                   </p>
 
