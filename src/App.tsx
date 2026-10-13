@@ -1,13 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ContactInfoSection from './Sections/contactinfosection';
-import CoursesSection from './Sections/Coursessection';
-import { FeaturesSection } from './Sections/Featuressection';
-import Footer from './Sections/Footer';
-import GetStartedSection from './Sections/Getstartedsection';
-import Header from './Sections/Header';
-import HeroSection from './Sections/Herosection';
-import NewsletterSection from './Sections/NewsletterSection';
-import SponsorsSection from './Sections/Sponsorssection';
 import SignUpPage from './Pages/SignUpPage';
 import LoginPage from './Pages/LoginPage';
 import HomePage from './Pages/HomePage';
@@ -42,7 +33,7 @@ function App() {
   return (
     <Router>
       <SocketProvider>
-        <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors overflow-x-hidden">
+        <div className="min-h-screen font-bricolage bg-[#F8F8F8] dark:bg-gray-950 transition-colors overflow-x-clip">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignUpPage />} />
