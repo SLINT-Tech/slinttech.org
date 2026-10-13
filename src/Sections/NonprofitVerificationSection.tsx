@@ -72,7 +72,7 @@ const NonprofitVerificationSection: React.FC = () => {
   return (
     <section
       id="certifications"
-      className="scroll-mt-24 bg-[#F8F8F8] py-24 transition-colors focus:outline-none dark:bg-gray-950"
+      className="bg-[#F8F8F8] py-24 transition-colors focus:outline-none dark:bg-gray-950"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">

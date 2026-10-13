@@ -4,7 +4,7 @@ import { Clock, Mail, MapPin } from "lucide-react";
 const ContactInfoSection: React.FC = () => (
     <section
         id="contact"
-        className="relative scroll-mt-24 overflow-hidden bg-white py-24 transition-colors focus:outline-none dark:bg-gray-950"
+        className="relative overflow-hidden bg-white py-24 transition-colors focus:outline-none dark:bg-gray-950"
     >
         <div
             aria-hidden="true"

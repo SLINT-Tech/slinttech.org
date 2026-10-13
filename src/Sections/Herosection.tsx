@@ -10,7 +10,7 @@ const HeroSection = () => {
     return (
         <section
             id="home"
-            className="relative -mt-20 overflow-hidden bg-[#F8F8F8] scroll-mt-24 pt-20 focus:outline-none dark:bg-gray-950"
+            className="relative -mt-20 overflow-hidden bg-[#F8F8F8] pt-20 focus:outline-none dark:bg-gray-950"
         >
             {/* Teal wash + spotlight behind the photo */}
             <div
