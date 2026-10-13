@@ -552,10 +552,11 @@ const SignUpPage = () => {
                       type="file"
                       accept=".pdf"
                       onChange={handleFileUpload}
-                      className="hidden"
+                      className="peer sr-only"
                       id="contract-upload"
+                      aria-describedby="contract-upload-hint"
                     />
-                    <label htmlFor="contract-upload" className="cursor-pointer">
+                    <label htmlFor="contract-upload" className="block cursor-pointer rounded-md peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#008080] dark:peer-focus-visible:outline-teal-400">
                       {formData.contractFile ? (
                         <div className="flex flex-col items-center">
                           <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
@@ -572,7 +573,7 @@ const SignUpPage = () => {
                         <div>
                           <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Click to upload signed contract</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
+                          <p id="contract-upload-hint" className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
                         </div>
                       )}
                     </label>
