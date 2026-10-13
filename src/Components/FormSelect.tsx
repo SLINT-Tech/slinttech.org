@@ -1,6 +1,6 @@
 import { Field, Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { Check, ChevronDown } from 'lucide-react';
-import { useRef, type KeyboardEvent } from 'react';
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
 
 export interface FormSelectOption<T extends string = string> {
   value: T;
@@ -19,15 +19,26 @@ interface FormSelectProps<T extends string> {
 const FormSelect = <T extends string>({ label, value, onChange, options, placeholder, required = false }: FormSelectProps<T>) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const selectedOption = options.find(option => option.value === value);
+  const errorId = useId();
+  const [showRequiredError, setShowRequiredError] = useState(false);
+  const isMissing = required && showRequiredError && !value;
 
   return (
     <Field className="relative">
       <Label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
         {label}{required && ' *'}
       </Label>
-      <Listbox value={value} onChange={onChange}>
+      <Listbox
+        value={value}
+        onChange={(next: T) => {
+          setShowRequiredError(false);
+          onChange(next);
+        }}
+      >
         <ListboxButton
           ref={buttonRef}
+          aria-invalid={isMissing || undefined}
+          aria-describedby={isMissing ? errorId : undefined}
           // Safari skips buttons on Tab by default but reached the native <select>; an explicit tabIndex keeps it in the order.
           tabIndex={0}
           onKeyDown={(event: KeyboardEvent<HTMLButtonElement>) => {
@@ -48,6 +59,7 @@ const FormSelect = <T extends string>({ label, value, onChange, options, placeho
           />
         </ListboxButton>
         <ListboxOptions
+          aria-label={label}
           anchor={{ to: 'bottom start', gap: 4, padding: 8 }}
           transition
           className="z-50 w-(--button-width) max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white p-1 shadow-lg focus:outline-none transition duration-100 ease-out data-closed:opacity-0 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800"
@@ -79,6 +91,7 @@ const FormSelect = <T extends string>({ label, value, onChange, options, placeho
           required
           value={value}
           onChange={() => undefined}
+          onInvalid={() => setShowRequiredError(true)}
           onFocus={() => buttonRef.current?.focus()}
           className="pointer-events-none absolute inset-x-0 bottom-0 h-px w-full opacity-0"
         >
@@ -87,6 +100,11 @@ const FormSelect = <T extends string>({ label, value, onChange, options, placeho
             <option key={option.value} value={option.value} />
           ))}
         </select>
+      )}
+      {isMissing && (
+        <p id={errorId} className="mt-1.5 text-sm text-red-700 dark:text-red-400">
+          Please choose an option.
+        </p>
       )}
     </Field>
   );
