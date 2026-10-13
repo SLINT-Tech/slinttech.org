@@ -344,9 +344,10 @@ const SignUpPage = () => {
               </button>
               <Link
                 to="/"
+                aria-label="Close and return to the home page"
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <X aria-hidden="true" className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </Link>
             </div>
           </div>
@@ -493,7 +494,7 @@ const SignUpPage = () => {
                 {/* Info Card */}
                 <div className="bg-[#008080]/5 dark:bg-teal-500/10 rounded-lg p-4 border border-[#008080]/20 dark:border-teal-500/30">
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <span className="font-semibold text-[#008080] dark:text-teal-400">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
+                    <span className="font-semibold text-[#006666] dark:text-teal-400">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
                   </p>
                 </div>
               </div>
