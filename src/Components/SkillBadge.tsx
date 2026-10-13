@@ -52,12 +52,10 @@ import {
   FaEye,
   FaCode,
   FaJava,
-  FaCloud,
 } from "react-icons/fa";
 
 interface SkillBadgeProps {
   skill: string;
-  isDark?: boolean;
 }
 
 const skillBrandColors: Record<string, string> = {
@@ -301,7 +299,7 @@ export const SkillBadge: React.FC<SkillBadgeProps> = ({ skill }) => {
     <span
       className="inline-flex items-center gap-1.5 rounded-full border border-gray-900/10 bg-gray-900/[0.04] px-2.5 py-1 text-xs text-gray-700 dark:border-white/10 dark:bg-white/10 dark:text-gray-200"
     >
-      {coloredIcon && <span className="flex-shrink-0">{coloredIcon}</span>}
+      {coloredIcon && <span aria-hidden="true" className="flex-shrink-0">{coloredIcon}</span>}
       <span>{skill}</span>
     </span>
   );
