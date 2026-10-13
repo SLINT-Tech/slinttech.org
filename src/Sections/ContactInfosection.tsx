@@ -13,7 +13,7 @@ const ContactInfoSection: React.FC = () => (
         />
 
         <div className="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8">
-            <div>
+            <div className="min-w-0">
                 <span className="text-xs font-semibold tracking-[0.18em] text-[#008080] uppercase dark:text-teal-400">
                     Contact
                 </span>
@@ -27,7 +27,7 @@ const ContactInfoSection: React.FC = () => (
                 </p>
             </div>
 
-            <div className="rounded-3xl bg-white p-8 ring-1 ring-gray-900/10 sm:p-10 dark:bg-white/[0.04] dark:ring-white/10">
+            <div className="min-w-0 rounded-3xl bg-white p-8 ring-1 ring-gray-900/10 sm:p-10 dark:bg-white/[0.04] dark:ring-white/10">
                 <ul className="space-y-8">
                     <li className="flex gap-4">
                         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">
@@ -39,7 +39,7 @@ const ContactInfoSection: React.FC = () => (
                             </h3>
                             <a
                                 href="mailto:contact@slinttech.org"
-                                className="mt-1.5 block text-lg font-semibold break-words text-gray-900 transition-colors hover:text-[#008080] dark:text-white dark:hover:text-teal-400"
+                                className="mt-1.5 block text-lg font-semibold [overflow-wrap:anywhere] text-gray-900 transition-colors hover:text-[#008080] dark:text-white dark:hover:text-teal-400"
                             >
                                 contact@slinttech.org
                             </a>

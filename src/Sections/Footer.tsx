@@ -98,7 +98,7 @@ const Footer: React.FC = () => {
             <ul className="mt-6 space-y-4">
               <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#008080]" />
-                <a href="mailto:contact@slinttech.org" className={linkClass}>
+                <a href="mailto:contact@slinttech.org" className={`${linkClass} min-w-0 [overflow-wrap:anywhere]`}>
                   contact@slinttech.org
                 </a>
               </li>
