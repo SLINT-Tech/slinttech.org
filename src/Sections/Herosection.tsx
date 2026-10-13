@@ -1,15 +1,16 @@
 import { ArrowUpRight, GraduationCap, Users } from 'lucide-react';
+import { scrollToSection } from '../lib/scrollToSection';
 
 const HeroSection = () => {
     const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
         e.preventDefault();
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToSection(id);
     };
 
     return (
         <section
             id="home"
-            className="relative -mt-20 overflow-hidden bg-[#F8F8F8] pt-20 dark:bg-gray-950"
+            className="relative -mt-20 overflow-hidden bg-[#F8F8F8] pt-20 focus:outline-none dark:bg-gray-950"
         >
             {/* Teal wash + spotlight behind the photo */}
             <div

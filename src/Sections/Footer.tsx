@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { scrollToSection } from "../lib/scrollToSection";
 
 const socials = [
   { label: "Facebook", href: "https://www.facebook.com/slinttech", icon: Facebook },
@@ -19,10 +20,7 @@ const socials = [
 const Footer: React.FC = () => {
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    scrollToSection(targetId);
   };
 
   const linkClass =

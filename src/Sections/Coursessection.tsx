@@ -261,7 +261,7 @@ const CoursesSection: React.FC = () => {
   return (
     <section
       id="explore"
-      className="bg-white py-24 transition-colors dark:bg-gray-950"
+      className="bg-white py-24 transition-colors focus:outline-none dark:bg-gray-950"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}

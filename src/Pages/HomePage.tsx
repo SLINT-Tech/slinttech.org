@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { scrollToSection } from '../lib/scrollToSection';
 import ContactInfoSection from '../Sections/ContactInfosection';
 import CoursesSection from '../Sections/Coursessection';
 import { FeaturesSection } from '../Sections/Featuressection';
@@ -20,7 +21,7 @@ const HomePage = () => {
 
     // let the sections mount before measuring their offsets
     const frame = requestAnimationFrame(() => {
-      document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToSection(scrollTo);
     });
     return () => cancelAnimationFrame(frame);
   }, [location.state]);

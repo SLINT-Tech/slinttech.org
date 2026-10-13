@@ -1,6 +1,7 @@
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
+import { scrollToSection } from '../lib/scrollToSection';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,7 +23,8 @@ export default function Header() {
       return;
     }
 
-    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // wait for the mobile menu to collapse so the scroll target is measured after the layout shift
+    requestAnimationFrame(() => scrollToSection(targetId));
   };
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
