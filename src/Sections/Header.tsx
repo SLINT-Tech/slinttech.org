@@ -86,7 +86,7 @@ export default function Header() {
             </button>
             <Link
               to={onSignup ? '/login' : '/signup'}
-              className="rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-5 py-2.5 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
+              className="rounded-full bg-[#008080] px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#006666]"
             >
               {onSignup ? 'Log in' : 'Join Us'}
             </Link>
@@ -126,7 +126,7 @@ export default function Header() {
                 <Link to="/login" className={`${navLinkClass} text-left`} onClick={() => setIsMenuOpen(false)}>Login</Link>
                 <Link
                   to={onSignup ? '/login' : '/signup'}
-                  className="flex cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(90deg,#333333_0%,#1E1E1E_100%)] px-4 py-3 font-semibold text-white transition hover:opacity-90 dark:bg-[linear-gradient(90deg,#008080_0%,#00a3a3_100%)]"
+                  className="flex cursor-pointer items-center justify-center rounded-full bg-[#008080] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#006666]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Join Us
