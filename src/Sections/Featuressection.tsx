@@ -17,7 +17,7 @@ export function FeaturesSection() {
                             </div> */}
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Join a Community That Moves</h3>
                         </div>
-                        <p className="text-[#9C9C9C] dark:text-gray-400 leading-relaxed text-sm">Become part of a growing community of young, driven students and hustlers like you. Share tips, learn together, and stay motivated every step of the way.</p>
+                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">Become part of a growing community of young, driven students and hustlers like you. Share tips, learn together, and stay motivated every step of the way.</p>
                         <div className="flex items-center justify-center w-full">
                             <img
                                 src="/assets/fourth.png"
