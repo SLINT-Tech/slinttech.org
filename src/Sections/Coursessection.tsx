@@ -16,6 +16,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { SkillBadge } from "../Components/SkillBadge";
+import { scrollToSection } from "../lib/scrollToSection";
 
 interface CareerPath {
   id: string;
@@ -389,9 +390,7 @@ const CoursesSection: React.FC = () => {
               type="button"
               onClick={() => {
                 if (showAll) {
-                  document
-                    .getElementById("explore")
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  scrollToSection("explore");
                 }
                 setShowAll(!showAll);
               }}
