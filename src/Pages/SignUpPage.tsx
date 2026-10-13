@@ -460,8 +460,6 @@ const SignUpPage = () => {
                 </h2>
 
                 <FormSelect
-                  id="signup-role"
-                  name="role"
                   label="I want to join as"
                   value={formData.role}
                   onChange={role => setFormData(prev => ({ ...prev, role }))}
@@ -470,8 +468,6 @@ const SignUpPage = () => {
                 />
 
                 <FormSelect
-                  id="signup-membershipCategory"
-                  name="membershipCategory"
                   label="Membership Category"
                   value={formData.membershipCategory}
                   onChange={membershipCategory => setFormData(prev => ({ ...prev, membershipCategory }))}
@@ -481,8 +477,6 @@ const SignUpPage = () => {
                 />
 
                 <FormSelect
-                  id="signup-careerPath"
-                  name="careerPath"
                   label={formData.role === 'Mentor' ? 'Specialization' : 'Interested Career Path'}
                   value={formData.careerPath}
                   onChange={careerPath => setFormData(prev => ({ ...prev, careerPath }))}

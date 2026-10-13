@@ -8,8 +8,6 @@ export interface FormSelectOption<T extends string = string> {
 }
 
 interface FormSelectProps<T extends string> {
-  id: string;
-  name: string;
   label: string;
   value: T;
   onChange: (value: T) => void;
@@ -18,7 +16,7 @@ interface FormSelectProps<T extends string> {
   required?: boolean;
 }
 
-const FormSelect = <T extends string>({ id, name, label, value, onChange, options, placeholder, required = false }: FormSelectProps<T>) => {
+const FormSelect = <T extends string>({ label, value, onChange, options, placeholder, required = false }: FormSelectProps<T>) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const selectedOption = options.find(option => option.value === value);
 
@@ -27,17 +25,17 @@ const FormSelect = <T extends string>({ id, name, label, value, onChange, option
       <Label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
         {label}{required && ' *'}
       </Label>
-      <Listbox value={value} onChange={onChange} name={name}>
+      <Listbox value={value} onChange={onChange}>
         <ListboxButton
-          id={id}
           ref={buttonRef}
           // Safari skips buttons on Tab by default but reached the native <select>; an explicit tabIndex keeps it in the order.
           tabIndex={0}
           onKeyDown={(event: KeyboardEvent<HTMLButtonElement>) => {
             // Headless UI submits the form on Enter. A native <select> never did, so open the list instead.
+            // Re-dispatching ArrowDown uses Headless UI's own open path; a scripted click is ignored after mouse use.
             if (event.key !== 'Enter') return;
             event.preventDefault();
-            event.currentTarget.click();
+            event.currentTarget.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
           }}
           className="group relative flex h-12 w-full items-center rounded-lg border border-gray-300 bg-white pl-4 pr-11 text-left text-base text-gray-900 transition-colors focus:border-[#008080] focus:outline-none focus:ring-2 focus:ring-[#008080]/20 data-open:border-[#008080] data-open:ring-2 data-open:ring-[#008080]/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-teal-400 dark:focus:ring-teal-400/20 dark:data-open:border-teal-400 dark:data-open:ring-teal-400/20 cursor-pointer"
         >
