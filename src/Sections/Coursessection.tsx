@@ -414,10 +414,10 @@ const CoursesSection: React.FC = () => {
           <button
             type="button"
             onClick={handleJoinCommunity}
-            className="mx-auto mt-7 flex cursor-pointer items-center gap-2 rounded-full bg-[#008080] px-8 py-3.5 font-semibold text-white transition-colors hover:bg-[#006666]"
+            className="mx-auto mt-7 flex max-w-full cursor-pointer items-center gap-2 rounded-full bg-[#008080] px-8 py-3.5 text-center font-semibold text-white transition-colors hover:bg-[#006666]"
           >
             Join our community
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-5 w-5 shrink-0" />
           </button>
         </div>
       </div>
