@@ -96,7 +96,7 @@ const MenteeCourseDetailPage = () => {
 
   useEffect(() => {
     if (courseId && mentorId) {
-      fetchCourseDetail();
+      void fetchCourseDetail();
     }
   }, [courseId, mentorId]);
 

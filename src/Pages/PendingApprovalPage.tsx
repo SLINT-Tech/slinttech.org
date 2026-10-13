@@ -89,7 +89,7 @@ const PendingApprovalPage = () => {
       }
     };
 
-    fetchUserProfile();
+    void fetchUserProfile();
   }, [navigate]);
 
   if (loading || !currentUser) {

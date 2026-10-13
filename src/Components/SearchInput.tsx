@@ -16,6 +16,9 @@ export default function SearchInput({ value, onValueChange, ...props }: Props) {
   useEffect(() => {
     if (!composing.current) setDraft(value);
   }, [value]);
+  const placeholderLabel = props.placeholder?.endsWith("...")
+    ? props.placeholder.slice(0, -3)
+    : props.placeholder;
   return (
     <div className="app-search">
       <Search size={17} aria-hidden="true" />
@@ -23,11 +26,7 @@ export default function SearchInput({ value, onValueChange, ...props }: Props) {
         {...props}
         ref={input}
         type="search"
-        aria-label={
-          props["aria-label"] ||
-          props.placeholder?.replace(/\.+$/, "") ||
-          "Search"
-        }
+        aria-label={props["aria-label"] || placeholderLabel || "Search"}
         value={draft}
         onCompositionStart={() => {
           composing.current = true;

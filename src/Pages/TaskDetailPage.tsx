@@ -69,7 +69,7 @@ const TaskDetailPage = () => {
       navigate("/dashboard");
       return;
     }
-    fetchTaskDetail();
+    void fetchTaskDetail();
   }, [taskId, navigate]);
 
   const fetchTaskDetail = async () => {
@@ -118,7 +118,7 @@ const TaskDetailPage = () => {
       });
 
       setToast({ message: "Task submitted successfully!", type: "success" });
-      fetchTaskDetail();
+      await fetchTaskDetail();
     } catch (error) {
       console.error("Error submitting task:", error);
       setToast({

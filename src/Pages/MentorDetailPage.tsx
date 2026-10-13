@@ -108,7 +108,7 @@ const MentorDetailPage = () => {
 
   useEffect(() => {
     if (mentorId) {
-      fetchMentorDetail();
+      void fetchMentorDetail();
     }
   }, [mentorId]);
 
@@ -335,25 +335,25 @@ const MentorDetailPage = () => {
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Course Name
-                </label>
+                </p>
                 <p className="text-lg text-gray-900 dark:text-white mt-1">
                   {mentorData.courseName}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Contact Email
-                </label>
+                </p>
                 <p className="text-lg text-gray-900 dark:text-white mt-1">
                   {mentorData.email}
                 </p>
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Description
-                </label>
+                </p>
                 <p className="text-gray-900 dark:text-gray-300 mt-1">
                   {mentorData.courseDescription}
                 </p>

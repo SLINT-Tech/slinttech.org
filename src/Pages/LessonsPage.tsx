@@ -66,7 +66,7 @@ const LessonsPage = () => {
       navigate("/dashboard");
       return;
     }
-    fetchLessons();
+    void fetchLessons();
   }, [navigate]);
 
   const fetchLessons = async () => {

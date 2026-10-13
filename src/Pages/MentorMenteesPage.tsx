@@ -64,7 +64,7 @@ const MentorMenteesPage = () => {
       navigate("/mentor/dashboard");
       return;
     }
-    fetchMentees();
+    void fetchMentees();
   }, [navigate]);
 
   const fetchMentees = async () => {

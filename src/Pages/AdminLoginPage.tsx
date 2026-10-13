@@ -1,3 +1,4 @@
+import { toSessionProfile } from "../lib/sessionProfile";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../Components/AuthLayout";
@@ -54,23 +55,7 @@ const AdminLoginPage = () => {
 
       const profile = data.profile;
 
-      const userData = {
-        id: profile.id,
-        email: profile.email,
-        fullName: profile.fullName || profile.full_name,
-        membershipCategory:
-          profile.membershipCategory || profile.membership_category,
-        careerPath: profile.careerPath || profile.career_path,
-        role: profile.role,
-        status: profile.status,
-        specialization: profile.specialization,
-        membershipEnabled:
-          profile.membershipEnabled || profile.membership_enabled,
-        membershipAmount: profile.membershipAmount || profile.membership_amount,
-        membershipPaid: profile.membershipPaid || profile.membership_paid,
-        paymentReference: profile.paymentReference || profile.payment_reference,
-        paymentDate: profile.paymentDate || profile.payment_date,
-      };
+      const userData = toSessionProfile(profile);
 
       localStorage.setItem("currentUser", JSON.stringify(userData));
       localStorage.setItem("token", data.token);

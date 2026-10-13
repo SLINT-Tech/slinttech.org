@@ -64,7 +64,7 @@ const MentorCoursesPage = () => {
       navigate("/mentor/dashboard");
       return;
     }
-    fetchCourses();
+    void fetchCourses();
   }, [navigate]);
 
   const fetchCourses = async () => {
@@ -134,7 +134,7 @@ const MentorCoursesPage = () => {
         description: "",
       });
       setShowCreateCourseModal(false);
-      fetchCourses();
+      await fetchCourses();
     } catch (error) {
       console.error("Create course error:", error);
       setToast({

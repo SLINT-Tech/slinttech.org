@@ -67,6 +67,8 @@ let role = "Mentee",
   empty = false,
   apiRequests = 0;
 const errors = [];
+let loginSuccess = false;
+let passwordRequests = 0;
 const now = "2026-10-01T12:00:00Z";
 const person = {
   id: "ui-person",
@@ -202,7 +204,6 @@ function profile() {
   return {
     ...(role === "Mentor" ? mentor : person),
     role,
-    status,
     fullName:
       role === "Admin"
         ? "Community Admin"
@@ -334,6 +335,15 @@ function response(path) {
       totalPages: 1,
     };
   if (path === "/admin/mentor-assignments") return { assignments: [] };
+  if (
+    loginSuccess &&
+    ["/auth/login", "/mentor/login", "/admin/login"].includes(path)
+  )
+    return {
+      profile: profile(),
+      token: "isolated-ui-fixture",
+      requiresPayment: false,
+    };
   if (["/auth/login", "/mentor/login", "/admin/login"].includes(path))
     return { error: "The email or password is incorrect. Please try again." };
   return { success: true };
@@ -375,6 +385,11 @@ ws.addEventListener("message", async (event) => {
   try {
     if (url.pathname.includes("/api/")) {
       apiRequests++;
+      if (
+        request.method === "POST" &&
+        url.pathname.endsWith("/auth/change-password")
+      )
+        passwordRequests++;
       if (request.method !== "OPTIONS" && !errorMode) {
         const body = JSON.parse(request.postData || "{}");
         if (url.pathname.endsWith("/mentor/courses/create"))
@@ -408,7 +423,7 @@ ws.addEventListener("message", async (event) => {
             ? 200
             : failure
               ? 503
-              : login
+              : login && !loginSuccess
                 ? 401
                 : 200,
         responseHeaders: [
@@ -531,6 +546,85 @@ try {
       ),
       "Login failure keeps input and allows retry",
     );
+    for (const [path, accountRole, destination] of [
+      ["/login", "Mentee", "/dashboard"],
+      ["/mentor/login", "Mentor", "/mentor/dashboard"],
+      ["/admin/login", "Admin", "/admin/dashboard"],
+    ]) {
+      await navigate(path);
+      role = accountRole;
+      loginSuccess = true;
+      await setValue("#login-email", "fixture@example.test");
+      await setValue("#login-password", "fixture-password");
+      await click(".auth-submit");
+      await waitFor(
+        `location.pathname === ${JSON.stringify(destination)} && !!document.querySelector('h1')`,
+      );
+      assert(
+        await evaluate(
+          `JSON.parse(localStorage.getItem('currentUser')).role === ${JSON.stringify(accountRole)}`,
+        ),
+        `Successful ${accountRole} login preserves the session role and destination`,
+      );
+    }
+    loginSuccess = false;
+    for (const [path, accountRole] of [
+      ["/profile", "Mentee"],
+      ["/mentor/profile", "Mentor"],
+    ]) {
+      await navigate(path, accountRole);
+      await buttonText("Change Password");
+      await buttonText("Update Password");
+      assert(
+        await evaluate("document.activeElement.name === 'currentPassword'"),
+        `${accountRole} password form focuses the first required field`,
+      );
+      await setValue("input[name=currentPassword]", "fixture-old-password");
+      await setValue("input[name=newPassword]", "fixture-new-password");
+      await setValue("input[name=confirmPassword]", "fixture-mismatch");
+      const beforeValidation = passwordRequests;
+      await buttonText("Update Password");
+      assert(
+        (await evaluate(
+          "document.querySelector('[role=alert]')?.textContent.includes('do not match')",
+        )) && passwordRequests === beforeValidation,
+        `${accountRole} mismatched passwords cannot reach the API`,
+      );
+      await setValue("input[name=newPassword]", "short");
+      await setValue("input[name=confirmPassword]", "short");
+      await buttonText("Update Password");
+      assert(
+        (await evaluate(
+          "document.querySelector('[role=alert]')?.textContent.includes('8 characters')",
+        )) && passwordRequests === beforeValidation,
+        `${accountRole} password minimum remains eight characters`,
+      );
+      await setValue("input[name=newPassword]", "fixture-new-password");
+      await setValue("input[name=confirmPassword]", "fixture-new-password");
+      errorMode = true;
+      await buttonText("Update Password");
+      await waitFor(
+        "document.querySelector('[role=alert]')?.textContent.includes('unavailable')",
+      );
+      assert(
+        await evaluate(
+          "document.querySelector('input[name=newPassword]').value === 'fixture-new-password' && !document.querySelector('button[type=submit]').disabled",
+        ),
+        `${accountRole} failed update preserves the form for retry`,
+      );
+      errorMode = false;
+      await buttonText("Update Password");
+      await waitFor(
+        "!document.querySelector('input[name=currentPassword]') && document.querySelector('[role=status]')?.textContent.includes('updated successfully')",
+      );
+      await buttonText("Change Password");
+      assert(
+        await evaluate(
+          "[...document.querySelectorAll('input')].every(input => input.value === '')",
+        ),
+        `${accountRole} successful update clears all password fields`,
+      );
+    }
     await navigate("/mentor/courses", "Mentor");
     await evaluate(
       "[...document.querySelectorAll('button')].find(b=>/Create.*Course/.test(b.textContent)).click()",

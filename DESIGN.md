@@ -73,7 +73,7 @@ Account pages pair a muted teal story panel with a focused form. On narrow scree
 
 Learner, mentor and admin workspaces share a 232px desktop sidebar, 77px top bar and naturally scrolling content. Navigation becomes a disclosure at 1000px. Dashboards use the same restrained teal welcome panel with role-specific copy and real API-backed metrics. Lists, profiles, tasks, courses and detail pages use shared neutral surfaces, display headings and 13px body/control text. Product buttons use 8px corners; panels use 13–15px corners. Preserve readable, distinct status colors.
 
-Shared product owners: `RouteSurface`, `Navigation`, `AuthLayout`, `LoginForm`, `PasswordInput`, `AppForm`, `PageIntro`, `Modal`, `Toast`, `SearchInput`, `WorkspaceError`, and `useTheme`. Native select/date popup ownership and preserved domain behavior are recorded in `UX-CONTRACT.md`.
+Shared product owners: `RouteSurface`, `Navigation`, `AuthLayout`, `LoginForm`, `PasswordInput`, `PasswordSettings`, `AppForm`, `PageIntro`, `Modal`, `Toast`, `SearchInput`, `WorkspaceError`, and `useTheme`. Native select/date popup ownership and preserved domain behavior are recorded in `UX-CONTRACT.md`.
 
 ## Elevation & Depth
 

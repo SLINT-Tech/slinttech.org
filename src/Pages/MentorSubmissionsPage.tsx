@@ -83,7 +83,7 @@ const MentorSubmissionsPage = () => {
       navigate("/mentor/dashboard");
       return;
     }
-    fetchSubmissions();
+    void fetchSubmissions();
   }, [navigate]);
 
   const fetchSubmissions = async () => {

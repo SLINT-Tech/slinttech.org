@@ -153,8 +153,8 @@ const AdminDashboard = () => {
       return;
     }
 
-    fetchStats();
-    fetchAvailableMentors();
+    void fetchStats();
+    void fetchAvailableMentors();
   }, [isAdmin]);
 
   useEffect(() => {
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAdmin) return;
 
-    fetchUsers();
+    void fetchUsers();
   }, [
     currentPage,
     debouncedSearchTerm,
@@ -360,7 +360,7 @@ const AdminDashboard = () => {
 
     // Ensure mentors are loaded for the dropdown
     if (availableMentors.length === 0) {
-      fetchAvailableMentors();
+      void fetchAvailableMentors();
     }
 
     // Fetch mentor assignments in background if user is a Mentee
@@ -452,8 +452,7 @@ const AdminDashboard = () => {
       resetCreateUserForm();
       setShowCreateModal(false);
 
-      fetchUsers();
-      fetchStats();
+      await Promise.all([fetchUsers(), fetchStats()]);
     } catch (error: any) {
       console.error("Error creating user:", error);
       setToast({
@@ -537,9 +536,7 @@ const AdminDashboard = () => {
       });
 
       setShowUserModal(false);
-      fetchUsers();
-      fetchStats();
-      fetchAvailableMentors();
+      await Promise.all([fetchUsers(), fetchStats(), fetchAvailableMentors()]);
     } catch (error: any) {
       console.error("Error updating user:", error);
       setToast({
@@ -589,8 +586,7 @@ const AdminDashboard = () => {
 
       setShowDeleteModal(false);
       setUserToDelete(null);
-      fetchUsers();
-      fetchStats();
+      await Promise.all([fetchUsers(), fetchStats()]);
     } catch (error: any) {
       console.error("Error deleting user:", error);
       setToast({
@@ -680,7 +676,7 @@ const AdminDashboard = () => {
 
     // Fetch mentors if changing to Mentee role and mentors not loaded
     if (newRole === "Mentee" && availableMentors.length === 0) {
-      fetchAvailableMentors();
+      void fetchAvailableMentors();
     }
 
     setEditingUser(updatedEditingUser);
@@ -1375,9 +1371,9 @@ const AdminDashboard = () => {
                     <div className="bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-teal-100 dark:border-teal-800 transition-colors">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
+                          <p className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
                             Payment Status
-                          </label>
+                          </p>
                           <div className="flex items-center gap-2">
                             {selectedUser.membershipPaid ? (
                               <>
@@ -1397,9 +1393,9 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
+                          <p className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
                             Amount
-                          </label>
+                          </p>
                           <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors">
                             GHS {selectedUser.membershipAmount || 30}
                           </p>
@@ -1408,17 +1404,17 @@ const AdminDashboard = () => {
                           selectedUser.paymentReference && (
                             <>
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
+                                <p className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
                                   Reference
-                                </label>
+                                </p>
                                 <p className="text-sm font-mono text-gray-900 dark:text-white transition-colors">
                                   {selectedUser.paymentReference}
                                 </p>
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
+                                <p className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors">
                                   Payment Date
-                                </label>
+                                </p>
                                 <p className="text-sm text-gray-900 dark:text-white transition-colors">
                                   {selectedUser.paymentDate
                                     ? new Date(
@@ -1513,7 +1509,7 @@ const AdminDashboard = () => {
                           onChange={(e) => {
                             const amount = Math.max(
                               0,
-                              parseFloat(e.target.value) || 0,
+                              Number.parseFloat(e.target.value) || 0,
                             );
                             setEditingUser({
                               ...editingUser,
@@ -2068,7 +2064,7 @@ const AdminDashboard = () => {
                         onChange={(e) => {
                           const amount = Math.max(
                             0,
-                            parseFloat(e.target.value) || 0,
+                            Number.parseFloat(e.target.value) || 0,
                           );
                           setNewUser({ ...newUser, membershipAmount: amount });
                         }}

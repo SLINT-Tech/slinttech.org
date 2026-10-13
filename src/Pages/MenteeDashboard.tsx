@@ -167,7 +167,7 @@ const MenteeDashboard = () => {
       }
     };
 
-    fetchUserData();
+    void fetchUserData();
   }, [navigate]);
 
   const getStatusColor = (status: string) => {

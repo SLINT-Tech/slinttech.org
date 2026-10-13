@@ -80,7 +80,7 @@ const PaymentWallPage = () => {
       return;
     }
 
-    setMembershipAmount(parseFloat(membershipAmountValue || "30.00"));
+    setMembershipAmount(Number.parseFloat(membershipAmountValue || "30.00"));
     setIsLoading(false);
   }, [profile, authLoading, token, navigate]);
 

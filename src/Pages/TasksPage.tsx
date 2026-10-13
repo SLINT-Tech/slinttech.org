@@ -65,7 +65,7 @@ const TasksPage = () => {
       navigate("/dashboard");
       return;
     }
-    fetchTasks();
+    void fetchTasks();
   }, [navigate]);
 
   const fetchTasks = async () => {

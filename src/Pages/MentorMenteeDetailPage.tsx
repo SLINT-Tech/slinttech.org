@@ -72,7 +72,7 @@ const MentorMenteeDetailPage = () => {
       navigate("/mentor/dashboard");
       return;
     }
-    fetchMenteeDetail();
+    void fetchMenteeDetail();
   }, [menteeId, navigate]);
 
   const fetchMenteeDetail = async () => {

@@ -125,7 +125,7 @@ const MentorCourseDetailPage = () => {
 
   useEffect(() => {
     if (courseId) {
-      fetchCourseDetails();
+      void fetchCourseDetails();
     }
   }, [courseId]);
 
@@ -238,7 +238,7 @@ const MentorCourseDetailPage = () => {
       setToast({ message: "Lesson created successfully!", type: "success" });
       setNewLesson({ title: "", description: "", link: "" });
       setShowCreateLessonModal(false);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Create lesson error:", error);
       setToast({
@@ -291,7 +291,7 @@ const MentorCourseDetailPage = () => {
         deadline: "",
       });
       setShowCreateTaskModal(false);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Create task error:", error);
       setToast({
@@ -340,7 +340,7 @@ const MentorCourseDetailPage = () => {
       setToast({ message: "Lesson updated successfully!", type: "success" });
       setShowEditLessonModal(false);
       setEditingLesson(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Error updating lesson:", error);
       setToast({
@@ -374,7 +374,7 @@ const MentorCourseDetailPage = () => {
       setToast({ message: "Lesson deleted successfully!", type: "success" });
       setShowDeleteLessonModal(false);
       setLessonToDelete(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Error deleting lesson:", error);
       setToast({
@@ -436,7 +436,7 @@ const MentorCourseDetailPage = () => {
       setToast({ message: "Task updated successfully!", type: "success" });
       setShowEditTaskModal(false);
       setEditingTask(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Error updating task:", error);
       setToast({
@@ -470,7 +470,7 @@ const MentorCourseDetailPage = () => {
       setToast({ message: "Task deleted successfully!", type: "success" });
       setShowDeleteTaskModal(false);
       setTaskToDelete(null);
-      fetchCourseDetails();
+      await fetchCourseDetails();
     } catch (error) {
       console.error("Error deleting task:", error);
       setToast({
@@ -517,8 +517,7 @@ const MentorCourseDetailPage = () => {
       });
       setSelectedMentees([]);
       setShowEnrollMenteesModal(false);
-      fetchCourseDetails();
-      fetchAvailableMentees();
+      await Promise.all([fetchCourseDetails(), fetchAvailableMentees()]);
     } catch (error) {
       console.error("Enroll mentees error:", error);
       setToast({
@@ -776,7 +775,7 @@ const MentorCourseDetailPage = () => {
                 <button
                   onClick={() => {
                     setShowEnrollMenteesModal(true);
-                    fetchAvailableMentees();
+                    void fetchAvailableMentees();
                   }}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium text-left cursor-pointer flex items-center gap-1 transition-colors"
                 >
@@ -1274,9 +1273,9 @@ const MentorCourseDetailPage = () => {
               </div>
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
+                  <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                     Requirements
-                  </label>
+                  </p>
                   <button
                     onClick={addRequirement}
                     className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 text-sm font-medium cursor-pointer flex items-center gap-1 transition-colors"
@@ -1427,9 +1426,9 @@ const MentorCourseDetailPage = () => {
               </div>
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
+                  <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                     Requirements
-                  </label>
+                  </p>
                   <button
                     onClick={() =>
                       setEditingTask({

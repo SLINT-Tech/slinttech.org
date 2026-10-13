@@ -73,7 +73,7 @@ const MenteeCoursesPage = () => {
   };
 
   useEffect(() => {
-    fetchCourses();
+    void fetchCourses();
   }, []);
 
   const totalCourses = activeCourses.length;

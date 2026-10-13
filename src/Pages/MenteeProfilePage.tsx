@@ -1,19 +1,11 @@
-import {
-  ArrowLeft,
-  CheckCircle,
-  Download,
-  Eye,
-  EyeOff,
-  FileText,
-  User,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle, Download, FileText, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AppForm from "../Components/AppForm";
+import PasswordSettings from "../Components/PasswordSettings";
 import Navigation from "../Components/Navigation";
 import Toast from "../Components/Toast";
 import { useAuth, type UserProfile } from "../hooks/useAuth";
-import { apiDownload, apiGet, apiPost, saveBlob } from "../lib/api";
+import { apiDownload, apiGet, saveBlob } from "../lib/api";
 
 type ProfileDetails = Pick<
   UserProfile,
@@ -43,18 +35,6 @@ const MenteeProfilePage = () => {
   // Get current user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
-  const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -126,77 +106,8 @@ const MenteeProfilePage = () => {
       }
     };
 
-    fetchProfileData();
+    void fetchProfileData();
   }, [navigate]);
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswordData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handlePasswordUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setToast({
-        message: "New passwords do not match!",
-        type: "error",
-      });
-      return;
-    }
-
-    if (passwordData.newPassword.length < 8) {
-      setToast({
-        message: "Password must be at least 8 characters long!",
-        type: "error",
-      });
-      return;
-    }
-
-    setIsUpdating(true);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setToast({
-          message: "Authentication required",
-          type: "error",
-        });
-        setIsUpdating(false);
-        return;
-      }
-
-      await apiPost("/auth/change-password", {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      });
-
-      setToast({
-        message: "Password updated successfully!",
-        type: "success",
-      });
-
-      setShowPasswordForm(false);
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error) {
-      console.error("Password update error:", error);
-      setToast({
-        message:
-          error instanceof Error ? error.message : "Failed to update password",
-        type: "error",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const downloadContract = async () => {
     try {
@@ -250,13 +161,6 @@ const MenteeProfilePage = () => {
         type: "error",
       });
     }
-  };
-
-  const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
   };
 
   const getStatusColor = (status: string) => {
@@ -473,9 +377,9 @@ const MenteeProfilePage = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Full Name
-                  </label>
+                  </p>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
                     <p className="text-gray-900 dark:text-white">
                       {profileData.fullName}
@@ -484,9 +388,9 @@ const MenteeProfilePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Email Address
-                  </label>
+                  </p>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
                     <p className="text-gray-900 dark:text-white">
                       {profileData.email}
@@ -495,9 +399,9 @@ const MenteeProfilePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Membership Category
-                  </label>
+                  </p>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
                     <p className="text-gray-900 dark:text-white">
                       {profileData.membershipCategory}
@@ -506,9 +410,9 @@ const MenteeProfilePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Career Path
-                  </label>
+                  </p>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
                     <p className="text-gray-900 dark:text-white">
                       {profileData.careerPath}
@@ -517,9 +421,9 @@ const MenteeProfilePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Joined Date
-                  </label>
+                  </p>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg transition-colors">
                     <p className="text-gray-900 dark:text-white">
                       {new Date(profileData.joinedDate).toLocaleDateString()}
@@ -529,9 +433,9 @@ const MenteeProfilePage = () => {
 
                 {/* Membership Payment Section */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Membership Payment
-                  </label>
+                  </p>
                   {profileData.membershipEnabled &&
                   Number(profileData.membershipAmount) > 0 ? (
                     profileData.membershipPaid ? (
@@ -581,161 +485,7 @@ const MenteeProfilePage = () => {
             {/* Security & Documents */}
             <div className="space-y-6">
               {/* Password Update */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Security
-                  </h2>
-                  <button
-                    onClick={() => setShowPasswordForm(!showPasswordForm)}
-                    className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
-                  >
-                    {showPasswordForm ? "Cancel" : "Change Password"}
-                  </button>
-                </div>
-
-                {showPasswordForm ? (
-                  <AppForm
-                    onSubmit={handlePasswordUpdate}
-                    className="space-y-4"
-                  >
-                    <div>
-                      <label
-                        htmlFor="menteeprofilepage-field-20564"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >
-                        Current Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="menteeprofilepage-field-20564"
-                          type={showPasswords.current ? "text" : "password"}
-                          name="currentPassword"
-                          value={passwordData.currentPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 pr-10 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
-                          required
-                        />
-                        <button
-                          type="button"
-                          aria-label={
-                            showPasswords.current
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                          aria-pressed={showPasswords.current}
-                          onClick={() => togglePasswordVisibility("current")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
-                        >
-                          {showPasswords.current ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="menteeprofilepage-field-21991"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >
-                        New Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="menteeprofilepage-field-21991"
-                          type={showPasswords.new ? "text" : "password"}
-                          name="newPassword"
-                          value={passwordData.newPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 pr-10 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
-                          required
-                        />
-                        <button
-                          type="button"
-                          aria-label={
-                            showPasswords.new
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                          aria-pressed={showPasswords.new}
-                          onClick={() => togglePasswordVisibility("new")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
-                        >
-                          {showPasswords.new ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="menteeprofilepage-field-23394"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >
-                        Confirm New Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="menteeprofilepage-field-23394"
-                          type={showPasswords.confirm ? "text" : "password"}
-                          name="confirmPassword"
-                          value={passwordData.confirmPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 pr-10 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
-                          required
-                        />
-                        <button
-                          type="button"
-                          aria-label={
-                            showPasswords.confirm
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                          aria-pressed={showPasswords.confirm}
-                          onClick={() => togglePasswordVisibility("confirm")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-colors"
-                        >
-                          {showPasswords.confirm ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isUpdating}
-                      className="w-full bg-[#008080] dark:bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      {isUpdating ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
-                          Updating...
-                        </>
-                      ) : (
-                        "Update Password"
-                      )}
-                    </button>
-                  </AppForm>
-                ) : (
-                  <div className="text-center py-6">
-                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors">
-                      <User className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                    </div>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Click "Change Password" to update your password
-                    </p>
-                  </div>
-                )}
-              </div>
+              <PasswordSettings onNotify={setToast} />
 
               {/* Contract Document */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 p-6 transition-colors">

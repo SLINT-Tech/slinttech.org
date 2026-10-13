@@ -66,7 +66,7 @@ const MentorsPage = () => {
   };
 
   useEffect(() => {
-    fetchMentors();
+    void fetchMentors();
   }, []);
 
   const formatDate = (dateString: string) => {

@@ -146,7 +146,7 @@ const MentorDashboard = () => {
       }
     };
 
-    fetchMentorData();
+    void fetchMentorData();
   }, [navigate]);
 
   const totalPages = Math.ceil(courses.length / itemsPerPage);

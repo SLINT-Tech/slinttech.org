@@ -67,7 +67,7 @@ const MenteeMentorCoursesPage = () => {
 
   useEffect(() => {
     if (mentorId) {
-      fetchMentorCourses();
+      void fetchMentorCourses();
     }
   }, [mentorId]);
 
