@@ -5,7 +5,8 @@ import PasswordSettings from "../Components/PasswordSettings";
 import Navigation from "../Components/Navigation";
 import Toast from "../Components/Toast";
 import { useAuth, type UserProfile } from "../hooks/useAuth";
-import { apiDownload, apiGet, saveBlob } from "../lib/api";
+import { apiGet } from "../lib/api";
+import { downloadProfileContract } from "../lib/downloadProfileContract";
 
 type ProfileDetails = Pick<
   UserProfile,
@@ -112,59 +113,13 @@ const MentorProfilePage = () => {
     void fetchProfileData();
   }, [navigate]);
 
-  const downloadContract = async () => {
-    try {
-      const contractUrl = profileData?.contractFile;
-
-      if (!contractUrl) {
-        setToast({
-          message: "No contract document available",
-          type: "error",
-        });
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-      const userId = currentUser.id;
-
-      if (!token || !userId) {
-        setToast({
-          message: "Authentication required",
-          type: "error",
-        });
-        return;
-      }
-
-      setToast({
-        message: "Downloading contract...",
-        type: "success",
-      });
-
-      const { blob, fileName } = await apiDownload("/download-contract", {
-        userId,
-      });
-
-      saveBlob(
-        blob,
-        fileName ||
-          `${profileData.fullName.replace(/[^a-zA-Z0-9 ]/g, "_").trim()}_contract.pdf`,
-      );
-
-      setToast({
-        message: "Contract downloaded successfully!",
-        type: "success",
-      });
-    } catch (error) {
-      console.error("Download error:", error);
-      setToast({
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to download contract",
-        type: "error",
-      });
-    }
-  };
+  const downloadContract = () =>
+    downloadProfileContract({
+      contractUrl: profileData?.contractFile,
+      userId: currentUser.id,
+      fullName: profileData?.fullName,
+      onNotify: setToast,
+    });
 
   const getStatusColor = (status: string) => {
     switch (status) {
