@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "2.2.10",
     "@neondatabase/serverless": "^1.0.2",
     "@sendinblue/client": "^3.3.1",
     "@types/react-router-dom": "^5.3.3",
