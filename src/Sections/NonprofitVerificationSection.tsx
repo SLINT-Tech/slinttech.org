@@ -95,7 +95,7 @@ const NonprofitVerificationSection: React.FC = () => {
               key={verification.id}
               // hidden before reveal only when motion is allowed; .hero-rise is off under reduced motion.
               // transition-shadow, not transition: an opacity transition would outrank the animation's fill
-              className={`${revealed ? "hero-rise" : "motion-safe:opacity-0"} flex flex-col rounded-2xl bg-white p-6 ring-1 ring-gray-900/10 transition-shadow hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40`}
+              className={`${revealed ? "hero-rise" : "motion-safe:opacity-0 print:opacity-100"} flex flex-col rounded-2xl bg-white p-6 ring-1 ring-gray-900/10 transition-shadow hover:ring-[#008080]/40 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40`}
               style={revealed ? { animationDelay: `${i * 80}ms` } : undefined}
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#008080]/10 text-[#008080] dark:bg-teal-400/12 dark:text-teal-400">

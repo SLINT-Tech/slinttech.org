@@ -18,6 +18,11 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+    /* keep focused elements and anchor targets clear of the sticky header */
+    html {
+        scroll-padding-top: 6rem;
+    }
+
     /* Global dark mode support for body and html */
     html {
         transition: background-color 0.3s ease, color 0.3s ease;
