@@ -526,7 +526,7 @@ const SignUpPage = () => {
                   <button
                     type="button"
                     onClick={downloadContract}
-                    className="w-full flex items-center justify-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-md cursor-pointer text-sm font-medium"
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-2.5 rounded-lg hover:bg-[#006666] transition-all hover:shadow-md cursor-pointer text-sm font-medium"
                   >
                     <Download className="w-4 h-4" />
                     Download Agreement
@@ -591,7 +591,7 @@ const SignUpPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] dark:bg-teal-600 text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-[#006666] transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
