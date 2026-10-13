@@ -12,7 +12,7 @@ const NewsletterSection: React.FC = () => {
     return (
         <section
             id="community"
-            className="relative overflow-hidden bg-[linear-gradient(100deg,#008080_0%,#00a3a3_100%)] py-20 focus:outline-none"
+            className="relative scroll-mt-24 overflow-hidden bg-[linear-gradient(100deg,#008080_0%,#00a3a3_100%)] py-20 focus:outline-none"
         >
             <div
                 aria-hidden="true"
