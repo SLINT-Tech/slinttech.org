@@ -27,11 +27,13 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
 
   return (
     <div className={`
-      fixed top-4 right-4 z-[99999] transition-all duration-300 isolate
+      fixed top-4 right-4 left-4 sm:left-auto z-[99999] transition-all duration-300 isolate
       ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
     `}>
-      <div className={`
-        flex items-start gap-3 p-4 rounded-lg shadow-lg max-w-md min-w-[320px]
+      <div
+        role={type === 'error' ? 'alert' : 'status'}
+        className={`
+        flex items-start gap-3 p-4 rounded-lg shadow-lg w-full sm:w-auto max-w-md sm:min-w-[320px]
         ${type === 'error'
           ? 'bg-red-50 border-2 border-red-200'
           : 'bg-green-50 border-2 border-green-200'
@@ -42,9 +44,9 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
           ${type === 'error' ? 'text-red-600' : 'text-green-600'}
         `}>
           {type === 'error' ? (
-            <AlertCircle className="w-5 h-5" />
+            <AlertCircle aria-hidden="true" className="w-5 h-5" />
           ) : (
-            <CheckCircle2 className="w-5 h-5" />
+            <CheckCircle2 aria-hidden="true" className="w-5 h-5" />
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -66,7 +68,7 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
           `}
           aria-label="Close notification"
         >
-          <X className="w-4 h-4" />
+          <X aria-hidden="true" className="w-4 h-4" />
         </button>
       </div>
     </div>
