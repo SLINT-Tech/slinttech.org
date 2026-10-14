@@ -1,8 +1,37 @@
 import { ArrowRight, CheckCircle, Download, FileText, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import FormSelect, { type FormSelectOption } from '../Components/FormSelect';
 import Toast from '../Components/Toast';
 import { buildApiUrl } from '../lib/api';
+
+type MemberRole = 'Mentee' | 'Mentor';
+
+const ROLE_OPTIONS: FormSelectOption<MemberRole>[] = [
+  { value: 'Mentee', label: 'Mentee (I want to learn)' },
+  { value: 'Mentor', label: 'Mentor (I want to teach)' },
+];
+
+const MEMBERSHIP_CATEGORY_OPTIONS: FormSelectOption[] = [
+  { value: 'Student', label: 'Student' },
+  { value: 'Professional', label: 'Professional' },
+  { value: 'Volunteer', label: 'Volunteer' },
+];
+
+const CAREER_PATH_OPTIONS: FormSelectOption[] = [
+  'Full Stack Development',
+  'Frontend Development',
+  'Backend Development',
+  'Mobile Development',
+  'Machine Learning/AI',
+  'Data Science',
+  'UI/UX Design',
+].map(path => ({ value: path, label: path }));
+
+const labelClassName = 'block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm';
+
+// Height and colours match the FormSelect trigger so every field in the form lines up.
+const inputClassName = 'h-12 w-full border border-gray-300 bg-white text-base text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-500 dark:placeholder:text-gray-400';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -20,7 +49,7 @@ const SignUpPage = () => {
     confirmPassword: '',
     membershipCategory: '',
     careerPath: '',
-    role: 'Mentee' as 'Mentee' | 'Mentor',
+    role: 'Mentee' as MemberRole,
     contractFile: null as File | null
   });
 
@@ -46,7 +75,7 @@ const SignUpPage = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -315,9 +344,10 @@ const SignUpPage = () => {
               </button>
               <Link
                 to="/"
+                aria-label="Close and return to the home page"
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <X aria-hidden="true" className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </Link>
             </div>
           </div>
@@ -354,15 +384,17 @@ const SignUpPage = () => {
 
                 {/* Full Name */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-fullName" className={labelClassName}>
                     Full Name *
                   </label>
                   <input
+                    id="signup-fullName"
                     type="text"
                     name="fullName"
+                    autoComplete="name"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Enter your full name"
                     required
                   />
@@ -370,15 +402,17 @@ const SignUpPage = () => {
 
                 {/* Email Address */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-email" className={labelClassName}>
                     Email Address *
                   </label>
                   <input
+                    id="signup-email"
                     type="email"
                     name="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Enter your email address"
                     required
                   />
@@ -386,15 +420,17 @@ const SignUpPage = () => {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-password" className={labelClassName}>
                     Password *
                   </label>
                   <input
+                    id="signup-password"
                     type="password"
                     name="password"
+                    autoComplete="new-password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Create a password (min 6 characters)"
                     required
                     minLength={6}
@@ -403,15 +439,17 @@ const SignUpPage = () => {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
+                  <label htmlFor="signup-confirmPassword" className={labelClassName}>
                     Confirm Password *
                   </label>
                   <input
+                    id="signup-confirmPassword"
                     type="password"
                     name="confirmPassword"
+                    autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    className={inputClassName}
                     placeholder="Confirm your password"
                     required
                     minLength={6}
@@ -425,71 +463,36 @@ const SignUpPage = () => {
                   Membership Details
                 </h2>
 
-                {/* Role Selection */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    I want to join as *
-                  </label>
-                  <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="Mentee">Mentee (I want to learn)</option>
-                    <option value="Mentor">Mentor (I want to teach)</option>
-                  </select>
-                </div>
+                <FormSelect
+                  label="I want to join as"
+                  value={formData.role}
+                  onChange={role => setFormData(prev => ({ ...prev, role }))}
+                  options={ROLE_OPTIONS}
+                  required
+                />
 
-                {/* Membership Category */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    Membership Category *
-                  </label>
-                  <select
-                    name="membershipCategory"
-                    value={formData.membershipCategory}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="">Select your category</option>
-                    <option value="Student">Student</option>
-                    <option value="Professional">Professional</option>
-                    <option value="Volunteer">Volunteer</option>
-                  </select>
-                </div>
+                <FormSelect
+                  label="Membership Category"
+                  value={formData.membershipCategory}
+                  onChange={membershipCategory => setFormData(prev => ({ ...prev, membershipCategory }))}
+                  options={MEMBERSHIP_CATEGORY_OPTIONS}
+                  placeholder="Select your category"
+                  required
+                />
 
-                {/* Career Path / Specialization */}
-                <div>
-                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm">
-                    {formData.role === 'Mentor' ? 'Specialization *' : 'Interested Career Path *'}
-                  </label>
-                  <select
-                    name="careerPath"
-                    value={formData.careerPath}
-                    onChange={handleInputChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors bg-white dark:bg-gray-800 dark:text-white"
-                    required
-                  >
-                    <option value="">
-                      {formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
-                    </option>
-                    <option value="Full Stack Development">Full Stack Development</option>
-                    <option value="Frontend Development">Frontend Development</option>
-                    <option value="Backend Development">Backend Development</option>
-                    <option value="Mobile Development">Mobile Development</option>
-                    <option value="Machine Learning/AI">Machine Learning/AI</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="UI/UX Design">UI/UX Design</option>
-                  </select>
-                </div>
+                <FormSelect
+                  label={formData.role === 'Mentor' ? 'Specialization' : 'Interested Career Path'}
+                  value={formData.careerPath}
+                  onChange={careerPath => setFormData(prev => ({ ...prev, careerPath }))}
+                  options={CAREER_PATH_OPTIONS}
+                  placeholder={formData.role === 'Mentor' ? 'Select your specialization' : 'Select your career path'}
+                  required
+                />
 
                 {/* Info Card */}
                 <div className="bg-[#008080]/5 dark:bg-teal-500/10 rounded-lg p-4 border border-[#008080]/20 dark:border-teal-500/30">
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <span className="font-semibold text-[#008080] dark:text-teal-400">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
+                    <span className="font-semibold text-[#006666] dark:text-teal-400">Note:</span> Your account will be reviewed by our team before approval. You'll receive a notification once your registration is confirmed.
                   </p>
                 </div>
               </div>
@@ -498,7 +501,7 @@ const SignUpPage = () => {
             {/* Contract Section - Full Width */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 lg:p-6 space-y-5 border border-gray-200 dark:border-gray-700">
               <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
+                <FileText aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Membership Contract</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">Please download, sign, and upload the membership agreement to complete your registration</p>
@@ -510,7 +513,7 @@ const SignUpPage = () => {
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-[#008080]/30 dark:hover:border-teal-400/30 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
-                      <Download className="w-5 h-5 text-[#008080] dark:text-teal-400" />
+                      <Download aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 1: Download Contract</p>
@@ -522,9 +525,9 @@ const SignUpPage = () => {
                   <button
                     type="button"
                     onClick={downloadContract}
-                    className="w-full flex items-center justify-center gap-2 bg-[#008080] dark:bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-md cursor-pointer text-sm font-medium"
+                    className="w-full flex items-center justify-center gap-2 bg-[#008080] text-white px-4 py-2.5 rounded-lg hover:bg-[#006666] transition-all hover:shadow-md cursor-pointer text-sm font-medium"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download aria-hidden="true" className="w-4 h-4" />
                     Download Agreement
                   </button>
                 </div>
@@ -533,7 +536,7 @@ const SignUpPage = () => {
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2 bg-[#008080]/10 dark:bg-teal-400/10 rounded-lg">
-                      <Upload className="w-5 h-5 text-[#008080] dark:text-teal-400" />
+                      <Upload aria-hidden="true" className="w-5 h-5 text-[#008080] dark:text-teal-400" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Step 2: Upload Signed Contract *</p>
@@ -553,27 +556,30 @@ const SignUpPage = () => {
                       type="file"
                       accept=".pdf"
                       onChange={handleFileUpload}
-                      className="hidden"
+                      className="peer sr-only"
                       id="contract-upload"
+                      // Safari skips file inputs on Tab by default; keep the required upload reachable.
+                      tabIndex={0}
+                      aria-describedby={formData.contractFile ? undefined : "contract-upload-hint"}
                     />
-                    <label htmlFor="contract-upload" className="cursor-pointer">
+                    <label htmlFor="contract-upload" className="block cursor-pointer rounded-md peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#008080] dark:peer-focus-visible:outline-teal-400">
                       {formData.contractFile ? (
                         <div className="flex flex-col items-center">
-                          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
+                          <CheckCircle aria-hidden="true" className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
                           <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 font-semibold mb-1">
-                            <FileText className="w-4 h-4" />
+                            <FileText aria-hidden="true" className="w-4 h-4" />
                             <span>{formData.contractFile.name}</span>
                           </div>
-                          <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                          <p className="text-xs text-green-700 dark:text-green-400 font-medium">
                             {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB • Uploaded successfully
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Click to replace file</p>
                         </div>
                       ) : (
                         <div>
-                          <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                          <Upload aria-hidden="true" className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Click to upload signed contract</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
+                          <p id="contract-upload-hint" className="text-xs text-gray-500 dark:text-gray-400">PDF files only • Max 10MB</p>
                         </div>
                       )}
                     </label>
@@ -587,7 +593,7 @@ const SignUpPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] dark:bg-teal-600 text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-teal-700 dark:hover:bg-teal-500 transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full lg:w-auto lg:min-w-[280px] bg-[#008080] text-white text-sm font-semibold py-2.5 px-8 rounded-lg hover:bg-[#006666] transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -597,7 +603,7 @@ const SignUpPage = () => {
                 ) : (
                   <>
                     Create Account
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight aria-hidden="true" className="w-5 h-5" />
                   </>
                 )}
               </button>

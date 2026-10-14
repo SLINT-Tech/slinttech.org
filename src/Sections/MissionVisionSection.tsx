@@ -30,7 +30,7 @@ const MissionVisionSection: React.FC = () => {
         </h2>
         <p
           className={`text-lg max-w-2xl mx-auto ${
-            isDark ? "text-slate-300" : "text-[#9C9C9C]"
+            isDark ? "text-slate-300" : "text-gray-600"
           }`}
         >
           Empowering the next generation of tech leaders through education,
