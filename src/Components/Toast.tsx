@@ -27,13 +27,13 @@ const Toast = ({ message, type, onClose }: ToastProps) => {
 
   return (
     <div className={`
-      fixed top-4 right-4 left-4 sm:left-auto z-[99999] transition-all duration-300 isolate
+      pointer-events-none fixed top-4 right-4 left-4 sm:left-auto z-[99999] transition-all duration-300 isolate
       ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
     `}>
       <div
         role={type === 'error' ? 'alert' : 'status'}
         className={`
-        flex items-start gap-3 p-4 rounded-lg shadow-lg w-full sm:w-auto max-w-md sm:min-w-[320px]
+        pointer-events-auto ml-auto flex items-start gap-3 p-4 rounded-lg shadow-lg w-full sm:w-auto max-w-md sm:min-w-[320px]
         ${type === 'error'
           ? 'bg-red-50 border-2 border-red-200'
           : 'bg-green-50 border-2 border-green-200'
