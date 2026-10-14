@@ -40,7 +40,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
 
       # Non-blocking until the existing type errors are fixed (ST-X6).
       - name: tsc
@@ -58,7 +58,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
 
       # Non-blocking for now: the project has pre-existing lint errors.
       - name: ESLint
