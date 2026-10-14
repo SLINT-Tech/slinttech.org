@@ -7,6 +7,10 @@ on:
   push:
     branches:
       - azure-migration
+    # Frontend-only merges should not rebuild and restart the API.
+    paths:
+      - 'server/**'
+      - '.github/workflows/azure-migration_slinttech-api.yml'
   workflow_dispatch:
 
 jobs:
