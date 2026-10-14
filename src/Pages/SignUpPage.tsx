@@ -558,7 +558,9 @@ const SignUpPage = () => {
                       onChange={handleFileUpload}
                       className="peer sr-only"
                       id="contract-upload"
-                      aria-describedby="contract-upload-hint"
+                      // Safari skips file inputs on Tab by default; keep the required upload reachable.
+                      tabIndex={0}
+                      aria-describedby={formData.contractFile ? undefined : "contract-upload-hint"}
                     />
                     <label htmlFor="contract-upload" className="block cursor-pointer rounded-md peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#008080] dark:peer-focus-visible:outline-teal-400">
                       {formData.contractFile ? (
@@ -568,7 +570,7 @@ const SignUpPage = () => {
                             <FileText aria-hidden="true" className="w-4 h-4" />
                             <span>{formData.contractFile.name}</span>
                           </div>
-                          <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                          <p className="text-xs text-green-700 dark:text-green-400 font-medium">
                             {(formData.contractFile.size / 1024 / 1024).toFixed(2)} MB • Uploaded successfully
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Click to replace file</p>
