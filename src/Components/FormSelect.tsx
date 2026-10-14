@@ -1,6 +1,6 @@
-import { Field, Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
+import { Description, Field, Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { Check, ChevronDown } from 'lucide-react';
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 
 export interface FormSelectOption<T extends string = string> {
   value: T;
@@ -19,7 +19,6 @@ interface FormSelectProps<T extends string> {
 const FormSelect = <T extends string>({ label, value, onChange, options, placeholder, required = false }: FormSelectProps<T>) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const selectedOption = options.find(option => option.value === value);
-  const errorId = useId();
   const [showRequiredError, setShowRequiredError] = useState(false);
   const isMissing = required && showRequiredError && !value;
 
@@ -38,7 +37,6 @@ const FormSelect = <T extends string>({ label, value, onChange, options, placeho
         <ListboxButton
           ref={buttonRef}
           aria-invalid={isMissing || undefined}
-          aria-describedby={isMissing ? errorId : undefined}
           // Safari skips buttons on Tab by default but reached the native <select>; an explicit tabIndex keeps it in the order.
           tabIndex={0}
           onKeyDown={(event: KeyboardEvent<HTMLButtonElement>) => {
@@ -102,9 +100,9 @@ const FormSelect = <T extends string>({ label, value, onChange, options, placeho
         </select>
       )}
       {isMissing && (
-        <p id={errorId} className="mt-1.5 text-sm text-red-700 dark:text-red-400">
+        <Description as="p" className="mt-1.5 text-sm text-red-700 dark:text-red-400">
           Please choose an option.
-        </p>
+        </Description>
       )}
     </Field>
   );
