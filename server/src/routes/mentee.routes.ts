@@ -63,11 +63,7 @@ router.get(
         COUNT(DISTINCT CASE WHEN lp.completed = true THEN l.id END) as completed_lessons
       FROM lessons l
       LEFT JOIN lesson_progress lp ON l.id = lp.lesson_id AND lp.mentee_id = ${menteeId}
-      WHERE l.course_id = ANY(${sql.raw(
-        `ARRAY[${enrolledCourseIds
-          .map((id: string) => `'${id}'`)
-          .join(",")}]::uuid[]`
-      )})
+      WHERE l.course_id = ANY(${sql.param(enrolledCourseIds)}::uuid[])
     `);
 
       const tasksProgressResultRaw = await db.execute(sql`
@@ -78,11 +74,7 @@ router.get(
         COUNT(DISTINCT CASE WHEN ts.status = 'rejected' THEN t.id END) as rejected_tasks
       FROM tasks t
       LEFT JOIN task_submissions ts ON t.id = ts.task_id AND ts.mentee_id = ${menteeId}
-      WHERE t.course_id = ANY(${sql.raw(
-        `ARRAY[${enrolledCourseIds
-          .map((id: string) => `'${id}'`)
-          .join(",")}]::uuid[]`
-      )})
+      WHERE t.course_id = ANY(${sql.param(enrolledCourseIds)}::uuid[])
     `);
 
       const lessonsProgressResult: any[] =
