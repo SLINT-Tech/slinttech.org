@@ -94,7 +94,8 @@ export default function Header({ onLogout }: HeaderProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-14 items-center justify-between rounded-full bg-white/90 pr-2 pl-4 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150 sm:pr-3 sm:pl-6 dark:bg-gray-900/90 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] dark:ring-white/10">
           {/* Logo */}
-          <Link to="/" aria-label="SLINT Tech home" className="flex items-center gap-0 shrink-0">
+          {/* the name must contain the visible wordmark, which reads as one word (WCAG 2.5.3) */}
+          <Link to="/" aria-label="SLINTTech home" className="flex items-center gap-0 shrink-0">
             <img src="/assets/logo.svg" alt="" className="h-8 w-8" />
             <span className="hidden text-xl text-[#008080] sm:inline">
               <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
