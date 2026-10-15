@@ -6,6 +6,7 @@ import { db } from '../db/index.js';
 import { userProfiles } from '../db/schema.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
 import { asyncHandler } from '../middleware/error.middleware.js';
+import { isLegacyCloudinaryUrl, resolveContractBlobName } from '../services/contract-storage.service.js';
 
 const router = Router();
 
@@ -162,7 +163,7 @@ router.post('/upload-contract', verifyToken, asyncHandler(async (req: Request, r
 
   const blobUrl = blockBlobClient.url;
 
-  console.log('File uploaded to Azure Blob Storage:', blobUrl);
+  console.log('Contract uploaded for user:', userId);
 
   res.status(200).json({
     success: true,
@@ -198,18 +199,27 @@ router.get('/download-contract', verifyToken, asyncHandler(async (req: Request, 
     return res.status(404).json({ error: 'Contract not found' });
   }
 
-  console.log('Fetching contract from storage:', user.contractFileUrl);
+  let fileBuffer: Buffer;
+  if (isLegacyCloudinaryUrl(user.contractFileUrl)) {
+    const storageResponse = await fetch(user.contractFileUrl, { redirect: 'error' });
 
-  // Fetch the file from the stored URL (works for both Azure Blob and legacy Cloudinary URLs)
-  const storageResponse = await fetch(user.contractFileUrl);
+    if (!storageResponse.ok) {
+      console.error('Storage fetch failed:', storageResponse.status, storageResponse.statusText);
+      throw new Error(`Failed to fetch file from storage. Status: ${storageResponse.status}`);
+    }
 
-  if (!storageResponse.ok) {
-    console.error('Storage fetch failed:', storageResponse.status, storageResponse.statusText);
-    throw new Error(`Failed to fetch file from storage. Status: ${storageResponse.status}`);
+    fileBuffer = Buffer.from(await storageResponse.arrayBuffer());
+  } else {
+    const containerClient = getContainerClient();
+    const blobName = resolveContractBlobName(user.contractFileUrl, containerClient.url);
+
+    if (!blobName) {
+      console.error('Stored contract URL is not in the contracts container for user:', targetUserId);
+      return res.status(404).json({ error: 'Contract not found' });
+    }
+
+    fileBuffer = await containerClient.getBlobClient(blobName).downloadToBuffer();
   }
-
-  // Get the file as a buffer
-  const fileBuffer = await storageResponse.arrayBuffer();
 
   // Generate a clean filename
   const sanitizedName = user.fullName
@@ -224,7 +234,7 @@ router.get('/download-contract', verifyToken, asyncHandler(async (req: Request, 
   res.setHeader('Content-Disposition', `attachment; filename="${downloadFileName}"`);
   res.setHeader('Content-Length', fileBuffer.byteLength.toString());
   res.setHeader('Cache-Control', 'no-cache');
-  res.send(Buffer.from(fileBuffer));
+  res.send(fileBuffer);
 }));
 
 export default router;
