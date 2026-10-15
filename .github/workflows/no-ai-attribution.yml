@@ -1,0 +1,57 @@
+name: No AI attribution
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check commits and description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan commit messages
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -uo pipefail
+          # Anchored to the start of a line, so prose that merely mentions the
+          # phrase does not trip the check — only a real trailer or footer does.
+          pattern='^[[:space:]]*co-authored-by:.*(claude|anthropic)|^.{0,8}generated with \[?claude code'
+          failed=0
+          for sha in $(git rev-list "$BASE..$HEAD"); do
+            if git log -1 --format='%B' "$sha" | grep -inE "$pattern" >/dev/null; then
+              echo "::error::${sha} contains AI attribution in its commit message."
+              git log -1 --format='%B' "$sha" | grep -inE "$pattern"
+              failed=1
+            fi
+          done
+          if [ "$failed" -eq 1 ]; then
+            echo ""
+            echo "Rewrite the offending messages and force-push:"
+            echo "  git rebase -i $BASE   # mark them 'reword'"
+            exit 1
+          fi
+          echo "Commit messages are clean."
+
+      - name: Scan pull request title and description
+        env:
+          # Read through the environment, never interpolated into the script,
+          # so a crafted title cannot inject shell commands.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -uo pipefail
+          pattern='^[[:space:]]*co-authored-by:.*(claude|anthropic)|^.{0,8}generated with \[?claude code'
+          if printf '%s\n%s\n' "$PR_TITLE" "${PR_BODY:-}" | grep -inE "$pattern"; then
+            echo "::error::The pull request title or description contains AI attribution. Edit it and remove that line."
+            exit 1
+          fi
+          echo "Pull request title and description are clean."
