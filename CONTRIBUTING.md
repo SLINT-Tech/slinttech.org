@@ -6,9 +6,11 @@ General guidelines (code of conduct, issues, governance) live in the organisatio
 
 | Branch | Deploys to | Purpose |
 |---|---|---|
-| `testing` | Static Web Apps environment `testing` (stable branch URL) | First place every change lands. Try it here. |
-| `staging` | Static Web Apps environment `staging` (stable branch URL) | Release candidate. Final check before production. |
+| `testing` | https://delightful-meadow-071a8410f-testing.eastus2.3.azurestaticapps.net | First place every change lands. Try it here. |
+| `staging` | https://delightful-meadow-071a8410f-staging.eastus2.3.azurestaticapps.net | Release candidate. Final check before production. |
 | `azure-migration` | **https://slinttech.org** (production) | What the public sees. |
+
+**Rule:** every approved feature goes through testing, then staging, before production. No exceptions, including hotfixes.
 
 Every change follows the same path:
 
@@ -40,7 +42,7 @@ Work is tracked as tickets with keys like `ST-C2` (the roadmap is kept privately
 
 ## Checks on every pull request
 
-- **Required to merge:** **Build** (`npm run build`) and **No AI attribution** (commit messages, PR title and description).
+- **Required to merge:** **Build** (`npm run build`) and **No AI attribution** (status check `Check commits and description`: commit messages, PR title and description).
 - **Reported, not blocking yet:** **Type check** (`tsc -b`) and **lint** (`npm run lint`), because of existing errors (ticket ST-X6). Do not add new ones.
 - **Reported:** SonarCloud code analysis.
 
