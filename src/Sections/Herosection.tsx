@@ -1,5 +1,6 @@
 import { ArrowUpRight, GraduationCap, Users } from 'lucide-react';
 import { scrollToSection } from '../lib/scrollToSection';
+import { careerTracks } from '../data/careerTracks';
 
 const HeroSection = () => {
     const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -91,7 +92,7 @@ const HeroSection = () => {
                             <div className="mt-4 border-t border-gray-900/10 pt-4 dark:border-white/10" />
                             <div className="flex items-end justify-between">
                                 <span className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                                    12
+                                    {careerTracks.length}
                                 </span>
                                 <ArrowUpRight className="h-5 w-5 text-gray-700 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 dark:text-teal-400" />
                             </div>
