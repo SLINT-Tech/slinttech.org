@@ -1,6 +1,7 @@
 import { ArrowUpRight, GraduationCap, Users } from 'lucide-react';
 import { scrollToSection } from '../lib/scrollToSection';
 import { careerTracks } from '../data/careerTracks';
+import HeroPortraits from '../Components/HeroPortraits';
 
 const HeroSection = () => {
     const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -124,13 +125,7 @@ const HeroSection = () => {
 
                 {/* Right column: full figure, aligned to the bottom of the section */}
                 <div className="hero-rise relative flex items-end justify-center" style={{ animationDelay: '120ms' }}>
-                    <img
-                        src="/assets/hero-tech-guy-trimmed.png"
-                        alt="A SlintTech mentee holding a laptop showing the code they are building"
-                        width={900}
-                        height={1424}
-                        className="w-full max-w-xs sm:max-w-sm lg:-mt-6 lg:h-[38rem] lg:w-auto lg:max-w-none lg:object-contain lg:object-bottom xl:h-[41rem]"
-                    />
+                    <HeroPortraits />
                 </div>
             </div>
         </section>
