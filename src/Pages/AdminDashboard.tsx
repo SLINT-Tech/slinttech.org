@@ -36,7 +36,6 @@ interface MentorOption {
   specialization: string;
 }
 
-
 const AdminDashboard = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
@@ -515,7 +514,8 @@ const AdminDashboard = () => {
         email: editingUser.email,
         password: editingUser.password || undefined,
         membershipCategory: editingUser.membershipCategory,
-        careerPath: editingUser.careerPath,
+        // "Not set" is an empty option; store it as null, the same as creating a user without a path
+        careerPath: editingUser.careerPath || null,
         role: editingUser.role,
         status: editingUser.status,
         communityLink: editingUser.communityLink,
@@ -1065,8 +1065,8 @@ const AdminDashboard = () => {
                       >
                         <option value="">Not set</option>
                         {/* members who joined before the six tracks keep their original path until an admin changes it */}
-                        {editingUser.careerPath && !careerPathOptions.includes(editingUser.careerPath) && (
-                          <option value={editingUser.careerPath}>{editingUser.careerPath} (no longer offered)</option>
+                        {selectedUser.careerPath && !careerPathOptions.includes(selectedUser.careerPath) && (
+                          <option value={selectedUser.careerPath}>{selectedUser.careerPath} (no longer offered)</option>
                         )}
                         {careerPathOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
