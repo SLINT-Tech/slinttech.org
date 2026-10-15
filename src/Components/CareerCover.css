@@ -1,0 +1,357 @@
+/*
+  Illustrated covers for the career track cards. Everything is drawn with CSS
+  and inline SVG so the cards make no image requests. The cover is decorative
+  and hidden from assistive technology by the component.
+*/
+
+.cc-cover {
+  --cc-bg: #dcecea;
+  --cc-brand: #008080;
+  --cc-ink: #2c6b66;
+  --cc-orbit: rgb(0 128 128 / 0.14);
+  --cc-soft: #95c8c1;
+  --cc-ring: #6fb0a8;
+  --cc-tile-bg: #f6fbf9;
+  --cc-tile-line: #a9d3cd;
+  --cc-shadow: rgb(0 128 128 / 0.09);
+  --cc-badge-bg: rgb(255 255 255 / 0.72);
+  --cc-paper: #fcfcf6;
+  --cc-paper-line: #cfdcd6;
+  --cc-paper-rule: #dbe5e0;
+  --cc-term-bg: #0d3333;
+  --cc-term-line: #2e6262;
+  --cc-term-text: #e2efec;
+  --cc-term-key: #6fd6d0;
+  --cc-term-value: #efefd7;
+  --cc-term-muted: #9dbdb7;
+
+  position: relative;
+  height: 184px;
+  overflow: hidden;
+  background: var(--cc-bg);
+  color: var(--cc-ink);
+}
+
+/* cream and teal covers alternate so a row of cards does not read as one block */
+.cc-shield,
+.cc-bars,
+.cc-network {
+  --cc-bg: #efefd7;
+  --cc-orbit: rgb(0 128 128 / 0.16);
+}
+
+:where(.dark) .cc-cover {
+  --cc-bg: #0f2b2b;
+  --cc-brand: #00a1a1;
+  --cc-ink: #9fd3cd;
+  --cc-orbit: rgb(0 161 161 / 0.2);
+  --cc-soft: #2b605c;
+  --cc-ring: #3f807a;
+  --cc-tile-bg: #133636;
+  --cc-tile-line: #2c6563;
+  --cc-shadow: rgb(0 0 0 / 0.25);
+  --cc-badge-bg: rgb(255 255 255 / 0.08);
+  --cc-paper: #15302f;
+  --cc-paper-line: #2f5654;
+  --cc-paper-rule: #2a4c49;
+  --cc-term-bg: #071f1f;
+  --cc-term-line: #2e6262;
+}
+
+:where(.dark) .cc-shield,
+:where(.dark) .cc-bars,
+:where(.dark) .cc-network {
+  --cc-bg: #172121;
+}
+
+.cc-orbit {
+  position: absolute;
+  right: -15%;
+  top: -75%;
+  width: 330px;
+  height: 330px;
+  border: 1px solid var(--cc-orbit);
+  border-radius: 50%;
+}
+
+.cc-badge {
+  position: absolute;
+  right: 18px;
+  bottom: 17px;
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 8px;
+  background: var(--cc-badge-bg);
+  color: var(--cc-brand);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.03);
+}
+
+.cc-badge > svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* window: shared by the code editor and the chart preview */
+.cc-window {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  width: 235px;
+  height: 143px;
+  overflow: hidden;
+  border: 1px solid var(--cc-term-line);
+  border-radius: 8px;
+  background: var(--cc-term-bg);
+  box-shadow: 0 9px 14px rgb(13 51 51 / 0.13);
+  transform: translateX(-50%) rotate(-5deg);
+}
+
+.cc-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 23px;
+  padding-inline: 10px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
+}
+
+.cc-window-bar > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cc-term-muted);
+}
+
+.cc-window-bar > span {
+  margin-left: 15px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 7px;
+  color: var(--cc-term-muted);
+}
+
+.cc-window code {
+  display: block;
+  padding: 12px 17px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  line-height: 1.8;
+  color: var(--cc-term-text);
+  white-space: nowrap;
+}
+
+.cc-window code > span {
+  color: var(--cc-term-key);
+}
+
+.cc-window code > b {
+  font-weight: 400;
+  color: var(--cc-term-value);
+}
+
+/* light window tilted the other way, used for the scatter plot */
+.cc-window--paper {
+  width: 221px;
+  border-color: var(--cc-paper-line);
+  background: var(--cc-paper);
+  transform: translateX(-50%) rotate(5deg);
+}
+
+.cc-window--paper .cc-window-bar {
+  border-color: var(--cc-paper-rule);
+}
+
+.cc-window--paper .cc-window-bar > i {
+  background: var(--cc-soft);
+}
+
+.cc-plot {
+  position: absolute;
+  inset: 34px 18px 22px 22px;
+  border-bottom: 1px solid var(--cc-paper-line);
+  border-left: 1px solid var(--cc-paper-line);
+}
+
+.cc-plot > i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cc-soft);
+}
+
+.cc-plot > i:nth-child(1) { left: 6%; bottom: 12%; }
+.cc-plot > i:nth-child(2) { left: 18%; bottom: 30%; }
+.cc-plot > i:nth-child(3) { left: 29%; bottom: 20%; }
+.cc-plot > i:nth-child(4) { left: 41%; bottom: 46%; }
+.cc-plot > i:nth-child(5) { left: 53%; bottom: 38%; }
+.cc-plot > i:nth-child(6) { left: 64%; bottom: 62%; }
+.cc-plot > i:nth-child(7) { left: 76%; bottom: 55%; }
+.cc-plot > i:nth-child(8) {
+  left: 88%;
+  bottom: 80%;
+  background: var(--cc-brand);
+}
+
+.cc-plot > span {
+  position: absolute;
+  left: 2%;
+  bottom: 10%;
+  width: 104%;
+  border-top: 2px solid var(--cc-brand);
+  transform: rotate(-28deg);
+  transform-origin: left center;
+}
+
+/* tile: shared by the shield and cloud covers */
+.cc-tile {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 109px;
+  height: 109px;
+  border: 1px solid var(--cc-tile-line);
+  border-radius: 24px;
+  background: var(--cc-tile-bg);
+  box-shadow: 9px 10px 0 var(--cc-shadow);
+  transform: translateX(-50%) rotate(-8deg);
+}
+
+.cc-shield .cc-tile {
+  transform: translateX(-50%) rotate(6deg);
+}
+
+.cc-tile > svg {
+  width: 52px;
+  height: 52px;
+  stroke-width: 1.2;
+  color: var(--cc-brand);
+}
+
+.cc-ring {
+  position: absolute;
+  top: 3px;
+  right: -55px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--cc-ring);
+  border-radius: 50%;
+}
+
+.cc-ring--small {
+  top: 63px;
+  right: auto;
+  left: -53px;
+  width: 23px;
+  height: 23px;
+}
+
+.cc-shield-shape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 68px;
+  padding-bottom: 6px;
+  background: var(--cc-brand);
+  clip-path: polygon(50% 0, 100% 16%, 100% 54%, 50% 100%, 0 54%, 0 16%);
+}
+
+.cc-lock-shackle {
+  width: 16px;
+  height: 11px;
+  border: 3px solid var(--cc-tile-bg);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.cc-lock-body {
+  position: relative;
+  width: 24px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--cc-tile-bg);
+}
+
+.cc-lock-body::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 4px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--cc-brand);
+  transform: translateX(-50%);
+}
+
+/* bar chart */
+.cc-chart {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  width: 220px;
+  height: 115px;
+  transform: translateX(-50%);
+}
+
+.cc-chart > i {
+  width: 23px;
+  height: 27%;
+  border: 1px solid rgb(0 128 128 / 0.08);
+  border-radius: 4px 4px 0 0;
+  background: var(--cc-soft);
+}
+
+.cc-chart > i:nth-child(2) { height: 45%; }
+.cc-chart > i:nth-child(3) { height: 38%; }
+.cc-chart > i:nth-child(4) { height: 66%; }
+.cc-chart > i:nth-child(5) { height: 79%; }
+.cc-chart > i:nth-child(6) {
+  height: 100%;
+  background: var(--cc-brand);
+}
+
+.cc-chart > span {
+  position: absolute;
+  top: 4px;
+  left: -11px;
+  width: 230px;
+  height: 90px;
+  border-top: 2px solid var(--cc-brand);
+  border-radius: 50%;
+  transform: rotate(-28deg);
+}
+
+/* neural network */
+.cc-net {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  width: 230px;
+  height: 136px;
+  transform: translateX(-50%) rotate(-4deg);
+}
+
+.cc-net line {
+  stroke: var(--cc-ring);
+  stroke-width: 1;
+}
+
+.cc-net circle {
+  fill: var(--cc-tile-bg);
+  stroke: var(--cc-brand);
+  stroke-width: 1.5;
+}
+
+.cc-net .cc-net-hot {
+  fill: var(--cc-brand);
+}
