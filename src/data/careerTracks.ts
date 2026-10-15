@@ -102,3 +102,6 @@ export const careerTracks: CareerTrack[] = [
     cover: "network",
   },
 ];
+
+/** Career path choices for sign-up and admin forms; stored on the profile as the track title. */
+export const careerPathOptions: string[] = careerTracks.map((track) => track.title);

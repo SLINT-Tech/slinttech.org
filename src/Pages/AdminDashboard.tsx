@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatsSkeletonLoader, TableSkeletonLoader } from '../Components/SkeletonLoader';
 import { useDebounce } from '../hooks/useDebounce';
 import Navigation from '../Components/Navigation';
+import { careerPathOptions } from '../data/careerTracks';
 import { apiGet, apiPost, apiPut, apiDelete } from '../lib/api';
 
 interface UserProfile {
@@ -35,15 +36,6 @@ interface MentorOption {
   specialization: string;
 }
 
-const courseOptions = [
-  'Full Stack Development',
-  'Frontend Development',
-  'Backend Development',
-  'Mobile Development',
-  'Machine Learning/AI',
-  'Data Science',
-  'UI/UX Design'
-];
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
@@ -1067,11 +1059,16 @@ const AdminDashboard = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Career Path</label>
                       <select
-                        value={editingUser.careerPath}
+                        value={editingUser.careerPath ?? ''}
                         onChange={(e) => setEditingUser({ ...editingUser, careerPath: e.target.value })}
                         className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                       >
-                        {courseOptions.map(option => (
+                        <option value="">Not set</option>
+                        {/* members who joined before the six tracks keep their original path until an admin changes it */}
+                        {editingUser.careerPath && !careerPathOptions.includes(editingUser.careerPath) && (
+                          <option value={editingUser.careerPath}>{editingUser.careerPath} (no longer offered)</option>
+                        )}
+                        {careerPathOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
                         ))}
                       </select>
@@ -1533,7 +1530,7 @@ const AdminDashboard = () => {
                     className="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 focus:border-[#008080] dark:focus:border-teal-400 focus:ring-2 focus:ring-[#008080]/20 dark:focus:ring-teal-400/20 focus:outline-none transition-colors"
                   >
                     <option value="">Select career path</option>
-                    {courseOptions.map(option => (
+                    {careerPathOptions.map(option => (
                       <option key={option} value={option}>{option}</option>
                     ))}
                   </select>

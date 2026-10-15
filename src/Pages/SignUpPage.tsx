@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import FormSelect, { type FormSelectOption } from '../Components/FormSelect';
 import Toast from '../Components/Toast';
 import Header from '../Sections/Header';
+import { careerPathOptions } from '../data/careerTracks';
 import { buildApiUrl } from '../lib/api';
 
 type MemberRole = 'Mentee' | 'Mentor';
@@ -19,15 +20,7 @@ const MEMBERSHIP_CATEGORY_OPTIONS: FormSelectOption[] = [
   { value: 'Volunteer', label: 'Volunteer' },
 ];
 
-const CAREER_PATH_OPTIONS: FormSelectOption[] = [
-  'Full Stack Development',
-  'Frontend Development',
-  'Backend Development',
-  'Mobile Development',
-  'Machine Learning/AI',
-  'Data Science',
-  'UI/UX Design',
-].map(path => ({ value: path, label: path }));
+const CAREER_PATH_OPTIONS: FormSelectOption[] = careerPathOptions.map(path => ({ value: path, label: path }));
 
 const labelClassName = 'block text-gray-700 dark:text-gray-300 font-medium mb-2 text-sm';
 
