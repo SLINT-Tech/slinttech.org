@@ -43,11 +43,11 @@ const CoursesSection: React.FC = () => {
               <CareerCover variant={track.cover} />
 
               <div className="flex flex-1 flex-col p-6">
-                <div className="flex items-center justify-between gap-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
                   <span className="font-semibold tracking-wide text-[#006666] uppercase dark:text-teal-400">
                     {track.category}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-gray-600 dark:text-gray-300">
                     <Clock className="h-4 w-4" aria-hidden="true" />
                     {track.duration}
                   </span>
@@ -68,11 +68,13 @@ const CoursesSection: React.FC = () => {
                   </p>
                 )}
 
-                <div className="mt-4 mb-6 flex flex-wrap gap-1.5">
+                <ul role="list" aria-label="Skills" className="mt-4 mb-6 flex flex-wrap gap-1.5">
                   {track.skills.map((skill) => (
-                    <SkillBadge key={skill} skill={skill} />
+                    <li key={skill}>
+                      <SkillBadge skill={skill} />
+                    </li>
                   ))}
-                </div>
+                </ul>
 
                 <button
                   type="button"
@@ -106,7 +108,7 @@ const CoursesSection: React.FC = () => {
             className="mx-auto mt-7 flex max-w-full cursor-pointer items-center gap-2 rounded-full bg-[#008080] px-8 py-3.5 text-center font-semibold text-white transition-colors hover:bg-[#006666]"
           >
             Join our community
-            <ArrowRight className="h-5 w-5 shrink-0" />
+            <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />
           </button>
         </div>
       </div>
