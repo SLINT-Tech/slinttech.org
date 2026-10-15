@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Header from '../Sections/Header';
 
 function NotFoundPage() {
   const navigate = useNavigate();
@@ -11,7 +12,9 @@ function NotFoundPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col transition-colors">
+      <Header />
+      <main id="main" tabIndex={-1} className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6 lg:px-8 focus:outline-none">
       <div className="max-w-2xl w-full text-center">
         <div
           className={`transform transition-all duration-700 ${
@@ -93,6 +96,7 @@ function NotFoundPage() {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/10 rounded-full blur-3xl"></div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

@@ -3,12 +3,25 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { scrollToSection } from '../lib/scrollToSection';
 
-export default function Header() {
+interface HeaderProps {
+  // Pages shown to a signed-in user (pending approval, payment) pass this to show Logout instead of Join Us / Log in.
+  onLogout?: () => void;
+}
+
+const LOGIN_PATHS = ['/login', '/mentor/login', '/admin/login'];
+
+export default function Header({ onLogout }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
   const onSignup = location.pathname === '/signup';
+  const onLoginPage = LOGIN_PATHS.includes(location.pathname);
+  // Offer the other half of the sign-in pair: Log in on the sign-up page, Join Us everywhere else.
+  const actionTo = onSignup ? '/login' : '/signup';
+  const actionLabel = onSignup ? 'Log in' : 'Join Us';
+  const logoutClass =
+    "cursor-pointer rounded-full px-5 py-2.5 font-semibold text-[#008080] transition-colors hover:bg-gray-100 dark:text-teal-400 dark:hover:bg-gray-800";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -86,12 +99,18 @@ export default function Header() {
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <Link
-              to={onSignup ? '/login' : '/signup'}
-              className="rounded-full bg-[#008080] px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#006666]"
-            >
-              {onSignup ? 'Log in' : 'Join Us'}
-            </Link>
+            {onLogout ? (
+              <button type="button" onClick={onLogout} className={logoutClass}>
+                Logout
+              </button>
+            ) : (
+              <Link
+                to={actionTo}
+                className="rounded-full bg-[#008080] px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#006666]"
+              >
+                {actionLabel}
+              </Link>
+            )}
           </div>
 
           {/* Mobile buttons */}
@@ -125,15 +144,32 @@ export default function Header() {
               <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className={navLinkClass}>Mentorship</a>
               <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} className={navLinkClass}>Contact</a>
               <div className="flex flex-col space-y-3 border-t border-gray-200 pt-4 dark:border-gray-800">
-                <Link to="/login" className={`${navLinkClass} text-left`} onClick={() => setIsMenuOpen(false)}>Login</Link>
-                <Link
-                  to={onSignup ? '/login' : '/signup'}
-                  className="flex cursor-pointer items-center justify-center rounded-full bg-[#008080] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#006666]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Join Us
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+                {onLogout ? (
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center justify-center rounded-full bg-[#008080] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#006666]"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onLogout();
+                    }}
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <>
+                    {!onSignup && !onLoginPage && (
+                      <Link to="/login" className={`${navLinkClass} text-left`} onClick={() => setIsMenuOpen(false)}>Login</Link>
+                    )}
+                    <Link
+                      to={actionTo}
+                      className="flex cursor-pointer items-center justify-center rounded-full bg-[#008080] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#006666]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {actionLabel}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

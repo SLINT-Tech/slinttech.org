@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PageLoader } from '../Components/SkeletonLoader';
+import Header from '../Sections/Header';
 import { apiPost } from '../lib/api';
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
@@ -209,31 +210,15 @@ const PaymentWallPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-      {/* Header */}
-      <header className="bg-white/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-2xl transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-              <span className="text-xl text-[#008080] dark:text-[#008080] hidden md:block transition-colors">
-                <span className="font-bold">SLINT</span><span className="ml-[1.5px]">Tech</span>
-              </span>
-            </Link>
-            <button
-              onClick={() => {
-                signOut();
-                navigate('/login');
-              }}
-              className="text-[#008080] dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium cursor-pointer transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+        onLogout={() => {
+          signOut();
+          navigate('/login');
+        }}
+      />
 
       {/* Main Content */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main id="main" tabIndex={-1} className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 focus:outline-none">
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-900/30 p-8 transition-colors">
           {/* Header */}
           <div className="text-center mb-8">
@@ -364,7 +349,7 @@ const PaymentWallPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {paymentStatus === 'verifying' && (
         <div className="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors">
