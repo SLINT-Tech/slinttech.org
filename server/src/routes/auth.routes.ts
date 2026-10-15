@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { BlobServiceClient } from "@azure/storage-blob";
@@ -270,11 +271,11 @@ router.post(
       });
     }
 
+    // The user id is generated here so the contract is stored under its final
+    // name before the user row exists.
     const containerClient = getContainerClient();
-    const tempUserId = `temp_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 9)}`;
-    const blobName = `contract_${tempUserId}.pdf`;
+    const newUserId = randomUUID();
+    const blobName = `contract_${newUserId}_${Date.now()}.pdf`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
     await blockBlobClient.uploadData(file.buffer, {
@@ -287,40 +288,36 @@ router.post(
     const contractFileUrl = blockBlobClient.url;
 
     // Create user with contract URL (atomic operation)
-    const passwordHash = await bcrypt.hash(password, 10);
+    let newUser: typeof userProfiles.$inferSelect;
+    try {
+      const passwordHash = await bcrypt.hash(password, 10);
 
-    const [newUser] = await db
-      .insert(userProfiles)
-      .values({
-        email: sanitizedEmail,
-        passwordHash,
-        fullName: sanitizedFullName,
-        membershipCategory,
-        careerPath: careerPath ? sanitizeInput(careerPath) : null,
-        specialization: specialization ? sanitizeInput(specialization) : null,
-        role: userRole,
-        status: "pending",
-        membershipEnabled: false,
-        membershipPaid: false,
-        contractFileUrl, // Contract URL included in initial creation
-      })
-      .returning();
-
-    // Rename blob with actual user ID for better organization
-    const finalBlobName = `contract_${newUser.id}_${Date.now()}.pdf`;
-    const finalBlockBlobClient =
-      containerClient.getBlockBlobClient(finalBlobName);
-
-    // Copy to new name and delete old
-    await finalBlockBlobClient.beginCopyFromURL(contractFileUrl);
-    await blockBlobClient.delete();
-
-    // Update user with final contract URL
-    const finalContractUrl = finalBlockBlobClient.url;
-    await db
-      .update(userProfiles)
-      .set({ contractFileUrl: finalContractUrl })
-      .where(eq(userProfiles.id, newUser.id));
+      [newUser] = await db
+        .insert(userProfiles)
+        .values({
+          id: newUserId,
+          email: sanitizedEmail,
+          passwordHash,
+          fullName: sanitizedFullName,
+          membershipCategory,
+          careerPath: careerPath ? sanitizeInput(careerPath) : null,
+          specialization: specialization ? sanitizeInput(specialization) : null,
+          role: userRole,
+          status: "pending",
+          membershipEnabled: false,
+          membershipPaid: false,
+          contractFileUrl, // Contract URL included in initial creation
+        })
+        .returning();
+    } catch (insertError) {
+      // Remove the uploaded contract so a failed signup leaves no orphan blob
+      try {
+        await blockBlobClient.deleteIfExists();
+      } catch (cleanupError) {
+        console.error("Failed to remove contract after signup error:", cleanupError);
+      }
+      throw insertError;
+    }
 
     const appUrl = process.env.APP_URL || "https://slinttech.netlify.app";
     const loginLink =
