@@ -8,6 +8,7 @@ import Footer from '../Sections/Footer';
 import GetStartedSection from '../Sections/Getstartedsection';
 import Header from '../Sections/Header';
 import HeroSection from '../Sections/Herosection';
+import LearningPartnersSection from '../Sections/LearningPartnersSection';
 import MissionVisionSection from '../Sections/MissionVisionSection';
 import NewsletterSection from '../Sections/NewsletterSection';
 import NonprofitVerificationSection from '../Sections/NonprofitVerificationSection';
@@ -51,6 +52,9 @@ const HomePage = () => {
 
         {/* Courses Section */}
         <CoursesSection />
+
+        {/* Learning Partners Section */}
+        <LearningPartnersSection />
 
         {/* Nonprofit Verification Section */}
         <NonprofitVerificationSection />
