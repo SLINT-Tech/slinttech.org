@@ -29,13 +29,6 @@ const HomePage = () => {
 
   return (
     <div className="bg-[#f8f8f8] dark:bg-gray-950 transition-colors">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-full focus:bg-[#008080] focus:px-5 focus:py-2.5 focus:font-semibold focus:text-white"
-      >
-        Skip to content
-      </a>
-
       {/* Header */}
       <Header />
 
