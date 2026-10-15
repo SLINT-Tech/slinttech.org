@@ -24,7 +24,7 @@ feature/ST-<n>-<short-slug>  →  testing  →  staging  →  azure-migration (p
 
 `testing`, `staging` and `azure-migration` are protected: nobody, including admins, can push to them directly or skip the required checks. Hotfixes follow the same path.
 
-Login does not work yet on the testing and staging sites: the API currently accepts requests only from slinttech.org. A separate testing and staging API is planned.
+Login does not work on the testing and staging sites: the API accepts browser requests only from the production site.
 
 ## Project layout
 
