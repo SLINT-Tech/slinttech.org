@@ -14,6 +14,7 @@ import {
 import { asyncHandler } from "../middleware/error.middleware.js";
 import { queueEmail } from "../jobs/email.producer.js";
 import { notifyAdminsNewUserRegistered } from "../services/notification.service.js";
+import { resolveContractBlobName } from "../services/contract-storage.service.js";
 
 const router = Router();
 
@@ -714,10 +715,22 @@ router.post(
       });
     }
 
-    if (!contractFileUrl.startsWith("https://")) {
+    if (!AZURE_STORAGE_CONNECTION_STRING) {
+      return res.status(500).json({
+        error: "Server configuration error",
+        details: "File storage service is not properly configured",
+      });
+    }
+
+    // Only accept a contract this user uploaded to our container
+    const blobName =
+      typeof contractFileUrl === "string"
+        ? resolveContractBlobName(contractFileUrl, getContainerClient().url)
+        : null;
+    if (!blobName || !blobName.startsWith(`contract_${userId}_`)) {
       return res.status(400).json({
         error: "Invalid contract URL",
-        details: "Contract file URL must be a secure HTTPS URL",
+        details: "Contract file URL must point to your uploaded contract",
       });
     }
 
