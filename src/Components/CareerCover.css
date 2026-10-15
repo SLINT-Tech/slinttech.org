@@ -32,11 +32,11 @@
   color: var(--cc-ink);
 }
 
-/* cream and teal covers alternate so a row of cards does not read as one block */
+/* teal and neutral grey covers alternate, matching the hero cards, so a row does not read as one block */
 .cc-shield,
 .cc-bars,
 .cc-network {
-  --cc-bg: #efefd7;
+  --cc-bg: #eef0f0;
   --cc-orbit: rgb(0 128 128 / 0.16);
 }
 
