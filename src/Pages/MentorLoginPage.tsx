@@ -1,7 +1,8 @@
-import { ArrowRight, Eye, EyeOff, X } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Toast from '../Components/Toast';
+import Header from '../Sections/Header';
 import { apiPost } from '../lib/api';
 
 const MentorLoginPage = () => {
@@ -143,23 +144,9 @@ const MentorLoginPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] dark:bg-gray-950 transition-colors">
-      <header className="bg-white/95 dark:bg-gray-900/95 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-xl transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <img src="/assets/logo.svg" alt="Logo" className="w-10 h-10" />
-            </Link>
-            <Link
-              to="/"
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-            >
-              <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main id="main" tabIndex={-1} className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 focus:outline-none">
         <div className="bg-white dark:bg-gray-900 rounded-xl p-8 transition-colors">
           <div className="text-center mb-8">
             <img
@@ -234,7 +221,7 @@ const MentorLoginPage = () => {
             </button>
           </form>
         </div>
-      </div>
+      </main>
 
       {toast && (
         <Toast
