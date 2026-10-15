@@ -30,7 +30,6 @@ interface MenteeData {
   careerPath: string | null;
   status: string;
   progress: number;
-  contractFileUrl: string | null;
   communityLink: string | null;
   joinedDate: string;
   lastActive: string;
