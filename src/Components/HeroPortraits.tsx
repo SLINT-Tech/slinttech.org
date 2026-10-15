@@ -15,8 +15,6 @@ const portraits = [
 type PortraitIndex = 0 | 1;
 
 const VISIBLE_MS = 6500;
-// three full cycles (first, second, back to first) end on the first portrait
-const MAX_SWITCHES = portraits.length * 3;
 const STORAGE_KEY = 'heroPortrait';
 
 // rendered widths: 320px on phones, 24rem from sm, about 26rem at xl
@@ -45,16 +43,13 @@ const HeroPortraits = () => {
     const [reduceMotion] = useState(prefersReducedMotion);
     const [staticPortrait] = useState<PortraitIndex>(readNextPortrait);
     const [active, setActive] = useState<PortraitIndex>(0);
-    const [switches, setSwitches] = useState(0);
     const [userPaused, setUserPaused] = useState(false);
-    const [hovered, setHovered] = useState(false);
-    const [focused, setFocused] = useState(false);
     const [tabHidden, setTabHidden] = useState(
         () => typeof document !== 'undefined' && document.hidden,
     );
 
-    const finished = switches >= MAX_SWITCHES;
-    const running = !reduceMotion && !userPaused && !finished && !hovered && !focused && !tabHidden;
+    // keeps changing until someone presses pause (WCAG 2.2.2); a background tab also pauses it
+    const running = !reduceMotion && !userPaused && !tabHidden;
 
     useEffect(() => {
         if (!reduceMotion) return;
@@ -75,24 +70,12 @@ const HeroPortraits = () => {
         if (!running) return;
         const timer = window.setTimeout(() => {
             setActive((current) => (current === 0 ? 1 : 0));
-            setSwitches((count) => count + 1);
         }, VISIBLE_MS);
         return () => window.clearTimeout(timer);
     }, [running, active]);
 
-    const isPlaying = !userPaused && !finished;
-
-    const toggle = () => {
-        if (isPlaying) {
-            setUserPaused(true);
-            return;
-        }
-        // an explicit Play overrides the hover and focus pause until the next enter
-        setUserPaused(false);
-        setHovered(false);
-        setFocused(false);
-        if (finished) setSwitches(0);
-    };
+    const isPlaying = !userPaused;
+    const toggle = () => setUserPaused((paused) => !paused);
 
     const sizing =
         'w-full lg:h-[38rem] lg:w-auto lg:object-contain lg:object-bottom xl:h-[41rem]';
@@ -118,15 +101,7 @@ const HeroPortraits = () => {
     }
 
     return (
-        <div
-            className={box}
-            onPointerEnter={() => setHovered(true)}
-            onPointerLeave={() => setHovered(false)}
-            onFocus={() => setFocused(true)}
-            onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
-            }}
-        >
+        <div className={box}>
             {portraits.map((portrait, index) => {
                 const visible = active === index;
                 const isFirst = index === 0;
