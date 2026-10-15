@@ -723,11 +723,18 @@ router.post(
     }
 
     // Only accept a contract this user uploaded to our container
+    const containerClient = getContainerClient();
     const blobName =
       typeof contractFileUrl === "string"
-        ? resolveContractBlobName(contractFileUrl, getContainerClient().url)
+        ? resolveContractBlobName(contractFileUrl, containerClient.url)
         : null;
-    if (!blobName || !blobName.startsWith(`contract_${userId}_`)) {
+    const blobClient = blobName ? containerClient.getBlobClient(blobName) : null;
+    if (
+      !blobName ||
+      !blobClient ||
+      !blobName.startsWith(`contract_${userId}_`) ||
+      !(await blobClient.exists())
+    ) {
       return res.status(400).json({
         error: "Invalid contract URL",
         details: "Contract file URL must point to your uploaded contract",
@@ -737,7 +744,8 @@ router.post(
     const result = await db
       .update(userProfiles)
       .set({
-        contractFileUrl,
+        // store the SDK's URL rather than the submitted string
+        contractFileUrl: blobClient.url,
         updatedAt: new Date(),
       })
       .where(eq(userProfiles.id, userId))
