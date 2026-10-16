@@ -5,7 +5,8 @@ export type CareerCoverVariant =
   | "cloud"
   | "bars"
   | "trend"
-  | "network";
+  | "network"
+  | "pipeline";
 
 export interface CareerTrack {
   id: string;
@@ -19,10 +20,12 @@ export interface CareerTrack {
   skills: string[];
   duration: string;
   specialisations?: string[];
+  /** industry platforms and tools the track covers */
+  platforms?: string[];
   cover: CareerCoverVariant;
 }
 
-/** The career tracks we offer, in display order. */
+/** The career tracks we offer, in display order (the section shows the first six, then "Show more"). */
 export const careerTracks: CareerTrack[] = [
   {
     id: "software-engineering",
@@ -63,14 +66,16 @@ export const careerTracks: CareerTrack[] = [
     cover: "cloud",
   },
   {
-    id: "data-analysis",
-    slug: "data-analysis",
-    title: "Data Analysis",
+    id: "data-engineering",
+    slug: "data-engineering",
+    title: "Data Engineering",
     category: "Data",
-    summary: "Transform raw data into actionable business insights.",
-    skills: ["Excel", "SQL", "Visualization", "Statistics"],
-    duration: "4 months",
-    cover: "bars",
+    summary:
+      "Build the pipelines that collect, clean and move data at scale, so analysts and data scientists can trust what they work with.",
+    skills: ["Python", "SQL", "ETL Pipelines", "Apache Spark", "Airflow", "Data Warehousing"],
+    platforms: ["Snowflake", "Microsoft Fabric", "Databricks", "dbt", "Google BigQuery"],
+    duration: "6 months",
+    cover: "pipeline",
   },
   {
     id: "data-science",
@@ -100,6 +105,16 @@ export const careerTracks: CareerTrack[] = [
     ],
     duration: "6 months",
     cover: "network",
+  },
+  {
+    id: "data-analysis",
+    slug: "data-analysis",
+    title: "Data Analysis",
+    category: "Data",
+    summary: "Transform raw data into actionable business insights.",
+    skills: ["Excel", "SQL", "Visualization", "Statistics"],
+    duration: "4 months",
+    cover: "bars",
   },
 ];
 
