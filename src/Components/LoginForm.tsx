@@ -61,7 +61,7 @@ const LoginForm = ({
         </div>
 
         <div>
-          <div className="mb-2 flex items-baseline justify-between gap-3">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
@@ -100,7 +100,7 @@ const LoginForm = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#008080] px-6 font-semibold text-white transition-colors hover:bg-[#006666] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:outline-teal-400"
+          className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#008080] px-6 py-2 font-semibold text-white transition-colors hover:bg-[#006666] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:outline-teal-400"
         >
           {isSubmitting ? (
             <>
@@ -119,13 +119,13 @@ const LoginForm = ({
       {signupTo && (
         <>
           <div className="my-8 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+            <span aria-hidden="true" className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
             New to SLINT Tech?
-            <span className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+            <span aria-hidden="true" className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
           </div>
           <Link
             to={signupTo}
-            className="flex h-12 w-full items-center justify-center rounded-lg border border-gray-300 font-semibold text-gray-900 transition-colors hover:border-[#008080] hover:text-[#006666] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] dark:border-gray-700 dark:text-white dark:hover:border-teal-400 dark:hover:text-teal-300 dark:focus-visible:outline-teal-400"
+            className="flex min-h-12 w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-center font-semibold text-gray-900 transition-colors hover:border-[#008080] hover:text-[#006666] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] dark:border-gray-700 dark:text-white dark:hover:border-teal-400 dark:hover:text-teal-300 dark:focus-visible:outline-teal-400"
           >
             Create an account
           </Link>
