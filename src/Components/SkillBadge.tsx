@@ -39,6 +39,7 @@ import {
   SiNginx,
   SiJenkins,
   SiTerraform,
+  SiApacheairflow,
 } from "react-icons/si";
 import { TbBrandReactNative, TbBrandCpp } from "react-icons/tb";
 import {
@@ -128,6 +129,7 @@ const skillBrandColors: Record<string, string> = {
   Tableau: "#e97627",
   Jupyter: "#f37626",
   "Apache Spark": "#e25a1c",
+  Airflow: "#017cee",
   Ansible: "#ee0000",
   "Android Studio": "#3ddc84",
   Metasploit: "#1a9cff",
@@ -276,6 +278,9 @@ const skillIconMap: Record<string, React.ReactNode> = {
   "Predictive Modeling": <FaChartBar className="w-3 h-3" />,
   "Big Data": <FaDatabase className="w-3 h-3" />,
   ETL: <FaDatabase className="w-3 h-3" />,
+  "ETL Pipelines": <FaDatabase className="w-3 h-3" />,
+  "Data Warehousing": <FaDatabase className="w-3 h-3" />,
+  Airflow: <SiApacheairflow className="w-3 h-3" />,
   "Design Thinking": <FaCode className="w-3 h-3" />,
   "Color Theory": <FaCode className="w-3 h-3" />,
   Composition: <FaCode className="w-3 h-3" />,

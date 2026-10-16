@@ -4,6 +4,7 @@ import {
   BrainCircuit,
   Cloud,
   Code2,
+  Database,
   LineChart,
   ShieldCheck,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const badgeIcons: Record<CareerCoverVariant, React.ReactNode> = {
   bars: <BarChart3 />,
   trend: <LineChart />,
   network: <BrainCircuit />,
+  pipeline: <Database />,
 };
 
 const CodeArt = () => (
@@ -140,6 +142,36 @@ const NetworkArt = () => {
   );
 };
 
+/** Side of a database cylinder: open top edge, body and rounded bottom. */
+const cylinderSide = (cx: number, top: number, rx: number, ry: number, height: number) =>
+  `M${cx - rx},${top} v${height} a${rx},${ry} 0 0 0 ${rx * 2},0 v${-height}`;
+
+const PIPELINE_SOURCES: readonly Point[] = [
+  [34, 22],
+  [34, 60],
+  [34, 98],
+];
+
+const PipelineArt = () => (
+  <svg className="cc-pipe" viewBox="0 0 230 136" focusable="false">
+    {PIPELINE_SOURCES.map(([cx, top]) => (
+      <path key={`flow-${top}`} className="cc-pipe-flow" d={`M${cx + 18},${top + 10} C80,${top + 10} 72,68 98,68`} />
+    ))}
+    <path className="cc-pipe-flow" d="M140,68 H166" />
+    {PIPELINE_SOURCES.map(([cx, top]) => (
+      <g key={`source-${top}`}>
+        <path d={cylinderSide(cx, top, 16, 5, 16)} />
+        <ellipse cx={cx} cy={top} rx={16} ry={5} />
+      </g>
+    ))}
+    <rect x={98} y={50} width={42} height={36} rx={8} />
+    <path className="cc-pipe-mark" d="M108,62 h22 M108,68 h16 M108,74 h20" />
+    <path d={cylinderSide(194, 40, 24, 7, 48)} />
+    <path className="cc-pipe-mark" d="M170,56 a24,7 0 0 0 48,0 M170,72 a24,7 0 0 0 48,0" />
+    <ellipse className="cc-pipe-hot" cx={194} cy={40} rx={24} ry={7} />
+  </svg>
+);
+
 const arts: Record<CareerCoverVariant, React.FC> = {
   code: CodeArt,
   shield: ShieldArt,
@@ -147,6 +179,7 @@ const arts: Record<CareerCoverVariant, React.FC> = {
   bars: BarsArt,
   trend: TrendArt,
   network: NetworkArt,
+  pipeline: PipelineArt,
 };
 
 /** Decorative illustrated cover for a career track card. */

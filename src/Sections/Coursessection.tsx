@@ -1,12 +1,17 @@
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, ChevronDown, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import React from "react";
+import React, { useState } from "react";
 import { CareerCover } from "../Components/CareerCover";
 import { SkillBadge } from "../Components/SkillBadge";
 import { careerTracks } from "../data/careerTracks";
 
+const INITIAL_VISIBLE_TRACKS = 6;
+
 const CoursesSection: React.FC = () => {
   const navigate = useNavigate();
+  const [showAllTracks, setShowAllTracks] = useState(false);
+  const hasMoreTracks = careerTracks.length > INITIAL_VISIBLE_TRACKS;
+  const visibleTracks = showAllTracks ? careerTracks : careerTracks.slice(0, INITIAL_VISIBLE_TRACKS);
 
   const handleJoinCommunity = () => {
     navigate("/signup");
@@ -33,12 +38,12 @@ const CoursesSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {careerTracks.map((track) => (
+        {/* Cards: a wrapping row so a short last row sits centred instead of in the first column */}
+        <div id="career-track-list" className="mt-12 flex flex-wrap justify-center gap-6">
+          {visibleTracks.map((track) => (
             <article
               key={track.id}
-              className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 motion-safe:hover:-translate-y-1 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
+              className="group flex w-full flex-col overflow-hidden rounded-2xl md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] bg-white ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 motion-safe:hover:-translate-y-1 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
             >
               <CareerCover variant={track.cover} />
 
@@ -67,6 +72,12 @@ const CoursesSection: React.FC = () => {
                     {track.specialisations.join(", ")}
                   </p>
                 )}
+                {track.platforms && (
+                  <p className="mt-3 text-base text-gray-700 dark:text-gray-200">
+                    <span className="font-semibold">Platforms:</span>{" "}
+                    {track.platforms.join(", ")}
+                  </p>
+                )}
 
                 <ul role="list" aria-label="Skills" className="mt-4 mb-6 flex flex-wrap gap-1.5">
                   {track.skills.map((skill) => (
@@ -92,6 +103,24 @@ const CoursesSection: React.FC = () => {
             </article>
           ))}
         </div>
+
+        {hasMoreTracks && (
+          <div className="mt-10 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAllTracks((shown) => !shown)}
+              aria-expanded={showAllTracks}
+              aria-controls="career-track-list"
+              className="flex cursor-pointer items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#008080] ring-1 ring-[#008080]/40 transition-colors hover:bg-[#008080]/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] dark:text-teal-400 dark:ring-teal-400/40 dark:hover:bg-teal-400/[0.08] dark:focus-visible:outline-teal-400"
+            >
+              {showAllTracks ? "Show fewer paths" : "Show more paths"}
+              <ChevronDown
+                className={`h-5 w-5 transition-transform ${showAllTracks ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        )}
 
         {/* Closing CTA */}
         <div className="mt-16 overflow-hidden rounded-3xl bg-[#008080]/[0.08] p-8 text-center sm:p-12 dark:bg-teal-400/[0.08]">
