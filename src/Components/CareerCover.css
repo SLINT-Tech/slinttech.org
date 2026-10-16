@@ -34,7 +34,7 @@
 
 /* teal and neutral grey covers alternate, matching the hero cards, so a row does not read as one block */
 .cc-shield,
-.cc-bars,
+.cc-pipeline,
 .cc-network {
   --cc-bg: #eef0f0;
   --cc-orbit: rgb(0 128 128 / 0.16);
@@ -59,7 +59,7 @@
 }
 
 :where(.dark) .cc-shield,
-:where(.dark) .cc-bars,
+:where(.dark) .cc-pipeline,
 :where(.dark) .cc-network {
   --cc-bg: #172121;
 }
@@ -353,5 +353,40 @@
 }
 
 .cc-net .cc-net-hot {
+  fill: var(--cc-brand);
+}
+
+.cc-pipe {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  width: 230px;
+  height: 136px;
+  transform: translateX(-50%) rotate(-4deg);
+}
+
+.cc-pipe path,
+.cc-pipe ellipse,
+.cc-pipe rect {
+  fill: var(--cc-tile-bg);
+  stroke: var(--cc-brand);
+  stroke-width: 1.5;
+}
+
+.cc-pipe .cc-pipe-flow {
+  fill: none;
+  stroke: var(--cc-ring);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.cc-pipe .cc-pipe-mark {
+  fill: none;
+  stroke: var(--cc-soft);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.cc-pipe .cc-pipe-hot {
   fill: var(--cc-brand);
 }
