@@ -6,7 +6,7 @@ import { db } from '../db/index.js';
 import { userProfiles } from '../db/schema.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
 import { asyncHandler } from '../middleware/error.middleware.js';
-import { isLegacyCloudinaryUrl, resolveContractBlobName } from '../services/contract-storage.service.js';
+import { resolveContractBlobName } from '../services/contract-storage.service.js';
 
 const router = Router();
 
@@ -199,27 +199,15 @@ router.get('/download-contract', verifyToken, asyncHandler(async (req: Request, 
     return res.status(404).json({ error: 'Contract not found' });
   }
 
-  let fileBuffer: Buffer;
-  if (isLegacyCloudinaryUrl(user.contractFileUrl)) {
-    const storageResponse = await fetch(user.contractFileUrl, { redirect: 'error' });
+  const containerClient = getContainerClient();
+  const blobName = resolveContractBlobName(user.contractFileUrl, containerClient.url);
 
-    if (!storageResponse.ok) {
-      console.error('Storage fetch failed:', storageResponse.status, storageResponse.statusText);
-      throw new Error(`Failed to fetch file from storage. Status: ${storageResponse.status}`);
-    }
-
-    fileBuffer = Buffer.from(await storageResponse.arrayBuffer());
-  } else {
-    const containerClient = getContainerClient();
-    const blobName = resolveContractBlobName(user.contractFileUrl, containerClient.url);
-
-    if (!blobName) {
-      console.error('Stored contract URL is not in the contracts container for user:', targetUserId);
-      return res.status(404).json({ error: 'Contract not found' });
-    }
-
-    fileBuffer = await containerClient.getBlobClient(blobName).downloadToBuffer();
+  if (!blobName) {
+    console.error('Stored contract URL is not in the contracts container for user:', targetUserId);
+    return res.status(404).json({ error: 'Contract not found' });
   }
+
+  const fileBuffer = await containerClient.getBlobClient(blobName).downloadToBuffer();
 
   // Generate a clean filename
   const sanitizedName = user.fullName
