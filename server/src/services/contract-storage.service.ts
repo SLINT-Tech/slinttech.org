@@ -1,9 +1,6 @@
 // Contract files live in a private Azure Blob container and are read through
 // the SDK, so only links into that container are treated as stored contracts.
 
-// Contracts uploaded before the move to Azure; nothing writes new links here.
-const LEGACY_CLOUDINARY_PREFIX = "https://res.cloudinary.com/dj6wjzmt6/";
-
 const parseUrl = (value: string): URL | null => {
   try {
     return new URL(value);
@@ -48,6 +45,3 @@ export const resolveContractBlobName = (
 
   return blobName;
 };
-
-export const isLegacyCloudinaryUrl = (contractUrl: string): boolean =>
-  parseUrl(contractUrl)?.href.startsWith(LEGACY_CLOUDINARY_PREFIX) ?? false;
