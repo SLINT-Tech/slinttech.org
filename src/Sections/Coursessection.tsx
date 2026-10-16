@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronDown, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CareerCover } from "../Components/CareerCover";
 import { SkillBadge } from "../Components/SkillBadge";
 import { careerTracks } from "../data/careerTracks";
@@ -12,6 +12,20 @@ const CoursesSection: React.FC = () => {
   const [showAllTracks, setShowAllTracks] = useState(false);
   const hasMoreTracks = careerTracks.length > INITIAL_VISIBLE_TRACKS;
   const visibleTracks = showAllTracks ? careerTracks : careerTracks.slice(0, INITIAL_VISIBLE_TRACKS);
+  const firstRevealedTitleRef = useRef<HTMLHeadingElement>(null);
+  const focusRevealedTrack = useRef(false);
+
+  // The toggle sits after the list, so move focus to the first new card rather than leave it behind
+  useEffect(() => {
+    if (!showAllTracks || !focusRevealedTrack.current) return;
+    focusRevealedTrack.current = false;
+    firstRevealedTitleRef.current?.focus();
+  }, [showAllTracks]);
+
+  const toggleAllTracks = () => {
+    focusRevealedTrack.current = !showAllTracks;
+    setShowAllTracks(!showAllTracks);
+  };
 
   const handleJoinCommunity = () => {
     navigate("/signup");
@@ -40,7 +54,7 @@ const CoursesSection: React.FC = () => {
 
         {/* Cards: a wrapping row so a short last row sits centred instead of in the first column */}
         <div id="career-track-list" className="mt-12 flex flex-wrap justify-center gap-6">
-          {visibleTracks.map((track) => (
+          {visibleTracks.map((track, index) => (
             <article
               key={track.id}
               className="group flex w-full flex-col overflow-hidden rounded-2xl md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] bg-white ring-1 ring-gray-900/10 transition hover:ring-[#008080]/40 motion-safe:hover:-translate-y-1 dark:bg-white/[0.04] dark:ring-white/10 dark:hover:ring-teal-400/40"
@@ -58,7 +72,11 @@ const CoursesSection: React.FC = () => {
                   </span>
                 </div>
 
-                <h3 className="mt-3 text-xl leading-snug font-bold text-gray-900 dark:text-white">
+                <h3
+                  ref={index === INITIAL_VISIBLE_TRACKS ? firstRevealedTitleRef : undefined}
+                  tabIndex={index === INITIAL_VISIBLE_TRACKS ? -1 : undefined}
+                  className="mt-3 text-xl leading-snug font-bold text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#008080] dark:text-white dark:focus-visible:outline-teal-400"
+                >
                   {track.title}
                 </h3>
 
@@ -108,10 +126,10 @@ const CoursesSection: React.FC = () => {
           <div className="mt-10 flex justify-center">
             <button
               type="button"
-              onClick={() => setShowAllTracks((shown) => !shown)}
+              onClick={toggleAllTracks}
               aria-expanded={showAllTracks}
               aria-controls="career-track-list"
-              className="flex cursor-pointer items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#008080] ring-1 ring-[#008080]/40 transition-colors hover:bg-[#008080]/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] dark:text-teal-400 dark:ring-teal-400/40 dark:hover:bg-teal-400/[0.08] dark:focus-visible:outline-teal-400"
+              className="flex cursor-pointer items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#008080] ring-1 ring-[#008080] transition-colors hover:bg-[#008080]/[0.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#008080] dark:text-teal-400 dark:ring-teal-400 dark:hover:bg-teal-400/[0.08] dark:focus-visible:outline-teal-400"
             >
               {showAllTracks ? "Show fewer paths" : "Show more paths"}
               <ChevronDown
